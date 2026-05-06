@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>🌅 아침교실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Jua&display=swap" rel="stylesheet">
+<style>
+@font-face{
+  font-family:'KyoboHandwriting2019';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/KyoboHand.woff') format('woff');
+  font-weight:normal; font-display:swap;
+}
+@font-face{
+  font-family:'JejuStoneWall';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-EF@1.0/EF_jejudoldam.woff2') format('woff2');
+  font-weight:normal; font-display:swap;
+}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-1Thin.woff2') format('woff2');font-weight:100;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-2ExtraLight.woff2') format('woff2');font-weight:200;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-3Light.woff2') format('woff2');font-weight:300;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-4Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-6SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');font-weight:800;font-display:swap}
+@font-face{font-family:'Paperozi';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-9Black.woff2') format('woff2');font-weight:900;font-display:swap}
+/* ── 1. Variables (v2.4 파스텔 디자인 시스템) ───────── */
+:root{
+  color-scheme: light;
+  /* 파스텔 배경 */
+  --bg-cream:#FFF8EC; --bg-mint:#E8F7EE; --bg-sky:#E8F4FD;
+  --bg-pink:#FDECEF;  --bg-sun:#FFF6D6;
+  /* 강조 (카테고리별 1색) */
+  --acc-coral:#FF8A7A; --acc-sun:#FFC93C; --acc-grass:#6BCB77;
+  --acc-sky:#5BB6FF;   --acc-purple:#B084EB;
+  /* 호환 토큰 (기존 코드 유지용) */
+  --primary:#5BB6FF; --primary-dark:#3F95DB;
+  --secondary:#FFC93C; --success:#6BCB77; --danger:#FF6B6B;
+  --bg:var(--bg-cream); --bg2:var(--bg-sky);
+  --card:#FFFFFF; --card-empty:#FFFBF0;
+  /* 텍스트 (네이비/틸 — 검정 회피) */
+  --text:#1B3A57; --text-sub:#5A7A99;
+  --overlay:rgba(27,58,87,.45);
+  --popup-shadow:0 24px 60px rgba(27,58,87,.25);
+  --card-shadow:0 6px 20px rgba(91,182,255,.12);
+  --card-shadow-hover:0 12px 32px rgba(91,182,255,.22);
+  --radius:24px; --radius-sm:16px;
+  --fs-h1:clamp(26px,1.8vw,34px);
+  --fs-card-title:clamp(20px,1.35vw,26px);
+  --fs-body:clamp(18px,1.1vw,20px);
+  --fs-small:16px;
+  --fs-result:clamp(48px,4.5vw,84px);
+  --fs-emoji-md:clamp(36px,3vw,56px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Noto Sans KR','맑은 고딕',sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg-cream) 0%,var(--bg-sky) 60%,var(--bg-mint) 100%);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 90% 10%,rgba(255,201,60,.18),transparent 40%),radial-gradient(circle at 10% 90%,rgba(176,132,235,.14),transparent 40%);pointer-events:none;z-index:0}
+#app{position:relative;z-index:1}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;color:var(--text)}
+:focus-visible{outline:3px solid var(--acc-sky);outline-offset:2px;border-radius:8px}
+h1,h2,.popup-title,.card-title{font-family:'Jua','Noto Sans KR',sans-serif;letter-spacing:.5px}
+header h1,header .school,header .date-card{font-family:'Paperozi','JejuStoneWall','Jua','Noto Sans KR',sans-serif !important;letter-spacing:.5px}
+
+/* ── 1b. v2.4 신규 키프레임 ─────────────────────────── */
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes bounceIn{0%{transform:translateY(20px) scale(.92);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}75%{transform:rotate(-2deg)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 rgba(107,203,119,0)}50%{box-shadow:0 0 0 6px rgba(107,203,119,.35)}}
+@keyframes nameFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pop-tap:active{animation:pop .25s ease}
+.wiggle{animation:wiggle .45s ease}
+.handwriting{font-family:'KyoboHandwriting2019','Jua','Noto Sans KR',cursive !important;letter-spacing:.5px}
+
+/* ── 2. Layout ────────────────────────────────────── */
+#app{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;padding:14px 18px;gap:12px}
+header{display:flex;align-items:center;gap:14px;padding:10px 18px;background:rgba(255,255,255,.7);backdrop-filter:blur(10px);border-radius:var(--radius);box-shadow:var(--card-shadow);flex-wrap:wrap}
+header h1{font-size:var(--fs-h1);font-weight:900;display:flex;align-items:center;gap:8px}
+header .school{font-size:var(--fs-body);color:var(--text-sub);font-weight:500}
+header .date-card{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#fff,#F0F8FF);padding:12px 22px;border-radius:18px;box-shadow:var(--card-shadow);cursor:pointer;font-size:22px;font-weight:800;color:var(--primary);border:2px solid rgba(91,182,255,.25);transition:.2s}
+header .date-card:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+header .date-card .dow{color:var(--acc-coral);font-weight:900}
+header .date-card .ico{font-size:20px}
+/* 달력 팝업 */
+.cal-pop{display:flex;flex-direction:column;gap:14px}
+.cal-head{display:flex;align-items:center;justify-content:center;gap:12px;font-size:26px;font-weight:800;color:var(--primary)}
+.cal-head button{width:44px;height:44px;border-radius:12px;background:#F0F4FF;font-size:20px;font-weight:900}
+.cal-head button:hover{background:var(--primary);color:#fff}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dow{text-align:center;font-weight:800;font-size:16px;color:var(--text-sub);padding:8px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:20px;font-weight:700;cursor:pointer;background:#F8FAFF;transition:.15s}
+.cal-day:hover{background:var(--primary);color:#fff;transform:scale(1.05)}
+.cal-day.other{opacity:.3}
+.cal-day.today{background:#FFF3D6;border:2px solid var(--secondary)}
+.cal-day.selected{background:var(--primary);color:#fff;box-shadow:var(--card-shadow-hover)}
+.cal-day.sun{color:var(--acc-coral)}
+.cal-day.sat{color:var(--acc-sky)}
+header .actions{display:flex;gap:8px;margin-left:auto}
+header .actions button{width:48px;height:48px;border-radius:14px;background:#fff;font-size:22px;box-shadow:var(--card-shadow);transition:.2s;display:flex;align-items:center;justify-content:center}
+header .actions button:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+header .actions button.primary{background:var(--success);color:#fff}
+
+main{display:grid;grid-template-columns:0.7fr 1.6fr 1.2fr 0.7fr;gap:14px;min-height:0}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+
+footer{display:flex;align-items:center;gap:14px;padding:10px 18px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border-radius:var(--radius)}
+footer .progress-wrap{flex:1;height:14px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
+footer .progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--success));width:0%;transition:width .5s ease;border-radius:99px}
+footer .status{font-weight:700;font-size:var(--fs-body);white-space:nowrap}
+footer .status.done{color:var(--success)}
+
+
+.subject-chip:active,.student-card:active,.meal-load-btn:active,.choice-item:active,.att-row button:active{animation:pop .25s ease}
+.tt-slot.correct{animation:wiggle .45s ease}
+.card-badge{animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
+.card.touchable:hover{transform:translateY(-4px) scale(1.01)}
+/* ── 3. Cards ─────────────────────────────────────── */
+.card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--card-shadow);transition:.25s;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;position:relative;overflow:hidden}
+.card.touchable{cursor:pointer}
+.card.touchable:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+/* empty 카드: 굵은 검정 점선 테두리 + 부드러운 컬러 베일 */
+.card.empty{background:var(--card-empty);border:4px dashed #1a1a1a}
+.card.empty::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(91,182,255,.16),rgba(255,201,60,.12));pointer-events:none;z-index:1;border-radius:inherit;transition:opacity .25s}
+.card.empty.touchable:hover::before{opacity:.55}
+.card.empty>*{position:relative;z-index:2}
+.card.empty .card-hint{color:var(--text);font-weight:800;text-shadow:0 1px 8px rgba(255,255,255,.7)}
+.card.filled{border:3px solid var(--success)}
+.card-title{font-size:var(--fs-card-title);font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-badge{margin-left:auto;background:var(--success);color:#fff;font-size:15px;padding:4px 12px;border-radius:99px;font-weight:700;flex-shrink:0}
+.card-hint{color:var(--text-sub);font-size:var(--fs-body);text-align:center;padding:14px 0;flex:1;display:flex;align-items:center;justify-content:center}
+.card-result{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.card-result .emoji{font-size:var(--fs-result);line-height:1}
+.card-result .label{font-size:var(--fs-card-title);font-weight:700}
+.card-result .sub{font-size:var(--fs-body);color:var(--text-sub)}
+
+/* weather backgrounds */
+.card.w-sunny{background:linear-gradient(135deg,#FFF9E0,#FFFFFF)}
+.card.w-rain{background:linear-gradient(135deg,#E0F0FF,#FFFFFF)}
+.card.w-snow{background:linear-gradient(135deg,#F0F4FA,#FFFFFF)}
+.card.w-cloud{background:linear-gradient(135deg,#F5F5F5,#FFFFFF)}
+
+/* dust backgrounds */
+.card.d-0{background:linear-gradient(135deg,#E0F4FD,#FFFFFF)}
+.card.d-1{background:linear-gradient(135deg,#E5F5E0,#FFFFFF)}
+.card.d-2{background:linear-gradient(135deg,#FFF0DB,#FFFFFF)}
+.card.d-3{background:linear-gradient(135deg,#FFE0E0,#FFFFFF)}
+
+/* ── 4. Specific cards ────────────────────────────── */
+/* attendance */
+.attendance-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1;align-items:center}
+.attendance-stat{text-align:center;padding:8px;border-radius:var(--radius-sm);background:#F8FAFF}
+.attendance-stat .num{font-size:clamp(28px,2.4vw,42px);font-weight:900;color:var(--primary)}
+.attendance-stat .lbl{font-size:16px;color:var(--text-sub);font-weight:500}
+.attendance-stat.present .num{color:var(--success)}
+.attendance-stat.late .num{color:var(--secondary)}
+.attendance-stat.absent .num{color:var(--danger)}
+
+/* timetable card preview - 위에서부터 정렬, 아기자기 */
+.tt-preview{display:flex;flex-direction:column;gap:8px;flex:1;justify-content:flex-start;padding-top:6px}
+.tt-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(135deg,#F8FAFF,#FFFFFF);border-radius:14px;font-size:var(--fs-body);border:2px solid #E8F0FF;box-shadow:0 2px 6px rgba(91,182,255,.06);transition:.2s}
+.tt-row:hover{transform:translateX(2px);box-shadow:0 4px 12px rgba(91,182,255,.15)}
+.tt-row.empty{opacity:.55;border:2px dashed #C7D5EE;background:transparent;box-shadow:none}
+.tt-row .num{font-weight:900;color:#fff;background:var(--acc-sky);padding:4px 10px;border-radius:99px;min-width:60px;text-align:center;font-size:15px;letter-spacing:.5px}
+.tt-row.empty .num{background:#C7D5EE;color:#fff}
+.tt-row:nth-child(1) .num{background:var(--acc-coral)}
+.tt-row:nth-child(2) .num{background:var(--acc-sun);color:#7A5300}
+.tt-row:nth-child(3) .num{background:var(--acc-grass)}
+.tt-row:nth-child(4) .num{background:var(--acc-sky)}
+.tt-row:nth-child(5) .num{background:var(--acc-purple)}
+.tt-row:nth-child(6) .num{background:#FF8FB1}
+.tt-row:nth-child(7) .num{background:#5BCFC9}
+.tt-row .icon{font-size:24px;line-height:1}
+.tt-row .name{font-weight:700;flex:1;color:var(--text)}
+.tt-row .check{color:var(--success);font-weight:900;font-size:18px}
+.tt-note-chip{font-family:'KyoboHandwriting2019','Jua',cursive;font-size:15px;font-weight:500;color:#7A5300;background:linear-gradient(135deg,#FFFBEB,#FFF3CC);border:1.5px dashed #E0B84A;border-radius:10px;padding:3px 10px;cursor:pointer;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s;line-height:1.3}
+.tt-note-chip:hover{background:#FFF3CC;border-style:solid;transform:translateY(-1px)}
+.tt-note-chip.empty{opacity:.5;font-size:13px;color:#999;border-color:#ccc;background:transparent}
+.tt-row .name{flex:1}
+
+/* meal */
+.meal-load-btn{margin:auto;display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 32px;background:linear-gradient(135deg,var(--acc-sun),var(--acc-coral));color:#fff;border-radius:24px;font-size:clamp(22px,1.6vw,28px);font-weight:700;box-shadow:0 10px 24px rgba(255,138,122,.35);text-shadow:0 1px 2px rgba(0,0,0,.1);transition:.2s;min-width:200px;min-height:80px}
+.meal-load-btn:hover{transform:scale(1.05);box-shadow:0 12px 30px rgba(79,134,198,.45)}
+.meal-load-btn .ico{font-size:40px}
+.meal-loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.meal-loading .spinner{font-size:56px;animation:bounce 1s infinite}
+.meal-loading .text{font-size:var(--fs-body);color:var(--text-sub);font-weight:600}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.meal-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:6px}
+.meal-item{padding:10px 14px;background:linear-gradient(135deg,#FFF8E8,#FFFDF4);border-radius:14px;font-size:clamp(14px,1.15vw,20px);font-weight:700;border-left:4px solid var(--acc-sun);box-shadow:0 2px 8px rgba(255,201,60,.12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(8px);animation:fadeUp .3s forwards}
+.meal-actions{display:flex;gap:8px;margin-top:6px}
+.meal-actions button{flex:1;padding:10px;border-radius:10px;background:#F8FAFF;font-weight:600;font-size:18px;border:2px solid transparent;transition:.2s}
+.meal-actions button:hover{border-color:var(--primary);background:#fff}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* students grid - 3열 고정, 더 크고 직관적 */
+.students-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;overflow:hidden;padding:6px;align-content:start}
+.student-card{background:#F8FAFF;border:3px dashed #C7D5EE;border-radius:20px;padding:14px 8px;text-align:center;cursor:pointer;transition:.2s;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:6px;box-shadow:0 2px 10px rgba(91,182,255,.08)}
+.student-card:hover{transform:translateY(-3px) scale(1.04);border-color:var(--primary);box-shadow:var(--card-shadow-hover)}
+.student-card.filled{background:linear-gradient(135deg,#FFFFFF,#F0FFF4);border:3px solid var(--success);box-shadow:0 4px 16px rgba(107,203,119,.28)}
+.student-card .em{font-size:clamp(40px,3.6vw,60px);line-height:1}
+.student-card .nm{font-size:clamp(17px,1.3vw,22px);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* notes - 손글씨 폰트, 컴팩트 */
+.notes-display{flex:1;display:flex;align-items:center;justify-content:center;font-family:'KyoboHandwriting2019','Jua','Noto Sans KR',cursive;font-size:clamp(16px,1.2vw,20px);font-weight:600;line-height:1.4;text-align:center;white-space:pre-wrap;padding:6px;color:var(--text);overflow:auto;word-break:break-word}
+.notes-edit-btn{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.9);font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:var(--card-shadow)}
+
+/* book - 컴팩트 바로가기 */
+.book-shortcut{display:flex;align-items:center;gap:10px;padding:6px;background:linear-gradient(135deg,#FDECEF,#FFFFFF);border-radius:14px;flex:1;cursor:pointer;transition:.2s}
+.book-shortcut:hover{transform:translateX(2px);box-shadow:var(--card-shadow-hover)}
+.book-mini{width:54px;height:54px;border-radius:10px;background:#000;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;flex-shrink:0}
+.book-info{flex:1;min-width:0}
+.book-label{font-size:13px;color:var(--text-sub);font-weight:600}
+.book-title-mini{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-arrow{font-size:18px;color:var(--acc-coral);font-weight:900}
+
+/* ── 5. Popup ─────────────────────────────────────── */
+.popup-overlay{position:fixed;inset:0;background:var(--overlay);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
+.popup-overlay.active{display:flex}
+.popup-overlay.closing{animation:fadeOut .2s forwards}
+.popup-card{background:var(--card);border-radius:24px;padding:30px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--popup-shadow);animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
+.popup-overlay.closing .popup-card{animation:popupOut .2s forwards}
+.popup-card.large{max-width:1100px}
+.popup-header{display:flex;align-items:center;margin-bottom:20px;gap:12px}
+.popup-title{font-size:clamp(22px,1.6vw,30px);font-weight:700;color:var(--primary);flex:1}
+.popup-close{width:42px;height:42px;border-radius:12px;background:#F0F4FF;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.2s}
+.popup-close:hover{background:var(--danger);color:#fff}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes popupIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes popupOut{to{transform:scale(.9);opacity:0}}
+
+/* choice grid (weather/dust/emotion) */
+.choice-grid{display:grid;gap:14px}
+.choice-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.choice-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.choice-item{background:#F8FAFF;border:3px solid transparent;border-radius:18px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:.15s;min-height:120px;justify-content:center}
+.choice-item:hover{transform:translateY(-3px);border-color:var(--primary);background:#fff}
+.choice-item .em{font-size:56px;line-height:1}
+.choice-item .lb{font-size:20px;font-weight:700}
+.choice-item .sb{font-size:15px;color:var(--text-sub)}
+.choice-item.dust-0{background:#E1F5FE}.choice-item.dust-1{background:#E8F5E9}
+.choice-item.dust-2{background:#FFF3E0}.choice-item.dust-3{background:#FFEBEE}
+
+/* attendance popup */
+.att-list{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto}
+.att-row{display:flex;align-items:center;gap:12px;padding:12px;background:#F8FAFF;border-radius:14px;border:2px solid transparent}
+.att-row.present{background:#E8F5E9;border-color:var(--success)}
+.att-row.late{background:#FFF3E0;border-color:var(--secondary)}
+.att-row.absent{background:#FFEBEE;border-color:var(--danger)}
+.att-row .nm{flex:1;font-size:18px;font-weight:600}
+.att-row button{padding:12px 18px;border-radius:16px;background:#fff;font-weight:700;font-size:18px;border:2px solid #E5E7EB;transition:.15s;min-width:70px}
+.att-row button.active.p{background:var(--success);color:#fff;border-color:var(--success)}
+.att-row button.active.l{background:var(--secondary);color:#fff;border-color:var(--secondary)}
+.att-row button.active.a{background:var(--danger);color:#fff;border-color:var(--danger)}
+.att-toolbar{display:flex;gap:10px;margin-bottom:14px}
+.att-toolbar button{flex:1;padding:14px;border-radius:16px;background:#F0F4FF;font-weight:700;font-size:18px;transition:.2s}
+.att-toolbar button:hover{background:var(--primary);color:#fff}
+
+/* timetable popup (drag&drop) */
+.tt-popup{display:grid;grid-template-columns:1fr 1fr;gap:20px;min-height:400px}
+.tt-slots,.tt-bank{display:flex;flex-direction:column;gap:8px}
+.tt-section-title{font-size:18px;font-weight:700;color:var(--text-sub);margin-bottom:4px}
+.tt-slot{display:flex;align-items:center;gap:10px;padding:10px;background:#F8FAFF;border:2px dashed #C7D5EE;border-radius:12px;min-height:60px;transition:.15s}
+.tt-slot.drag-over{background:#FFF8E0;border-color:var(--secondary);border-style:solid}
+.tt-slot.correct{background:#E8F5E9;border:2px solid var(--success);border-style:solid}
+.tt-slot.shake{animation:shake .3s}
+.tt-slot .pnum{font-weight:900;color:var(--acc-sky);min-width:54px;font-size:20px}
+.tt-slot .drop-zone{flex:1;min-height:44px;display:flex;align-items:center;gap:8px}
+.tt-slot.correct .check{color:var(--success);font-size:22px;font-weight:900}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.tt-bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;background:#F8FAFF;border-radius:14px;flex:1;align-content:start;min-height:200px;max-height:480px;overflow-y:auto}
+.subject-chip{padding:14px 10px;background:#fff;border:2px solid rgba(91,182,255,.5);border-radius:16px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:18px;color:var(--text);cursor:grab;user-select:none;touch-action:none;transition:.15s;min-height:54px}
+.subject-chip:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+.subject-chip.dragging{opacity:.4;transform:rotate(2deg) scale(1.05)}
+.subject-chip .ico{font-size:22px}
+.subject-chip.ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;transform:rotate(3deg);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.subject-chip.add-chip{border-style:dashed;border-color:var(--secondary);color:var(--secondary);cursor:pointer}
+.subject-chip.add-chip:hover{background:#FFF8E0}
+.slot-clear{background:#FFE5E5;color:var(--danger);border-radius:50%;width:28px;height:28px;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.slot-clear:hover{background:var(--danger);color:#fff}
+.tt-popup-actions{display:flex;gap:10px;margin-top:18px;padding-top:18px;border-top:2px solid #F0F4FF}
+.tt-popup-actions button{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:17px;transition:.2s}
+.btn-hint{background:#FFF8E0;color:var(--secondary)}
+.btn-hint:hover{background:var(--secondary);color:#fff}
+.btn-done{background:var(--success);color:#fff}
+.btn-done:hover{background:#5BB867}
+.btn-done:disabled{background:#E5E7EB;color:#999;cursor:not-allowed}
+
+/* notes popup */
+.notes-textarea{width:100%;min-height:200px;padding:16px;border:2px solid #E5E7EB;border-radius:14px;font-size:18px;line-height:1.5;resize:vertical;font-family:inherit}
+.notes-textarea:focus{border-color:var(--primary);outline:none}
+.popup-actions{display:flex;gap:10px;margin-top:16px}
+.popup-actions button{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:17px;transition:.2s}
+.btn-save{background:var(--success);color:#fff}.btn-save:hover{background:#5BB867}
+.btn-cancel{background:#F0F4FF;color:var(--text-sub)}.btn-cancel:hover{background:#E5E7EB}
+
+/* settings modal */
+.settings-modal{display:grid;grid-template-columns:200px 1fr;gap:20px;min-height:500px;max-height:80vh}
+.settings-tabs{display:flex;flex-direction:column;gap:4px;border-right:2px solid #F0F4FF;padding-right:12px}
+.settings-tab{padding:12px 14px;border-radius:10px;font-weight:600;font-size:15px;text-align:left;color:var(--text-sub);transition:.15s}
+.settings-tab:hover{background:#F8FAFF}
+.settings-tab.active{background:var(--primary);color:#fff}
+.settings-content{overflow-y:auto;padding-right:8px}
+.settings-section{display:none}
+.settings-section.active{display:block}
+.settings-section h3{font-size:20px;font-weight:700;margin-bottom:14px;color:var(--primary)}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:600;margin-bottom:6px;font-size:15px}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:2px solid #E5E7EB;border-radius:10px;font-size:15px}
+.field input:focus,.field textarea:focus{border-color:var(--primary);outline:none}
+.field textarea{min-height:100px;resize:vertical;font-family:inherit}
+.field .hint{font-size:13px;color:var(--text-sub);margin-top:4px}
+.tt-day-tabs{display:flex;gap:6px;margin-bottom:12px}
+.tt-day-tabs button{flex:1;padding:8px;border-radius:8px;background:#F0F4FF;font-weight:600;font-size:14px}
+.tt-day-tabs button.active{background:var(--primary);color:#fff}
+.tt-period-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.tt-period-row .lbl{font-weight:700;color:var(--primary);min-width:50px;font-size:14px}
+.tt-period-row input{flex:1}
+.copy-day-btn{padding:8px 14px;border-radius:8px;background:#FFF8E0;color:var(--secondary);font-weight:600;font-size:13px;margin-top:8px}
+.student-list-item{display:flex;gap:6px;align-items:center;padding:8px;background:#F8FAFF;border-radius:8px;margin-bottom:4px}
+.student-list-item .nm{flex:1;font-weight:600}
+.student-list-item button{padding:6px 10px;border-radius:6px;background:#fff;font-size:13px;font-weight:600}
+.student-list-item button:hover{background:var(--primary);color:#fff}
+.student-list-item button.del:hover{background:var(--danger)}
+.btn-test{padding:10px 16px;border-radius:10px;background:var(--secondary);color:#fff;font-weight:700;font-size:14px;margin-top:6px}
+.test-result{margin-top:10px;padding:12px;background:#F8FAFF;border-radius:10px;font-size:14px;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+.settings-footer{display:flex;gap:10px;padding-top:16px;margin-top:16px;border-top:2px solid #F0F4FF;grid-column:1/-1}
+.settings-footer button{padding:12px 24px;border-radius:12px;font-weight:700;font-size:16px;flex:1}
+
+/* records */
+.records-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;max-height:50vh;overflow-y:auto;padding:4px}
+.record-item{padding:14px;background:#F8FAFF;border-radius:12px;cursor:pointer;transition:.15s;border:2px solid transparent}
+.record-item:hover{border-color:var(--primary);background:#fff}
+.record-item .dt{font-weight:700;font-size:15px;color:var(--primary)}
+.record-item .sm{font-size:13px;color:var(--text-sub);margin-top:4px}
+.record-detail{padding:14px;background:#F8FAFF;border-radius:14px}
+.record-detail h4{margin:14px 0 6px;font-size:15px;color:var(--primary)}
+.record-detail .row{font-size:14px;margin:3px 0}
+
+/* toast */
+.toast-container{position:fixed;top:30px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--text);color:#fff;padding:14px 22px;border-radius:14px;font-weight:600;font-size:16px;box-shadow:var(--popup-shadow);animation:toastIn .3s,toastOut .3s 2.2s forwards;pointer-events:auto}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes toastOut{to{transform:translateY(-30px);opacity:0}}
+
+/* celebration */
+.celebrate-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1500;pointer-events:none}
+.celebrate-overlay.active{display:flex}
+.celebrate-msg{font-size:clamp(36px,4vw,64px);font-weight:900;color:var(--primary);background:#fff;padding:30px 60px;border-radius:30px;box-shadow:var(--popup-shadow);animation:celebrateIn .5s}
+@keyframes celebrateIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes particleFall{to{transform:translateY(110vh) rotate(540deg);opacity:.3}}
+
+/* sr-only */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* welcome */
+.welcome{text-align:center;padding:30px}
+.welcome h2{font-size:28px;margin-bottom:14px;color:var(--primary)}
+.welcome p{font-size:17px;color:var(--text-sub);margin-bottom:22px;line-height:1.6}
+.welcome button{padding:14px 32px;border-radius:14px;background:var(--primary);color:#fff;font-weight:700;font-size:17px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+@media print{
+  header .actions,footer,.popup-overlay,.card-hint,.notes-edit-btn{display:none!important}
+  main{grid-template-columns:1fr 1fr}
+  .card{break-inside:avoid;page-break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>🌅 아침교실</h1>
+    <div class="school" id="school-info">학교명 · 학급명</div>
+    <div class="date-card" id="date-card" tabindex="0" role="button" aria-label="날짜 선택">
+      <span class="ico">📅</span>
+      <span id="date-display">날짜를 입력해주세요</span>
+    </div>
+    <div class="actions">
+      <button id="btn-mute" title="소리 끄기" aria-label="소리 켜기/끄기">🔊</button>
+      <button id="btn-save" class="primary" title="오늘 기록 저장" aria-label="오늘 기록 저장">💾</button>
+      <button id="btn-records" title="이전 기록 보기" aria-label="이전 기록 보기">📂</button>
+      <button id="btn-settings" title="설정" aria-label="설정 열기">⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="col">
+      <div class="card touchable empty" id="card-weather" data-card="weather" tabindex="0" role="button" aria-label="날씨 선택"></div>
+      <div class="card touchable empty" id="card-dust" data-card="dust" tabindex="0" role="button" aria-label="미세먼지 선택"></div>
+      <div class="card empty" id="card-attendance" data-card="attendance" tabindex="0" role="button" aria-label="출석 체크"></div>
+    </div>
+    <div class="col">
+      <div class="card touchable empty" id="card-timetable" data-card="timetable" tabindex="0" role="button" aria-label="시간표 맞추기"></div>
+    </div>
+    <div class="col">
+      <div class="card empty" id="card-emotions" data-card="emotions" aria-label="우리반 감정 현황"></div>
+    </div>
+    <div class="col">
+      <div class="card empty" id="card-meal" data-card="meal" aria-label="오늘의 급식" style="flex:3.6"></div>
+      <div class="card touchable empty" id="card-notes" data-card="notes" tabindex="0" role="button" aria-label="유의사항" style="flex:1.1;min-height:160px"></div>
+      <div class="card touchable empty" id="card-book" data-card="book" tabindex="0" role="button" aria-label="북모닝 영상" style="flex:0;flex-basis:90px;min-height:90px;padding:10px"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="status" id="status-text">아침 준비 진행중...</div>
+  </footer>
+</div>
+
+<!-- Common popup -->
+<div class="popup-overlay" id="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="popup-title">
+  <div class="popup-card" id="popup-card">
+    <div class="popup-header">
+      <h2 class="popup-title" id="popup-title">제목</h2>
+      <button class="popup-close" id="popup-close" aria-label="닫기">✕</button>
+    </div>
+    <div id="popup-body"></div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="popup-overlay" id="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="popup-card large">
+    <div class="popup-header">
+      <h2 class="popup-title" id="settings-title">⚙️ 설정</h2>
+      <button class="popup-close" id="settings-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="settings-modal">
+      <div class="settings-tabs" id="settings-tabs">
+        <button class="settings-tab active" data-tab="info">🏫 학급정보</button>
+        <button class="settings-tab" data-tab="students">👨‍🎓 학생</button>
+        <button class="settings-tab" data-tab="timetable">📅 시간표</button>
+        <button class="settings-tab" data-tab="meal">🍱 급식 API</button>
+        <button class="settings-tab" data-tab="book">📖 북모닝</button>
+        <button class="settings-tab" data-tab="data">💾 데이터</button>
+      </div>
+      <div class="settings-content" id="settings-content"></div>
+      <div class="settings-footer">
+        <button class="btn-cancel" id="settings-cancel">취소</button>
+        <button class="btn-save" id="settings-save">💾 저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Records modal -->
+<div class="popup-overlay" id="records-overlay" role="dialog" aria-modal="true">
+  <div class="popup-card large">
+    <div class="popup-header">
+      <h2 class="popup-title">📂 이전 기록 보기</h2>
+      <button class="popup-close" id="records-close" aria-label="닫기">✕</button>
+    </div>
+    <div id="records-body"></div>
+  </div>
+</div>
+
+<!-- Celebration -->
+<div class="celebrate-overlay" id="celebrate"><div class="celebrate-msg" id="celebrate-msg">🌟 오늘 하루도 파이팅이에요!</div></div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toasts"></div>
+<div class="sr-only" id="aria-live" aria-live="polite"></div>
+
+<script>
+'use strict';
+
+const SUBJECT_ICONS = {
+  '국어':'📚','영어':'📚','수학':'🔢','도덕':'💖',
+  '체육':'⚽','음악':'🎵','미술':'🎨','과학':'🔬',
+  '사회':'🌍','직업':'🔧','창체':'🎭','진로':'🧭',
+  '진로와직업':'🧰','자율':'🌱','동아리':'🤝'
+};
+const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
+const DEFAULT_SUBJECTS = ['국어','수학','사회','과학','음악','미술','체육','진로와직업','진로','자율','동아리'];
+const MAX_TIMETABLE_PERIODS = 7;
+const getCustomSubjects = () => { try { return JSON.parse(localStorage.getItem('mc_custom_subjects')||'[]'); } catch(e){ return []; } };
+const addCustomSubject = (name) => {
+  const list = getCustomSubjects();
+  if (!list.includes(name) && !DEFAULT_SUBJECTS.includes(name)) {
+    list.push(name);
+    localStorage.setItem('mc_custom_subjects', JSON.stringify(list));
+  }
+};
+
+const WEATHER = [
+  {emoji:'☀️',label:'맑음',cls:'w-sunny'},{emoji:'⛅',label:'구름조금',cls:'w-cloud'},
+  {emoji:'☁️',label:'흐림',cls:'w-cloud'},{emoji:'🌧️',label:'비',cls:'w-rain'},
+  {emoji:'⛈️',label:'천둥번개',cls:'w-rain'},{emoji:'❄️',label:'눈',cls:'w-snow'}
+];
+const DUST = [
+  {emoji:'😁',label:'좋음',hint:'마스크 안 써도 돼요',level:0},
+  {emoji:'🌿',label:'보통',hint:'평소처럼 활동해요',level:1},
+  {emoji:'😷',label:'나쁨',hint:'마스크를 써요',level:2},
+  {emoji:'⚠️',label:'매우나쁨',hint:'실외활동 주의해요',level:3}
+];
+const EMOTIONS = [
+  {e:'😊',l:'기쁨'},{e:'😢',l:'슬픔'},{e:'😡',l:'화남'},{e:'😴',l:'피곤'},
+  {e:'😆',l:'신남'},{e:'😰',l:'불안'},{e:'😑',l:'그냥'},{e:'🤢',l:'아픔'}
+];
+
+const App = {
+  audio: null, muted: false, currentOnClose: null,
+  prevFocus: null, celebratedToday: false,
+  ttsVoices: [], ttsLastText: '', ttsLastAt: 0,
+  settings: null, today: '', todayKey: '', dayOfWeek: 0, isWeekend: false,
+  record: null, settingsTab: 'info', settingsDay: 0, settingsDraft: null,
+
+  init() {
+    if ('speechSynthesis' in window) { try { this.ttsVoices = window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = ()=>{ this.ttsVoices = window.speechSynthesis.getVoices(); }; } catch(e){} }
+    this.muted = localStorage.getItem('mc_muted') === '1';
+    document.getElementById('btn-mute').textContent = this.muted ? '🔇' : '🔊';
+    this.loadDate();
+    this.loadSettings();
+    this.loadRecord();
+    this.bindGlobal();
+    this.renderAll();
+    if (!this.settings || !this.settings.students?.length) {
+      this.openWelcome();
+    }
+  },
+
+  loadDate(d) {
+    d = d || new Date();
+    const dayNames = ['일','월','화','수','목','금','토'];
+    this.selectedDate = d;
+    this.today = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${dayNames[d.getDay()]}요일`;
+    this.todayKey = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    this.dayOfWeek = d.getDay() === 0 ? 6 : d.getDay() - 1; // 0=Mon..6=Sun
+    this.isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    this.renderDatePicker();
+  },
+  renderDatePicker(){
+    const d = this.selectedDate;
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const disp = document.getElementById('date-display');
+    if (disp) {
+      const isInit = !localStorage.getItem('mc_date_set');
+      if (isInit && !this._dateUserSet) {
+        disp.textContent = '날짜를 입력해주세요 👆';
+      } else {
+        disp.innerHTML = `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}. <span class="dow">${dayNames[d.getDay()]}요일</span>`;
+      }
+    }
+  },
+  openDatePicker(){
+    this.ensureAudio();
+    let viewY = this.selectedDate.getFullYear();
+    let viewM = this.selectedDate.getMonth();
+    let pickD = new Date(this.selectedDate);
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const render = ()=>{
+      const first = new Date(viewY, viewM, 1);
+      const startDow = first.getDay();
+      const last = new Date(viewY, viewM+1, 0).getDate();
+      const prevLast = new Date(viewY, viewM, 0).getDate();
+      const cells = [];
+      for (let i=startDow-1;i>=0;i--) cells.push({d:prevLast-i, other:true, m:viewM-1});
+      for (let i=1;i<=last;i++) cells.push({d:i, other:false, m:viewM});
+      while (cells.length<42) cells.push({d:cells.length-startDow-last+1, other:true, m:viewM+1});
+      const today = new Date();
+      return `<div class="cal-pop">
+        <div class="cal-head">
+          <button id="cal-prev">‹</button>
+          <span>${viewY}년 ${viewM+1}월</span>
+          <button id="cal-next">›</button>
+        </div>
+        <div class="cal-grid">
+          ${dayNames.map((n,i)=>`<div class="cal-dow" style="color:${i===0?'var(--acc-coral)':i===6?'var(--acc-sky)':'var(--text-sub)'}">${n}</div>`).join('')}
+          ${cells.map((c,i)=>{
+            const dt = new Date(viewY, c.m, c.d);
+            const dow = i%7;
+            const isT = dt.toDateString()===today.toDateString();
+            const isS = dt.toDateString()===pickD.toDateString();
+            return `<div class="cal-day ${c.other?'other':''} ${isT?'today':''} ${isS?'selected':''} ${dow===0?'sun':''} ${dow===6?'sat':''}" data-y="${dt.getFullYear()}" data-m="${dt.getMonth()}" data-d="${dt.getDate()}">${c.d}</div>`;
+          }).join('')}
+        </div>
+        <div class="popup-actions">
+          <button class="btn-cancel" id="cal-today-btn">📍 오늘</button>
+          <button class="btn-save" id="cal-save">✅ 입력</button>
+        </div>
+      </div>`;
+    };
+    this.openPopup('📅 날짜 선택', render(), {onMount:()=>{
+      const body = document.getElementById('popup-body');
+      const refresh = ()=>{ body.innerHTML = render(); bind(); };
+      const bind = ()=>{
+        document.getElementById('cal-prev').onclick = ()=>{ viewM--; if(viewM<0){viewM=11;viewY--;} refresh(); };
+        document.getElementById('cal-next').onclick = ()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} refresh(); };
+        document.getElementById('cal-today-btn').onclick = ()=>{ const t=new Date(); viewY=t.getFullYear(); viewM=t.getMonth(); pickD=t; refresh(); };
+        body.querySelectorAll('.cal-day').forEach(el=>el.onclick=()=>{
+          pickD = new Date(+el.dataset.y, +el.dataset.m, +el.dataset.d);
+          viewY=pickD.getFullYear(); viewM=pickD.getMonth();
+          refresh();
+        });
+        document.getElementById('cal-save').onclick = ()=>{
+          this._dateUserSet = true;
+          localStorage.setItem('mc_date_set','1');
+          this.loadDate(pickD); this.loadRecord(); this.renderAll();
+          this.playSound('save'); this.toast(`${pickD.getFullYear()}.${pickD.getMonth()+1}.${pickD.getDate()} 불러왔어요`,'success');
+          this.closePopup();
+        };
+      };
+      bind();
+    }});
+  },
+
+  loadSettings() {
+    try { this.settings = JSON.parse(localStorage.getItem('mc_settings') || 'null'); }
+    catch(e){ this.settings = null; }
+    if (!this.settings) this.settings = {};
+    if (!this.settings.bookUrl) {
+      this.settings.bookUrl = 'https://www.youtube.com/watch?v=Dqd9erT5BBE';
+      this.settings.bookTitle = this.settings.bookTitle || '북모닝 영상';
+    }
+    if (!this.settings.neisAtptCode) this.settings.neisAtptCode = 'K10';
+    if (!this.settings.neisSchoolCode) this.settings.neisSchoolCode = '7801212';
+    document.getElementById('school-info').textContent =
+      `${this.settings.schoolName||'학교명'} · ${this.settings.className||'학급명'}`;
+  },
+
+  loadRecord() {
+    try {
+      this.record = JSON.parse(localStorage.getItem('mc_record_'+this.todayKey) || 'null') || this.emptyRecord();
+    } catch(e){ this.record = this.emptyRecord(); }
+  },
+  emptyRecord() {
+    return {
+      date: this.today, weather: null, dust: null,
+      emotions: {}, attendance: {}, timetableArranged: null, timetableCorrect: false, timetableNotes: {},
+      notes: '', mealText: '', mealLoadedAt: null,
+      bookUrl: this.settings?.bookUrl, bookTitle: this.settings?.bookTitle
+    };
+  },
+  saveRecord(silent) {
+    this.record.savedAt = new Date().toISOString();
+    try {
+      localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record));
+      if (!silent) this.toast('💾 저장 완료!','success');
+    } catch(e){
+      this.cleanOldRecords();
+      try { localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record)); }
+      catch(e2){ this.toast('저장 공간이 부족해요. 백업을 받아주세요.','error'); }
+    }
+  },
+  cleanOldRecords() {
+    const cutoff = Date.now() - 60*86400000;
+    Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).forEach(k=>{
+      const m = k.match(/mc_record_(\d{8})/);
+      if (m) {
+        const d = new Date(`${m[1].slice(0,4)}-${m[1].slice(4,6)}-${m[1].slice(6,8)}`);
+        if (d.getTime() < cutoff) localStorage.removeItem(k);
+      }
+    });
+  },
+
+  bindGlobal() {
+    document.getElementById('btn-mute').onclick = ()=>{
+      this.muted = !this.muted;
+      localStorage.setItem('mc_muted', this.muted?'1':'0');
+      document.getElementById('btn-mute').textContent = this.muted?'🔇':'🔊';
+      if (this.muted && 'speechSynthesis' in window) { try{window.speechSynthesis.cancel();}catch(e){} }
+    };
+    document.getElementById('btn-save').onclick = ()=>{ this.playSound('save'); this.saveRecord(); };
+    document.getElementById('btn-records').onclick = ()=> this.openRecords();
+    document.getElementById('btn-settings').onclick = ()=> this.openSettings();
+    document.getElementById('popup-close').onclick = ()=> this.closePopup();
+    document.getElementById('popup-overlay').onclick = e=>{ if(e.target.id==='popup-overlay') this.closePopup(); };
+    document.getElementById('settings-close').onclick = ()=> this.closeSettings();
+    document.getElementById('settings-cancel').onclick = ()=> this.closeSettings();
+    document.getElementById('settings-save').onclick = ()=> this.saveSettings();
+    document.getElementById('records-close').onclick = ()=> this.closeRecords();
+    const dc = document.getElementById('date-card');
+    if (dc) dc.onclick = ()=> this.openDatePicker();
+    document.addEventListener('keydown', e=>{
+      if (e.key==='Escape') {
+        if (document.getElementById('popup-overlay').classList.contains('active')) this.closePopup();
+        else if (document.getElementById('settings-overlay').classList.contains('active')) this.closeSettings();
+        else if (document.getElementById('records-overlay').classList.contains('active')) this.closeRecords();
+      }
+    });
+
+    document.getElementById('card-weather').onclick = ()=> this.openWeather();
+    document.getElementById('card-dust').onclick = ()=> this.openDust();
+    document.getElementById('card-attendance').onclick = ()=> this.openAttendance();
+    document.getElementById('card-timetable').onclick = ()=> this.openTimetable();
+    document.getElementById('card-notes').onclick = ()=> this.openNotes();
+    document.getElementById('card-book').onclick = ()=> this.openBook();
+
+    // 첫 사용자 제스처 시 TTS/오디오 잠금 해제 (브라우저 정책)
+    const unlock = ()=>{ this.unlockTTS(); this.ensureAudio(); };
+    document.addEventListener('click', unlock, {once:false, capture:true});
+    document.addEventListener('touchstart', unlock, {once:false, capture:true});
+  },
+
+  // ── Audio ──
+  ensureAudio() {
+    if (!this.audio) {
+      try { this.audio = new (window.AudioContext||window.webkitAudioContext)(); }
+      catch(e){ return null; }
+    }
+    if (this.audio.state === 'suspended') this.audio.resume();
+    return this.audio;
+  },
+  playSound(type) {
+    if (this.muted) return;
+    const ctx = this.ensureAudio(); if (!ctx) return;
+    const seq = {
+      select:[{f:450,t:0,d:.15}],
+      emotion:[{f:523,t:0,d:.15},{f:659,t:.15,d:.15}],
+      check:[{f:600,t:0,d:.1}],
+      correct:[{f:659,t:0,d:.1},{f:784,t:.1,d:.15}],
+      wrong:[{f:220,t:0,d:.15}],
+      save:[{f:523,t:0,d:.12},{f:659,t:.12,d:.12},{f:784,t:.24,d:.18}],
+      complete:[{f:523,t:0,d:.12},{f:659,t:.13,d:.12},{f:784,t:.26,d:.12},{f:1047,t:.39,d:.3}]
+    }[type] || [{f:450,t:0,d:.15}];
+    seq.forEach(({f,t,d})=>{
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.value = f; osc.type = 'sine';
+      g.gain.setValueAtTime(.3, ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+t+d);
+      osc.start(ctx.currentTime+t); osc.stop(ctx.currentTime+t+d+.05);
+    });
+  },
+
+  // ── TTS (Web Speech API) ──
+  ttsUnlocked: false,
+  unlockTTS() {
+    if (this.ttsUnlocked || !('speechSynthesis' in window)) return;
+    try {
+      this.ttsUnlocked = true;
+      this.ttsVoices = window.speechSynthesis.getVoices();
+      console.log('[TTS] unlocked. voices:', this.ttsVoices.map(v=>v.lang));
+    } catch(e){ console.warn('[TTS] unlock failed', e); }
+  },
+  speak(text, opts={}) {
+    text = String(text || '').trim();
+    if (this.muted || !text) return;
+    if (!('speechSynthesis' in window)) { console.warn('[TTS] not supported'); return; }
+    const now = Date.now();
+    if (text === this.ttsLastText && now - this.ttsLastAt < 350) return;
+    this.ttsLastText = text;
+    this.ttsLastAt = now;
+    this.unlockTTS();
+    const doSpeak = (tryCount=0)=>{
+      try {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ko-KR';
+        u.rate = opts.rate ?? 0.95;
+        u.pitch = opts.pitch ?? 1.05;
+        u.volume = opts.volume ?? 1.0;
+        const voices = this.ttsVoices?.length ? this.ttsVoices : window.speechSynthesis.getVoices();
+        this.ttsVoices = voices;
+        const ko = voices.find(v=>v.lang==='ko-KR') || voices.find(v=>v.lang?.startsWith('ko')) || voices.find(v=>/Korean|한국/i.test(v.name));
+        if (ko) u.voice = ko;
+        u.onerror = (e)=>{
+          // 새 안내를 읽기 위해 이전 발화를 멈출 때 생기는 정상 이벤트는 오류로 표시하지 않음
+          if (['canceled','interrupted'].includes(e.error) && tryCount < 1) {
+            setTimeout(()=>doSpeak(tryCount+1), 180);
+            return;
+          }
+          if (!['canceled','interrupted'].includes(e.error)) console.warn('[TTS] error', e.error||e);
+        };
+        window.speechSynthesis.speak(u);
+      } catch(e){ console.warn('[TTS] speak failed', e); }
+    };
+    try {
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) window.speechSynthesis.cancel();
+    } catch(e){}
+    // Chrome cancel→speak 무시 버그 회피: 약간의 지연
+    setTimeout(()=>doSpeak(0), 180);
+  },
+
+  // ── Popup helpers ──
+  openPopup(title, bodyHTML, opts={}) {
+    this.prevFocus = document.activeElement;
+    document.getElementById('popup-title').textContent = title;
+    document.getElementById('popup-body').innerHTML = bodyHTML;
+    const card = document.getElementById('popup-card');
+    card.classList.toggle('large', !!opts.large);
+    document.getElementById('popup-overlay').classList.add('active');
+    document.getElementById('popup-overlay').classList.remove('closing');
+    document.body.style.overflow = 'hidden';
+    if (opts.onMount) opts.onMount();
+    setTimeout(()=>{
+      const f = document.querySelector('#popup-body button, #popup-body input, #popup-body textarea');
+      f?.focus();
+    },50);
+    this.currentOnClose = opts.onClose || null;
+  },
+  closePopup() {
+    const ov = document.getElementById('popup-overlay');
+    ov.classList.add('closing');
+    setTimeout(()=>{
+      ov.classList.remove('active','closing');
+      document.body.style.overflow = '';
+      this.prevFocus?.focus();
+      if (this.currentOnClose) { this.currentOnClose(); this.currentOnClose=null; }
+    },180);
+  },
+  toast(msg, type='') {
+    const el = document.createElement('div');
+    el.className = 'toast '+type; el.textContent = msg;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(()=>el.remove(),2700);
+    document.getElementById('aria-live').textContent = msg;
+  },
+
+  // ── Render dashboard ──
+  renderAll() {
+    this.renderWeather(); this.renderDust(); this.renderAttendance();
+    this.renderTimetable(); this.renderMeal(); this.renderEmotions();
+    this.renderNotes(); this.renderBook(); this.updateProgress();
+  },
+
+  renderWeather() {
+    const c = document.getElementById('card-weather');
+    const w = this.record.weather;
+    c.className = 'card touchable ' + (w ? 'filled '+w.cls : 'empty');
+    if (w) {
+      c.innerHTML = `<div class="card-title">☀️ 오늘의 날씨<span class="card-badge">✅</span></div>
+        <div class="card-result"><div class="emoji" role="img" aria-label="${w.label}">${w.emoji}</div><div class="label">${w.label}</div></div>`;
+    } else {
+      c.innerHTML = `<div class="card-title">☀️ 오늘의 날씨</div>
+        <div class="card-hint">터치해서 날씨를 선택해요 👆</div>`;
+    }
+  },
+  openWeather() {
+    this.ensureAudio();
+    const html = `<div class="choice-grid cols-3">${WEATHER.map((w,i)=>
+      `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${w.label}">${w.emoji}</span><span class="lb">${w.label}</span></button>`
+    ).join('')}</div>`;
+    this.openPopup('오늘 날씨는 어때요?', html, {onMount:()=>{
+      document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
+        const w = WEATHER[+b.dataset.i];
+        this.record.weather = w; this.playSound('select');
+        this.toast(`날씨: ${w.label} ${w.emoji}`,'success');
+        this.speak(`오늘 날씨는 ${w.label} 입니다.`);
+        this.closePopup(); this.renderWeather(); this.checkComplete(); this.autoSaveDraft();
+      });
+    }});
+  },
+
+  renderDust() {
+    const c = document.getElementById('card-dust');
+    const d = this.record.dust;
+    c.className = 'card touchable ' + (d ? `filled d-${d.level}` : 'empty');
+    if (d) {
+      c.innerHTML = `<div class="card-title">💨 오늘의 미세먼지<span class="card-badge">✅</span></div>
+        <div class="card-result"><div class="emoji" role="img" aria-label="${d.label}">${d.emoji}</div><div class="label">${d.label}</div><div class="sub">${d.hint}</div></div>`;
+    } else {
+      c.innerHTML = `<div class="card-title">💨 오늘의 미세먼지</div>
+        <div class="card-hint">터치해서 미세먼지를 확인해요 👆</div>`;
+    }
+  },
+  openDust() {
+    this.ensureAudio();
+    const html = `<div class="choice-grid cols-4">${DUST.map((d,i)=>
+      `<button class="choice-item dust-${d.level}" data-i="${i}"><span class="em" role="img" aria-label="${d.label}">${d.emoji}</span><span class="lb">${d.label}</span><span class="sb">${d.hint}</span></button>`
+    ).join('')}</div>`;
+    this.openPopup('오늘 미세먼지는 어때요?', html, {onMount:()=>{
+      document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
+        const d = DUST[+b.dataset.i];
+        this.record.dust = d; this.playSound('select');
+        this.toast(`미세먼지: ${d.label}`,'success');
+        this.speak(`오늘 미세먼지는 ${d.label} 입니다. ${d.hint}`);
+        this.closePopup(); this.renderDust(); this.checkComplete(); this.autoSaveDraft();
+      });
+    }});
+  },
+
+  renderAttendance() {
+    const c = document.getElementById('card-attendance');
+    const students = this.settings?.students || [];
+    if (!students.length) {
+      c.className = 'card empty';
+      c.innerHTML = `<div class="card-title">🙋 오늘의 출석</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
+      return;
+    }
+    const att = this.record.attendance;
+    let p=0,l=0,a=0,u=0;
+    students.forEach(n=>{
+      const v=att[n]; if(v==='present')p++; else if(v==='late')l++; else if(v==='absent')a++; else u++;
+    });
+    const total = students.length;
+    const allChecked = u===0;
+    c.className = 'card touchable ' + (allChecked ? 'filled' : 'empty');
+    c.innerHTML = `<div class="card-title">🙋 오늘의 출석${allChecked?'<span class="card-badge">✅</span>':''}</div>
+      <div class="attendance-stats">
+        <div class="attendance-stat present"><div class="num">${p}</div><div class="lbl">출석</div></div>
+        <div class="attendance-stat late"><div class="num">${l}</div><div class="lbl">지각</div></div>
+        <div class="attendance-stat absent"><div class="num">${a}</div><div class="lbl">결석</div></div>
+      </div>
+      <div style="text-align:center;color:var(--text-sub);font-size:16px">전체 ${total}명 · 미체크 ${u}명</div>`;
+    c.onclick = ()=> this.openAttendance();
+  },
+  openAttendance() {
+    this.ensureAudio();
+    const students = this.settings?.students || [];
+    if (!students.length) return;
+    const att = {...this.record.attendance};
+    const render = ()=>{
+      return `<div class="att-toolbar">
+        <button id="att-allp">🟢 전원 출석</button>
+        <button id="att-clear">↺ 초기화</button>
+      </div>
+      <div class="att-list">${students.map(n=>{
+        const v=att[n]||'';
+        return `<div class="att-row ${v}" data-n="${n}">
+          <div class="nm">${n}</div>
+          <button data-v="present" class="${v==='present'?'active p':''}">🟢 출석</button>
+          <button data-v="late" class="${v==='late'?'active l':''}">🟡 지각</button>
+          <button data-v="absent" class="${v==='absent'?'active a':''}">🔴 결석</button>
+        </div>`;
+      }).join('')}</div>
+      <div class="popup-actions">
+        <button class="btn-cancel" id="att-cancel">취소</button>
+        <button class="btn-save" id="att-save">✅ 완료</button>
+      </div>`;
+    };
+    this.openPopup('🙋 오늘의 출석', render(), {onMount:()=>{
+      const body = document.getElementById('popup-body');
+      const refresh = ()=>{ body.innerHTML = render(); bind(); };
+      const bind = ()=>{
+        body.querySelectorAll('.att-row').forEach(row=>{
+          row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+            att[row.dataset.n] = b.dataset.v; this.playSound('check');
+            const lbl = {present:'출석', late:'지각', absent:'결석'}[b.dataset.v] || '';
+            this.speak(`${row.dataset.n} ${lbl}`);
+            refresh();
+          });
+        });
+        document.getElementById('att-allp').onclick=()=>{ students.forEach(n=>att[n]='present'); this.playSound('correct'); refresh(); };
+        document.getElementById('att-clear').onclick=()=>{ students.forEach(n=>delete att[n]); refresh(); };
+        document.getElementById('att-cancel').onclick=()=>this.closePopup();
+        document.getElementById('att-save').onclick=()=>{
+          this.record.attendance = att; this.playSound('save');
+          this.toast('출석 체크 완료!','success');
+          this.closePopup(); this.renderAttendance(); this.autoSaveDraft();
+        };
+      };
+      bind();
+    }});
+  },
+
+  // ── Timetable ──
+  todayPeriods() {
+    if (this.isWeekend) return [];
+    try {
+      const tt = JSON.parse(localStorage.getItem('mc_timetable_'+this.dayOfWeek)||'null');
+      const arr = (tt?.periods || []).map(s=>(s||'').trim());
+      // 뒤쪽 빈 칸 제거 — 교과를 넣은 시간만큼만
+      while (arr.length && !arr[arr.length-1]) arr.pop();
+      return arr;
+    } catch(e){ return []; }
+  },
+  renderTimetable() {
+    const c = document.getElementById('card-timetable');
+    if (this.isWeekend) {
+      c.className='card empty'; c.style.cursor='default';
+      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div><div class="card-hint">🎈 오늘은 쉬는 날이에요!</div>`;
+      return;
+    }
+    const periods = this.todayPeriods();
+    const arr = this.record.timetableArranged;
+    const arranged = arr && arr.some(s=>s);
+    if (!periods.length && !arranged) {
+      c.className='card empty touchable';
+      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div><div class="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>`;
+      return;
+    }
+    const display = arranged ? arr : periods;
+    const isDone = arranged;
+    c.className = 'card touchable ' + (isDone ? 'filled' : 'empty');
+    if (isDone) {
+      const notes = this.record.timetableNotes || {};
+      c.innerHTML = `<div class="card-title">📅 오늘의 시간표<span class="card-badge">✅ 완성</span></div>
+        <div class="tt-preview">${display.map((s,i)=>{
+          if (!s) return '';
+          const note = (notes[i]||'').trim();
+          const chip = note
+            ? `<button class="tt-note-chip" data-note="${i}" title="메모 수정">📝 ${note.replace(/"/g,'&quot;')}</button>`
+            : `<button class="tt-note-chip empty" data-note="${i}" title="특이사항 메모 추가">+ 메모</button>`;
+          return `<div class="tt-row"><span class="num">${i+1}교시</span><span class="icon">${subjectIcon(s)}</span><span class="name">${s}</span>${chip}<span class="check">✓</span></div>`;
+        }).join('')}</div>`;
+      c.querySelectorAll('.tt-note-chip').forEach(b=>b.onclick=(e)=>{
+        e.stopPropagation();
+        this.openTimetableNote(+b.dataset.note);
+      });
+    } else {
+      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div>
+        <div class="tt-preview">${periods.map((s,i)=>s?`<div class="tt-row empty"><span class="num">${i+1}교시</span><span class="name">?</span></div>`:'').join('')}</div>
+        <div style="text-align:center;color:var(--text-sub);font-size:18px;font-weight:700">터치해서 시간표를 맞춰봐요 👆</div>`;
+    }
+  },
+  openTimetable() {
+    this.ensureAudio();
+    let periods = this.todayPeriods();
+    // 기본 7교시 자유 배치
+    periods = (periods || []).slice(0, MAX_TIMETABLE_PERIODS);
+    while (periods.length < MAX_TIMETABLE_PERIODS) periods.push('');
+    // answer = teacher-set subjects; may be all empty; input slots always allow 1~7교시
+    const answer = periods.map(p=>p||'');
+    const hasAnswer = answer.some(a=>a);
+    let slots = Array.isArray(this.record.timetableArranged)
+      ? this.record.timetableArranged.slice(0, MAX_TIMETABLE_PERIODS)
+      : answer.map(()=>'');
+    while (slots.length < MAX_TIMETABLE_PERIODS) slots.push('');
+
+    const buildBank = ()=>{
+      const custom = getCustomSubjects();
+      return [...DEFAULT_SUBJECTS, ...custom];
+    };
+
+    const renderBody = ()=>{
+      const bank = buildBank();
+      const allFilled = slots.some(s=>s); // 한 칸이라도 입력되면 완료 가능
+      const allCorrect = hasAnswer && slots.every((s,i)=>s===answer[i] && s);
+      return `<div class="tt-popup">
+        <div class="tt-slots">
+          <div class="tt-section-title">교시별 시간표 ${hasAnswer?'':'<span style="font-weight:500;color:#aaa">(자유 배치)</span>'}</div>
+          ${slots.map((cur,i)=>{
+            const isC = hasAnswer && cur && cur===answer[i];
+            return `<div class="tt-slot ${isC?'correct':''}" data-slot="${i}">
+              <span class="pnum">${i+1}교시</span>
+              <div class="drop-zone" data-slot="${i}">
+                ${cur?`<div class="subject-chip in-slot" draggable="true" data-from="slot" data-slot="${i}" data-name="${cur}"><span class="ico">${subjectIcon(cur)}</span>${cur}</div>`:'<span style="color:var(--text-sub);font-size:16px">여기에 끌어다 놓으세요</span>'}
+              </div>
+              ${cur?`<button class="slot-clear" data-clear="${i}" title="비우기">✕</button>`:''}
+              ${isC?'<span class="check">✓</span>':''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="tt-bank">
+          <div class="tt-section-title">교과 보관함 <span style="font-weight:500;color:var(--text-sub);font-size:15px">끌어서 옮겨요</span></div>
+          <div class="tt-bank-grid" data-bank="1">
+            ${bank.map(s=>`<div class="subject-chip" draggable="true" data-from="bank" data-name="${s}"><span class="ico">${subjectIcon(s)}</span>${s}</div>`).join('')}
+            <button class="subject-chip add-chip" id="tt-add-subject" type="button"><span class="ico">➕</span>직접입력</button>
+          </div>
+        </div>
+      </div>
+      <div class="tt-popup-actions">
+        ${hasAnswer?`<button class="btn-hint" id="tt-hint">💡 정답 보기</button>`:''}
+        <button class="btn-cancel" id="tt-reset">↺ 초기화</button>
+        <button class="btn-done" id="tt-done" ${allFilled?'':'disabled'}>${allCorrect?'🎉 완벽해요!':(allFilled?'✅ 완료':'1칸 이상 채워주세요')}</button>
+      </div>`;
+    };
+
+    this.openPopup('오늘의 시간표를 맞춰봐요! 📅', renderBody(), {large:true, onMount:()=>{
+      const body = document.getElementById('popup-body');
+      const refresh = ()=>{ body.innerHTML = renderBody(); bind(); };
+
+      const placeAt = (name, target)=>{
+        slots[target] = name;
+        if (hasAnswer && slots[target] === answer[target]) this.playSound('correct');
+        else if (hasAnswer) { this.playSound('wrong'); const el = body.querySelector(`.tt-slot[data-slot="${target}"]`); if(el){el.classList.add('shake'); setTimeout(()=>el?.classList.remove('shake'),300);} }
+        else this.playSound('select');
+        this.speak(`${target+1}교시 ${name}`);
+      };
+
+      const moveTo = (name, fromSlot, toSlot) => {
+        if (toSlot === 'bank') {
+          // dropping a slot chip back to bank = clear that slot
+          if (fromSlot != null) slots[fromSlot] = '';
+        } else {
+          const target = +toSlot;
+          if (fromSlot != null) {
+            // moving slot→slot: swap
+            const tmp = slots[target];
+            slots[target] = name;
+            slots[fromSlot] = tmp;
+            if (hasAnswer && slots[target]===answer[target]) this.playSound('correct');
+            else if (hasAnswer) this.playSound('wrong');
+            else this.playSound('select');
+          } else {
+            // bank→slot: place (overwrites if occupied; reusable)
+            placeAt(name, target);
+          }
+        }
+        refresh();
+      };
+
+      const bind = ()=>{
+        body.querySelectorAll('.subject-chip[draggable="true"]').forEach(chip=>{
+          chip.addEventListener('dragstart', e=>{
+            chip.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+              name: chip.dataset.name, from: chip.dataset.from, slot: chip.dataset.slot
+            }));
+          });
+          chip.addEventListener('dragend', ()=>chip.classList.remove('dragging'));
+
+          // Pointer fallback for touch
+          let ghost=null, startX=0, startY=0, dragging=false;
+          chip.addEventListener('pointerdown', e=>{
+            if (e.pointerType === 'mouse') return;
+            startX=e.clientX; startY=e.clientY; dragging=false;
+            const onMove = ev=>{
+              if (!dragging && (Math.abs(ev.clientX-startX)>5 || Math.abs(ev.clientY-startY)>5)) {
+                dragging=true;
+                ghost = chip.cloneNode(true);
+                ghost.classList.add('ghost');
+                ghost.style.width = chip.offsetWidth+'px';
+                document.body.appendChild(ghost);
+                chip.classList.add('dragging');
+              }
+              if (dragging && ghost) {
+                ghost.style.left = (ev.clientX - 60)+'px';
+                ghost.style.top = (ev.clientY - 28)+'px';
+                body.querySelectorAll('.tt-slot').forEach(s=>s.classList.remove('drag-over'));
+                const el = document.elementFromPoint(ev.clientX, ev.clientY);
+                const slot = el?.closest('.tt-slot');
+                if (slot) slot.classList.add('drag-over');
+              }
+            };
+            const onUp = ev=>{
+              window.removeEventListener('pointermove', onMove);
+              window.removeEventListener('pointerup', onUp);
+              if (!dragging) { return; }
+              ghost?.remove(); ghost=null;
+              chip.classList.remove('dragging');
+              const el = document.elementFromPoint(ev.clientX, ev.clientY);
+              const slot = el?.closest('.tt-slot');
+              const bankZ = el?.closest('[data-bank]');
+              const fromSlot = chip.dataset.from==='slot' ? +chip.dataset.slot : null;
+              if (slot) moveTo(chip.dataset.name, fromSlot, slot.dataset.slot);
+              else if (bankZ && chip.dataset.from==='slot') moveTo(chip.dataset.name, fromSlot, 'bank');
+            };
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+          });
+        });
+
+        body.querySelectorAll('.tt-slot').forEach(slot=>{
+          slot.addEventListener('dragover', e=>{ e.preventDefault(); slot.classList.add('drag-over'); });
+          slot.addEventListener('dragleave', ()=>slot.classList.remove('drag-over'));
+          slot.addEventListener('drop', e=>{
+            e.preventDefault(); slot.classList.remove('drag-over');
+            try {
+              const d = JSON.parse(e.dataTransfer.getData('text/plain'));
+              const fromSlot = d.from==='slot' ? +d.slot : null;
+              moveTo(d.name, fromSlot, slot.dataset.slot);
+            } catch(e){}
+          });
+        });
+        const bankEl = body.querySelector('[data-bank]');
+        if (bankEl) {
+          bankEl.addEventListener('dragover', e=>e.preventDefault());
+          bankEl.addEventListener('drop', e=>{
+            e.preventDefault();
+            try {
+              const d = JSON.parse(e.dataTransfer.getData('text/plain'));
+              if (d.from === 'slot') moveTo(d.name, +d.slot, 'bank');
+            } catch(e){}
+          });
+        }
+
+        body.querySelectorAll('[data-clear]').forEach(b=>{
+          b.onclick = ()=>{ slots[+b.dataset.clear] = ''; this.playSound('select'); refresh(); };
+        });
+
+        const addBtn = document.getElementById('tt-add-subject');
+        if (addBtn) addBtn.onclick = ()=>{
+          const name = prompt('새 교과명을 입력하세요 (예: 한국사)')?.trim();
+          if (!name) return;
+          if (name.length > 10) { this.toast('10자 이내로 입력해 주세요','error'); return; }
+          addCustomSubject(name);
+          this.playSound('save');
+          this.toast(`"${name}" 추가됨 ✨`,'success');
+          refresh();
+        };
+
+        const hintBtn = document.getElementById('tt-hint');
+        if (hintBtn) hintBtn.onclick = ()=>{
+          slots = answer.slice(); this.playSound('complete'); refresh();
+        };
+        document.getElementById('tt-reset').onclick = ()=>{
+          slots = Array(MAX_TIMETABLE_PERIODS).fill(''); this.playSound('select'); refresh();
+        };
+        document.getElementById('tt-done').onclick = ()=>{
+          // 입력한 만큼만 저장 (뒤쪽 빈 칸 trim)
+          const trimmed = slots.slice();
+          while (trimmed.length && !trimmed[trimmed.length-1]) trimmed.pop();
+          this.record.timetableArranged = trimmed;
+          this.record.timetableCorrect = hasAnswer && answer.every((a,i)=>!a || slots[i]===a);
+          this.playSound('save');
+          this.toast('시간표 완성! 🎉','success');
+          const said = trimmed.map((s,i)=>s?`${i+1}교시 ${s}`:'').filter(x=>x).join(', ');
+          if (said) this.speak(`오늘 시간표는, ${said} 입니다.`);
+          this.closePopup(); this.renderTimetable(); this.autoSaveDraft();
+        };
+      };
+      bind();
+    }});
+  },
+  openTimetableNote(idx) {
+    this.ensureAudio();
+    if (!this.record.timetableNotes) this.record.timetableNotes = {};
+    const arr = this.record.timetableArranged || [];
+    const subj = arr[idx] || `${idx+1}교시`;
+    const cur = this.record.timetableNotes[idx] || '';
+    this.openPopup(`📝 ${subj} 특이사항 메모`, `
+      <textarea class="notes-textarea" id="ttn-input" placeholder="예) 준비물: 색종이, 가위 / 운동장 수업">${cur}</textarea>
+      <div class="popup-actions">
+        <button class="btn-cancel" id="ttn-del">🗑️ 삭제</button>
+        <button class="btn-cancel" id="ttn-cancel">취소</button>
+        <button class="btn-save" id="ttn-save">💾 저장</button>
+      </div>`, {onMount:()=>{
+        document.getElementById('ttn-cancel').onclick=()=>this.closePopup();
+        document.getElementById('ttn-del').onclick=()=>{
+          delete this.record.timetableNotes[idx];
+          this.playSound('select'); this.closePopup(); this.renderTimetable(); this.autoSaveDraft();
+        };
+        document.getElementById('ttn-save').onclick=()=>{
+          const v = document.getElementById('ttn-input').value.trim();
+          if (v) this.record.timetableNotes[idx] = v;
+          else delete this.record.timetableNotes[idx];
+          this.playSound('save'); this.toast('메모 저장!','success');
+          this.closePopup(); this.renderTimetable(); this.autoSaveDraft();
+        };
+      }});
+  },
+
+
+  renderMeal() {
+    const c = document.getElementById('card-meal');
+    const m = this.record.mealText;
+    if (m) {
+      c.className='card filled';
+      const items = m.split('\n').filter(x=>x.trim());
+      c.innerHTML = `<div class="card-title">🍱 오늘의 급식<span class="card-badge">✅</span>
+        <button class="notes-edit-btn" id="meal-reload" title="다시 불러오기">🔄</button></div>
+        <div class="meal-list">${items.map((it,i)=>`<div class="meal-item" style="animation-delay:${i*0.08}s">🍴 ${it}</div>`).join('')}</div>`;
+      document.getElementById('meal-reload').onclick = (e)=>{ e.stopPropagation(); this.loadMeal(true); };
+    } else {
+      c.className='card empty';
+      c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
+        <button class="meal-load-btn" id="meal-load-btn"><span class="ico">📡</span><span>오늘 급식 불러오기</span></button>
+        <div style="text-align:center;color:var(--text-sub);font-size:18px;margin-top:8px;font-weight:600">버튼을 눌러서 오늘 급식을 알아봐요 👆</div>`;
+      document.getElementById('meal-load-btn').onclick = ()=> this.loadMeal();
+    }
+  },
+  async loadMeal(force) {
+    this.ensureAudio(); this.playSound('select');
+    const c = document.getElementById('card-meal');
+    c.className='card empty';
+    c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
+      <div class="meal-loading"><div class="spinner">🍳</div><div class="text">급식 정보를 가져오는 중...</div></div>`;
+    const spinner = c.querySelector('.spinner');
+    const emojis = ['🍳','🍚','🍲','🥗','🍱'];
+    let ei = 0;
+    const interval = setInterval(()=>{ if(spinner) spinner.textContent = emojis[++ei % emojis.length]; }, 400);
+
+    const s = this.settings;
+    if (!s?.neisKey || !s?.neisAtptCode || !s?.neisSchoolCode) {
+      clearInterval(interval);
+      c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
+        <div class="card-hint">⚙️ 설정에서 급식 API 정보를 입력해 주세요</div>
+        <div class="meal-actions"><button id="meal-manual">✏️ 직접 입력</button></div>`;
+      document.getElementById('meal-manual').onclick = ()=> this.openManualMeal();
+      return;
+    }
+
+    try {
+      const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${encodeURIComponent(s.neisKey)}&Type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=${s.neisAtptCode}&SD_SCHUL_CODE=${s.neisSchoolCode}&MLSV_YMD=${this.todayKey}`;
+      const data = await this.fetchWithFallback(url);
+      clearInterval(interval);
+      if (data?.mealServiceDietInfo) {
+        const row = data.mealServiceDietInfo[1].row[0];
+        let menu = row.DDISH_NM || '';
+        // remove allergy numbers
+        const items = menu.split('<br/>').map(x=>
+          x.replace(/\s*\(\d+(\.\d+)*\)/g,'').replace(/\s*\d+(\.\d+)*\.?\s*$/g,'').trim()
+        ).filter(x=>x);
+        this.record.mealText = items.join('\n');
+        this.record.mealLoadedAt = new Date().toISOString();
+        this.playSound('complete');
+        this.speak(`오늘 급식 메뉴는, ${items.join(', ')} 입니다.`);
+        this.renderMeal();
+        this.autoSaveDraft();
+      } else if (data?.RESULT?.CODE === 'INFO-200') {
+        clearInterval(interval);
+        c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
+          <div class="card-hint">🏖️ 오늘은 급식이 없는 날이에요</div>
+          <div class="meal-actions"><button id="meal-manual">✏️ 직접 입력</button></div>`;
+        document.getElementById('meal-manual').onclick = ()=> this.openManualMeal();
+      } else { throw new Error('no_data'); }
+    } catch(e) {
+      clearInterval(interval);
+      c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
+        <div class="card-hint">🍽️ 급식을 가져올 수 없어요</div>
+        <div class="meal-actions">
+          <button id="meal-retry">🔄 다시 불러오기</button>
+          <button id="meal-manual">✏️ 직접 입력</button>
+        </div>`;
+      document.getElementById('meal-retry').onclick = ()=> this.loadMeal();
+      document.getElementById('meal-manual').onclick = ()=> this.openManualMeal();
+    }
+  },
+  async fetchWithFallback(url) {
+    const strategies = [
+      ()=> fetch(url),
+      ()=> fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`),
+      ()=> fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+    ];
+    for (const tryFn of strategies) {
+      try {
+        const r = await tryFn();
+        if (r.ok) return await r.json();
+      } catch(e){}
+    }
+    throw new Error('all_failed');
+  },
+  openManualMeal() {
+    const cur = this.record.mealText || '';
+    this.openPopup('✏️ 급식 직접 입력', `
+      <textarea class="notes-textarea" id="meal-input" placeholder="음식을 한 줄에 하나씩 입력하세요&#10;예: 백미밥&#10;된장찌개">${cur}</textarea>
+      <div class="popup-actions">
+        <button class="btn-cancel" id="mm-cancel">취소</button>
+        <button class="btn-save" id="mm-save">💾 저장</button>
+      </div>`, {onMount:()=>{
+        document.getElementById('mm-cancel').onclick=()=>this.closePopup();
+        document.getElementById('mm-save').onclick=()=>{
+          this.record.mealText = document.getElementById('meal-input').value.trim();
+          this.record.mealLoadedAt = new Date().toISOString();
+          this.playSound('save'); this.toast('급식 저장!','success');
+          this.closePopup(); this.renderMeal(); this.autoSaveDraft();
+        };
+      }});
+  },
+
+  // ── Emotions (⑥) ──
+  renderEmotions() {
+    const c = document.getElementById('card-emotions');
+    const students = this.settings?.students || [];
+    if (!students.length) {
+      c.className='card empty';
+      c.innerHTML = `<div class="card-title">👨‍👩‍👧‍👦 우리반 감정</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
+      return;
+    }
+    const em = this.record.emotions;
+    const allDone = students.every(n=>em[n]);
+    c.className = 'card '+(allDone?'filled':'empty');
+    c.innerHTML = `<div class="card-title">👨‍👩‍👧‍👦 우리반 감정${allDone?'<span class="card-badge">모두 완료! 🎉</span>':''}</div>
+      <div class="students-grid">${students.map(n=>{
+        const v = em[n];
+        return `<div class="student-card ${v?'filled':''}" data-name="${n}" tabindex="0" role="button" aria-label="${n} 감정 선택">
+          <div class="em" role="img" aria-label="${v?v.label:'미선택'}">${v?v.emoji:'❓'}</div>
+          <div class="nm">${n}</div>
+        </div>`;
+      }).join('')}</div>`;
+    c.querySelectorAll('.student-card').forEach(sc=>{
+      sc.onclick = ()=> this.openEmotion(sc.dataset.name);
+    });
+  },
+  openEmotion(name) {
+    this.ensureAudio();
+    // 학생 이름을 크게 강조 — "내가 나의 감정을 고른다" 느낌
+    const html = `
+      <div style="text-align:center;margin:6px 0 22px">
+        <div style="font-size:18px;color:var(--text-sub);font-weight:600;margin-bottom:6px">오늘의 주인공</div>
+        <div class="handwriting" style="font-size:clamp(40px,4.6vw,72px);font-weight:900;color:var(--acc-coral);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1),nameFloat 2.4s ease-in-out infinite;line-height:1.1">${name}</div>
+        <div style="margin-top:10px;font-size:clamp(20px,1.6vw,26px);font-weight:700;color:var(--text)">지금 내 마음은 어떤가요? 💭</div>
+      </div>
+      <div class="choice-grid cols-4">${EMOTIONS.map((e,i)=>
+        `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${e.l}">${e.e}</span><span class="lb">${e.l}</span></button>`
+      ).join('')}</div>`;
+    this.speak(`${name} 친구, 오늘 기분이 어때요?`);
+    this.openPopup(`💖 ${name}의 마음 일기`, html, {onMount:()=>{
+      document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
+        const e = EMOTIONS[+b.dataset.i];
+        this.record.emotions[name] = {emoji:e.e, label:e.l};
+        this.playSound('emotion');
+        this.toast(`${name}: ${e.l} ${e.e}`,'success');
+        this.speak(`${name} 친구의 오늘 기분은 ${e.l} 입니다.`);
+        this.closePopup(); this.renderEmotions(); this.checkComplete(); this.autoSaveDraft();
+      });
+    }});
+  },
+
+  // ── Notes ──
+  renderNotes() {
+    const c = document.getElementById('card-notes');
+    const n = this.record.notes;
+    if (n) {
+      c.className='card touchable filled';
+      c.innerHTML = `<div class="card-title">📢 오늘의 유의사항<span class="card-badge">✅</span></div>
+        <div class="notes-display">${n.replace(/</g,'&lt;')}</div>`;
+    } else {
+      c.className='card touchable empty';
+      c.innerHTML = `<div class="card-title">📢 오늘의 유의사항</div>
+        <div class="card-hint">✏️ 터치해서 선생님이 입력해요</div>`;
+    }
+  },
+  openNotes() {
+    this.ensureAudio();
+    const draft = localStorage.getItem('mc_draft_notes_'+this.todayKey) || this.record.notes || '';
+    this.openPopup('📢 오늘의 유의사항', `
+      <textarea class="notes-textarea" id="notes-input" placeholder="오늘 학생들에게 전달할 내용을 입력하세요">${draft}</textarea>
+      <div class="popup-actions">
+        <button class="btn-cancel" id="n-cancel">취소</button>
+        <button class="btn-save" id="n-save">💾 저장</button>
+      </div>`, {onMount:()=>{
+        const ta = document.getElementById('notes-input');
+        let t;
+        ta.oninput = ()=>{ clearTimeout(t); t=setTimeout(()=>localStorage.setItem('mc_draft_notes_'+this.todayKey, ta.value), 800); };
+        document.getElementById('n-cancel').onclick=()=>this.closePopup();
+        document.getElementById('n-save').onclick=()=>{
+          this.record.notes = ta.value.trim();
+          localStorage.removeItem('mc_draft_notes_'+this.todayKey);
+          this.playSound('save'); this.toast('유의사항 저장!','success');
+          this.closePopup(); this.renderNotes(); this.autoSaveDraft();
+        };
+      }});
+  },
+
+  // ── Book ──
+  renderBook() {
+    const c = document.getElementById('card-book');
+    const url = this.settings?.bookUrl;
+    const title = this.settings?.bookTitle;
+    if (!url) {
+      c.className='card empty';
+      c.innerHTML = `<div class="card-title" style="font-size:18px">📖 북모닝</div><div class="card-hint" style="font-size:14px;padding:6px 0">⚙️ 설정에서 영상 등록</div>`;
+      return;
+    }
+    const id = url.match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/)?.[1];
+    const thumb = id ? `https://img.youtube.com/vi/${id}/default.jpg` : '';
+    c.className='card touchable filled';
+    c.innerHTML = `<div class="book-shortcut">
+        ${thumb?`<div class="book-mini" style="background-image:url('${thumb}')"></div>`:'<div class="book-mini">📺</div>'}
+        <div class="book-info">
+          <div class="book-label">📖 북모닝 바로가기</div>
+          <div class="book-title-mini">${title||'영상 열기'}</div>
+        </div>
+        <div class="book-arrow">▶</div>
+      </div>`;
+  },
+  openBook() {
+    const url = this.settings?.bookUrl;
+    if (url) { this.ensureAudio(); this.playSound('select'); window.open(url,'_blank'); }
+  },
+
+  // ── Progress / Complete ──
+  updateProgress() {
+    const att = this.record.attendance||{};
+    const students = this.settings?.students||[];
+    const arr = this.record.timetableArranged;
+    const tasks = [
+      !!this._dateUserSet || !!localStorage.getItem('mc_date_set'),
+      !!this.record.weather,
+      !!this.record.dust,
+      students.length>0 && students.every(n=>att[n]),
+      Array.isArray(arr) && arr.some(s=>s),
+      students.length>0 && students.every(n=>this.record.emotions[n]),
+      !!this.record.mealText
+    ];
+    const done = tasks.filter(Boolean).length;
+    const pct = (done/tasks.length)*100;
+    document.getElementById('progress-bar').style.width = pct+'%';
+    const st = document.getElementById('status-text');
+    if (pct>=100) {
+      st.textContent = '🎉 오늘의 아침 준비 완료! 모두 화이팅!'; st.classList.add('done');
+      const flagKey = 'mc_celebrated_'+this.todayKey;
+      if (!localStorage.getItem(flagKey)) {
+        localStorage.setItem(flagKey, '1');
+        this.celebrate();
+      }
+    }
+    else { st.textContent = `아침 준비 ${done}/${tasks.length}`; st.classList.remove('done'); }
+  },
+  celebrate() {
+    // 폭죽 효과
+    try {
+      const colors = ['#ff3b30','#ff9500','#ffcc00','#34c759','#5ac8fa','#007aff','#af52de','#ff2d92'];
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
+      document.body.appendChild(container);
+      const launch = (originX, originY) => {
+        for (let i=0;i<60;i++){
+          const p = document.createElement('div');
+          const angle = Math.random()*Math.PI*2;
+          const dist = 120 + Math.random()*220;
+          const dx = Math.cos(angle)*dist;
+          const dy = Math.sin(angle)*dist;
+          const size = 6 + Math.random()*8;
+          p.style.cssText = `position:absolute;left:${originX}px;top:${originY}px;width:${size}px;height:${size}px;background:${colors[i%colors.length]};border-radius:${Math.random()<0.5?'50%':'2px'};transform:translate(-50%,-50%);transition:transform 1.4s cubic-bezier(.2,.7,.3,1),opacity 1.4s ease-out;opacity:1`;
+          container.appendChild(p);
+          requestAnimationFrame(()=>{
+            p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 200}px)) rotate(${Math.random()*720}deg)`;
+            p.style.opacity = '0';
+          });
+        }
+      };
+      const W = window.innerWidth, H = window.innerHeight;
+      launch(W*0.25, H*0.4);
+      setTimeout(()=>launch(W*0.75, H*0.35), 250);
+      setTimeout(()=>launch(W*0.5, H*0.5), 500);
+      setTimeout(()=>container.remove(), 2000);
+    } catch(e){}
+    // 딩동댕동 효과음
+    try {
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const notes = [{f:659.25,t:0},{f:783.99,t:0.25},{f:987.77,t:0.5},{f:1318.51,t:0.75}]; // E5,G5,B5,E6 딩동댕동
+      notes.forEach(n=>{
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type='sine'; o.frequency.value=n.f;
+        g.gain.setValueAtTime(0, ctx.currentTime+n.t);
+        g.gain.linearRampToValueAtTime(0.35, ctx.currentTime+n.t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+n.t+0.5);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime+n.t); o.stop(ctx.currentTime+n.t+0.55);
+      });
+    } catch(e){}
+    // 음성 메세지
+    const speak = () => {
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance('오늘 하루도 파이팅이에요! 좋은 하루 보내세요!');
+        u.lang = 'ko-KR'; u.rate = 1.0; u.pitch = 1.1;
+        const voices = speechSynthesis.getVoices();
+        const ko = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('ko'));
+        if (ko) u.voice = ko;
+        speechSynthesis.speak(u);
+      } catch(e){}
+    };
+    setTimeout(()=>{
+      if ('speechSynthesis' in window) {
+        const v = speechSynthesis.getVoices();
+        if (!v || v.length === 0) {
+          speechSynthesis.onvoiceschanged = () => { speak(); speechSynthesis.onvoiceschanged = null; };
+          setTimeout(speak, 800);
+        } else { speak(); }
+      }
+    }, 1100);
+  },
+  checkComplete() {
+    this.updateProgress();
+    const tasksAllDone = (()=>{
+      const att = this.record.attendance||{};
+      const students = this.settings?.students||[];
+      const arr = this.record.timetableArranged;
+      return (this._dateUserSet||localStorage.getItem('mc_date_set'))
+        && this.record.weather && this.record.dust
+        && students.length>0 && students.every(n=>att[n])
+        && Array.isArray(arr) && arr.some(s=>s)
+        && students.every(n=>this.record.emotions[n])
+        && this.record.mealText;
+    })();
+    if (tasksAllDone && !this.celebratedToday) {
+      this.celebratedToday = true;
+      this.celebrate();
+      this.saveRecord(true);
+      this.toast('자동 저장됐어요 ✅','success');
+    }
+  },
+  celebrate() {
+    this.playSound('complete');
+    const ov = document.getElementById('celebrate');
+    ov.classList.add('active');
+    setTimeout(()=>ov.classList.remove('active'), 1800);
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    const emojis = ['✨','🎉','⭐','🌟','💫','🎈','🌸'];
+    for (let i=0;i<30;i++) {
+      const el = document.createElement('div');
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      el.style.cssText = `position:fixed;top:-50px;font-size:32px;z-index:9999;left:${Math.random()*100}vw;animation:particleFall ${1.5+Math.random()*2}s ease-in forwards;animation-delay:${Math.random()*0.5}s;pointer-events:none`;
+      document.body.appendChild(el);
+      el.addEventListener('animationend', ()=>el.remove());
+    }
+  },
+  autoSaveDraft() {
+    // light save without sound
+    try { localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record)); } catch(e){}
+  },
+
+  // ── Settings ──
+  openSettings() {
+    this.settingsDraft = JSON.parse(JSON.stringify(this.settings || {
+      schoolName:'', className:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'',
+      bookUrl:'', bookTitle:''
+    }));
+    document.getElementById('settings-overlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    document.querySelectorAll('#settings-tabs .settings-tab').forEach(t=>{
+      t.onclick = ()=>{
+        // 현재 시간표 탭의 입력값을 잃지 않도록 먼저 저장
+        if (this.settingsTab==='timetable') {
+          const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
+          if (cur.length) localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+        }
+        this.settingsTab = t.dataset.tab; this.renderSettingsTabs();
+      };
+    });
+    this.renderSettingsTabs();
+  },
+  closeSettings() {
+    const ov = document.getElementById('settings-overlay');
+    ov.classList.add('closing');
+    setTimeout(()=>{ ov.classList.remove('active','closing'); document.body.style.overflow=''; },180);
+  },
+  renderSettingsTabs() {
+    document.querySelectorAll('#settings-tabs .settings-tab').forEach(t=>{
+      t.classList.toggle('active', t.dataset.tab===this.settingsTab);
+    });
+    const c = document.getElementById('settings-content');
+    const s = this.settingsDraft;
+    const sec = (id, html)=>`<div class="settings-section ${this.settingsTab===id?'active':''}">${html}</div>`;
+    let html = '';
+
+    html += sec('info', `<h3>🏫 학급 기본 정보</h3>
+      <div class="field"><label>학교명</label><input id="f-school" value="${s.schoolName||''}"></div>
+      <div class="field"><label>학급명</label><input id="f-class" value="${s.className||''}"></div>`);
+
+    html += sec('students', `<h3>👨‍🎓 학생 관리</h3>
+      <div class="field"><label>학생 추가 (한 줄에 한 명)</label>
+        <textarea id="f-students-add" placeholder="김민준&#10;이서연"></textarea>
+        <button class="btn-test" id="f-add-students">➕ 추가</button>
+      </div>
+      <div class="field"><label>등록된 학생 (${s.students?.length||0}명)</label>
+        <div id="student-list">${(s.students||[]).map((n,i)=>`
+          <div class="student-list-item">
+            <span class="nm">${i+1}. ${n}</span>
+            <button data-i="${i}" data-act="up" ${i===0?'disabled':''}>▲</button>
+            <button data-i="${i}" data-act="dn" ${i===s.students.length-1?'disabled':''}>▼</button>
+            <button class="del" data-i="${i}" data-act="del">✕</button>
+          </div>`).join('')}</div>
+      </div>`);
+
+    const dayNames = ['월','화','수','목','금'];
+    let tt = [];
+    try { tt = JSON.parse(localStorage.getItem('mc_timetable_'+this.settingsDay)||'{"periods":["","","","","","",""]}').periods; }
+    catch(e){ tt=['','','','','','','']; }
+    while(tt.length<7) tt.push('');
+    html += sec('timetable', `<h3>📅 시간표 입력</h3>
+      <div class="tt-day-tabs">${dayNames.map((d,i)=>`<button data-day="${i}" class="${this.settingsDay===i?'active':''}">${d}요일</button>`).join('')}</div>
+      ${tt.map((p,i)=>`<div class="tt-period-row"><span class="lbl">${i+1}교시</span><input class="tt-pinp" data-i="${i}" value="${p||''}" placeholder="비워두면 미표시"></div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:8px">
+        ${dayNames.map((d,i)=>i!==this.settingsDay?`<button class="copy-day-btn" data-copy="${i}">${dayNames[this.settingsDay]}→${d}</button>`:'').join('')}
+      </div>`);
+
+    html += sec('meal', `<h3>🍱 급식 API 설정</h3>
+      <div class="field"><label>교육청 코드</label><input id="f-atpt" value="${s.neisAtptCode||''}" placeholder="예: K10"></div>
+      <div class="field"><label>학교 코드</label><input id="f-school-code" value="${s.neisSchoolCode||''}" placeholder="예: 7801212"></div>
+      <div class="field"><label>NEIS API KEY</label><input id="f-key" value="${s.neisKey||''}" type="password">
+        <div class="hint">NEIS API KEY는 <a href="https://open.neis.go.kr" target="_blank" rel="noopener" style="color:#0a84ff;font-weight:700;text-decoration:underline">open.neis.go.kr ↗</a> 에서 발급받으세요</div></div>
+      <button class="btn-test" id="f-test-meal">🧪 급식 테스트</button>
+      <div id="test-result"></div>`);
+
+    html += sec('book', `<h3>📖 북모닝 영상</h3>
+      <div class="field"><label>유튜브 URL</label><input id="f-book-url" value="${s.bookUrl||''}" placeholder="https://youtu.be/..."></div>
+      <div class="field"><label>영상 제목</label><input id="f-book-title" value="${s.bookTitle||''}"></div>
+      <div id="book-preview"></div>`);
+
+    const records = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).length;
+    const usage = ((JSON.stringify(localStorage).length/1024)).toFixed(1);
+    html += sec('data', `<h3>💾 데이터 관리</h3>
+      <div class="field"><div class="hint">저장된 기록: ${records}일 · 사용량: ${usage}KB</div></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn-test" id="f-export">📤 전체 내보내기 (JSON)</button>
+        <button class="btn-test" id="f-import">📥 불러오기</button>
+        <input type="file" id="f-import-file" accept="application/json" style="display:none">
+        <button class="btn-test" style="background:var(--danger)" id="f-clean">🗑️ 30일 이전 기록 삭제</button>
+      </div>`);
+
+    c.innerHTML = html;
+    this.bindSettingsTab();
+  },
+  bindSettingsTab() {
+    const s = this.settingsDraft;
+    const t = this.settingsTab;
+    if (t==='info') {
+      document.getElementById('f-school').oninput = e=> s.schoolName = e.target.value;
+      document.getElementById('f-class').oninput = e=> s.className = e.target.value;
+    } else if (t==='students') {
+      document.getElementById('f-add-students').onclick = ()=>{
+        const v = document.getElementById('f-students-add').value;
+        const ns = v.split('\n').map(x=>x.trim()).filter(x=>x);
+        s.students = [...(s.students||[]), ...ns];
+        this.renderSettingsTabs();
+      };
+      document.querySelectorAll('#student-list button').forEach(b=>b.onclick=()=>{
+        const i = +b.dataset.i, act = b.dataset.act;
+        if (act==='del') s.students.splice(i,1);
+        else if (act==='up' && i>0) [s.students[i-1],s.students[i]]=[s.students[i],s.students[i-1]];
+        else if (act==='dn' && i<s.students.length-1) [s.students[i+1],s.students[i]]=[s.students[i],s.students[i+1]];
+        this.renderSettingsTabs();
+      });
+    } else if (t==='timetable') {
+      const saveCurrent = ()=>{
+        const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
+        localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+      };
+      document.querySelectorAll('.tt-pinp').forEach(inp=>{ inp.oninput = saveCurrent; });
+      document.querySelectorAll('.tt-day-tabs button').forEach(b=>b.onclick=()=>{
+        saveCurrent();
+        this.settingsDay = +b.dataset.day; this.renderSettingsTabs();
+      });
+      document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
+        saveCurrent();
+        const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
+        localStorage.setItem('mc_timetable_'+(+b.dataset.copy), JSON.stringify({periods:cur}));
+        this.toast('복사 완료!','success');
+      });
+    } else if (t==='meal') {
+      document.getElementById('f-atpt').oninput = e=> s.neisAtptCode = e.target.value.trim();
+      document.getElementById('f-school-code').oninput = e=> s.neisSchoolCode = e.target.value.trim();
+      document.getElementById('f-key').oninput = e=> s.neisKey = e.target.value.trim();
+      document.getElementById('f-test-meal').onclick = async ()=>{
+        const r = document.getElementById('test-result');
+        r.className='test-result'; r.textContent='조회 중...';
+        try {
+          const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${encodeURIComponent(s.neisKey)}&Type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=${s.neisAtptCode}&SD_SCHUL_CODE=${s.neisSchoolCode}&MLSV_YMD=${this.todayKey}`;
+          const data = await this.fetchWithFallback(url);
+          if (data?.mealServiceDietInfo) {
+            r.textContent = '✅ 성공!\n' + (data.mealServiceDietInfo[1].row[0].DDISH_NM||'').replace(/<br\/>/g,'\n');
+          } else r.textContent = '⚠️ 데이터 없음 (오늘 급식이 없거나 코드 오류)';
+        } catch(e){ r.textContent='❌ 호출 실패'; }
+      };
+    } else if (t==='book') {
+      const upd = ()=>{
+        s.bookUrl = document.getElementById('f-book-url').value.trim();
+        s.bookTitle = document.getElementById('f-book-title').value;
+        const id = s.bookUrl.match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/)?.[1];
+        document.getElementById('book-preview').innerHTML = id
+          ? `<img src="https://img.youtube.com/vi/${id}/mqdefault.jpg" style="max-width:240px;border-radius:10px;margin-top:8px">`
+          : '';
+      };
+      document.getElementById('f-book-url').oninput = upd;
+      document.getElementById('f-book-title').oninput = upd;
+      upd();
+    } else if (t==='data') {
+      document.getElementById('f-export').onclick = ()=> this.exportData();
+      document.getElementById('f-import').onclick = ()=> document.getElementById('f-import-file').click();
+      document.getElementById('f-import-file').onchange = e=> this.importData(e.target.files[0]);
+      document.getElementById('f-clean').onclick = ()=>{
+        if(confirm('30일 이전 기록을 모두 삭제할까요?')) { this.cleanOldRecords(); this.toast('삭제 완료','success'); this.renderSettingsTabs(); }
+      };
+    }
+  },
+  saveSettings() {
+    // save current timetable tab inputs if open
+    if (this.settingsTab==='timetable') {
+      const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
+      localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+    }
+    this.settings = this.settingsDraft;
+    localStorage.setItem('mc_settings', JSON.stringify(this.settings));
+    document.getElementById('school-info').textContent = `${this.settings.schoolName||''} · ${this.settings.className||''}`;
+    this.playSound('save');
+    this.toast('설정 저장 완료!','success');
+    this.closeSettings();
+    this.loadRecord();
+    this.renderAll();
+  },
+  exportData() {
+    const data = {};
+    Object.keys(localStorage).filter(k=>k.startsWith('mc_')).forEach(k=>data[k]=localStorage.getItem(k));
+    data._exportedAt = new Date().toISOString(); data._version = '2.2';
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `아침교실_백업_${this.todayKey}.json`; a.click();
+    this.toast('백업 완료 📤','success');
+  },
+  importData(file) {
+    if (!file) return;
+    if (!confirm('현재 데이터를 덮어쓸까요?')) return;
+    const r = new FileReader();
+    r.onload = ()=>{
+      try {
+        const data = JSON.parse(r.result);
+        Object.keys(data).filter(k=>k.startsWith('mc_')).forEach(k=>localStorage.setItem(k, data[k]));
+        this.toast('불러오기 완료 ✅','success');
+        this.loadSettings(); this.loadRecord(); this.renderSettingsTabs(); this.renderAll();
+      } catch(e){ this.toast('파일 오류','error'); }
+    };
+    r.readAsText(file);
+  },
+
+  // ── Records ──
+  openRecords() {
+    document.getElementById('records-overlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).sort().reverse();
+    if (!keys.length) {
+      document.getElementById('records-body').innerHTML = '<div class="card-hint">아직 저장된 기록이 없어요 📭</div>';
+      return;
+    }
+    const list = keys.map(k=>{
+      const d = k.replace('mc_record_','');
+      const dateStr = `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`;
+      let r={}; try{r=JSON.parse(localStorage.getItem(k))||{};}catch(e){}
+      return `<div class="record-item" data-k="${k}">
+        <div class="dt">${dateStr}</div>
+        <div class="sm">${r.weather?.emoji||''} ${r.dust?.emoji||''}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('records-body').innerHTML = `<div class="records-list">${list}</div><div id="record-detail" style="margin-top:14px"></div>`;
+    document.querySelectorAll('.record-item').forEach(el=>el.onclick=()=>{
+      const r = JSON.parse(localStorage.getItem(el.dataset.k)||'{}');
+      const k = el.dataset.k;
+      const ems = Object.entries(r.emotions||{}).map(([n,v])=>`${n}: ${v.emoji} ${v.label}`).join(', ');
+      const att = Object.entries(r.attendance||{}).map(([n,v])=>`${n}: ${v}`).join(', ');
+      document.getElementById('record-detail').innerHTML = `<div class="record-detail">
+        <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}`:'-'}</div>
+        <h4>미세먼지</h4><div class="row">${r.dust?`${r.dust.emoji} ${r.dust.label}`:'-'}</div>
+        <h4>출석</h4><div class="row">${att||'-'}</div>
+        <h4>감정</h4><div class="row">${ems||'-'}</div>
+        <h4>유의사항</h4><div class="row" style="white-space:pre-wrap">${(r.notes||'-').replace(/</g,'&lt;')}</div>
+        <h4>급식</h4><div class="row" style="white-space:pre-wrap">${r.mealText||'-'}</div>
+        <button class="btn-test" style="background:var(--danger);margin-top:10px" onclick="if(confirm('정말 삭제할까요?')){localStorage.removeItem('${k}');App.openRecords();}">🗑️ 이 기록 삭제</button>
+      </div>`;
+    });
+  },
+  closeRecords() {
+    const ov = document.getElementById('records-overlay');
+    ov.classList.add('closing');
+    setTimeout(()=>{ ov.classList.remove('active','closing'); document.body.style.overflow=''; },180);
+  },
+
+  openWelcome() {
+    this.openPopup('🌅 환영합니다!', `
+      <div class="welcome">
+        <h2>아침교실에 오신 것을 환영해요!</h2>
+        <div style="background:#fff5d6;border:2px solid #f5b800;border-radius:14px;padding:16px;margin:14px 0;text-align:left">
+          <div style="font-weight:800;font-size:1.05em;color:#a36b00;margin-bottom:8px">📌 시작 전, 학급 설정이 꼭 필요해요!</div>
+          <div style="color:#5a4400;line-height:1.7;font-size:0.98em">
+            아침교실을 사용하려면 <b>학교명, 학급명, 학생 명단</b>을 먼저 등록해 주세요.<br>
+            설정을 마쳐야 출석·시간표·급식 기능을 사용할 수 있어요.
+          </div>
+        </div>
+        <p style="color:#666;font-size:0.9em">설정은 언제든 우측 상단 ⚙️ 버튼에서 다시 변경할 수 있어요.</p>
+        <button id="welcome-btn" style="font-size:1.1em;padding:14px 28px">⚙️ 지금 학급 설정하기</button>
+      </div>`, {onMount:()=>{
+        document.getElementById('welcome-btn').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openSettings(), 200); };
+      }});
+  }
+};
+
+document.addEventListener('DOMContentLoaded', ()=>App.init());
+</script>
+</body>
+</html>
