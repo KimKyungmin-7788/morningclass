@@ -7,7 +7,11 @@
 <title>🌅 아침교실</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Jua&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Jua&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Phosphor 벡터 아이콘 (디자인 v3) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <style>
 @font-face{
   font-family:'KyoboHandwriting2019';
@@ -57,8 +61,12 @@
   --fs-emoji-md:clamp(36px,3vw,56px);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{font-family:'Noto Sans KR','맑은 고딕',sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg-cream) 0%,var(--bg-sky) 60%,var(--bg-mint) 100%);min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 90% 10%,rgba(255,201,60,.18),transparent 40%),radial-gradient(circle at 10% 90%,rgba(176,132,235,.14),transparent 40%);pointer-events:none;z-index:0}
+html,body{font-family:'Noto Sans KR','맑은 고딕',sans-serif;color:var(--text);background:linear-gradient(160deg,#dcedff 0%,#fdf2f0 52%,#e4f2dc 100%);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
+  radial-gradient(620px 520px at 80% 6%, rgba(255,255,255,.55), transparent 62%),
+  radial-gradient(440px 240px at 6% 16%, rgba(255,255,255,.5), transparent 62%),
+  radial-gradient(60% 42% at 12% 110%, rgba(208,234,203,.55), transparent 72%),
+  radial-gradient(70% 50% at 92% 114%, rgba(220,234,208,.5), transparent 72%)}
 #app{position:relative;z-index:1}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input,textarea,select{font-family:inherit;color:var(--text)}
@@ -104,9 +112,10 @@ header .actions button{width:48px;height:48px;border-radius:14px;background:#fff
 header .actions button:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
 header .actions button.primary{background:var(--success);color:#fff}
 
-main{display:grid;grid-template-columns:0.7fr 1.6fr 1.2fr 0.7fr;gap:14px;min-height:0}
+main{display:grid;grid-template-columns:0.7fr 1.4fr 1.4fr 0.7fr;gap:20px;min-height:0}
 .col{display:flex;flex-direction:column;gap:14px;min-height:0}
-.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+/* 2·3열(시간표·감정)만 콘텐츠에 밀리지 않게 → 동일 폭 + 간격은 가운데서 확보 */
+main>.col:nth-child(2),main>.col:nth-child(3){min-width:0}
 
 footer{display:flex;align-items:center;gap:14px;padding:10px 18px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border-radius:var(--radius)}
 footer .progress-wrap{flex:1;height:14px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
@@ -118,18 +127,17 @@ footer .status.done{color:var(--success)}
 .subject-chip:active,.student-card:active,.meal-load-btn:active,.choice-item:active,.att-row button:active{animation:pop .25s ease}
 .tt-slot.correct{animation:wiggle .45s ease}
 .card-badge{animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
-.card.touchable:hover{transform:translateY(-4px) scale(1.01)}
-/* ── 3. Cards ─────────────────────────────────────── */
-.card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--card-shadow);transition:.25s;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;position:relative;overflow:hidden}
+.card.touchable:hover{transform:translateY(-4px) scale(1.005)}
+/* ── 3. Cards (v3 글래스모피즘) ────────────────────── */
+.card{background:rgba(255,255,255,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);border-radius:32px;padding:18px;box-shadow:0 10px 40px -12px rgba(160,175,200,.45);transition:.25s;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 55%);pointer-events:none;border-radius:inherit;z-index:0}
+.card>*{position:relative;z-index:1}
 .card.touchable{cursor:pointer}
-.card.touchable:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
-/* empty 카드: 굵은 검정 점선 테두리 + 부드러운 컬러 베일 */
-.card.empty{background:var(--card-empty);border:4px dashed #1a1a1a}
-.card.empty::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(91,182,255,.16),rgba(255,201,60,.12));pointer-events:none;z-index:1;border-radius:inherit;transition:opacity .25s}
-.card.empty.touchable:hover::before{opacity:.55}
-.card.empty>*{position:relative;z-index:2}
-.card.empty .card-hint{color:var(--text);font-weight:800;text-shadow:0 1px 8px rgba(255,255,255,.7)}
-.card.filled{border:3px solid var(--success)}
+.card.touchable:hover{transform:translateY(-3px);box-shadow:0 16px 44px -12px rgba(160,175,200,.55)}
+/* empty 카드: 부드러운 회색 점선 */
+.card.empty{background:rgba(255,255,255,.5);border:2px dashed #cbd5e1}
+.card.empty .card-hint{color:var(--text-sub);font-weight:700}
+.card.filled{border:1px solid rgba(255,255,255,.9)}
 .card-title{font-size:var(--fs-card-title);font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-badge{margin-left:auto;background:var(--success);color:#fff;font-size:15px;padding:4px 12px;border-radius:99px;font-weight:700;flex-shrink:0}
 .card-hint{color:var(--text-sub);font-size:var(--fs-body);text-align:center;padding:14px 0;flex:1;display:flex;align-items:center;justify-content:center}
@@ -175,7 +183,7 @@ footer .status.done{color:var(--success)}
 .tt-row:nth-child(6) .num{background:#FF8FB1}
 .tt-row:nth-child(7) .num{background:#5BCFC9}
 .tt-row .icon{font-size:24px;line-height:1}
-.tt-row .name{font-weight:700;flex:1;color:var(--text)}
+.tt-row .name{font-weight:700;flex:1;color:var(--text);word-break:keep-all}
 .tt-row .check{color:var(--success);font-weight:900;font-size:18px}
 .tt-note-chip{font-family:'KyoboHandwriting2019','Jua',cursive;font-size:15px;font-weight:500;color:#7A5300;background:linear-gradient(135deg,#FFFBEB,#FFF3CC);border:1.5px dashed #E0B84A;border-radius:10px;padding:3px 10px;cursor:pointer;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s;line-height:1.3}
 .tt-note-chip:hover{background:#FFF3CC;border-style:solid;transform:translateY(-1px)}
@@ -213,10 +221,79 @@ footer .status.done{color:var(--success)}
 .book-shortcut{display:flex;align-items:center;gap:10px;padding:6px;background:linear-gradient(135deg,#FDECEF,#FFFFFF);border-radius:14px;flex:1;cursor:pointer;transition:.2s}
 .book-shortcut:hover{transform:translateX(2px);box-shadow:var(--card-shadow-hover)}
 .book-mini{width:54px;height:54px;border-radius:10px;background:#000;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;flex-shrink:0}
+.book-mini-empty{background:#EEF2F8;color:#AFC2DA;border:2px dashed #CBD8E8}
 .book-info{flex:1;min-width:0}
 .book-label{font-size:13px;color:var(--text-sub);font-weight:600}
 .book-title-mini{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .book-arrow{font-size:18px;color:var(--acc-coral);font-weight:900}
+
+/* helper (오늘의 도우미 뽑기) */
+.helper-winners{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.helper-winner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFF6D6,#FFFFFF);border:2px solid var(--secondary);border-radius:16px;padding:8px 16px;font-weight:800;font-size:clamp(18px,1.4vw,24px);box-shadow:0 4px 12px rgba(255,201,60,.2)}
+.helper-winner .hw-em{font-size:1.3em;line-height:1}
+.helper-winner.big{font-size:clamp(24px,2.2vw,38px);padding:14px 26px}
+.helper-winner.rolling{border-color:var(--acc-sky);background:linear-gradient(135deg,#E8F4FD,#FFFFFF)}
+.helper-winner.big:not(.rolling){animation:hwPop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes hwPop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.helper-stage{min-height:150px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin:18px 0;padding:14px;background:#F8FAFF;border-radius:18px}
+.helper-placeholder{text-align:center;font-size:22px;color:var(--text-sub);font-weight:700;line-height:1.5}
+.helper-setup{text-align:center}
+.helper-count-label{font-size:18px;font-weight:700;margin-bottom:10px}
+.helper-count{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hc-btn{padding:10px 18px;border-radius:12px;background:#F0F4FF;font-weight:700;font-size:17px;transition:.15s}
+.hc-btn.active{background:var(--primary);color:#fff}
+.helper-pool-note{font-size:14px;color:var(--text-sub);margin-top:8px}
+
+/* ── v3 디자인 시안 (글래스모피즘 · Phosphor) ─────────── */
+.card.v3{background:rgba(255,255,255,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 40px -12px rgba(160,175,200,.45);border-radius:32px}
+.card.v3.filled{border:1px solid rgba(255,255,255,.9)}
+.card.v3.empty{background:rgba(255,255,255,.5);border:2px dashed #cbd5e1}
+.card.v3::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 55%);pointer-events:none;border-radius:inherit;z-index:0;opacity:1}
+.card.v3.empty.touchable:hover::before{opacity:1}
+.card.v3>*{position:relative;z-index:1}
+.v3-title{display:flex;align-items:center;gap:9px;font-family:'Jua','Noto Sans KR',sans-serif;font-size:clamp(18px,1.15vw,23px);font-weight:700;color:#4a5568;letter-spacing:.2px;line-height:1.2;word-break:keep-all}
+.v3-ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.v3-check{margin-left:auto;width:26px;height:26px;border-radius:50%;background:#68d391;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(104,211,145,.45);flex-shrink:0}
+.v3-weather-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin:6px 0}
+.v3-weather-wrap::before{content:'';position:absolute;width:70px;height:70px;border-radius:50%;background:currentColor;filter:blur(22px);opacity:.35}
+.v3-weather-ico{font-size:76px;position:relative;z-index:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.v3-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1;align-items:stretch}
+.v3-stat{background:rgba(255,255,255,.9);border:1px solid #f1f5f9;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.04);padding:8px}
+.v3-stat .n{font-family:'Nunito',sans-serif;font-size:clamp(28px,2.4vw,42px);font-weight:800;line-height:1}
+.v3-stat .l{font-size:12px;font-weight:700;color:#64748b;margin-top:5px}
+.v3-stat.p .n{color:#10b981}.v3-stat.t .n{color:#f59e0b}.v3-stat.a .n{color:#ef4444}
+.v3-sub{text-align:center;color:#94a3b8;font-size:13px;font-weight:600;margin-top:8px}
+.v3-pill{font-size:13px;color:#64748b;background:rgba(255,255,255,.75);padding:5px 14px;border-radius:99px;box-shadow:0 1px 4px rgba(0,0,0,.05);font-weight:600}
+.v3-check.gray{background:#cbd5e1}
+.v3-badge{margin-left:auto;background:#22c55e;color:#fff;font-size:13px;padding:4px 12px;border-radius:99px;font-weight:700;display:flex;align-items:center;gap:5px;box-shadow:0 2px 6px rgba(34,197,94,.3);flex-shrink:0}
+.v3-reload{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,.06);margin-left:8px;flex-shrink:0;position:static}
+.v3-reload:hover{background:#fff}
+.meal-item{display:flex;align-items:center;gap:10px}
+.mi-ico{width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#d97706;font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,.06);flex-shrink:0}
+/* 헤더/로고/아이콘 마감 */
+.logo-ico{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff9a9e,#fecfef);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:20px;box-shadow:inset 0 2px 4px rgba(255,255,255,.55);flex-shrink:0}
+header .actions button{color:#94a3b8}
+header .actions button:hover{color:var(--primary)}
+header .actions button.primary{color:#fff}
+header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:center}
+.helper-winner .hw-em i{color:#eab308}
+.book-label i{color:#3b82f6}
+.book-arrow i{color:var(--acc-coral)}
+/* D-DAY */
+.dday-list{display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;padding:2px}
+.dday-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.72);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.dday-badge{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:#fff;background:#6366f1;padding:3px 11px;border-radius:99px;min-width:56px;text-align:center;flex-shrink:0;letter-spacing:.3px}
+.dday-badge.today{background:#ef4444}
+.dday-badge.past{background:#94a3b8}
+.dday-name{flex:1;font-weight:600;font-size:14px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dday-date{font-size:12px;color:#94a3b8;flex-shrink:0}
+.dday-del{color:#cbd5e1;font-weight:800;padding:2px 7px;border-radius:6px;flex-shrink:0}
+.dday-del:hover{background:var(--danger);color:#fff}
+.dday-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.dday-add input{padding:11px 13px;border:2px solid #E5E7EB;border-radius:12px;font-size:15px}
+.dday-add input:focus{border-color:var(--primary);outline:none}
+.dday-add input.name{flex:1;min-width:120px}
+.dday-add button{padding:11px 18px;border-radius:12px;background:var(--primary);color:#fff;font-weight:700;white-space:nowrap}
 
 /* ── 5. Popup ─────────────────────────────────────── */
 .popup-overlay{position:fixed;inset:0;background:var(--overlay);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
@@ -233,6 +310,12 @@ footer .status.done{color:var(--success)}
 @keyframes fadeOut{to{opacity:0}}
 @keyframes popupIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes popupOut{to{transform:scale(.9);opacity:0}}
+
+/* 위치 기반 자동 조회 버튼 */
+.auto-fetch-btn{width:100%;margin-bottom:16px;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--acc-sky),var(--primary));color:#fff;font-weight:700;font-size:18px;box-shadow:0 6px 16px rgba(91,182,255,.3);transition:.2s}
+.auto-fetch-btn:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+.auto-fetch-btn:disabled{opacity:.7;cursor:wait;transform:none}
+.choice-divider{text-align:center;color:var(--text-sub);font-size:14px;font-weight:600;margin:2px 0 12px}
 
 /* choice grid (weather/dust/emotion) */
 .choice-grid{display:grid;gap:14px}
@@ -328,6 +411,11 @@ footer .status.done{color:var(--success)}
 .student-list-item button:hover{background:var(--primary);color:#fff}
 .student-list-item button.del:hover{background:var(--danger)}
 .btn-test{padding:10px 16px;border-radius:10px;background:var(--secondary);color:#fff;font-weight:700;font-size:14px;margin-top:6px}
+#school-search-results{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}
+.school-result{padding:10px 12px;background:#F8FAFF;border:2px solid #E5E7EB;border-radius:10px;cursor:pointer;transition:.15s}
+.school-result:hover{border-color:var(--primary);background:#fff;transform:translateY(-1px)}
+.school-result .sr-name{font-weight:700;font-size:15px;color:var(--text)}
+.school-result .sr-addr{font-size:13px;color:var(--text-sub);margin-top:2px}
 .test-result{margin-top:10px;padding:12px;background:#F8FAFF;border-radius:10px;font-size:14px;white-space:pre-wrap;max-height:200px;overflow-y:auto}
 .settings-footer{display:flex;gap:10px;padding-top:16px;margin-top:16px;border-top:2px solid #F0F4FF;grid-column:1/-1}
 .settings-footer button{padding:12px 24px;border-radius:12px;font-weight:700;font-size:16px;flex:1}
@@ -356,6 +444,73 @@ footer .status.done{color:var(--success)}
 @keyframes celebrateIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes particleFall{to{transform:translateY(110vh) rotate(540deg);opacity:.3}}
 
+/* 데이터 안심 안내 박스 (2열 1:1 좌우 배치) */
+.data-notice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;align-items:stretch}
+.data-notice .dn-row{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;font-size:12.5px;line-height:1.4;padding:12px;border-radius:12px}
+.data-notice .dn-ico{font-size:28px;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.data-notice .dn-ico svg{width:36px;height:36px;display:block}
+.data-notice .dn-row.safe{background:#E8F7EE;color:#1B5E37;border:1.5px solid #B7E4C7}
+.data-notice .dn-row.warn{background:#FFF6D6;color:#7A5300;border:1.5px solid #F0D98A}
+/* 데이터 통계 칩 */
+.data-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.dstat{background:#F8FAFF;border-radius:12px;padding:10px 8px;text-align:center}
+.dstat-num{font-size:20px;font-weight:900;color:var(--primary);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dstat-lbl{font-size:12px;color:var(--text-sub);margin-top:2px}
+/* 데이터 액션 버튼 */
+.data-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.data-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;font-weight:700;font-size:15px;background:#F0F4FF;color:var(--text);border:2px solid transparent;transition:.15s}
+.data-btn:hover{border-color:var(--primary);background:#fff}
+.data-btn .da-ico{font-size:18px}
+.data-btn.primary{background:var(--success);color:#fff}
+.data-btn.primary:hover{background:#5BB867;border-color:transparent}
+.data-btn.danger-ghost{width:100%;background:transparent;color:var(--danger);border:2px dashed #F3B4B4;font-size:14px}
+.data-btn.danger-ghost:hover{background:#FFECEC;border-style:solid;border-color:var(--danger)}
+.data-btn .da-sub{font-size:12px;color:var(--text-sub);font-weight:600}
+
+/* 백업 리마인더 배너 */
+.backup-reminder{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2500;display:flex;align-items:center;gap:14px;background:#fff;border:2px solid var(--secondary);border-radius:18px;padding:14px 18px;box-shadow:var(--popup-shadow);max-width:min(92vw,620px);animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
+.backup-reminder .br-ico{font-size:30px;line-height:1}
+.backup-reminder .br-text{flex:1;font-size:15px;line-height:1.35}
+.backup-reminder .br-sub{color:var(--text-sub);font-size:13px}
+.backup-reminder .br-backup{padding:10px 16px;border-radius:12px;background:var(--success);color:#fff;font-weight:700;white-space:nowrap}
+.backup-reminder .br-backup:hover{background:#5BB867}
+.backup-reminder .br-later{padding:10px 12px;border-radius:12px;background:#F0F4FF;color:var(--text-sub);font-weight:600;white-space:nowrap}
+.backup-reminder .br-later:hover{background:#E5E7EB}
+@media print{.backup-reminder{display:none!important}}
+
+/* 영상 재생 플로팅 창 (비모달) */
+.video-window{position:fixed;z-index:900;top:50%;left:50%;transform:translate(-50%,-50%);width:min(94vw,760px);height:min(90vh,600px);background:var(--card);border-radius:20px;box-shadow:var(--popup-shadow);display:flex;flex-direction:column;overflow:hidden;animation:bounceIn .35s cubic-bezier(.34,1.56,.64,1)}
+.vw-header{display:flex;align-items:center;gap:8px;padding:12px 16px;background:linear-gradient(135deg,#fff,#F0F8FF);border-bottom:2px solid #EAF2FF}
+.vw-title{font-family:'Jua','Noto Sans KR',sans-serif;font-size:20px;font-weight:700;color:var(--primary);flex:1;display:flex;align-items:center;gap:8px}
+.vw-btn{width:36px;height:36px;border-radius:10px;background:#F0F4FF;display:flex;align-items:center;justify-content:center;font-size:16px;transition:.15s;position:relative;flex-shrink:0}
+.vw-btn:hover{background:var(--primary);color:#fff}
+.vw-btn.close:hover{background:var(--danger)}
+.vw-badge{position:absolute;top:-4px;right:-4px;background:var(--acc-coral);color:#fff;font-size:11px;font-weight:800;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.vw-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+.vw-url{width:100%;padding:11px 14px;border:2px solid #E5E7EB;border-radius:12px;font-size:15px}
+.vw-url:focus{border-color:var(--primary);outline:none}
+.vw-player{position:relative;width:100%;flex:1;min-height:0;background:#000;border-radius:12px;overflow:hidden}
+.vw-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vw-player .vw-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#F8FAFF;color:var(--text-sub);font-size:16px;font-weight:600;text-align:center;padding:16px}
+.vw-player .vw-empty>:first-child{font-size:44px}
+.vw-note{font-size:12px;color:var(--text-sub);text-align:center}
+.vw-open-yt{color:var(--acc-coral);font-weight:700;text-decoration:none}
+.vw-open-yt:hover{text-decoration:underline}
+.vw-list-head{display:flex;align-items:center;gap:10px}
+.vw-list-count{flex:1;text-align:center;font-size:14px;color:var(--text-sub);font-weight:700}
+.vw-list-count b{color:var(--acc-coral)}
+.vw-clear-all{font-size:13px;color:var(--text-sub);font-weight:600;padding:6px 10px;border-radius:8px}
+.vw-clear-all:hover{color:var(--danger);background:#FFECEC}
+.vw-list{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow-y:auto;padding:2px}
+.vw-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:#FFF9E0;border-radius:10px;cursor:pointer;transition:.15s}
+.vw-item:hover{background:#FFF3C4}
+.vw-item .vi-title{flex:1;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vw-item .vi-time{font-size:12px;color:var(--text-sub);white-space:nowrap}
+.vw-item .vi-del{color:var(--text-sub);font-weight:800;padding:2px 7px;border-radius:6px;flex-shrink:0}
+.vw-item .vi-del:hover{background:var(--danger);color:#fff}
+.vw-empty-list{text-align:center;color:var(--text-sub);padding:34px;font-weight:600}
+@media print{.video-window{display:none!important}}
+
 /* sr-only */
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
@@ -379,17 +534,17 @@ footer .status.done{color:var(--success)}
 <body>
 <div id="app">
   <header>
-    <h1>🌅 아침교실</h1>
+    <h1><span class="logo-ico"><i class="ph-fill ph-sun-horizon"></i></span> 아침교실</h1>
     <div class="school" id="school-info">학교명 · 학급명</div>
     <div class="date-card" id="date-card" tabindex="0" role="button" aria-label="날짜 선택">
-      <span class="ico">📅</span>
+      <span class="ico"><i class="ph-duotone ph-calendar-blank"></i></span>
       <span id="date-display">날짜를 입력해주세요</span>
     </div>
     <div class="actions">
-      <button id="btn-mute" title="소리 끄기" aria-label="소리 켜기/끄기">🔊</button>
-      <button id="btn-save" class="primary" title="오늘 기록 저장" aria-label="오늘 기록 저장">💾</button>
-      <button id="btn-records" title="이전 기록 보기" aria-label="이전 기록 보기">📂</button>
-      <button id="btn-settings" title="설정" aria-label="설정 열기">⚙️</button>
+      <button id="btn-mute" title="소리 끄기" aria-label="소리 켜기/끄기"><i class="ph-fill ph-speaker-high"></i></button>
+      <button id="btn-save" class="primary" title="오늘 기록 저장" aria-label="오늘 기록 저장"><i class="ph-fill ph-floppy-disk"></i></button>
+      <button id="btn-records" title="이전 기록 보기" aria-label="이전 기록 보기"><i class="ph-fill ph-folder-open"></i></button>
+      <button id="btn-settings" title="설정" aria-label="설정 열기"><i class="ph-fill ph-gear-six"></i></button>
     </div>
   </header>
 
@@ -401,9 +556,11 @@ footer .status.done{color:var(--success)}
     </div>
     <div class="col">
       <div class="card touchable empty" id="card-timetable" data-card="timetable" tabindex="0" role="button" aria-label="시간표 맞추기"></div>
+      <div class="card touchable empty" id="card-dday" data-card="dday" tabindex="0" role="button" aria-label="디데이" style="flex:0 0 auto;min-height:120px"></div>
     </div>
     <div class="col">
       <div class="card empty" id="card-emotions" data-card="emotions" aria-label="우리반 감정 현황"></div>
+      <div class="card touchable empty" id="card-helper" data-card="helper" tabindex="0" role="button" aria-label="오늘의 도우미 뽑기" style="flex:0 0 auto;min-height:170px"></div>
     </div>
     <div class="col">
       <div class="card empty" id="card-meal" data-card="meal" aria-label="오늘의 급식" style="flex:3.6"></div>
@@ -441,9 +598,8 @@ footer .status.done{color:var(--success)}
         <button class="settings-tab active" data-tab="info">🏫 학급정보</button>
         <button class="settings-tab" data-tab="students">👨‍🎓 학생</button>
         <button class="settings-tab" data-tab="timetable">📅 시간표</button>
-        <button class="settings-tab" data-tab="meal">🍱 급식 API</button>
-        <button class="settings-tab" data-tab="book">📖 북모닝</button>
-        <button class="settings-tab" data-tab="data">💾 데이터</button>
+        <button class="settings-tab" data-tab="book">📹 영상 재생</button>
+        <button class="settings-tab" data-tab="data">💾 출결데이터</button>
       </div>
       <div class="settings-content" id="settings-content"></div>
       <div class="settings-footer">
@@ -482,8 +638,15 @@ const SUBJECT_ICONS = {
   '진로와직업':'🧰','자율':'🌱','동아리':'🤝'
 };
 const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
+// HTML/속성 안전 이스케이프 — 학생 이름·교과명 등 사용자 입력값을 innerHTML에 넣을 때 사용
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DEFAULT_SUBJECTS = ['국어','수학','사회','과학','음악','미술','체육','진로와직업','진로','자율','동아리'];
 const MAX_TIMETABLE_PERIODS = 7;
+// NEIS 급식 API 키는 코드에 두지 않음.
+// 배포(Vercel): 서버리스 함수 /api/neis 가 환경변수 NEIS_KEY 로 처리 → 브라우저·저장소에 키 노출 없음.
+// 로컬/개인용: window.__NEIS_KEY__ 또는 설정값이 있으면 직접 호출로 폴백.
+const DEFAULT_NEIS_KEY = (typeof window !== 'undefined' && window.__NEIS_KEY__) || '';
+const neisKey = () => (App.settings && App.settings.neisKey) || DEFAULT_NEIS_KEY;
 const getCustomSubjects = () => { try { return JSON.parse(localStorage.getItem('mc_custom_subjects')||'[]'); } catch(e){ return []; } };
 const addCustomSubject = (name) => {
   const list = getCustomSubjects();
@@ -519,7 +682,7 @@ const App = {
   init() {
     if ('speechSynthesis' in window) { try { this.ttsVoices = window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = ()=>{ this.ttsVoices = window.speechSynthesis.getVoices(); }; } catch(e){} }
     this.muted = localStorage.getItem('mc_muted') === '1';
-    document.getElementById('btn-mute').textContent = this.muted ? '🔇' : '🔊';
+    document.getElementById('btn-mute').innerHTML = `<i class="ph-fill ph-speaker-${this.muted?'slash':'high'}"></i>`;
     this.loadDate();
     this.loadSettings();
     this.loadRecord();
@@ -527,7 +690,38 @@ const App = {
     this.renderAll();
     if (!this.settings || !this.settings.students?.length) {
       this.openWelcome();
+    } else {
+      setTimeout(()=>this.checkBackupReminder(), 700);
     }
+  },
+
+  // ── 백업 리마인더 (무심코 데이터 삭제 방지) ──
+  checkBackupReminder() {
+    try {
+      const students = this.settings?.students || [];
+      const recordCount = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).length;
+      if (!students.length || recordCount < 1) return;                 // 백업할 데이터가 아직 없음
+      if (localStorage.getItem('mc_backup_snooze') === this.todayKey) return; // 오늘은 이미 미룸
+      const last = localStorage.getItem('mc_last_backup');
+      const days = last ? (Date.now() - new Date(last).getTime())/86400000 : Infinity;
+      if (days < 7) return;
+      this.showBackupReminder(last, days);
+    } catch(e){}
+  },
+  showBackupReminder(last, days) {
+    if (document.getElementById('backup-reminder')) return;
+    const when = last ? `${Math.floor(days)}일째 백업을 안 했어요` : '아직 파일 백업을 한 번도 안 했어요';
+    const el = document.createElement('div');
+    el.id = 'backup-reminder';
+    el.className = 'backup-reminder';
+    el.setAttribute('role','status');
+    el.innerHTML = `<span class="br-ico">💾</span>
+      <div class="br-text"><b>기록을 파일로 안전하게 보관하세요</b><br><span class="br-sub">${when}. 브라우저 데이터가 지워지면 복구할 수 없어요.</span></div>
+      <button class="br-backup" id="br-backup">📤 백업하기</button>
+      <button class="br-later" id="br-later">나중에</button>`;
+    document.body.appendChild(el);
+    document.getElementById('br-backup').onclick = ()=>{ this.exportData(); el.remove(); };
+    document.getElementById('br-later').onclick = ()=>{ localStorage.setItem('mc_backup_snooze', this.todayKey); el.remove(); };
   },
 
   loadDate(d) {
@@ -619,25 +813,27 @@ const App = {
     try { this.settings = JSON.parse(localStorage.getItem('mc_settings') || 'null'); }
     catch(e){ this.settings = null; }
     if (!this.settings) this.settings = {};
+    // 영상 재생 기본 영상 (설정에서 변경 가능)
     if (!this.settings.bookUrl) {
-      this.settings.bookUrl = 'https://www.youtube.com/watch?v=Dqd9erT5BBE';
-      this.settings.bookTitle = this.settings.bookTitle || '북모닝 영상';
+      this.settings.bookUrl = 'https://www.youtube.com/watch?v=VAoR8bL04qA&list=RDVAoR8bL04qA&start_radio=1';
+      this.settings.bookTitle = this.settings.bookTitle || '아침 음악';
     }
-    if (!this.settings.neisAtptCode) this.settings.neisAtptCode = 'K10';
-    if (!this.settings.neisSchoolCode) this.settings.neisSchoolCode = '7801212';
     document.getElementById('school-info').textContent =
       `${this.settings.schoolName||'학교명'} · ${this.settings.className||'학급명'}`;
   },
 
   loadRecord() {
     try {
-      this.record = JSON.parse(localStorage.getItem('mc_record_'+this.todayKey) || 'null') || this.emptyRecord();
+      const saved = JSON.parse(localStorage.getItem('mc_record_'+this.todayKey) || 'null');
+      // 예전/부분 기록에 없는 필드(emotions·attendance·helpers 등)를 기본값으로 채워 렌더 오류 방지
+      this.record = saved ? { ...this.emptyRecord(), ...saved } : this.emptyRecord();
     } catch(e){ this.record = this.emptyRecord(); }
   },
   emptyRecord() {
     return {
       date: this.today, weather: null, dust: null,
       emotions: {}, attendance: {}, timetableArranged: null, timetableCorrect: false, timetableNotes: {},
+      helpers: [], helperPickedAt: null,
       notes: '', mealText: '', mealLoadedAt: null,
       bookUrl: this.settings?.bookUrl, bookTitle: this.settings?.bookTitle
     };
@@ -668,7 +864,7 @@ const App = {
     document.getElementById('btn-mute').onclick = ()=>{
       this.muted = !this.muted;
       localStorage.setItem('mc_muted', this.muted?'1':'0');
-      document.getElementById('btn-mute').textContent = this.muted?'🔇':'🔊';
+      document.getElementById('btn-mute').innerHTML = `<i class="ph-fill ph-speaker-${this.muted?'slash':'high'}"></i>`;
       if (this.muted && 'speechSynthesis' in window) { try{window.speechSynthesis.cancel();}catch(e){} }
     };
     document.getElementById('btn-save').onclick = ()=>{ this.playSound('save'); this.saveRecord(); };
@@ -687,6 +883,7 @@ const App = {
         if (document.getElementById('popup-overlay').classList.contains('active')) this.closePopup();
         else if (document.getElementById('settings-overlay').classList.contains('active')) this.closeSettings();
         else if (document.getElementById('records-overlay').classList.contains('active')) this.closeRecords();
+        else if (document.getElementById('video-window')) this.closeVideoPlayer();
       }
     });
 
@@ -695,7 +892,7 @@ const App = {
     document.getElementById('card-attendance').onclick = ()=> this.openAttendance();
     document.getElementById('card-timetable').onclick = ()=> this.openTimetable();
     document.getElementById('card-notes').onclick = ()=> this.openNotes();
-    document.getElementById('card-book').onclick = ()=> this.openBook();
+    document.getElementById('card-book').onclick = ()=> this.openVideoPlayer();
 
     // 첫 사용자 제스처 시 TTS/오디오 잠금 해제 (브라우저 정책)
     const unlock = ()=>{ this.unlockTTS(); this.ensureAudio(); };
@@ -821,27 +1018,33 @@ const App = {
   renderAll() {
     this.renderWeather(); this.renderDust(); this.renderAttendance();
     this.renderTimetable(); this.renderMeal(); this.renderEmotions();
-    this.renderNotes(); this.renderBook(); this.updateProgress();
+    this.renderHelper(); this.renderNotes(); this.renderBook(); this.renderDday(); this.updateProgress();
   },
 
   renderWeather() {
     const c = document.getElementById('card-weather');
     const w = this.record.weather;
-    c.className = 'card touchable ' + (w ? 'filled '+w.cls : 'empty');
+    c.className = 'card touchable v3 ' + (w ? 'filled '+w.cls : 'empty');
+    const head = `<div class="v3-title"><span class="v3-ico" style="background:#fef3c7;color:#d97706"><i class="ph-fill ph-sun-horizon"></i></span>오늘의 날씨${w?'<span class="v3-check"><i class="ph-bold ph-check"></i></span>':''}</div>`;
     if (w) {
-      c.innerHTML = `<div class="card-title">☀️ 오늘의 날씨<span class="card-badge">✅</span></div>
-        <div class="card-result"><div class="emoji" role="img" aria-label="${w.label}">${w.emoji}</div><div class="label">${w.label}</div></div>`;
+      const map = {'맑음':['ph-sun','#fbbf24'],'구름조금':['ph-cloud-sun','#f59e0b'],'흐림':['ph-cloud','#94a3b8'],'비':['ph-cloud-rain','#5bb6ff'],'천둥번개':['ph-cloud-lightning','#b084eb'],'눈':['ph-cloud-snow','#7cc4ff']};
+      const [ph,col] = map[w.label] || ['ph-sun','#fbbf24'];
+      c.innerHTML = `${head}
+        <div class="card-result"><div class="v3-weather-wrap" style="color:${col}"><i class="ph-fill ${ph} v3-weather-ico"></i></div><div class="label">${w.label}</div></div>`;
     } else {
-      c.innerHTML = `<div class="card-title">☀️ 오늘의 날씨</div>
-        <div class="card-hint">터치해서 날씨를 선택해요 👆</div>`;
+      c.innerHTML = `${head}<div class="card-hint">터치해서 날씨를 선택해요 👆</div>`;
     }
   },
   openWeather() {
     this.ensureAudio();
-    const html = `<div class="choice-grid cols-3">${WEATHER.map((w,i)=>
+    const html = `<button class="auto-fetch-btn" id="wx-auto">📍 위치로 자동 채우기</button>
+      <div class="choice-divider">— 또는 직접 선택해요 —</div>
+      <div class="choice-grid cols-3">${WEATHER.map((w,i)=>
       `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${w.label}">${w.emoji}</span><span class="lb">${w.label}</span></button>`
     ).join('')}</div>`;
     this.openPopup('오늘 날씨는 어때요?', html, {onMount:()=>{
+      const auto = document.getElementById('wx-auto');
+      if (auto) auto.onclick = ()=> this.autoWeather();
       document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
         const w = WEATHER[+b.dataset.i];
         this.record.weather = w; this.playSound('select');
@@ -855,21 +1058,26 @@ const App = {
   renderDust() {
     const c = document.getElementById('card-dust');
     const d = this.record.dust;
-    c.className = 'card touchable ' + (d ? `filled d-${d.level}` : 'empty');
+    c.className = 'card touchable ' + (d ? 'filled' : 'empty');
+    const chip = `<span class="v3-ico" style="background:#f3e8ff;color:#9333ea"><i class="ph-fill ph-wind"></i></span>`;
     if (d) {
-      c.innerHTML = `<div class="card-title">💨 오늘의 미세먼지<span class="card-badge">✅</span></div>
-        <div class="card-result"><div class="emoji" role="img" aria-label="${d.label}">${d.emoji}</div><div class="label">${d.label}</div><div class="sub">${d.hint}</div></div>`;
+      c.innerHTML = `<div class="v3-title">${chip}오늘의 미세먼지<span class="v3-check"><i class="ph-bold ph-check"></i></span></div>
+        <div class="card-result"><div class="emoji" role="img" aria-label="${d.label}">${d.emoji}</div><div class="label">${d.label}</div><div class="v3-pill">${d.hint}</div></div>`;
     } else {
-      c.innerHTML = `<div class="card-title">💨 오늘의 미세먼지</div>
+      c.innerHTML = `<div class="v3-title">${chip}오늘의 미세먼지</div>
         <div class="card-hint">터치해서 미세먼지를 확인해요 👆</div>`;
     }
   },
   openDust() {
     this.ensureAudio();
-    const html = `<div class="choice-grid cols-4">${DUST.map((d,i)=>
+    const html = `<button class="auto-fetch-btn" id="dust-auto">📍 위치로 자동 채우기</button>
+      <div class="choice-divider">— 또는 직접 선택해요 —</div>
+      <div class="choice-grid cols-4">${DUST.map((d,i)=>
       `<button class="choice-item dust-${d.level}" data-i="${i}"><span class="em" role="img" aria-label="${d.label}">${d.emoji}</span><span class="lb">${d.label}</span><span class="sb">${d.hint}</span></button>`
     ).join('')}</div>`;
     this.openPopup('오늘 미세먼지는 어때요?', html, {onMount:()=>{
+      const auto = document.getElementById('dust-auto');
+      if (auto) auto.onclick = ()=> this.autoDust();
       document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
         const d = DUST[+b.dataset.i];
         this.record.dust = d; this.playSound('select');
@@ -880,29 +1088,98 @@ const App = {
     }});
   },
 
+  // ── 위치 기반 자동 조회 (Open-Meteo, API 키 불필요) ──
+  getPosition() {
+    return new Promise((res, rej)=>{
+      if (!navigator.geolocation) { rej(new Error('no_geo')); return; }
+      navigator.geolocation.getCurrentPosition(res, rej, {timeout:8000, maximumAge:600000, enableHighAccuracy:false});
+    });
+  },
+  weatherFromCode(code) { // WMO weather code → WEATHER 항목
+    if (code==null) return null;
+    let label;
+    if (code===0) label='맑음';
+    else if (code===1||code===2) label='구름조금';
+    else if (code===3||code===45||code===48) label='흐림';
+    else if ((code>=71&&code<=77)||code===85||code===86) label='눈';
+    else if (code>=95) label='천둥번개';
+    else if ((code>=51&&code<=67)||(code>=80&&code<=82)) label='비';
+    else label='흐림';
+    return WEATHER.find(w=>w.label===label) || null;
+  },
+  dustFromPm10(v) { // PM10(㎍/㎥) → DUST 등급 (한국 기준)
+    if (v==null || isNaN(v)) return null;
+    const level = v<=30?0 : v<=80?1 : v<=150?2 : 3;
+    return DUST.find(d=>d.level===level) || null;
+  },
+  async autoWeather() {
+    const btn = document.getElementById('wx-auto');
+    this.ensureAudio();
+    if (btn){ btn.disabled=true; btn.textContent='📡 위치 확인 중...'; }
+    try {
+      const pos = await this.getPosition();
+      const {latitude:lat, longitude:lon} = pos.coords;
+      if (btn) btn.textContent='☁️ 날씨 가져오는 중...';
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code`);
+      const data = await r.json();
+      const w = this.weatherFromCode(data?.current?.weather_code);
+      if (!w) throw new Error('no_map');
+      this.record.weather = w; this.playSound('select');
+      this.toast(`날씨 자동: ${w.label} ${w.emoji}`,'success');
+      this.speak(`오늘 날씨는 ${w.label} 입니다.`);
+      this.closePopup(); this.renderWeather(); this.checkComplete(); this.autoSaveDraft();
+    } catch(e){
+      if (btn){ btn.disabled=false; btn.textContent='📍 위치로 자동 채우기'; }
+      this.toast(e.message==='no_geo'?'이 기기는 위치를 지원하지 않아요':'자동 조회 실패 — 직접 선택해 주세요','error');
+    }
+  },
+  async autoDust() {
+    const btn = document.getElementById('dust-auto');
+    this.ensureAudio();
+    if (btn){ btn.disabled=true; btn.textContent='📡 위치 확인 중...'; }
+    try {
+      const pos = await this.getPosition();
+      const {latitude:lat, longitude:lon} = pos.coords;
+      if (btn) btn.textContent='💨 미세먼지 가져오는 중...';
+      const r = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10`);
+      const data = await r.json();
+      const pm10 = data?.current?.pm10;
+      const d = this.dustFromPm10(pm10);
+      if (!d) throw new Error('no_data');
+      this.record.dust = d; this.playSound('select');
+      this.toast(`미세먼지 자동: ${d.label} (PM10 ${Math.round(pm10)})`,'success');
+      this.speak(`오늘 미세먼지는 ${d.label} 입니다. ${d.hint}`);
+      this.closePopup(); this.renderDust(); this.checkComplete(); this.autoSaveDraft();
+    } catch(e){
+      if (btn){ btn.disabled=false; btn.textContent='📍 위치로 자동 채우기'; }
+      this.toast(e.message==='no_geo'?'이 기기는 위치를 지원하지 않아요':'자동 조회 실패 — 직접 선택해 주세요','error');
+    }
+  },
+
   renderAttendance() {
     const c = document.getElementById('card-attendance');
     const students = this.settings?.students || [];
+    const chip = `<span class="v3-ico" style="background:#ffedd5;color:#ea580c"><i class="ph-fill ph-users-three"></i></span>`;
     if (!students.length) {
-      c.className = 'card empty';
-      c.innerHTML = `<div class="card-title">🙋 오늘의 출석</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
+      c.className = 'card empty v3';
+      c.innerHTML = `<div class="v3-title">${chip}오늘의 출석</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
       return;
     }
-    const att = this.record.attendance;
+    const att = this.record.attendance || (this.record.attendance = {});
     let p=0,l=0,a=0,u=0;
     students.forEach(n=>{
       const v=att[n]; if(v==='present')p++; else if(v==='late')l++; else if(v==='absent')a++; else u++;
     });
     const total = students.length;
     const allChecked = u===0;
-    c.className = 'card touchable ' + (allChecked ? 'filled' : 'empty');
-    c.innerHTML = `<div class="card-title">🙋 오늘의 출석${allChecked?'<span class="card-badge">✅</span>':''}</div>
-      <div class="attendance-stats">
-        <div class="attendance-stat present"><div class="num">${p}</div><div class="lbl">출석</div></div>
-        <div class="attendance-stat late"><div class="num">${l}</div><div class="lbl">지각</div></div>
-        <div class="attendance-stat absent"><div class="num">${a}</div><div class="lbl">결석</div></div>
+    c.className = 'card touchable v3 ' + (allChecked ? 'filled' : 'empty');
+    c.innerHTML = `<div class="v3-title">${chip}오늘의 출석${allChecked?'<span class="v3-check"><i class="ph-bold ph-check"></i></span>':''}</div>
+      <div class="v3-stats">
+        <div class="v3-stat p"><div class="n">${p}</div><div class="l">출석</div></div>
+        <div class="v3-stat t"><div class="n">${l}</div><div class="l">지각</div></div>
+        <div class="v3-stat a"><div class="n">${a}</div><div class="l">결석</div></div>
       </div>
-      <div style="text-align:center;color:var(--text-sub);font-size:16px">전체 ${total}명 · 미체크 ${u}명</div>`;
+      <div class="v3-sub">전체 ${total}명 · 미체크 ${u}명</div>`;
     c.onclick = ()=> this.openAttendance();
   },
   openAttendance() {
@@ -917,8 +1194,8 @@ const App = {
       </div>
       <div class="att-list">${students.map(n=>{
         const v=att[n]||'';
-        return `<div class="att-row ${v}" data-n="${n}">
-          <div class="nm">${n}</div>
+        return `<div class="att-row ${v}" data-n="${esc(n)}">
+          <div class="nm">${esc(n)}</div>
           <button data-v="present" class="${v==='present'?'active p':''}">🟢 출석</button>
           <button data-v="late" class="${v==='late'?'active l':''}">🟡 지각</button>
           <button data-v="absent" class="${v==='absent'?'active a':''}">🔴 결석</button>
@@ -931,7 +1208,17 @@ const App = {
     };
     this.openPopup('🙋 오늘의 출석', render(), {onMount:()=>{
       const body = document.getElementById('popup-body');
-      const refresh = ()=>{ body.innerHTML = render(); bind(); };
+      const refresh = ()=>{
+        // 다시 그릴 때 스크롤 위치 유지
+        const list = body.querySelector('.att-list');
+        const listTop = list ? list.scrollTop : 0;
+        const card = document.getElementById('popup-card');
+        const cardTop = card ? card.scrollTop : 0;
+        body.innerHTML = render(); bind();
+        const nl = body.querySelector('.att-list');
+        if (nl) nl.scrollTop = listTop;
+        if (card) card.scrollTop = cardTop;
+      };
       const bind = ()=>{
         body.querySelectorAll('.att-row').forEach(row=>{
           row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
@@ -947,7 +1234,7 @@ const App = {
         document.getElementById('att-save').onclick=()=>{
           this.record.attendance = att; this.playSound('save');
           this.toast('출석 체크 완료!','success');
-          this.closePopup(); this.renderAttendance(); this.autoSaveDraft();
+          this.closePopup(); this.renderAttendance(); this.renderEmotions(); this.renderHelper(); this.autoSaveDraft();
         };
       };
       bind();
@@ -967,9 +1254,10 @@ const App = {
   },
   renderTimetable() {
     const c = document.getElementById('card-timetable');
+    const ttHead = `<div class="v3-title"><span class="v3-ico" style="background:#e0e7ff;color:#4f46e5"><i class="ph-fill ph-calendar-check"></i></span>오늘의 시간표`;
     if (this.isWeekend) {
       c.className='card empty'; c.style.cursor='default';
-      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div><div class="card-hint">🎈 오늘은 쉬는 날이에요!</div>`;
+      c.innerHTML = `${ttHead}</div><div class="card-hint">🎈 오늘은 쉬는 날이에요!</div>`;
       return;
     }
     const periods = this.todayPeriods();
@@ -977,7 +1265,7 @@ const App = {
     const arranged = arr && arr.some(s=>s);
     if (!periods.length && !arranged) {
       c.className='card empty touchable';
-      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div><div class="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>`;
+      c.innerHTML = `${ttHead}</div><div class="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>`;
       return;
     }
     const display = arranged ? arr : periods;
@@ -985,21 +1273,21 @@ const App = {
     c.className = 'card touchable ' + (isDone ? 'filled' : 'empty');
     if (isDone) {
       const notes = this.record.timetableNotes || {};
-      c.innerHTML = `<div class="card-title">📅 오늘의 시간표<span class="card-badge">✅ 완성</span></div>
+      c.innerHTML = `${ttHead}<span class="v3-badge"><i class="ph-bold ph-check"></i>완성</span></div>
         <div class="tt-preview">${display.map((s,i)=>{
           if (!s) return '';
           const note = (notes[i]||'').trim();
           const chip = note
-            ? `<button class="tt-note-chip" data-note="${i}" title="메모 수정">📝 ${note.replace(/"/g,'&quot;')}</button>`
+            ? `<button class="tt-note-chip" data-note="${i}" title="메모 수정">📝 ${esc(note)}</button>`
             : `<button class="tt-note-chip empty" data-note="${i}" title="특이사항 메모 추가">+ 메모</button>`;
-          return `<div class="tt-row"><span class="num">${i+1}교시</span><span class="icon">${subjectIcon(s)}</span><span class="name">${s}</span>${chip}<span class="check">✓</span></div>`;
+          return `<div class="tt-row"><span class="num">${i+1}교시</span><span class="icon">${subjectIcon(s)}</span><span class="name">${esc(s)}</span>${chip}<span class="check">✓</span></div>`;
         }).join('')}</div>`;
       c.querySelectorAll('.tt-note-chip').forEach(b=>b.onclick=(e)=>{
         e.stopPropagation();
         this.openTimetableNote(+b.dataset.note);
       });
     } else {
-      c.innerHTML = `<div class="card-title">📅 오늘의 시간표</div>
+      c.innerHTML = `${ttHead}</div>
         <div class="tt-preview">${periods.map((s,i)=>s?`<div class="tt-row empty"><span class="num">${i+1}교시</span><span class="name">?</span></div>`:'').join('')}</div>
         <div style="text-align:center;color:var(--text-sub);font-size:18px;font-weight:700">터치해서 시간표를 맞춰봐요 👆</div>`;
     }
@@ -1035,7 +1323,7 @@ const App = {
             return `<div class="tt-slot ${isC?'correct':''}" data-slot="${i}">
               <span class="pnum">${i+1}교시</span>
               <div class="drop-zone" data-slot="${i}">
-                ${cur?`<div class="subject-chip in-slot" draggable="true" data-from="slot" data-slot="${i}" data-name="${cur}"><span class="ico">${subjectIcon(cur)}</span>${cur}</div>`:'<span style="color:var(--text-sub);font-size:16px">여기에 끌어다 놓으세요</span>'}
+                ${cur?`<div class="subject-chip in-slot" draggable="true" data-from="slot" data-slot="${i}" data-name="${esc(cur)}"><span class="ico">${subjectIcon(cur)}</span>${esc(cur)}</div>`:'<span style="color:var(--text-sub);font-size:16px">여기에 끌어다 놓으세요</span>'}
               </div>
               ${cur?`<button class="slot-clear" data-clear="${i}" title="비우기">✕</button>`:''}
               ${isC?'<span class="check">✓</span>':''}
@@ -1045,7 +1333,7 @@ const App = {
         <div class="tt-bank">
           <div class="tt-section-title">교과 보관함 <span style="font-weight:500;color:var(--text-sub);font-size:15px">끌어서 옮겨요</span></div>
           <div class="tt-bank-grid" data-bank="1">
-            ${bank.map(s=>`<div class="subject-chip" draggable="true" data-from="bank" data-name="${s}"><span class="ico">${subjectIcon(s)}</span>${s}</div>`).join('')}
+            ${bank.map(s=>`<div class="subject-chip" draggable="true" data-from="bank" data-name="${esc(s)}"><span class="ico">${subjectIcon(s)}</span>${esc(s)}</div>`).join('')}
             <button class="subject-chip add-chip" id="tt-add-subject" type="button"><span class="ico">➕</span>직접입력</button>
           </div>
         </div>
@@ -1211,7 +1499,7 @@ const App = {
     const subj = arr[idx] || `${idx+1}교시`;
     const cur = this.record.timetableNotes[idx] || '';
     this.openPopup(`📝 ${subj} 특이사항 메모`, `
-      <textarea class="notes-textarea" id="ttn-input" placeholder="예) 준비물: 색종이, 가위 / 운동장 수업">${cur}</textarea>
+      <textarea class="notes-textarea" id="ttn-input" placeholder="예) 준비물: 색종이, 가위 / 운동장 수업">${esc(cur)}</textarea>
       <div class="popup-actions">
         <button class="btn-cancel" id="ttn-del">🗑️ 삭제</button>
         <button class="btn-cancel" id="ttn-cancel">취소</button>
@@ -1236,17 +1524,18 @@ const App = {
   renderMeal() {
     const c = document.getElementById('card-meal');
     const m = this.record.mealText;
+    const mealChip = `<span class="v3-ico" style="background:#ffedd5;color:#ea580c"><i class="ph-fill ph-bowl-food"></i></span>`;
     if (m) {
       c.className='card filled';
       const items = m.split('\n').filter(x=>x.trim());
-      c.innerHTML = `<div class="card-title">🍱 오늘의 급식<span class="card-badge">✅</span>
-        <button class="notes-edit-btn" id="meal-reload" title="다시 불러오기">🔄</button></div>
-        <div class="meal-list">${items.map((it,i)=>`<div class="meal-item" style="animation-delay:${i*0.08}s">🍴 ${it}</div>`).join('')}</div>`;
+      c.innerHTML = `<div class="v3-title">${mealChip}오늘의 급식<span class="v3-check"><i class="ph-bold ph-check"></i></span>
+        <button class="v3-reload" id="meal-reload" title="다시 불러오기"><i class="ph-bold ph-arrows-clockwise"></i></button></div>
+        <div class="meal-list">${items.map((it,i)=>`<div class="meal-item" style="animation-delay:${i*0.08}s"><span class="mi-ico"><i class="ph-duotone ph-fork-knife"></i></span>${esc(it)}</div>`).join('')}</div>`;
       document.getElementById('meal-reload').onclick = (e)=>{ e.stopPropagation(); this.loadMeal(true); };
     } else {
       c.className='card empty';
-      c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
-        <button class="meal-load-btn" id="meal-load-btn"><span class="ico">📡</span><span>오늘 급식 불러오기</span></button>
+      c.innerHTML = `<div class="v3-title">${mealChip}오늘의 급식</div>
+        <button class="meal-load-btn" id="meal-load-btn"><span class="ico"><i class="ph-fill ph-broadcast"></i></span><span>오늘 급식 불러오기</span></button>
         <div style="text-align:center;color:var(--text-sub);font-size:18px;margin-top:8px;font-weight:600">버튼을 눌러서 오늘 급식을 알아봐요 👆</div>`;
       document.getElementById('meal-load-btn').onclick = ()=> this.loadMeal();
     }
@@ -1263,18 +1552,17 @@ const App = {
     const interval = setInterval(()=>{ if(spinner) spinner.textContent = emojis[++ei % emojis.length]; }, 400);
 
     const s = this.settings;
-    if (!s?.neisKey || !s?.neisAtptCode || !s?.neisSchoolCode) {
+    if (!s?.neisAtptCode || !s?.neisSchoolCode) {
       clearInterval(interval);
       c.innerHTML = `<div class="card-title">🍱 오늘의 급식</div>
-        <div class="card-hint">⚙️ 설정에서 급식 API 정보를 입력해 주세요</div>
+        <div class="card-hint">⚙️ 설정에서 학교를 검색해 등록해 주세요</div>
         <div class="meal-actions"><button id="meal-manual">✏️ 직접 입력</button></div>`;
       document.getElementById('meal-manual').onclick = ()=> this.openManualMeal();
       return;
     }
 
     try {
-      const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${encodeURIComponent(s.neisKey)}&Type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=${s.neisAtptCode}&SD_SCHUL_CODE=${s.neisSchoolCode}&MLSV_YMD=${this.todayKey}`;
-      const data = await this.fetchWithFallback(url);
+      const data = await this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:1, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey});
       clearInterval(interval);
       if (data?.mealServiceDietInfo) {
         const row = data.mealServiceDietInfo[1].row[0];
@@ -1322,10 +1610,24 @@ const App = {
     }
     throw new Error('all_failed');
   },
+  // NEIS 요청: 배포 환경에선 서버리스 프록시(/api/neis, 키 서버 보관), 로컬/개인 키가 있으면 직접 호출 폴백
+  async neisRequest(endpoint, params) {
+    const qs = new URLSearchParams({ ...params, Type: 'json' }).toString();
+    try {
+      const r = await fetch(`/api/neis?endpoint=${encodeURIComponent(endpoint)}&${qs}`);
+      if (r.ok) {
+        const data = await r.json();
+        if (data && !data.error) return data;
+      }
+    } catch(e){}
+    const key = neisKey();
+    if (key) return await this.fetchWithFallback(`https://open.neis.go.kr/hub/${endpoint}?KEY=${encodeURIComponent(key)}&${qs}`);
+    throw new Error('neis_unavailable');
+  },
   openManualMeal() {
     const cur = this.record.mealText || '';
     this.openPopup('✏️ 급식 직접 입력', `
-      <textarea class="notes-textarea" id="meal-input" placeholder="음식을 한 줄에 하나씩 입력하세요&#10;예: 백미밥&#10;된장찌개">${cur}</textarea>
+      <textarea class="notes-textarea" id="meal-input" placeholder="음식을 한 줄에 하나씩 입력하세요&#10;예: 백미밥&#10;된장찌개">${esc(cur)}</textarea>
       <div class="popup-actions">
         <button class="btn-cancel" id="mm-cancel">취소</button>
         <button class="btn-save" id="mm-save">💾 저장</button>
@@ -1340,24 +1642,38 @@ const App = {
       }});
   },
 
+  // 지각·결석 학생을 제외한 참여 학생 (감정·도우미 공용)
+  eligibleStudents() {
+    const students = this.settings?.students || [];
+    const att = this.record?.attendance || {};
+    return students.filter(n => att[n] !== 'late' && att[n] !== 'absent');
+  },
+
   // ── Emotions (⑥) ──
   renderEmotions() {
     const c = document.getElementById('card-emotions');
     const students = this.settings?.students || [];
+    const emChip = `<span class="v3-ico" style="background:#fce7f3;color:#db2777"><i class="ph-fill ph-smiley"></i></span>`;
     if (!students.length) {
       c.className='card empty';
-      c.innerHTML = `<div class="card-title">👨‍👩‍👧‍👦 우리반 감정</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
+      c.innerHTML = `<div class="v3-title">${emChip}우리반 감정</div><div class="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>`;
       return;
     }
-    const em = this.record.emotions;
-    const allDone = students.every(n=>em[n]);
+    const eligible = this.eligibleStudents();
+    if (!eligible.length) {
+      c.className='card empty';
+      c.innerHTML = `<div class="v3-title">${emChip}우리반 감정</div><div class="card-hint">출석한 학생이 없어요 🙂</div>`;
+      return;
+    }
+    const em = this.record.emotions || (this.record.emotions = {});
+    const allDone = eligible.every(n=>em[n]);
     c.className = 'card '+(allDone?'filled':'empty');
-    c.innerHTML = `<div class="card-title">👨‍👩‍👧‍👦 우리반 감정${allDone?'<span class="card-badge">모두 완료! 🎉</span>':''}</div>
-      <div class="students-grid">${students.map(n=>{
+    c.innerHTML = `<div class="v3-title">${emChip}우리반 감정${allDone?'<span class="v3-badge"><i class="ph-bold ph-check"></i>모두 완료</span>':''}</div>
+      <div class="students-grid">${eligible.map(n=>{
         const v = em[n];
-        return `<div class="student-card ${v?'filled':''}" data-name="${n}" tabindex="0" role="button" aria-label="${n} 감정 선택">
+        return `<div class="student-card ${v?'filled':''}" data-name="${esc(n)}" tabindex="0" role="button" aria-label="${esc(n)} 감정 선택">
           <div class="em" role="img" aria-label="${v?v.label:'미선택'}">${v?v.emoji:'❓'}</div>
-          <div class="nm">${n}</div>
+          <div class="nm">${esc(n)}</div>
         </div>`;
       }).join('')}</div>`;
     c.querySelectorAll('.student-card').forEach(sc=>{
@@ -1370,7 +1686,7 @@ const App = {
     const html = `
       <div style="text-align:center;margin:6px 0 22px">
         <div style="font-size:18px;color:var(--text-sub);font-weight:600;margin-bottom:6px">오늘의 주인공</div>
-        <div class="handwriting" style="font-size:clamp(40px,4.6vw,72px);font-weight:900;color:var(--acc-coral);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1),nameFloat 2.4s ease-in-out infinite;line-height:1.1">${name}</div>
+        <div class="handwriting" style="font-size:clamp(40px,4.6vw,72px);font-weight:900;color:var(--acc-coral);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1),nameFloat 2.4s ease-in-out infinite;line-height:1.1">${esc(name)}</div>
         <div style="margin-top:10px;font-size:clamp(20px,1.6vw,26px);font-weight:700;color:var(--text)">지금 내 마음은 어떤가요? 💭</div>
       </div>
       <div class="choice-grid cols-4">${EMOTIONS.map((e,i)=>
@@ -1389,17 +1705,116 @@ const App = {
     }});
   },
 
+  // ── Helper (오늘의 도우미 뽑기) ──
+  renderHelper() {
+    const c = document.getElementById('card-helper');
+    if (!c) return;
+    const students = this.settings?.students || [];
+    const hChip = `<span class="v3-ico" style="background:#ede9fe;color:#7c3aed"><i class="ph-duotone ph-dice-five"></i></span>`;
+    if (!students.length) {
+      c.className='card empty'; c.style.cursor='default';
+      c.innerHTML = `<div class="v3-title">${hChip}오늘의 도우미</div><div class="card-hint" style="font-size:15px">⚙️ 설정에서 학생을 등록해 주세요</div>`;
+      c.onclick = null;
+      return;
+    }
+    const att = this.record.attendance || {};
+    const picked = (this.record.helpers || []).filter(n => n && att[n] !== 'late' && att[n] !== 'absent');
+    if (picked.length) {
+      c.className='card touchable filled'; c.style.cursor='pointer';
+      c.innerHTML = `<div class="v3-title">${hChip}오늘의 도우미<span class="v3-check"><i class="ph-bold ph-check"></i></span></div>
+        <div class="helper-winners">${picked.map(n=>`<div class="helper-winner"><span class="hw-em"><i class="ph-fill ph-star"></i></span><span class="hw-nm">${esc(n)}</span></div>`).join('')}</div>`;
+    } else {
+      c.className='card touchable empty'; c.style.cursor='pointer';
+      c.innerHTML = `<div class="v3-title">${hChip}오늘의 도우미</div><div class="card-hint" style="font-size:16px">🎯 터치해서 오늘의 도우미를 뽑아요</div>`;
+    }
+    c.onclick = ()=> this.openHelper();
+  },
+  openHelper() {
+    this.ensureAudio();
+    const students = this.settings?.students || [];
+    if (!students.length) return;
+    const att = this.record.attendance || {};
+    let pool = students.filter(n=>att[n]!=='late' && att[n]!=='absent'); // 지각·결석 제외
+    if (!pool.length) pool = students.slice();
+    let count = Math.min(Math.max((this.record.helpers||[]).length || 1, 1), pool.length);
+    let winners = (this.record.helpers||[]).filter(Boolean);
+    let spinning = false;
+    const maxCount = Math.min(pool.length, 6);
+
+    const stageHTML = ()=> winners.length
+      ? winners.map(n=>`<div class="helper-winner big"><span class="hw-em">🌟</span><span class="hw-nm">${esc(n)}</span></div>`).join('')
+      : '<div class="helper-placeholder">🎲<br>뽑기 버튼을 눌러주세요</div>';
+    const render = ()=>`
+      <div class="helper-setup">
+        <div class="helper-count-label">몇 명 뽑을까요?</div>
+        <div class="helper-count">${Array.from({length:maxCount},(_,i)=>i+1).map(n=>
+          `<button class="hc-btn ${n===count?'active':''}" data-c="${n}">${n}명</button>`).join('')}</div>
+        <div class="helper-pool-note">후보 ${pool.length}명 (지각·결석 제외)</div>
+      </div>
+      <div class="helper-stage" id="helper-stage">${stageHTML()}</div>
+      <div class="popup-actions">
+        <button class="btn-cancel" id="helper-close">닫기</button>
+        <button class="btn-save" id="helper-roll">🎲 ${winners.length?'다시 뽑기':'뽑기'}</button>
+      </div>`;
+
+    this.openPopup('🎲 오늘의 도우미 뽑기', render(), {onMount:()=>{
+      const body = document.getElementById('popup-body');
+      const refresh = ()=>{ body.innerHTML = render(); bind(); };
+      const roll = ()=>{
+        if (spinning) return;
+        spinning = true;
+        const rollBtn = document.getElementById('helper-roll');
+        if (rollBtn) rollBtn.disabled = true;
+        // 당첨자 미리 결정 (Fisher–Yates)
+        const shuffled = pool.slice();
+        for (let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+        const finalWinners = shuffled.slice(0, count);
+        const totalTicks = 16 + count*2;
+        let ticks = 0;
+        const tick = ()=>{
+          const stage = document.getElementById('helper-stage');
+          if (!stage) { spinning=false; return; } // 팝업이 닫힌 경우 중단
+          ticks++;
+          const sample = Array.from({length:count}, ()=>pool[Math.floor(Math.random()*pool.length)]);
+          stage.innerHTML = sample.map(n=>`<div class="helper-winner big rolling"><span class="hw-em">🎰</span><span class="hw-nm">${esc(n)}</span></div>`).join('');
+          this.playSound('check');
+          if (ticks < totalTicks) {
+            setTimeout(tick, 60 + Math.pow(ticks/totalTicks, 3) * 340); // 점점 느려짐
+          } else {
+            winners = finalWinners;
+            this.record.helpers = winners.slice();
+            this.record.helperPickedAt = new Date().toISOString();
+            this.playSound('complete');
+            this.toast(`오늘의 도우미: ${winners.join(', ')} 🌟`,'success');
+            this.speak(`오늘의 도우미는, ${winners.join(', ')} 입니다.`);
+            this.autoSaveDraft(); this.renderHelper();
+            spinning = false;
+            refresh();
+          }
+        };
+        tick();
+      };
+      const bind = ()=>{
+        body.querySelectorAll('.hc-btn').forEach(b=>b.onclick=()=>{ if(spinning) return; count=+b.dataset.c; refresh(); });
+        document.getElementById('helper-close').onclick=()=>this.closePopup();
+        document.getElementById('helper-roll').onclick=roll;
+      };
+      bind();
+    }});
+  },
+
   // ── Notes ──
   renderNotes() {
     const c = document.getElementById('card-notes');
     const n = this.record.notes;
+    const nChip = `<span class="v3-ico" style="background:#fce7f3;color:#db2777"><i class="ph-fill ph-megaphone"></i></span>`;
     if (n) {
       c.className='card touchable filled';
-      c.innerHTML = `<div class="card-title">📢 오늘의 유의사항<span class="card-badge">✅</span></div>
-        <div class="notes-display">${n.replace(/</g,'&lt;')}</div>`;
+      c.innerHTML = `<div class="v3-title">${nChip}오늘의 유의사항<span class="v3-check"><i class="ph-bold ph-check"></i></span></div>
+        <div class="notes-display">${esc(n)}</div>`;
     } else {
       c.className='card touchable empty';
-      c.innerHTML = `<div class="card-title">📢 오늘의 유의사항</div>
+      c.innerHTML = `<div class="v3-title">${nChip}오늘의 유의사항</div>
         <div class="card-hint">✏️ 터치해서 선생님이 입력해요</div>`;
     }
   },
@@ -1407,7 +1822,7 @@ const App = {
     this.ensureAudio();
     const draft = localStorage.getItem('mc_draft_notes_'+this.todayKey) || this.record.notes || '';
     this.openPopup('📢 오늘의 유의사항', `
-      <textarea class="notes-textarea" id="notes-input" placeholder="오늘 학생들에게 전달할 내용을 입력하세요">${draft}</textarea>
+      <textarea class="notes-textarea" id="notes-input" placeholder="오늘 학생들에게 전달할 내용을 입력하세요">${esc(draft)}</textarea>
       <div class="popup-actions">
         <button class="btn-cancel" id="n-cancel">취소</button>
         <button class="btn-save" id="n-save">💾 저장</button>
@@ -1431,25 +1846,241 @@ const App = {
     const url = this.settings?.bookUrl;
     const title = this.settings?.bookTitle;
     if (!url) {
-      c.className='card empty';
-      c.innerHTML = `<div class="card-title" style="font-size:18px">📖 북모닝</div><div class="card-hint" style="font-size:14px;padding:6px 0">⚙️ 설정에서 영상 등록</div>`;
+      c.className='card touchable';
+      c.innerHTML = `<div class="book-shortcut">
+          <div class="book-mini book-mini-empty" aria-hidden="true"><i class="ph-duotone ph-film-strip"></i></div>
+          <div class="book-info">
+            <div class="book-label"><i class="ph-fill ph-play-circle"></i> 영상 재생</div>
+            <div class="book-title-mini" style="color:var(--text-sub);font-weight:600">터치해서 영상을 재생해요</div>
+          </div>
+          <div class="book-arrow"><i class="ph-fill ph-play"></i></div>
+        </div>`;
       return;
     }
-    const id = url.match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/)?.[1];
+    const id = this.extractVideoId(url);
     const thumb = id ? `https://img.youtube.com/vi/${id}/default.jpg` : '';
     c.className='card touchable filled';
     c.innerHTML = `<div class="book-shortcut">
-        ${thumb?`<div class="book-mini" style="background-image:url('${thumb}')"></div>`:'<div class="book-mini">📺</div>'}
+        ${thumb?`<div class="book-mini" style="background-image:url('${thumb}')"></div>`:'<div class="book-mini"><i class="ph-fill ph-play-circle"></i></div>'}
         <div class="book-info">
-          <div class="book-label">📖 북모닝 바로가기</div>
-          <div class="book-title-mini">${title||'영상 열기'}</div>
+          <div class="book-label"><i class="ph-fill ph-play-circle"></i> 영상 재생</div>
+          <div class="book-title-mini">${esc(title||'영상 열기')}</div>
         </div>
-        <div class="book-arrow">▶</div>
+        <div class="book-arrow"><i class="ph-fill ph-play"></i></div>
       </div>`;
   },
-  openBook() {
-    const url = this.settings?.bookUrl;
-    if (url) { this.ensureAudio(); this.playSound('select'); window.open(url,'_blank'); }
+
+  // ── 영상 재생 (플로팅 창 + 재생 이력) ──
+  extractVideoId(url) {
+    return (url || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([^&\n?#]+)/)?.[1] || '';
+  },
+  getVideoList() {
+    try { return JSON.parse(localStorage.getItem('mc_video_list') || '[]'); } catch(e){ return []; }
+  },
+  saveVideoList(list) {
+    try { localStorage.setItem('mc_video_list', JSON.stringify(list.slice(0, 50))); } catch(e){}
+  },
+  fmtVideoTime(iso) {
+    const d = new Date(iso), now = new Date();
+    const h = d.getHours(), ap = h < 12 ? '오전' : '오후', h12 = h % 12 || 12;
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const t = `${ap} ${h12}시 ${mm}분`;
+    return d.toDateString() === now.toDateString() ? t : `${d.getMonth()+1}.${d.getDate()} ${t}`;
+  },
+  async fetchVideoTitle(url) {
+    try {
+      const data = await this.fetchWithFallback(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      return data?.title || '';
+    } catch(e){ return ''; }
+  },
+  recordVideo(url) {
+    const id = this.extractVideoId(url);
+    if (!id) return;
+    let list = this.getVideoList();
+    const existing = list.find(v => v.videoId === id);
+    list = list.filter(v => v.videoId !== id);
+    list.unshift({ url, videoId: id, title: existing?.title || url, playedAt: new Date().toISOString() });
+    this.saveVideoList(list);
+    // 제목 자동 조회 (없을 때만)
+    if (!existing || !existing.title || existing.title === existing.url) {
+      this.fetchVideoTitle(url).then(title => {
+        if (!title) return;
+        const l = this.getVideoList(), it = l.find(v => v.videoId === id);
+        if (it) { it.title = title; this.saveVideoList(l); this.refreshVideoMeta(); }
+      });
+    }
+  },
+  refreshVideoMeta() {
+    const win = document.getElementById('video-window');
+    if (!win) return;
+    const badge = win.querySelector('.vw-badge');
+    if (badge) badge.textContent = this.getVideoList().length;
+    if (this.videoState?.view === 'list') this.renderVideoWindow(); // 목록 화면일 때만 갱신(재생 중 iframe 리로드 방지)
+  },
+  openVideoPlayer() {
+    this.ensureAudio(); this.playSound('select');
+    const list = this.getVideoList();
+    const start = (list[0] && list[0].url) || this.settings?.bookUrl || '';
+    // 팝업을 열 때는 미리보기만(자동재생 X). 사용자가 URL 입력/목록 클릭 시 재생.
+    this.videoState = { view: 'player', currentUrl: start, autoplay: false };
+    if (!document.getElementById('video-window')) {
+      const win = document.createElement('div');
+      win.id = 'video-window'; win.className = 'video-window';
+      win.setAttribute('role','dialog'); win.setAttribute('aria-label','영상 재생');
+      document.body.appendChild(win);
+    }
+    this.renderVideoWindow();
+  },
+  closeVideoPlayer() {
+    document.getElementById('video-window')?.remove();
+  },
+  playVideo(url) {
+    const id = this.extractVideoId(url);
+    if (!id) { this.toast('유튜브 링크를 확인해 주세요','error'); return; }
+    this.videoState.currentUrl = url;
+    this.videoState.view = 'player';
+    this.videoState.autoplay = true; // 사용자 선택 시에만 자동재생
+    this.recordVideo(url);
+    this.playSound('select');
+    this.renderVideoWindow();
+  },
+  renderVideoWindow() {
+    const win = document.getElementById('video-window');
+    if (!win) return;
+    const st = this.videoState, list = this.getVideoList();
+    const id = this.extractVideoId(st.currentUrl);
+    const body = st.view === 'list'
+      ? `<div class="vw-list-head">
+           <button class="vw-btn" id="vw-back" title="뒤로" aria-label="뒤로">←</button>
+           <span class="vw-list-count"><b>${list.length}</b>/50</span>
+           <button class="vw-clear-all" id="vw-clear">전체 삭제</button>
+         </div>
+         <div class="vw-list">${list.length ? list.map((v,i)=>`
+           <div class="vw-item" data-i="${i}">
+             <span class="vi-title">${esc(v.title || v.url)}</span>
+             <span class="vi-time">${this.fmtVideoTime(v.playedAt)}</span>
+             <button class="vi-del" data-del="${i}" title="삭제" aria-label="삭제">✕</button>
+           </div>`).join('') : '<div class="vw-empty-list">아직 재생한 영상이 없어요 📭</div>'}</div>`
+      : `<input class="vw-url" id="vw-url" placeholder="유튜브 영상 링크를 붙여넣으면 자동으로 재생돼요" value="${esc(st.currentUrl || '')}" autocomplete="off">
+         <div class="vw-player">${id
+           ? `<iframe src="https://www.youtube.com/embed/${id}?rel=0&autoplay=${st.autoplay?1:0}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`
+           : '<div class="vw-empty">📺<div>유튜브 영상 링크를 입력하면<br>자동으로 영상 화면이 나타나요</div></div>'}</div>
+         <div class="vw-note">영상은 유튜브 콘텐츠로 광고가 포함될 수 있어요.${id ? ` · <a class="vw-open-yt" href="https://youtu.be/${id}" target="_blank" rel="noopener">유튜브에서 열기 ↗</a>` : ''}</div>`;
+    win.innerHTML = `<div class="vw-header">
+        <div class="vw-title">▶️ 영상 재생</div>
+        <button class="vw-btn" id="vw-list-btn" title="영상 목록" aria-label="영상 목록"><svg viewBox="0 0 512 512" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="m434.929 46.131c-10.38-10.402-24.184-16.131-38.871-16.131h-24.808v-5c0-13.785-11.215-25-25-25h-180c-13.785 0-25 11.215-25 25v5h-24.897c-30.261 0-54.908 24.646-54.942 54.939l-.411 372c-.016 14.702 5.691 28.528 16.07 38.93 10.38 10.402 24.185 16.131 38.872 16.131h279.704c30.262 0 54.909-24.646 54.942-54.939l.412-372c.017-14.703-5.691-28.529-16.071-38.93zm-263.679-16.131h170v30h-170zm249.37 427.027c-.016 13.771-11.219 24.973-24.974 24.973h-279.704c-6.676 0-12.951-2.604-17.669-7.332-4.718-4.729-7.312-11.013-7.305-17.695l.411-372c.015-13.771 11.218-24.973 24.974-24.973h24.897v5c0 13.785 11.215 25 25 25h180c13.785 0 25-11.215 25-25v-5h24.808c6.676 0 12.951 2.604 17.669 7.332s7.313 11.013 7.305 17.695z"/><path d="m261.099 200h106.571c8.284 0 15-6.716 15-15s-6.716-15-15-15h-106.571c-8.284 0-15 6.716-15 15s6.716 15 15 15z"/><path d="m261.099 300h106.571c8.284 0 15-6.716 15-15s-6.716-15-15-15h-106.571c-8.284 0-15 6.716-15 15s6.716 15 15 15z"/><path d="m368.099 370h-107c-8.284 0-15 6.716-15 15s6.716 15 15 15h107c8.284 0 15-6.716 15-15s-6.715-15-15-15z"/><path d="m197.256 144.157-34.592 34.592-8.156-8.157c-5.858-5.858-15.355-5.858-21.213 0-5.858 5.857-5.858 15.355 0 21.213l18.763 18.764c2.813 2.813 6.628 4.394 10.607 4.394 3.978 0 7.793-1.58 10.606-4.394l45.199-45.198c5.858-5.857 5.858-15.355 0-21.213-5.858-5.859-15.355-5.859-21.214-.001z"/><path d="m197.256 251.794-34.592 34.592-8.156-8.156c-5.858-5.858-15.355-5.858-21.213 0-5.858 5.857-5.858 15.354 0 21.213l18.763 18.764c2.813 2.813 6.628 4.394 10.607 4.394 3.978 0 7.794-1.58 10.606-4.394l45.199-45.199c5.858-5.857 5.858-15.355 0-21.213s-15.356-5.858-21.214-.001z"/><path d="m197.256 351.794-34.592 34.592-8.156-8.156c-5.858-5.858-15.355-5.858-21.213 0-5.858 5.857-5.858 15.354 0 21.213l18.763 18.764c2.813 2.813 6.628 4.394 10.607 4.394 3.978 0 7.794-1.58 10.606-4.394l45.199-45.199c5.858-5.857 5.858-15.355 0-21.213s-15.356-5.858-21.214-.001z"/></svg><span class="vw-badge">${list.length}</span></button>
+        <button class="vw-btn close" id="vw-close" title="닫기" aria-label="닫기">✕</button>
+      </div>
+      <div class="vw-body">${body}</div>`;
+    // 공통
+    win.querySelector('#vw-close').onclick = ()=> this.closeVideoPlayer();
+    win.querySelector('#vw-list-btn').onclick = ()=>{ this.videoState.view = 'list'; this.renderVideoWindow(); };
+    if (st.view === 'list') {
+      win.querySelector('#vw-back').onclick = ()=>{ this.videoState.view = 'player'; this.renderVideoWindow(); };
+      win.querySelector('#vw-clear').onclick = ()=>{ if(confirm('영상 목록을 전체 삭제할까요?')){ this.saveVideoList([]); this.renderVideoWindow(); } };
+      win.querySelectorAll('.vw-item').forEach(el=> el.onclick = ()=> this.playVideo(list[+el.dataset.i].url));
+      win.querySelectorAll('.vi-del').forEach(b=> b.onclick = (e)=>{
+        e.stopPropagation();
+        const l = this.getVideoList(); l.splice(+b.dataset.del, 1); this.saveVideoList(l); this.renderVideoWindow();
+      });
+    } else {
+      const inp = win.querySelector('#vw-url');
+      inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); this.playVideo(inp.value.trim()); } });
+      inp.addEventListener('paste', ()=> setTimeout(()=>{ if(this.extractVideoId(inp.value.trim())) this.playVideo(inp.value.trim()); }, 50));
+      inp.addEventListener('change', ()=>{ if(inp.value.trim() && inp.value.trim()!==st.currentUrl) this.playVideo(inp.value.trim()); });
+    }
+  },
+
+  // ── D-DAY (날짜와 무관하게 항상 표시, 삭제 전까지 유지) ──
+  getDdays() {
+    try { return JSON.parse(localStorage.getItem('mc_ddays') || '[]'); } catch(e){ return []; }
+  },
+  saveDdays(list) {
+    try { localStorage.setItem('mc_ddays', JSON.stringify(list)); } catch(e){}
+  },
+  ddayDiff(dateStr) {
+    const b = this.selectedDate || new Date();
+    const base = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const target = new Date(y, m-1, d);
+    return Math.round((target - base) / 86400000);
+  },
+  ddayLabel(diff) {
+    if (diff === 0) return 'D-DAY';
+    return diff > 0 ? 'D-'+diff : 'D+'+Math.abs(diff);
+  },
+  ddaySorted() {
+    // 다가오는 것 먼저(가까운 미래 → 오늘 → 지난 것)
+    return this.getDdays().slice().sort((a,b)=>{
+      const da = this.ddayDiff(a.date), db = this.ddayDiff(b.date);
+      const ra = da < 0 ? 1 : 0, rb = db < 0 ? 1 : 0;
+      if (ra !== rb) return ra - rb;
+      return da < 0 ? db - da : da - db;
+    });
+  },
+  fmtDdayDate(dateStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return `${y}. ${m}. ${d}.`;
+  },
+  renderDday() {
+    const c = document.getElementById('card-dday');
+    if (!c) return;
+    const chip = `<span class="v3-ico" style="background:#e0e7ff;color:#4f46e5"><i class="ph-fill ph-flag-banner"></i></span>`;
+    const list = this.ddaySorted();
+    c.className = 'card touchable ' + (list.length ? 'filled' : 'empty');
+    if (!list.length) {
+      c.innerHTML = `<div class="v3-title">${chip}D-DAY</div><div class="card-hint" style="font-size:15px">터치해서 기념일·시험 D-DAY를 추가해요 👆</div>`;
+    } else {
+      c.innerHTML = `<div class="v3-title">${chip}D-DAY</div>
+        <div class="dday-list">${list.map(it=>{
+          const diff = this.ddayDiff(it.date);
+          const cls = diff === 0 ? 'today' : (diff < 0 ? 'past' : '');
+          return `<div class="dday-row"><span class="dday-badge ${cls}">${this.ddayLabel(diff)}</span><span class="dday-name">${esc(it.name)}</span><span class="dday-date">${this.fmtDdayDate(it.date)}</span></div>`;
+        }).join('')}</div>`;
+    }
+    c.onclick = ()=> this.openDday();
+  },
+  openDday() {
+    this.ensureAudio(); this.playSound('select');
+    const todayStr = (()=>{ const d=this.selectedDate||new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
+    const render = ()=>{
+      const list = this.ddaySorted();
+      return `<div class="dday-add">
+          <input type="text" class="name" id="dd-name" placeholder="예) 현장체험학습, 중간고사" maxlength="20">
+          <input type="date" id="dd-date" value="${todayStr}">
+          <button id="dd-add">➕ 추가</button>
+        </div>
+        <div class="dday-list" style="max-height:50vh">${list.length ? list.map(it=>{
+          const diff = this.ddayDiff(it.date);
+          const cls = diff === 0 ? 'today' : (diff < 0 ? 'past' : '');
+          return `<div class="dday-row"><span class="dday-badge ${cls}">${this.ddayLabel(diff)}</span><span class="dday-name">${esc(it.name)}</span><span class="dday-date">${this.fmtDdayDate(it.date)}</span><button class="dday-del" data-id="${it.id}" title="삭제" aria-label="삭제">✕</button></div>`;
+        }).join('') : '<div class="card-hint" style="padding:24px">아직 등록한 D-DAY가 없어요 📭</div>'}</div>`;
+    };
+    this.openPopup('🚩 D-DAY 관리', render(), {onMount:()=>{
+      const body = document.getElementById('popup-body');
+      const refresh = ()=>{ body.innerHTML = render(); bind(); };
+      const bind = ()=>{
+        const add = ()=>{
+          const name = document.getElementById('dd-name').value.trim();
+          const date = document.getElementById('dd-date').value;
+          if (!name) { this.toast('이름을 입력해 주세요','error'); return; }
+          if (!date) { this.toast('날짜를 선택해 주세요','error'); return; }
+          const list = this.getDdays();
+          list.push({ id: 'd'+Date.now(), name, date });
+          this.saveDdays(list);
+          this.playSound('save'); this.toast('D-DAY 추가!','success');
+          this.renderDday(); refresh();
+          const ni = document.getElementById('dd-name'); if (ni) ni.focus();
+        };
+        document.getElementById('dd-add').onclick = add;
+        document.getElementById('dd-name').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+        body.querySelectorAll('.dday-del').forEach(b=>b.onclick=()=>{
+          this.saveDdays(this.getDdays().filter(x=>x.id!==b.dataset.id));
+          this.playSound('select'); this.renderDday(); refresh();
+        });
+      };
+      bind();
+    }});
   },
 
   // ── Progress / Complete ──
@@ -1472,78 +2103,9 @@ const App = {
     const st = document.getElementById('status-text');
     if (pct>=100) {
       st.textContent = '🎉 오늘의 아침 준비 완료! 모두 화이팅!'; st.classList.add('done');
-      const flagKey = 'mc_celebrated_'+this.todayKey;
-      if (!localStorage.getItem(flagKey)) {
-        localStorage.setItem(flagKey, '1');
-        this.celebrate();
-      }
+      this.celebrate(); // 하루 1회 가드는 celebrate() 내부에서 처리
     }
     else { st.textContent = `아침 준비 ${done}/${tasks.length}`; st.classList.remove('done'); }
-  },
-  celebrate() {
-    // 폭죽 효과
-    try {
-      const colors = ['#ff3b30','#ff9500','#ffcc00','#34c759','#5ac8fa','#007aff','#af52de','#ff2d92'];
-      const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
-      document.body.appendChild(container);
-      const launch = (originX, originY) => {
-        for (let i=0;i<60;i++){
-          const p = document.createElement('div');
-          const angle = Math.random()*Math.PI*2;
-          const dist = 120 + Math.random()*220;
-          const dx = Math.cos(angle)*dist;
-          const dy = Math.sin(angle)*dist;
-          const size = 6 + Math.random()*8;
-          p.style.cssText = `position:absolute;left:${originX}px;top:${originY}px;width:${size}px;height:${size}px;background:${colors[i%colors.length]};border-radius:${Math.random()<0.5?'50%':'2px'};transform:translate(-50%,-50%);transition:transform 1.4s cubic-bezier(.2,.7,.3,1),opacity 1.4s ease-out;opacity:1`;
-          container.appendChild(p);
-          requestAnimationFrame(()=>{
-            p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 200}px)) rotate(${Math.random()*720}deg)`;
-            p.style.opacity = '0';
-          });
-        }
-      };
-      const W = window.innerWidth, H = window.innerHeight;
-      launch(W*0.25, H*0.4);
-      setTimeout(()=>launch(W*0.75, H*0.35), 250);
-      setTimeout(()=>launch(W*0.5, H*0.5), 500);
-      setTimeout(()=>container.remove(), 2000);
-    } catch(e){}
-    // 딩동댕동 효과음
-    try {
-      const ctx = new (window.AudioContext||window.webkitAudioContext)();
-      const notes = [{f:659.25,t:0},{f:783.99,t:0.25},{f:987.77,t:0.5},{f:1318.51,t:0.75}]; // E5,G5,B5,E6 딩동댕동
-      notes.forEach(n=>{
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.type='sine'; o.frequency.value=n.f;
-        g.gain.setValueAtTime(0, ctx.currentTime+n.t);
-        g.gain.linearRampToValueAtTime(0.35, ctx.currentTime+n.t+0.02);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+n.t+0.5);
-        o.connect(g); g.connect(ctx.destination);
-        o.start(ctx.currentTime+n.t); o.stop(ctx.currentTime+n.t+0.55);
-      });
-    } catch(e){}
-    // 음성 메세지
-    const speak = () => {
-      try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance('오늘 하루도 파이팅이에요! 좋은 하루 보내세요!');
-        u.lang = 'ko-KR'; u.rate = 1.0; u.pitch = 1.1;
-        const voices = speechSynthesis.getVoices();
-        const ko = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('ko'));
-        if (ko) u.voice = ko;
-        speechSynthesis.speak(u);
-      } catch(e){}
-    };
-    setTimeout(()=>{
-      if ('speechSynthesis' in window) {
-        const v = speechSynthesis.getVoices();
-        if (!v || v.length === 0) {
-          speechSynthesis.onvoiceschanged = () => { speak(); speechSynthesis.onvoiceschanged = null; };
-          setTimeout(speak, 800);
-        } else { speak(); }
-      }
-    }, 1100);
   },
   checkComplete() {
     this.updateProgress();
@@ -1565,21 +2127,63 @@ const App = {
       this.toast('자동 저장됐어요 ✅','success');
     }
   },
+  // 완료 축하 연출 (통합본): 오버레이 메시지 + 딩동댕동 차임 + 폭죽 + 음성
   celebrate() {
-    this.playSound('complete');
+    // 하루 1회만 — updateProgress·checkComplete 양쪽에서 호출돼도 중복 방지
+    const flagKey = 'mc_celebrated_'+this.todayKey;
+    if (localStorage.getItem(flagKey)) return;
+    localStorage.setItem(flagKey, '1');
+    this.celebratedToday = true;
     const ov = document.getElementById('celebrate');
-    ov.classList.add('active');
-    setTimeout(()=>ov.classList.remove('active'), 1800);
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
-    const emojis = ['✨','🎉','⭐','🌟','💫','🎈','🌸'];
-    for (let i=0;i<30;i++) {
-      const el = document.createElement('div');
-      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-      el.style.cssText = `position:fixed;top:-50px;font-size:32px;z-index:9999;left:${Math.random()*100}vw;animation:particleFall ${1.5+Math.random()*2}s ease-in forwards;animation-delay:${Math.random()*0.5}s;pointer-events:none`;
-      document.body.appendChild(el);
-      el.addEventListener('animationend', ()=>el.remove());
+    if (ov) { ov.classList.add('active'); setTimeout(()=>ov.classList.remove('active'), 2200); }
+
+    // 딩동댕동 차임 (E5·G5·B5·E6) — 음소거 존중, 공용 AudioContext 재사용
+    if (!this.muted) {
+      const ctx = this.ensureAudio();
+      if (ctx) {
+        [{f:659.25,t:0},{f:783.99,t:.25},{f:987.77,t:.5},{f:1318.51,t:.75}].forEach(n=>{
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type='sine'; o.frequency.value=n.f;
+          g.gain.setValueAtTime(0, ctx.currentTime+n.t);
+          g.gain.linearRampToValueAtTime(.32, ctx.currentTime+n.t+.02);
+          g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+n.t+.5);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(ctx.currentTime+n.t); o.stop(ctx.currentTime+n.t+.55);
+        });
+      }
     }
+
+    // 음성 축하 — speak() 내부에서 음소거 처리
+    this.speak('오늘 하루도 파이팅이에요! 좋은 하루 보내세요!', {rate:1.0, pitch:1.1});
+
+    // 폭죽 (모션 최소화 설정 시 생략)
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try {
+      const colors = ['#ff3b30','#ff9500','#ffcc00','#34c759','#5ac8fa','#007aff','#af52de','#ff2d92'];
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
+      document.body.appendChild(container);
+      const launch = (originX, originY) => {
+        for (let i=0;i<60;i++){
+          const p = document.createElement('div');
+          const angle = Math.random()*Math.PI*2;
+          const dist = 120 + Math.random()*220;
+          const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist;
+          const size = 6 + Math.random()*8;
+          p.style.cssText = `position:absolute;left:${originX}px;top:${originY}px;width:${size}px;height:${size}px;background:${colors[i%colors.length]};border-radius:${Math.random()<.5?'50%':'2px'};transform:translate(-50%,-50%);transition:transform 1.4s cubic-bezier(.2,.7,.3,1),opacity 1.4s ease-out;opacity:1`;
+          container.appendChild(p);
+          requestAnimationFrame(()=>{
+            p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy+200}px)) rotate(${Math.random()*720}deg)`;
+            p.style.opacity = '0';
+          });
+        }
+      };
+      const W = window.innerWidth, H = window.innerHeight;
+      launch(W*0.25, H*0.4);
+      setTimeout(()=>launch(W*0.75, H*0.35), 250);
+      setTimeout(()=>launch(W*0.5, H*0.5), 500);
+      setTimeout(()=>container.remove(), 2200);
+    } catch(e){}
   },
   autoSaveDraft() {
     // light save without sound
@@ -1621,18 +2225,33 @@ const App = {
     let html = '';
 
     html += sec('info', `<h3>🏫 학급 기본 정보</h3>
-      <div class="field"><label>학교명</label><input id="f-school" value="${s.schoolName||''}"></div>
-      <div class="field"><label>학급명</label><input id="f-class" value="${s.className||''}"></div>`);
+      <div class="field"><label>학교 검색</label>
+        <div style="display:flex;gap:6px">
+          <input id="f-school-search" placeholder="학교명 입력">
+          <button class="btn-test" id="f-school-search-btn" style="margin:0;white-space:nowrap">🔍 검색</button>
+        </div>
+        <div class="hint">학교명을 검색해서 선택하면 학교명과 급식 정보가 자동으로 설정돼요</div>
+        <div id="school-search-results"></div>
+      </div>
+      <div class="field"><label>학급명 (직접 입력)</label><input id="f-class" value="${esc(s.className||'')}" placeholder="예: 3학년 2반"></div>
+      <div class="field">
+        <div class="hint" id="meal-link-status">${s.neisSchoolCode ? '✅ 급식 연동됨 — 검색한 학교의 급식을 불러와요' : '🍱 학교를 검색해 선택하면 급식이 자동 연동돼요'}</div>
+        <button class="btn-test" id="f-test-meal">🧪 급식 연동 테스트</button>
+        <div id="test-result"></div>
+      </div>`);
 
     html += sec('students', `<h3>👨‍🎓 학생 관리</h3>
-      <div class="field"><label>학생 추가 (한 줄에 한 명)</label>
-        <textarea id="f-students-add" placeholder="김민준&#10;이서연"></textarea>
-        <button class="btn-test" id="f-add-students">➕ 추가</button>
+      <div class="field"><label>학생 추가</label>
+        <div style="display:flex;gap:6px">
+          <input id="f-students-add" placeholder="이름 입력 후 엔터 ⏎" autocomplete="off">
+          <button class="btn-test" id="f-add-students" style="margin:0;white-space:nowrap">➕ 추가</button>
+        </div>
+        <div class="hint">이름을 입력하고 <b>엔터(⏎)</b>를 누르면 아래에 등록돼요</div>
       </div>
       <div class="field"><label>등록된 학생 (${s.students?.length||0}명)</label>
         <div id="student-list">${(s.students||[]).map((n,i)=>`
           <div class="student-list-item">
-            <span class="nm">${i+1}. ${n}</span>
+            <span class="nm">${i+1}. ${esc(n)}</span>
             <button data-i="${i}" data-act="up" ${i===0?'disabled':''}>▲</button>
             <button data-i="${i}" data-act="dn" ${i===s.students.length-1?'disabled':''}>▼</button>
             <button class="del" data-i="${i}" data-act="del">✕</button>
@@ -1646,34 +2265,39 @@ const App = {
     while(tt.length<7) tt.push('');
     html += sec('timetable', `<h3>📅 시간표 입력</h3>
       <div class="tt-day-tabs">${dayNames.map((d,i)=>`<button data-day="${i}" class="${this.settingsDay===i?'active':''}">${d}요일</button>`).join('')}</div>
-      ${tt.map((p,i)=>`<div class="tt-period-row"><span class="lbl">${i+1}교시</span><input class="tt-pinp" data-i="${i}" value="${p||''}" placeholder="비워두면 미표시"></div>`).join('')}
+      ${tt.map((p,i)=>`<div class="tt-period-row"><span class="lbl">${i+1}교시</span><input class="tt-pinp" data-i="${i}" value="${esc(p||'')}" placeholder="비워두면 미표시"></div>`).join('')}
       <div style="display:flex;gap:6px;margin-top:8px">
         ${dayNames.map((d,i)=>i!==this.settingsDay?`<button class="copy-day-btn" data-copy="${i}">${dayNames[this.settingsDay]}→${d}</button>`:'').join('')}
       </div>`);
 
-    html += sec('meal', `<h3>🍱 급식 API 설정</h3>
-      <div class="field"><label>교육청 코드</label><input id="f-atpt" value="${s.neisAtptCode||''}" placeholder="예: K10"></div>
-      <div class="field"><label>학교 코드</label><input id="f-school-code" value="${s.neisSchoolCode||''}" placeholder="예: 7801212"></div>
-      <div class="field"><label>NEIS API KEY</label><input id="f-key" value="${s.neisKey||''}" type="password">
-        <div class="hint">NEIS API KEY는 <a href="https://open.neis.go.kr" target="_blank" rel="noopener" style="color:#0a84ff;font-weight:700;text-decoration:underline">open.neis.go.kr ↗</a> 에서 발급받으세요</div></div>
-      <button class="btn-test" id="f-test-meal">🧪 급식 테스트</button>
-      <div id="test-result"></div>`);
-
-    html += sec('book', `<h3>📖 북모닝 영상</h3>
-      <div class="field"><label>유튜브 URL</label><input id="f-book-url" value="${s.bookUrl||''}" placeholder="https://youtu.be/..."></div>
-      <div class="field"><label>영상 제목</label><input id="f-book-title" value="${s.bookTitle||''}"></div>
+    html += sec('book', `<h3>📹 영상 재생 · 기본 영상</h3>
+      <div class="field"><label>기본 영상 URL</label><input id="f-book-url" value="${esc(s.bookUrl||'')}" placeholder="https://youtu.be/...">
+        <div class="hint">영상 재생 카드를 열 때 처음 보여줄 영상이에요</div></div>
+      <div class="field"><label>영상 제목</label><input id="f-book-title" value="${esc(s.bookTitle||'')}"></div>
       <div id="book-preview"></div>`);
 
     const records = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).length;
     const usage = ((JSON.stringify(localStorage).length/1024)).toFixed(1);
-    html += sec('data', `<h3>💾 데이터 관리</h3>
-      <div class="field"><div class="hint">저장된 기록: ${records}일 · 사용량: ${usage}KB</div></div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn-test" id="f-export">📤 전체 내보내기 (JSON)</button>
-        <button class="btn-test" id="f-import">📥 불러오기</button>
-        <input type="file" id="f-import-file" accept="application/json" style="display:none">
-        <button class="btn-test" style="background:var(--danger)" id="f-clean">🗑️ 30일 이전 기록 삭제</button>
-      </div>`);
+    const lastBackup = localStorage.getItem('mc_last_backup');
+    const lastBackupTxt = lastBackup
+      ? `${new Date(lastBackup).getFullYear()}. ${new Date(lastBackup).getMonth()+1}. ${new Date(lastBackup).getDate()}.`
+      : '아직 없음';
+    html += sec('data', `<h3>💾 출결데이터 관리</h3>
+      <div class="data-notice">
+        <div class="dn-row safe"><span class="dn-ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="36" height="36" role="img" aria-label="개인정보 안심"><g clip-rule="evenodd" fill-rule="evenodd"><g><path d="m256 292.358-68.657-49.344c-26.346-18.937-40.659-46.85-40.659-79.297v-87.634c41.432-26.098 75.374-39.147 109.316-39.147s67.884 13.049 109.315 39.146v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#72d561"/><path d="m256 292.358-10.308-7.408 61.793-44.412c26.346-18.937 40.659-46.85 40.659-79.297v-87.634c-30.132-18.981-56.303-31.057-81.394-36.233 30.436 2.462 61.504 15.364 98.564 38.709v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#3cbe52"/><path d="m256 257.439 52.108-37.451c18.932-13.607 28.852-32.957 28.852-56.272v-71.686c-24.686-14.374-52.54-26.738-80.96-26.738s-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#3cbe52"/><path d="m256 257.439 7.86-5.65-44.248-31.801c-18.932-13.607-28.852-32.957-28.852-56.272v-71.686c22.405-13.046 47.42-24.436 73.1-26.429-2.614-.203-5.235-.309-7.86-.309-28.421 0-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#30aa44"/><path d="m284.218 124.554c5.918-5.951 15.54-5.978 21.491-.06s5.978 15.541.06 21.492l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-6.017-5.853-6.15-15.475-.298-21.491 5.852-6.017 15.475-6.15 21.491-.297l15.498 15.107z" fill="#eff4f7"/><path d="m308.917 129.17c2.43 5.55 1.383 12.259-3.148 16.815l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-4.671-4.543-5.795-11.357-3.327-16.994.765 1.749 1.874 3.383 3.327 4.796l26.282 25.616c5.96 5.799 15.493 5.734 21.371-.177l51.707-52.191c1.367-1.372 2.415-2.942 3.148-4.617z" fill="#e2e3e3"/></g><g><path d="m9.021 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.115c-4.14 0-7.363-3.474-7.053-7.602z" fill="#64b5f6"/><path d="m98.817 345.232c3.717-.417 7.491-.639 11.314-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.363-3.474 7.053-7.602-3.638-48.498-41.787-87.761-89.795-93.154z" fill="#42a5f5"/><circle cx="110.131" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m68.576 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.265 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.921-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m300.758 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.114c-4.14 0-7.363-3.474-7.054-7.602z" fill="#ffda2d"/><path d="m390.554 345.232c3.717-.417 7.491-.639 11.315-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.364-3.474 7.053-7.602-3.638-48.498-41.788-87.761-89.796-93.154z" fill="#ffc700"/><circle cx="401.868" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m360.314 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.266 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.922-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m140.952 466.414c4.46-59.455 54.502-106.721 115.048-106.721s110.587 47.266 115.047 106.721c.353 4.697-3.315 8.65-8.026 8.65h-214.042c-4.711 0-8.379-3.953-8.027-8.65z" fill="#72d561"/><path d="m243.126 360.42c4.229-.475 8.523-.727 12.874-.727 60.545 0 110.587 47.266 115.047 106.72.353 4.698-3.315 8.65-8.026 8.65h-25.748c4.71 0 8.378-3.953 8.025-8.65-4.139-55.182-47.547-99.857-102.172-105.993z" fill="#3cbe52"/><circle cx="256" cy="291.318" fill="#ffd6bd" r="62.354"/><path d="m208.717 331.965c11.435 13.29 28.375 21.707 47.283 21.707 34.437 0 62.354-27.917 62.354-62.354 0-22.116-11.516-41.542-28.877-52.612 9.392 10.916 15.071 25.118 15.071 40.647 0 34.437-27.917 62.354-62.354 62.354-12.321-.001-23.806-3.575-33.477-9.742z" fill="#f9c6aa"/></g></g></svg></span><div><b>개인정보 안심</b><br>모든 기록은 이 브라우저에만 저장돼요. 외부로 전송되지 않아요.</div></div>
+        <div class="dn-row warn"><span class="dn-ico">⚠️</span><div><b>브라우저 데이터를 지우면 기록도 삭제</b><br>중요한 기록은 아래 <b>내보내기</b>로 백업해 두세요.</div></div>
+      </div>
+      <div class="data-stats">
+        <div class="dstat"><div class="dstat-num">${records}일</div><div class="dstat-lbl">저장된 기록</div></div>
+        <div class="dstat"><div class="dstat-num">${usage}KB</div><div class="dstat-lbl">사용량</div></div>
+        <div class="dstat"><div class="dstat-num" style="font-size:14px">${lastBackupTxt}</div><div class="dstat-lbl">마지막 백업</div></div>
+      </div>
+      <div class="data-actions">
+        <button class="data-btn primary" id="f-export"><span class="da-ico">📤</span>내보내기</button>
+        <button class="data-btn" id="f-import"><span class="da-ico">📥</span>불러오기</button>
+      </div>
+      <input type="file" id="f-import-file" accept="application/json" style="display:none">
+      <button class="data-btn danger-ghost" id="f-clean"><span class="da-ico">🗑️</span>오래된 기록 정리 <span class="da-sub">(60일 이전)</span></button>`);
 
     c.innerHTML = html;
     this.bindSettingsTab();
@@ -1682,15 +2306,61 @@ const App = {
     const s = this.settingsDraft;
     const t = this.settingsTab;
     if (t==='info') {
-      document.getElementById('f-school').oninput = e=> s.schoolName = e.target.value;
       document.getElementById('f-class').oninput = e=> s.className = e.target.value;
-    } else if (t==='students') {
-      document.getElementById('f-add-students').onclick = ()=>{
-        const v = document.getElementById('f-students-add').value;
-        const ns = v.split('\n').map(x=>x.trim()).filter(x=>x);
-        s.students = [...(s.students||[]), ...ns];
-        this.renderSettingsTabs();
+      // 학교명 검색 → 학교명·급식 코드 자동 설정
+      const box = document.getElementById('school-search-results');
+      const doSearch = async ()=>{
+        const name = document.getElementById('f-school-search').value.trim();
+        if (!name) { box.innerHTML=''; return; }
+        box.innerHTML = '<div class="hint">🔍 검색 중...</div>';
+        try {
+          const data = await this.neisRequest('schoolInfo', {pIndex:1, pSize:20, SCHUL_NM:name});
+          const rows = data?.schoolInfo?.[1]?.row;
+          if (!rows || !rows.length) { box.innerHTML='<div class="hint">검색 결과가 없어요. 학교명을 다시 확인해 주세요</div>'; return; }
+          box.innerHTML = rows.map((r,i)=>`<div class="school-result" data-i="${i}">
+              <div class="sr-name">🏫 ${esc(r.SCHUL_NM)}</div>
+              <div class="sr-addr">${esc(r.ORG_RDNMA||'')}</div>
+            </div>`).join('');
+          box.querySelectorAll('.school-result').forEach(el=>el.onclick=()=>{
+            const r = rows[+el.dataset.i];
+            s.neisAtptCode = r.ATPT_OFCDC_SC_CODE;
+            s.neisSchoolCode = r.SD_SCHUL_CODE;
+            s.schoolName = r.SCHUL_NM;
+            const st = document.getElementById('meal-link-status'); if (st) st.textContent = `✅ ${r.SCHUL_NM} — 급식 연동됨`;
+            this.playSound('select');
+            this.toast(`✅ ${r.SCHUL_NM} 선택됨`,'success');
+            box.innerHTML = `<div class="hint">✅ 선택됨: ${esc(r.SCHUL_NM)}</div>`;
+          });
+        } catch(e){ box.innerHTML='<div class="hint">검색 실패 — 잠시 후 다시 시도해 주세요</div>'; }
       };
+      document.getElementById('f-school-search-btn').onclick = doSearch;
+      document.getElementById('f-school-search').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doSearch(); } });
+      document.getElementById('f-test-meal').onclick = async ()=>{
+        const r = document.getElementById('test-result');
+        r.className='test-result';
+        if (!s.neisAtptCode || !s.neisSchoolCode) { r.textContent='먼저 학교를 검색해 선택해 주세요'; return; }
+        r.textContent='조회 중...';
+        try {
+          const data = await this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:1, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey});
+          if (data?.mealServiceDietInfo) {
+            r.textContent = '✅ 성공!\n' + (data.mealServiceDietInfo[1].row[0].DDISH_NM||'').replace(/<br\/>/g,'\n');
+          } else r.textContent = '⚠️ 데이터 없음 (오늘 급식이 없거나 코드 오류)';
+        } catch(e){ r.textContent='❌ 호출 실패'; }
+      };
+    } else if (t==='students') {
+      const addStudents = ()=>{
+        const inp = document.getElementById('f-students-add');
+        const ns = inp.value.split(/[,\n]/).map(x=>x.trim()).filter(x=>x);
+        if (!ns.length) { inp.value=''; inp.focus(); return; }
+        s.students = [...(s.students||[]), ...ns];
+        this.playSound('select');
+        this.renderSettingsTabs();
+        const ni = document.getElementById('f-students-add'); if (ni) ni.focus(); // 연속 입력 위해 재포커스
+      };
+      document.getElementById('f-add-students').onclick = addStudents;
+      document.getElementById('f-students-add').addEventListener('keydown', e=>{
+        if (e.key==='Enter') { e.preventDefault(); addStudents(); }
+      });
       document.querySelectorAll('#student-list button').forEach(b=>b.onclick=()=>{
         const i = +b.dataset.i, act = b.dataset.act;
         if (act==='del') s.students.splice(i,1);
@@ -1714,21 +2384,6 @@ const App = {
         localStorage.setItem('mc_timetable_'+(+b.dataset.copy), JSON.stringify({periods:cur}));
         this.toast('복사 완료!','success');
       });
-    } else if (t==='meal') {
-      document.getElementById('f-atpt').oninput = e=> s.neisAtptCode = e.target.value.trim();
-      document.getElementById('f-school-code').oninput = e=> s.neisSchoolCode = e.target.value.trim();
-      document.getElementById('f-key').oninput = e=> s.neisKey = e.target.value.trim();
-      document.getElementById('f-test-meal').onclick = async ()=>{
-        const r = document.getElementById('test-result');
-        r.className='test-result'; r.textContent='조회 중...';
-        try {
-          const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${encodeURIComponent(s.neisKey)}&Type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=${s.neisAtptCode}&SD_SCHUL_CODE=${s.neisSchoolCode}&MLSV_YMD=${this.todayKey}`;
-          const data = await this.fetchWithFallback(url);
-          if (data?.mealServiceDietInfo) {
-            r.textContent = '✅ 성공!\n' + (data.mealServiceDietInfo[1].row[0].DDISH_NM||'').replace(/<br\/>/g,'\n');
-          } else r.textContent = '⚠️ 데이터 없음 (오늘 급식이 없거나 코드 오류)';
-        } catch(e){ r.textContent='❌ 호출 실패'; }
-      };
     } else if (t==='book') {
       const upd = ()=>{
         s.bookUrl = document.getElementById('f-book-url').value.trim();
@@ -1746,7 +2401,7 @@ const App = {
       document.getElementById('f-import').onclick = ()=> document.getElementById('f-import-file').click();
       document.getElementById('f-import-file').onchange = e=> this.importData(e.target.files[0]);
       document.getElementById('f-clean').onclick = ()=>{
-        if(confirm('30일 이전 기록을 모두 삭제할까요?')) { this.cleanOldRecords(); this.toast('삭제 완료','success'); this.renderSettingsTabs(); }
+        if(confirm('60일 이전 기록을 모두 삭제할까요?')) { this.cleanOldRecords(); this.toast('삭제 완료','success'); this.renderSettingsTabs(); }
       };
     }
   },
@@ -1773,6 +2428,8 @@ const App = {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `아침교실_백업_${this.todayKey}.json`; a.click();
+    localStorage.setItem('mc_last_backup', new Date().toISOString());
+    document.getElementById('backup-reminder')?.remove();
     this.toast('백업 완료 📤','success');
   },
   importData(file) {
@@ -1812,15 +2469,16 @@ const App = {
     document.querySelectorAll('.record-item').forEach(el=>el.onclick=()=>{
       const r = JSON.parse(localStorage.getItem(el.dataset.k)||'{}');
       const k = el.dataset.k;
-      const ems = Object.entries(r.emotions||{}).map(([n,v])=>`${n}: ${v.emoji} ${v.label}`).join(', ');
-      const att = Object.entries(r.attendance||{}).map(([n,v])=>`${n}: ${v}`).join(', ');
+      const ems = Object.entries(r.emotions||{}).map(([n,v])=>`${esc(n)}: ${v.emoji} ${esc(v.label)}`).join(', ');
+      const att = Object.entries(r.attendance||{}).map(([n,v])=>`${esc(n)}: ${esc(v)}`).join(', ');
       document.getElementById('record-detail').innerHTML = `<div class="record-detail">
         <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}`:'-'}</div>
         <h4>미세먼지</h4><div class="row">${r.dust?`${r.dust.emoji} ${r.dust.label}`:'-'}</div>
         <h4>출석</h4><div class="row">${att||'-'}</div>
+        <h4>오늘의 도우미</h4><div class="row">${(r.helpers||[]).filter(Boolean).map(esc).join(', ')||'-'}</div>
         <h4>감정</h4><div class="row">${ems||'-'}</div>
-        <h4>유의사항</h4><div class="row" style="white-space:pre-wrap">${(r.notes||'-').replace(/</g,'&lt;')}</div>
-        <h4>급식</h4><div class="row" style="white-space:pre-wrap">${r.mealText||'-'}</div>
+        <h4>유의사항</h4><div class="row" style="white-space:pre-wrap">${esc(r.notes||'-')}</div>
+        <h4>급식</h4><div class="row" style="white-space:pre-wrap">${esc(r.mealText||'-')}</div>
         <button class="btn-test" style="background:var(--danger);margin-top:10px" onclick="if(confirm('정말 삭제할까요?')){localStorage.removeItem('${k}');App.openRecords();}">🗑️ 이 기록 삭제</button>
       </div>`;
     });
@@ -1835,15 +2493,8 @@ const App = {
     this.openPopup('🌅 환영합니다!', `
       <div class="welcome">
         <h2>아침교실에 오신 것을 환영해요!</h2>
-        <div style="background:#fff5d6;border:2px solid #f5b800;border-radius:14px;padding:16px;margin:14px 0;text-align:left">
-          <div style="font-weight:800;font-size:1.05em;color:#a36b00;margin-bottom:8px">📌 시작 전, 학급 설정이 꼭 필요해요!</div>
-          <div style="color:#5a4400;line-height:1.7;font-size:0.98em">
-            아침교실을 사용하려면 <b>학교명, 학급명, 학생 명단</b>을 먼저 등록해 주세요.<br>
-            설정을 마쳐야 출석·시간표·급식 기능을 사용할 수 있어요.
-          </div>
-        </div>
-        <p style="color:#666;font-size:0.9em">설정은 언제든 우측 상단 ⚙️ 버튼에서 다시 변경할 수 있어요.</p>
-        <button id="welcome-btn" style="font-size:1.1em;padding:14px 28px">⚙️ 지금 학급 설정하기</button>
+        <p>먼저 학급 정보와 학생을 등록해 주세요.<br>설정은 언제든 ⚙️ 버튼에서 변경할 수 있어요.</p>
+        <button id="welcome-btn">⚙️ 설정 시작하기</button>
       </div>`, {onMount:()=>{
         document.getElementById('welcome-btn').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openSettings(), 200); };
       }});
