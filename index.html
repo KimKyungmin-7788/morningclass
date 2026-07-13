@@ -280,16 +280,21 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .book-label i{color:#3b82f6}
 .book-arrow i{color:var(--acc-coral)}
 /* D-DAY */
-.dday-list{display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;padding:2px}
-.dday-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.72);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.dday-badge{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:#fff;background:#6366f1;padding:3px 11px;border-radius:99px;min-width:56px;text-align:center;flex-shrink:0;letter-spacing:.3px}
-.dday-badge.today{background:#ef4444}
-.dday-badge.past{background:#94a3b8}
-.dday-name{flex:1;font-weight:600;font-size:14px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dday-date{font-size:12px;color:#94a3b8;flex-shrink:0}
+.dday-list{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;padding:2px}
+.dday-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(255,255,255,.82);border-radius:14px;box-shadow:0 2px 8px rgba(99,102,241,.08);border-left:4px solid #6366f1}
+.dday-row:has(.dday-badge.today){border-left-color:#ef4444}
+.dday-row:has(.dday-badge.past){border-left-color:#cbd5e1}
+.dday-badge{font-family:'Nunito',sans-serif;font-weight:900;font-size:19px;color:#fff;background:#6366f1;padding:5px 15px;border-radius:99px;min-width:72px;text-align:center;flex-shrink:0;letter-spacing:.3px;box-shadow:0 2px 6px rgba(99,102,241,.3)}
+.dday-badge.today{background:#ef4444;box-shadow:0 2px 6px rgba(239,68,68,.35)}
+.dday-badge.past{background:#94a3b8;box-shadow:none}
+.dday-name{flex:1;font-weight:800;font-size:18px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dday-date{font-size:13px;font-weight:600;color:#94a3b8;flex-shrink:0}
 .dday-del{color:#cbd5e1;font-weight:800;padding:2px 7px;border-radius:6px;flex-shrink:0}
 .dday-del:hover{background:var(--danger);color:#fff}
-.dday-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+/* D-DAY 관리 팝업: 항목을 2열로 배치 */
+.dday-list-manage{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;align-content:start;overflow:visible}
+.dday-list-manage .card-hint{grid-column:1/-1}
+.dday-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:0;background:var(--card);z-index:2;padding-bottom:10px}
 .dday-add input{padding:11px 13px;border:2px solid #E5E7EB;border-radius:12px;font-size:15px}
 .dday-add input:focus{border-color:var(--primary);outline:none}
 .dday-add input.name{flex:1;min-width:120px}
@@ -299,10 +304,11 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .popup-overlay{position:fixed;inset:0;background:var(--overlay);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
 .popup-overlay.active{display:flex}
 .popup-overlay.closing{animation:fadeOut .2s forwards}
-.popup-card{background:var(--card);border-radius:24px;padding:30px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--popup-shadow);animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
+.popup-card{background:var(--card);border-radius:24px;padding:30px;max-width:760px;width:100%;max-height:90vh;box-shadow:var(--popup-shadow);animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;overflow:hidden}
 .popup-overlay.closing .popup-card{animation:popupOut .2s forwards}
 .popup-card.large{max-width:1100px}
-.popup-header{display:flex;align-items:center;margin-bottom:20px;gap:12px}
+.popup-header{display:flex;align-items:center;margin-bottom:20px;gap:12px;flex-shrink:0}
+#popup-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
 .popup-title{font-size:clamp(22px,1.6vw,30px);font-weight:700;color:var(--primary);flex:1}
 .popup-close{width:42px;height:42px;border-radius:12px;background:#F0F4FF;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.2s}
 .popup-close:hover{background:var(--danger);color:#fff}
@@ -330,7 +336,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .choice-item.dust-2{background:#FFF3E0}.choice-item.dust-3{background:#FFEBEE}
 
 /* attendance popup */
-.att-list{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto}
+.att-list{display:flex;flex-direction:column;gap:10px}
 .att-row{display:flex;align-items:center;gap:12px;padding:12px;background:#F8FAFF;border-radius:14px;border:2px solid transparent}
 .att-row.present{background:#E8F5E9;border-color:var(--success)}
 .att-row.late{background:#FFF3E0;border-color:var(--secondary)}
@@ -366,7 +372,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .subject-chip.add-chip:hover{background:#FFF8E0}
 .slot-clear{background:#FFE5E5;color:var(--danger);border-radius:50%;width:28px;height:28px;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .slot-clear:hover{background:var(--danger);color:#fff}
-.tt-popup-actions{display:flex;gap:10px;margin-top:18px;padding-top:18px;border-top:2px solid #F0F4FF}
+.tt-popup-actions{display:flex;gap:10px;margin-top:18px;padding-top:18px;border-top:2px solid #F0F4FF;position:sticky;bottom:0;background:var(--card);z-index:3}
 .tt-popup-actions button{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:17px;transition:.2s}
 .btn-hint{background:#FFF8E0;color:var(--secondary)}
 .btn-hint:hover{background:var(--secondary);color:#fff}
@@ -377,7 +383,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 /* notes popup */
 .notes-textarea{width:100%;min-height:200px;padding:16px;border:2px solid #E5E7EB;border-radius:14px;font-size:18px;line-height:1.5;resize:vertical;font-family:inherit}
 .notes-textarea:focus{border-color:var(--primary);outline:none}
-.popup-actions{display:flex;gap:10px;margin-top:16px}
+.popup-actions{display:flex;gap:10px;margin-top:16px;position:sticky;bottom:0;background:var(--card);padding-top:14px;z-index:3;box-shadow:0 -10px 18px -12px rgba(0,0,0,.18)}
 .popup-actions button{flex:1;padding:14px;border-radius:14px;font-weight:700;font-size:17px;transition:.2s}
 .btn-save{background:var(--success);color:#fff}.btn-save:hover{background:#5BB867}
 .btn-cancel{background:#F0F4FF;color:var(--text-sub)}.btn-cancel:hover{background:#E5E7EB}
@@ -398,6 +404,17 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .field input:focus,.field textarea:focus{border-color:var(--primary);outline:none}
 .field textarea{min-height:100px;resize:vertical;font-family:inherit}
 .field .hint{font-size:13px;color:var(--text-sub);margin-top:4px}
+.class-switcher{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.class-chip{padding:7px 14px;border-radius:999px;border:1.5px solid #dfe6f5;background:#fff;cursor:pointer;font-size:13px;font-weight:700;color:#5a6478;transition:.15s}
+.class-chip:hover{border-color:var(--primary);color:var(--primary)}
+.class-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.class-chip.add{border-style:dashed;color:var(--primary);border-color:var(--primary)}
+.class-pick-list{display:flex;flex-direction:column;gap:10px}
+.class-pick-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:16px 20px;border-radius:16px;border:2px solid #e5e9f2;background:#fff;cursor:pointer;text-align:left;transition:.15s}
+.class-pick-btn:hover{border-color:var(--primary);background:#f5faff;transform:translateY(-2px);box-shadow:0 6px 18px rgba(91,182,255,.18)}
+.class-pick-btn.current{border-color:var(--primary);background:#eef7ff}
+.class-pick-btn .cp-name{font-size:20px;font-weight:800;color:#1e293b}
+.class-pick-btn .cp-school{font-size:14px;font-weight:600;color:#94a3b8}
 .tt-day-tabs{display:flex;gap:6px;margin-bottom:12px}
 .tt-day-tabs button{flex:1;padding:8px;border-radius:8px;background:#F0F4FF;font-weight:600;font-size:14px}
 .tt-day-tabs button.active{background:var(--primary);color:#fff}
@@ -556,7 +573,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
     </div>
     <div class="col">
       <div class="card touchable empty" id="card-timetable" data-card="timetable" tabindex="0" role="button" aria-label="시간표 맞추기"></div>
-      <div class="card touchable empty" id="card-dday" data-card="dday" tabindex="0" role="button" aria-label="디데이" style="flex:0 0 auto;min-height:120px"></div>
+      <div class="card touchable empty" id="card-dday" data-card="dday" tabindex="0" role="button" aria-label="디데이" style="flex:0 0 auto;min-height:170px"></div>
     </div>
     <div class="col">
       <div class="card empty" id="card-emotions" data-card="emotions" aria-label="우리반 감정 현황"></div>
@@ -678,6 +695,7 @@ const App = {
   ttsVoices: [], ttsLastText: '', ttsLastAt: 0,
   settings: null, today: '', todayKey: '', dayOfWeek: 0, isWeekend: false,
   record: null, settingsTab: 'info', settingsDay: 0, settingsDraft: null,
+  classes: null, currentClassId: null,
 
   init() {
     if ('speechSynthesis' in window) { try { this.ttsVoices = window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = ()=>{ this.ttsVoices = window.speechSynthesis.getVoices(); }; } catch(e){} }
@@ -688,7 +706,9 @@ const App = {
     this.loadRecord();
     this.bindGlobal();
     this.renderAll();
-    if (!this.settings || !this.settings.students?.length) {
+    if (this.classes && this.classes.length > 1) {
+      this.openClassPicker();                                    // 여러 학급이면 첫 접속 시 학급 선택
+    } else if (!this.settings || !this.settings.students?.length) {
       this.openWelcome();
     } else {
       setTimeout(()=>this.checkBackupReminder(), 700);
@@ -809,10 +829,58 @@ const App = {
     }});
   },
 
+  // ── 학급별 저장 키 헬퍼 (여러 학급을 동시에 저장·전환) ──
+  classPrefix() { return (this.currentClassId || 'default') + '_'; },
+  rkey(dateKey) { return 'mc_record_' + this.classPrefix() + (dateKey==null ? this.todayKey : dateKey); },
+  tkey(day) { return 'mc_timetable_' + this.classPrefix() + day; },
+  dkey() { return 'mc_draft_notes_' + this.classPrefix() + this.todayKey; },
+
   loadSettings() {
-    try { this.settings = JSON.parse(localStorage.getItem('mc_settings') || 'null'); }
-    catch(e){ this.settings = null; }
-    if (!this.settings) this.settings = {};
+    this.loadClasses();
+    this.applyCurrentClass();
+  },
+  loadClasses() {
+    try { this.classes = JSON.parse(localStorage.getItem('mc_classes') || 'null'); }
+    catch(e){ this.classes = null; }
+    if (!Array.isArray(this.classes)) this.classes = null;
+    if (!this.classes || !this.classes.length) this.migrateOrInitClasses();
+    let cur = localStorage.getItem('mc_current_class');
+    if (!this.classes.find(c=>c.id===cur)) cur = this.classes[0].id;
+    this.currentClassId = cur;
+    localStorage.setItem('mc_current_class', cur);
+  },
+  // 기존 단일 설정(mc_settings)·시간표·기록을 첫 학급으로 이전하거나, 없으면 빈 학급 생성
+  migrateOrInitClasses() {
+    this.classes = [];
+    const id = 'c' + Date.now();
+    let old = null;
+    try { old = JSON.parse(localStorage.getItem('mc_settings') || 'null'); } catch(e){}
+    if (old && typeof old === 'object') {
+      old.id = id;
+      this.classes.push(old);
+      // mc_timetable_<0-6> → mc_timetable_<id>_<0-6>
+      for (let day=0; day<=6; day++) {
+        const v = localStorage.getItem('mc_timetable_'+day);
+        if (v!=null) { localStorage.setItem('mc_timetable_'+id+'_'+day, v); localStorage.removeItem('mc_timetable_'+day); }
+      }
+      // mc_record_/mc_draft_notes_/mc_celebrated_<8자리> → <id> 접두어 추가
+      Object.keys(localStorage).forEach(k=>{
+        let m;
+        if ((m=k.match(/^mc_record_(\d{8})$/)))       { localStorage.setItem('mc_record_'+id+'_'+m[1], localStorage.getItem(k)); localStorage.removeItem(k); }
+        else if ((m=k.match(/^mc_draft_notes_(\d{8})$/))) { localStorage.setItem('mc_draft_notes_'+id+'_'+m[1], localStorage.getItem(k)); localStorage.removeItem(k); }
+        else if ((m=k.match(/^mc_celebrated_(\d{8})$/)))  { localStorage.setItem('mc_celebrated_'+id+'_'+m[1], localStorage.getItem(k)); localStorage.removeItem(k); }
+      });
+      localStorage.removeItem('mc_settings');
+    } else {
+      this.classes.push({ id, schoolName:'', className:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'', bookUrl:'', bookTitle:'' });
+    }
+    localStorage.setItem('mc_classes', JSON.stringify(this.classes));
+    localStorage.setItem('mc_current_class', id);
+  },
+  applyCurrentClass() {
+    const cls = this.classes.find(c=>c.id===this.currentClassId) || this.classes[0];
+    this.settings = cls;
+    this.currentClassId = cls.id;
     // 영상 재생 기본 영상 (설정에서 변경 가능)
     if (!this.settings.bookUrl) {
       this.settings.bookUrl = 'https://www.youtube.com/watch?v=VAoR8bL04qA&list=RDVAoR8bL04qA&start_radio=1';
@@ -821,10 +889,106 @@ const App = {
     document.getElementById('school-info').textContent =
       `${this.settings.schoolName||'학교명'} · ${this.settings.className||'학급명'}`;
   },
+  // 현재 설정(this.settings)을 학급 배열에 반영해 저장
+  persistClasses() {
+    const idx = this.classes.findIndex(c=>c.id===this.currentClassId);
+    if (idx>=0) this.classes[idx] = this.settings;
+    else this.classes.push(this.settings);
+    localStorage.setItem('mc_classes', JSON.stringify(this.classes));
+  },
+  // 설정 편집 중 다른 학급으로 전환 (편집 중이던 초안은 해당 학급에 커밋)
+  commitDraftToClass() {
+    if (!this.settingsDraft) return;
+    if (this.settingsTab==='timetable') {
+      const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
+      if (cur.length) localStorage.setItem(this.tkey(this.settingsDay), JSON.stringify({periods:cur}));
+    }
+    const idx = this.classes.findIndex(c=>c.id===this.currentClassId);
+    if (idx>=0) { this.settingsDraft.id = this.currentClassId; this.classes[idx] = this.settingsDraft; }
+    localStorage.setItem('mc_classes', JSON.stringify(this.classes));
+  },
+  switchClass(id) {
+    if (id===this.currentClassId) return;
+    this.commitDraftToClass();
+    this.currentClassId = id;
+    localStorage.setItem('mc_current_class', id);
+    this.applyCurrentClass();
+    this.settingsDraft = JSON.parse(JSON.stringify(this.settings));
+    this.loadRecord();
+    this.renderAll();
+    this.renderSettingsTabs();
+    this.toast(`'${this.settings.className||'새 학급'}' 학급으로 전환`,'success');
+  },
+  addClass() {
+    this.commitDraftToClass();
+    // 직전 학급(드래프트 편집 반영본)을 기준으로 학교 정보를 그대로 이어받음
+    const src = this.classes.find(c=>c.id===this.currentClassId) || this.settings || {};
+    const id = 'c' + Date.now();
+    // 같은 학교의 다른 반이 흔하므로 학교명·급식코드·영상은 이어받고 학급명·학생만 비움
+    const cls = {
+      id, schoolName: src.schoolName||'', className:'', students:[],
+      neisKey: src.neisKey||'', neisAtptCode: src.neisAtptCode||'', neisSchoolCode: src.neisSchoolCode||'',
+      bookUrl: src.bookUrl||'', bookTitle: src.bookTitle||''
+    };
+    this.classes.push(cls);
+    localStorage.setItem('mc_classes', JSON.stringify(this.classes));
+    this.currentClassId = id;
+    localStorage.setItem('mc_current_class', id);
+    this.applyCurrentClass();
+    this.settingsDraft = JSON.parse(JSON.stringify(this.settings));
+    this.settingsTab = 'info';
+    this.loadRecord();
+    this.renderAll();
+    this.renderSettingsTabs();
+    this.toast('새 학급을 추가했어요. 학급명과 학생을 입력하세요','success');
+  },
+  deleteClass(id) {
+    if (this.classes.length<=1) { this.toast('마지막 학급은 삭제할 수 없어요','error'); return; }
+    const cls = this.classes.find(c=>c.id===id); if (!cls) return;
+    if (!confirm(`'${cls.className||'이 학급'}'의 학생·시간표·모든 출결 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
+    Object.keys(localStorage).forEach(k=>{
+      if (k.startsWith('mc_record_'+id+'_') || k.startsWith('mc_timetable_'+id+'_') ||
+          k.startsWith('mc_draft_notes_'+id+'_') || k.startsWith('mc_celebrated_'+id+'_')) localStorage.removeItem(k);
+    });
+    this.classes = this.classes.filter(c=>c.id!==id);
+    localStorage.setItem('mc_classes', JSON.stringify(this.classes));
+    if (this.currentClassId===id) { this.currentClassId = this.classes[0].id; localStorage.setItem('mc_current_class', this.currentClassId); }
+    this.applyCurrentClass();
+    this.settingsDraft = JSON.parse(JSON.stringify(this.settings));
+    this.loadRecord();
+    this.renderAll();
+    this.renderSettingsTabs();
+    this.toast('학급을 삭제했어요','success');
+  },
+  // 설정 모달 없이 학급만 선택 (첫 접속 학급 선택 모달용)
+  selectClass(id) {
+    if (id && id !== this.currentClassId) {
+      this.currentClassId = id;
+      localStorage.setItem('mc_current_class', id);
+      this.applyCurrentClass();
+      this.loadRecord();
+      this.renderAll();
+    }
+    this.closePopup();
+    // 학생이 없는 학급이면 안내
+    if (!this.settings || !this.settings.students?.length) this.openWelcome();
+  },
+  openClassPicker() {
+    const items = this.classes.map(c=>`
+      <button class="class-pick-btn ${c.id===this.currentClassId?'current':''}" data-cid="${c.id}">
+        <span class="cp-name">${esc(c.className||'이름 없는 학급')}</span>
+        <span class="cp-school">${esc(c.schoolName||'학교 미설정')}</span>
+      </button>`).join('');
+    this.openPopup('🏫 학급 선택', `
+      <div class="hint" style="margin-bottom:14px">오늘 사용할 학급을 선택하세요</div>
+      <div class="class-pick-list">${items}</div>`, {onMount:()=>{
+        document.querySelectorAll('.class-pick-btn').forEach(b=>b.onclick=()=>this.selectClass(b.dataset.cid));
+      }});
+  },
 
   loadRecord() {
     try {
-      const saved = JSON.parse(localStorage.getItem('mc_record_'+this.todayKey) || 'null');
+      const saved = JSON.parse(localStorage.getItem(this.rkey()) || 'null');
       // 예전/부분 기록에 없는 필드(emotions·attendance·helpers 등)를 기본값으로 채워 렌더 오류 방지
       this.record = saved ? { ...this.emptyRecord(), ...saved } : this.emptyRecord();
     } catch(e){ this.record = this.emptyRecord(); }
@@ -841,18 +1005,18 @@ const App = {
   saveRecord(silent) {
     this.record.savedAt = new Date().toISOString();
     try {
-      localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record));
+      localStorage.setItem(this.rkey(), JSON.stringify(this.record));
       if (!silent) this.toast('💾 저장 완료!','success');
     } catch(e){
       this.cleanOldRecords();
-      try { localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record)); }
+      try { localStorage.setItem(this.rkey(), JSON.stringify(this.record)); }
       catch(e2){ this.toast('저장 공간이 부족해요. 백업을 받아주세요.','error'); }
     }
   },
   cleanOldRecords() {
     const cutoff = Date.now() - 60*86400000;
     Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).forEach(k=>{
-      const m = k.match(/mc_record_(\d{8})/);
+      const m = k.match(/_(\d{8})$/);
       if (m) {
         const d = new Date(`${m[1].slice(0,4)}-${m[1].slice(4,6)}-${m[1].slice(6,8)}`);
         if (d.getTime() < cutoff) localStorage.removeItem(k);
@@ -1209,15 +1373,10 @@ const App = {
     this.openPopup('🙋 오늘의 출석', render(), {onMount:()=>{
       const body = document.getElementById('popup-body');
       const refresh = ()=>{
-        // 다시 그릴 때 스크롤 위치 유지
-        const list = body.querySelector('.att-list');
-        const listTop = list ? list.scrollTop : 0;
-        const card = document.getElementById('popup-card');
-        const cardTop = card ? card.scrollTop : 0;
+        // 다시 그릴 때 스크롤 위치 유지 (popup-body가 스크롤 컨테이너)
+        const bodyTop = body.scrollTop;
         body.innerHTML = render(); bind();
-        const nl = body.querySelector('.att-list');
-        if (nl) nl.scrollTop = listTop;
-        if (card) card.scrollTop = cardTop;
+        body.scrollTop = bodyTop;
       };
       const bind = ()=>{
         body.querySelectorAll('.att-row').forEach(row=>{
@@ -1245,7 +1404,7 @@ const App = {
   todayPeriods() {
     if (this.isWeekend) return [];
     try {
-      const tt = JSON.parse(localStorage.getItem('mc_timetable_'+this.dayOfWeek)||'null');
+      const tt = JSON.parse(localStorage.getItem(this.tkey(this.dayOfWeek))||'null');
       const arr = (tt?.periods || []).map(s=>(s||'').trim());
       // 뒤쪽 빈 칸 제거 — 교과를 넣은 시간만큼만
       while (arr.length && !arr[arr.length-1]) arr.pop();
@@ -1820,7 +1979,7 @@ const App = {
   },
   openNotes() {
     this.ensureAudio();
-    const draft = localStorage.getItem('mc_draft_notes_'+this.todayKey) || this.record.notes || '';
+    const draft = localStorage.getItem(this.dkey()) || this.record.notes || '';
     this.openPopup('📢 오늘의 유의사항', `
       <textarea class="notes-textarea" id="notes-input" placeholder="오늘 학생들에게 전달할 내용을 입력하세요">${esc(draft)}</textarea>
       <div class="popup-actions">
@@ -1829,11 +1988,11 @@ const App = {
       </div>`, {onMount:()=>{
         const ta = document.getElementById('notes-input');
         let t;
-        ta.oninput = ()=>{ clearTimeout(t); t=setTimeout(()=>localStorage.setItem('mc_draft_notes_'+this.todayKey, ta.value), 800); };
+        ta.oninput = ()=>{ clearTimeout(t); t=setTimeout(()=>localStorage.setItem(this.dkey(), ta.value), 800); };
         document.getElementById('n-cancel').onclick=()=>this.closePopup();
         document.getElementById('n-save').onclick=()=>{
           this.record.notes = ta.value.trim();
-          localStorage.removeItem('mc_draft_notes_'+this.todayKey);
+          localStorage.removeItem(this.dkey());
           this.playSound('save'); this.toast('유의사항 저장!','success');
           this.closePopup(); this.renderNotes(); this.autoSaveDraft();
         };
@@ -2050,7 +2209,7 @@ const App = {
           <input type="date" id="dd-date" value="${todayStr}">
           <button id="dd-add">➕ 추가</button>
         </div>
-        <div class="dday-list" style="max-height:50vh">${list.length ? list.map(it=>{
+        <div class="dday-list dday-list-manage">${list.length ? list.map(it=>{
           const diff = this.ddayDiff(it.date);
           const cls = diff === 0 ? 'today' : (diff < 0 ? 'past' : '');
           return `<div class="dday-row"><span class="dday-badge ${cls}">${this.ddayLabel(diff)}</span><span class="dday-name">${esc(it.name)}</span><span class="dday-date">${this.fmtDdayDate(it.date)}</span><button class="dday-del" data-id="${it.id}" title="삭제" aria-label="삭제">✕</button></div>`;
@@ -2130,7 +2289,7 @@ const App = {
   // 완료 축하 연출 (통합본): 오버레이 메시지 + 딩동댕동 차임 + 폭죽 + 음성
   celebrate() {
     // 하루 1회만 — updateProgress·checkComplete 양쪽에서 호출돼도 중복 방지
-    const flagKey = 'mc_celebrated_'+this.todayKey;
+    const flagKey = 'mc_celebrated_'+this.classPrefix()+this.todayKey;
     if (localStorage.getItem(flagKey)) return;
     localStorage.setItem(flagKey, '1');
     this.celebratedToday = true;
@@ -2187,7 +2346,7 @@ const App = {
   },
   autoSaveDraft() {
     // light save without sound
-    try { localStorage.setItem('mc_record_'+this.todayKey, JSON.stringify(this.record)); } catch(e){}
+    try { localStorage.setItem(this.rkey(), JSON.stringify(this.record)); } catch(e){}
   },
 
   // ── Settings ──
@@ -2203,7 +2362,7 @@ const App = {
         // 현재 시간표 탭의 입력값을 잃지 않도록 먼저 저장
         if (this.settingsTab==='timetable') {
           const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
-          if (cur.length) localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+          if (cur.length) localStorage.setItem(this.tkey(this.settingsDay), JSON.stringify({periods:cur}));
         }
         this.settingsTab = t.dataset.tab; this.renderSettingsTabs();
       };
@@ -2225,6 +2384,16 @@ const App = {
     let html = '';
 
     html += sec('info', `<h3>🏫 학급 기본 정보</h3>
+      <div class="field"><label>학급 선택 · 전환 (여러 학급 동시 저장)</label>
+        <div class="class-switcher" id="class-switcher">
+          ${this.classes.map(c=>{
+            const label = c.id===this.currentClassId ? (s.className||s.schoolName||'새 학급') : (c.className||c.schoolName||'새 학급');
+            return `<button class="class-chip ${c.id===this.currentClassId?'active':''}" data-cid="${c.id}">${esc(label)}</button>`;
+          }).join('')}
+          <button class="class-chip add" id="class-add">＋ 새 학급</button>
+        </div>
+        <div class="hint">학급을 추가하면 <b>학생·시간표·출결 기록</b>이 학급별로 따로 저장돼요. 현재 학급: <b>${esc(s.className||s.schoolName||'새 학급')}</b></div>
+      </div>
       <div class="field"><label>학교 검색</label>
         <div style="display:flex;gap:6px">
           <input id="f-school-search" placeholder="학교명 입력">
@@ -2238,7 +2407,11 @@ const App = {
         <div class="hint" id="meal-link-status">${s.neisSchoolCode ? '✅ 급식 연동됨 — 검색한 학교의 급식을 불러와요' : '🍱 학교를 검색해 선택하면 급식이 자동 연동돼요'}</div>
         <button class="btn-test" id="f-test-meal">🧪 급식 연동 테스트</button>
         <div id="test-result"></div>
-      </div>`);
+      </div>
+      ${this.classes.length>1?`<div class="field" style="margin-top:18px;border-top:1px solid #eef0f5;padding-top:16px">
+        <button class="btn-test" id="class-del" style="background:var(--danger);width:100%;margin:0">🗑️ 현재 학급 삭제</button>
+        <div class="hint" style="text-align:center;margin-top:6px">현재 선택된 <b>${esc(s.className||s.schoolName||'이 학급')}</b>의 학생·시간표·기록이 모두 삭제돼요</div>
+      </div>`:''}`);
 
     html += sec('students', `<h3>👨‍🎓 학생 관리</h3>
       <div class="field"><label>학생 추가</label>
@@ -2260,7 +2433,7 @@ const App = {
 
     const dayNames = ['월','화','수','목','금'];
     let tt = [];
-    try { tt = JSON.parse(localStorage.getItem('mc_timetable_'+this.settingsDay)||'{"periods":["","","","","","",""]}').periods; }
+    try { tt = JSON.parse(localStorage.getItem(this.tkey(this.settingsDay))||'{"periods":["","","","","","",""]}').periods; }
     catch(e){ tt=['','','','','','','']; }
     while(tt.length<7) tt.push('');
     html += sec('timetable', `<h3>📅 시간표 입력</h3>
@@ -2276,7 +2449,7 @@ const App = {
       <div class="field"><label>영상 제목</label><input id="f-book-title" value="${esc(s.bookTitle||'')}"></div>
       <div id="book-preview"></div>`);
 
-    const records = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).length;
+    const records = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_'+this.classPrefix())).length;
     const usage = ((JSON.stringify(localStorage).length/1024)).toFixed(1);
     const lastBackup = localStorage.getItem('mc_last_backup');
     const lastBackupTxt = lastBackup
@@ -2306,6 +2479,10 @@ const App = {
     const s = this.settingsDraft;
     const t = this.settingsTab;
     if (t==='info') {
+      // 학급 전환·추가·삭제
+      document.querySelectorAll('#class-switcher .class-chip[data-cid]').forEach(b=>b.onclick=()=>this.switchClass(b.dataset.cid));
+      document.getElementById('class-add')?.addEventListener('click', ()=>this.addClass());
+      document.getElementById('class-del')?.addEventListener('click', ()=>this.deleteClass(this.currentClassId));
       document.getElementById('f-class').oninput = e=> s.className = e.target.value;
       // 학교명 검색 → 학교명·급식 코드 자동 설정
       const box = document.getElementById('school-search-results');
@@ -2371,7 +2548,7 @@ const App = {
     } else if (t==='timetable') {
       const saveCurrent = ()=>{
         const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
-        localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+        localStorage.setItem(this.tkey(this.settingsDay), JSON.stringify({periods:cur}));
       };
       document.querySelectorAll('.tt-pinp').forEach(inp=>{ inp.oninput = saveCurrent; });
       document.querySelectorAll('.tt-day-tabs button').forEach(b=>b.onclick=()=>{
@@ -2381,7 +2558,7 @@ const App = {
       document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
         saveCurrent();
         const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
-        localStorage.setItem('mc_timetable_'+(+b.dataset.copy), JSON.stringify({periods:cur}));
+        localStorage.setItem(this.tkey(+b.dataset.copy), JSON.stringify({periods:cur}));
         this.toast('복사 완료!','success');
       });
     } else if (t==='book') {
@@ -2409,10 +2586,11 @@ const App = {
     // save current timetable tab inputs if open
     if (this.settingsTab==='timetable') {
       const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
-      localStorage.setItem('mc_timetable_'+this.settingsDay, JSON.stringify({periods:cur}));
+      localStorage.setItem(this.tkey(this.settingsDay), JSON.stringify({periods:cur}));
     }
     this.settings = this.settingsDraft;
-    localStorage.setItem('mc_settings', JSON.stringify(this.settings));
+    this.settings.id = this.currentClassId;
+    this.persistClasses();
     document.getElementById('school-info').textContent = `${this.settings.schoolName||''} · ${this.settings.className||''}`;
     this.playSound('save');
     this.toast('설정 저장 완료!','success');
@@ -2441,7 +2619,9 @@ const App = {
         const data = JSON.parse(r.result);
         Object.keys(data).filter(k=>k.startsWith('mc_')).forEach(k=>localStorage.setItem(k, data[k]));
         this.toast('불러오기 완료 ✅','success');
-        this.loadSettings(); this.loadRecord(); this.renderSettingsTabs(); this.renderAll();
+        this.loadSettings();
+        this.settingsDraft = JSON.parse(JSON.stringify(this.settings));
+        this.loadRecord(); this.renderSettingsTabs(); this.renderAll();
       } catch(e){ this.toast('파일 오류','error'); }
     };
     r.readAsText(file);
@@ -2451,13 +2631,13 @@ const App = {
   openRecords() {
     document.getElementById('records-overlay').classList.add('active');
     document.body.style.overflow='hidden';
-    const keys = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_')).sort().reverse();
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('mc_record_'+this.classPrefix())).sort().reverse();
     if (!keys.length) {
       document.getElementById('records-body').innerHTML = '<div class="card-hint">아직 저장된 기록이 없어요 📭</div>';
       return;
     }
     const list = keys.map(k=>{
-      const d = k.replace('mc_record_','');
+      const d = (k.match(/_(\d{8})$/)||[])[1] || '';
       const dateStr = `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`;
       let r={}; try{r=JSON.parse(localStorage.getItem(k))||{};}catch(e){}
       return `<div class="record-item" data-k="${k}">
