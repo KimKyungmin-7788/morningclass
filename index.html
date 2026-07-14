@@ -340,15 +340,39 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .att-row{display:flex;align-items:center;gap:12px;padding:12px;background:#F8FAFF;border-radius:14px;border:2px solid transparent}
 .att-row.present{background:#E8F5E9;border-color:var(--success)}
 .att-row.late{background:#FFF3E0;border-color:var(--secondary)}
+.att-row.early{background:#FFF1E0;border-color:#fb923c}
 .att-row.absent{background:#FFEBEE;border-color:var(--danger)}
 .att-row .nm{flex:1;font-size:18px;font-weight:600}
-.att-row button{padding:12px 18px;border-radius:16px;background:#fff;font-weight:700;font-size:18px;border:2px solid #E5E7EB;transition:.15s;min-width:70px}
+.att-row button{padding:12px 14px;border-radius:16px;background:#fff;font-weight:700;font-size:17px;border:2px solid #E5E7EB;transition:.15s;min-width:64px}
 .att-row button.active.p{background:var(--success);color:#fff;border-color:var(--success)}
 .att-row button.active.l{background:var(--secondary);color:#fff;border-color:var(--secondary)}
+.att-row button.active.e{background:#fb923c;color:#fff;border-color:#fb923c}
 .att-row button.active.a{background:var(--danger);color:#fff;border-color:var(--danger)}
 .att-toolbar{display:flex;gap:10px;margin-bottom:14px}
 .att-toolbar button{flex:1;padding:14px;border-radius:16px;background:#F0F4FF;font-weight:700;font-size:18px;transition:.2s}
 .att-toolbar button:hover{background:var(--primary);color:#fff}
+
+/* 출결 대시보드 */
+.dash-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#EEF3FF;border-radius:14px;padding:10px 12px;position:sticky;top:0;z-index:4}
+.dash-filter select,.dash-filter input{padding:9px 10px;border:2px solid #dbe3f0;border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:#334155}
+.dash-filter .dash-tilde{color:#94a3b8;font-weight:800}
+.dash-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:10px;margin:14px 0}
+.dash-tile{background:#F6F9FF;border:1px solid #eef2fb;border-radius:14px;padding:12px 8px;text-align:center}
+.dash-tile .n{font-family:'Nunito',sans-serif;font-size:26px;font-weight:800;line-height:1;color:#334155}
+.dash-tile .l{font-size:12px;font-weight:700;color:#64748b;margin-top:5px}
+.dash-tile.rate .n{color:#10b981}.dash-tile.late .n{color:#f59e0b}.dash-tile.early .n{color:#f97316}.dash-tile.absent .n{color:#ef4444}
+.dash-sd-input{width:60px;text-align:center;font-family:'Nunito',sans-serif;font-size:24px;font-weight:800;color:#334155;border:2px solid #dbe3f0;border-radius:8px;padding:2px 2px}
+.dash-table{width:100%;border-collapse:collapse;font-size:13px}
+.dash-table th,.dash-table td{padding:9px 8px;border-bottom:1px solid #eef0f5;text-align:center}
+.dash-table th{background:#F6F9FF;font-weight:700;color:#64748b}
+.dash-table th.c-l{color:#f59e0b}.dash-table th.c-e{color:#f97316}.dash-table th.c-a{color:#ef4444}
+.dash-table td.nm,.dash-table th.nm{text-align:left;font-weight:600}
+.dash-table tfoot td{font-weight:800;border-top:2px solid #e2e8f0;background:#F6F9FF}
+.rate-cell{display:flex;align-items:center;gap:6px}
+.rate-bar{flex:1;height:7px;background:#eef2f7;border-radius:99px;overflow:hidden;min-width:40px}
+.rate-fill{height:7px;border-radius:99px}.rate-fill.g{background:#10b981}.rate-fill.y{background:#f59e0b}.rate-fill.r{background:#ef4444}
+.dash-actions{display:flex;align-items:center;gap:10px;margin-top:16px;border-top:1px solid #eef0f5;padding-top:12px;position:sticky;bottom:0;background:var(--card);z-index:4}
+.dash-note{flex:1;font-size:12px;color:#94a3b8}
 
 /* timetable popup (drag&drop) */
 .tt-popup{display:grid;grid-template-columns:1fr 1fr;gap:20px;min-height:400px}
@@ -616,7 +640,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
         <button class="settings-tab" data-tab="students">👨‍🎓 학생</button>
         <button class="settings-tab" data-tab="timetable">📅 시간표</button>
         <button class="settings-tab" data-tab="book">📹 영상 재생</button>
-        <button class="settings-tab" data-tab="data">💾 출결데이터</button>
+        <button class="settings-tab" data-tab="data">💾 출결 대시보드</button>
       </div>
       <div class="settings-content" id="settings-content"></div>
       <div class="settings-footer">
@@ -1332,7 +1356,7 @@ const App = {
     const att = this.record.attendance || (this.record.attendance = {});
     let p=0,l=0,a=0,u=0;
     students.forEach(n=>{
-      const v=att[n]; if(v==='present')p++; else if(v==='late')l++; else if(v==='absent')a++; else u++;
+      const v=att[n]; if(v==='present'||v==='early')p++; else if(v==='late')l++; else if(v==='absent')a++; else u++;
     });
     const total = students.length;
     const allChecked = u===0;
@@ -1362,6 +1386,7 @@ const App = {
           <div class="nm">${esc(n)}</div>
           <button data-v="present" class="${v==='present'?'active p':''}">🟢 출석</button>
           <button data-v="late" class="${v==='late'?'active l':''}">🟡 지각</button>
+          <button data-v="early" class="${v==='early'?'active e':''}">🟠 조퇴</button>
           <button data-v="absent" class="${v==='absent'?'active a':''}">🔴 결석</button>
         </div>`;
       }).join('')}</div>
@@ -1382,7 +1407,7 @@ const App = {
         body.querySelectorAll('.att-row').forEach(row=>{
           row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
             att[row.dataset.n] = b.dataset.v; this.playSound('check');
-            const lbl = {present:'출석', late:'지각', absent:'결석'}[b.dataset.v] || '';
+            const lbl = {present:'출석', late:'지각', early:'조퇴', absent:'결석'}[b.dataset.v] || '';
             this.speak(`${row.dataset.n} ${lbl}`);
             refresh();
           });
@@ -2458,7 +2483,8 @@ const App = {
     const lastBackupTxt = lastBackup
       ? `${new Date(lastBackup).getFullYear()}. ${new Date(lastBackup).getMonth()+1}. ${new Date(lastBackup).getDate()}.`
       : '아직 없음';
-    html += sec('data', `<h3>💾 출결데이터 관리</h3>
+    html += sec('data', `<h3>💾 출결 대시보드 관리</h3>
+      <button class="data-btn primary" id="f-dashboard" style="width:100%;justify-content:center;font-size:16px;padding:15px;margin-bottom:14px"><span class="da-ico">📊</span>출결 대시보드 열기</button>
       <div class="data-notice">
         <div class="dn-row safe"><span class="dn-ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="36" height="36" role="img" aria-label="개인정보 안심"><g clip-rule="evenodd" fill-rule="evenodd"><g><path d="m256 292.358-68.657-49.344c-26.346-18.937-40.659-46.85-40.659-79.297v-87.634c41.432-26.098 75.374-39.147 109.316-39.147s67.884 13.049 109.315 39.146v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#72d561"/><path d="m256 292.358-10.308-7.408 61.793-44.412c26.346-18.937 40.659-46.85 40.659-79.297v-87.634c-30.132-18.981-56.303-31.057-81.394-36.233 30.436 2.462 61.504 15.364 98.564 38.709v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#3cbe52"/><path d="m256 257.439 52.108-37.451c18.932-13.607 28.852-32.957 28.852-56.272v-71.686c-24.686-14.374-52.54-26.738-80.96-26.738s-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#3cbe52"/><path d="m256 257.439 7.86-5.65-44.248-31.801c-18.932-13.607-28.852-32.957-28.852-56.272v-71.686c22.405-13.046 47.42-24.436 73.1-26.429-2.614-.203-5.235-.309-7.86-.309-28.421 0-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#30aa44"/><path d="m284.218 124.554c5.918-5.951 15.54-5.978 21.491-.06s5.978 15.541.06 21.492l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-6.017-5.853-6.15-15.475-.298-21.491 5.852-6.017 15.475-6.15 21.491-.297l15.498 15.107z" fill="#eff4f7"/><path d="m308.917 129.17c2.43 5.55 1.383 12.259-3.148 16.815l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-4.671-4.543-5.795-11.357-3.327-16.994.765 1.749 1.874 3.383 3.327 4.796l26.282 25.616c5.96 5.799 15.493 5.734 21.371-.177l51.707-52.191c1.367-1.372 2.415-2.942 3.148-4.617z" fill="#e2e3e3"/></g><g><path d="m9.021 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.115c-4.14 0-7.363-3.474-7.053-7.602z" fill="#64b5f6"/><path d="m98.817 345.232c3.717-.417 7.491-.639 11.314-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.363-3.474 7.053-7.602-3.638-48.498-41.787-87.761-89.795-93.154z" fill="#42a5f5"/><circle cx="110.131" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m68.576 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.265 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.921-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m300.758 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.114c-4.14 0-7.363-3.474-7.054-7.602z" fill="#ffda2d"/><path d="m390.554 345.232c3.717-.417 7.491-.639 11.315-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.364-3.474 7.053-7.602-3.638-48.498-41.788-87.761-89.796-93.154z" fill="#ffc700"/><circle cx="401.868" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m360.314 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.266 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.922-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m140.952 466.414c4.46-59.455 54.502-106.721 115.048-106.721s110.587 47.266 115.047 106.721c.353 4.697-3.315 8.65-8.026 8.65h-214.042c-4.711 0-8.379-3.953-8.027-8.65z" fill="#72d561"/><path d="m243.126 360.42c4.229-.475 8.523-.727 12.874-.727 60.545 0 110.587 47.266 115.047 106.72.353 4.698-3.315 8.65-8.026 8.65h-25.748c4.71 0 8.378-3.953 8.025-8.65-4.139-55.182-47.547-99.857-102.172-105.993z" fill="#3cbe52"/><circle cx="256" cy="291.318" fill="#ffd6bd" r="62.354"/><path d="m208.717 331.965c11.435 13.29 28.375 21.707 47.283 21.707 34.437 0 62.354-27.917 62.354-62.354 0-22.116-11.516-41.542-28.877-52.612 9.392 10.916 15.071 25.118 15.071 40.647 0 34.437-27.917 62.354-62.354 62.354-12.321-.001-23.806-3.575-33.477-9.742z" fill="#f9c6aa"/></g></g></svg></span><div><b>개인정보 안심</b><br>모든 기록은 이 브라우저에만 저장돼요. 외부로 전송되지 않아요.</div></div>
         <div class="dn-row warn"><span class="dn-ico">⚠️</span><div><b>브라우저 데이터를 지우면 기록도 삭제</b><br>중요한 기록은 아래 <b>내보내기</b>로 백업해 두세요.</div></div>
@@ -2577,6 +2603,7 @@ const App = {
       document.getElementById('f-book-title').oninput = upd;
       upd();
     } else if (t==='data') {
+      document.getElementById('f-dashboard').onclick = ()=>{ this.closeSettings(); setTimeout(()=>this.openDashboard(), 220); };
       document.getElementById('f-export').onclick = ()=> this.exportData();
       document.getElementById('f-import').onclick = ()=> document.getElementById('f-import-file').click();
       document.getElementById('f-import-file').onchange = e=> this.importData(e.target.files[0]);
@@ -2670,6 +2697,184 @@ const App = {
     const ov = document.getElementById('records-overlay');
     ov.classList.add('closing');
     setTimeout(()=>{ ov.classList.remove('active','closing'); document.body.style.overflow=''; },180);
+  },
+
+  // ── 출결 대시보드 ──
+  _fmtISO(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; },
+  openDashboard() {
+    const now = this.selectedDate || new Date();
+    const y = now.getFullYear(), mo = now.getMonth()+1;
+    const sy = mo>=3 ? y : y-1;                                  // 한국 학년도: 3월~다음해 2월
+    this._dash = { classId: this.currentClassId, sy, month: String(mo) };
+    this.applyDashPreset();
+    this.openPopup('📊 출결 대시보드',
+      `<div id="dash-filterwrap">${this.dashFilterHTML()}</div>
+       <div id="dash-content"></div>
+       <div class="dash-actions">
+         <span class="dash-note">엑셀 = 수정·계산용 데이터 · 인쇄 = 종이/PDF 보기용</span>
+         <button class="btn-test" id="dash-xls" style="margin:0"><span>📊</span> 엑셀로 저장</button>
+         <button class="btn-test" id="dash-print" style="margin:0;background:var(--primary)"><span>🖨</span> 인쇄</button>
+       </div>`,
+      {large:true, onMount:()=>{ this.bindDashboard(); this.renderDashboardData(); }});
+  },
+  applyDashPreset() {
+    const d = this._dash, sy = d.sy;
+    if (d.month==='전체') { d.start=`${sy}-03-01`; d.end=this._fmtISO(new Date(sy+1,2,0)); }
+    else { const m=+d.month; const yr=m>=3?sy:sy+1; d.start=`${yr}-${String(m).padStart(2,'0')}-01`; d.end=this._fmtISO(new Date(yr,m,0)); }
+  },
+  dashSchoolYears() {
+    const prefix='mc_record_'+this._dash.classId+'_';
+    const set=new Set();
+    Object.keys(localStorage).forEach(k=>{
+      if(!k.startsWith(prefix)) return;
+      const dd=k.slice(prefix.length);
+      if(!/^\d{8}$/.test(dd)) return;
+      const y=+dd.slice(0,4), mo=+dd.slice(4,6);
+      set.add(mo>=3?y:y-1);
+    });
+    set.add(this._dash.sy);
+    return [...set].sort((a,b)=>b-a);
+  },
+  dashFilterHTML() {
+    const d=this._dash;
+    const yearOpts=this.dashSchoolYears().map(y=>`<option value="${y}" ${y===d.sy?'selected':''}>${y}</option>`).join('');
+    const classOpts=this.classes.map(c=>`<option value="${c.id}" ${c.id===d.classId?'selected':''}>${esc(c.className||c.schoolName||'학급')}</option>`).join('');
+    const monthOpts=['전체',3,4,5,6,7,8,9,10,11,12,1,2].map(m=>{
+      const val=(m==='전체')?'전체':String(m);
+      return `<option value="${val}" ${String(d.month)===val?'selected':''}>${m==='전체'?'전체':m+'월'}</option>`;
+    }).join('');
+    return `<div class="dash-filter">
+      <select id="dash-year">${yearOpts}</select>
+      <select id="dash-class">${classOpts}</select>
+      <select id="dash-month">${monthOpts}</select>
+      <input type="date" id="dash-start" value="${d.start}" aria-label="시작일">
+      <span class="dash-tilde">~</span>
+      <input type="date" id="dash-end" value="${d.end}" aria-label="종료일">
+    </div>`;
+  },
+  bindDashboard() {
+    const rebindFilter=()=>{
+      document.getElementById('dash-filterwrap').innerHTML=this.dashFilterHTML();
+      bindFilter();
+    };
+    const bindFilter=()=>{
+      document.getElementById('dash-year').onchange=e=>{ this._dash.sy=+e.target.value; this.applyDashPreset(); rebindFilter(); this.renderDashboardData(); };
+      document.getElementById('dash-class').onchange=e=>{ this._dash.classId=e.target.value; rebindFilter(); this.renderDashboardData(); };
+      document.getElementById('dash-month').onchange=e=>{ this._dash.month=e.target.value; this.applyDashPreset(); rebindFilter(); this.renderDashboardData(); };
+      document.getElementById('dash-start').onchange=e=>{ this._dash.start=e.target.value; this.renderDashboardData(); };
+      document.getElementById('dash-end').onchange=e=>{ this._dash.end=e.target.value; this.renderDashboardData(); };
+    };
+    bindFilter();
+    document.getElementById('dash-xls').onclick=()=>this.dashExcel();
+    document.getElementById('dash-print').onclick=()=>this.dashPrint();
+  },
+  dashAggregate(classId, start, end) {
+    const cls=this.classes.find(c=>c.id===classId);
+    const students=(cls&&cls.students)||[];
+    const prefix='mc_record_'+classId+'_';
+    const s=start.replace(/-/g,''), e=end.replace(/-/g,'');
+    const per={}; students.forEach(n=>per[n]={late:0,early:0,absent:0});
+    let autoSchoolDays=0;
+    Object.keys(localStorage).forEach(k=>{
+      if(!k.startsWith(prefix)) return;
+      const dd=k.slice(prefix.length);
+      if(!/^\d{8}$/.test(dd)) return;
+      if(dd<s||dd>e) return;
+      let rec={}; try{rec=JSON.parse(localStorage.getItem(k))||{};}catch(x){}
+      const att=rec.attendance||{};
+      if(Object.keys(att).length===0) return;                    // 출석 체크 안 한 날은 수업일에서 제외
+      autoSchoolDays++;
+      students.forEach(n=>{ const v=att[n]; if(v==='late')per[n].late++; else if(v==='early')per[n].early++; else if(v==='absent')per[n].absent++; });
+    });
+    return { autoSchoolDays, per, students, className:(cls&&cls.className)||'', schoolName:(cls&&cls.schoolName)||'' };
+  },
+  dashRows(agg, schoolDays) {
+    return agg.students.map((n,i)=>{
+      const o=agg.per[n]; const attend=Math.max(0, schoolDays-o.absent);
+      const rate= schoolDays>0 ? (attend/schoolDays*100) : 0;
+      return { no:i+1, name:n, attend, late:o.late, early:o.early, absent:o.absent, rate };
+    });
+  },
+  _dashEffectiveDays(agg) {
+    const d=this._dash; const ov=localStorage.getItem('mc_sd_'+d.classId+'_'+d.start+'_'+d.end);
+    return ov!=null ? Math.max(0,+ov) : agg.autoSchoolDays;
+  },
+  renderDashboardData() {
+    const d=this._dash;
+    const agg=this.dashAggregate(d.classId, d.start, d.end);
+    const sdKey='mc_sd_'+d.classId+'_'+d.start+'_'+d.end;
+    const overridden=localStorage.getItem(sdKey)!=null;
+    const schoolDays=this._dashEffectiveDays(agg);
+    const rows=this.dashRows(agg, schoolDays);
+    const cnt=rows.length;
+    const tLate=rows.reduce((a,r)=>a+r.late,0), tEarly=rows.reduce((a,r)=>a+r.early,0), tAbsent=rows.reduce((a,r)=>a+r.absent,0), tAttend=rows.reduce((a,r)=>a+r.attend,0);
+    const avg=(cnt>0&&schoolDays>0)?(tAttend/(cnt*schoolDays)*100):0;
+    const tiles=`<div class="dash-tiles">
+      <div class="dash-tile"><div class="n"><input class="dash-sd-input" id="dash-sd" type="number" min="0" value="${schoolDays}"></div><div class="l">수업일수${overridden?' <span style="color:#f97316">·수정</span>':''}</div></div>
+      <div class="dash-tile"><div class="n">${cnt}</div><div class="l">재적</div></div>
+      <div class="dash-tile rate"><div class="n">${avg.toFixed(1)}%</div><div class="l">평균 출석률</div></div>
+      <div class="dash-tile late"><div class="n">${tLate}</div><div class="l">지각</div></div>
+      <div class="dash-tile early"><div class="n">${tEarly}</div><div class="l">조퇴</div></div>
+      <div class="dash-tile absent"><div class="n">${tAbsent}</div><div class="l">결석</div></div>
+    </div>`;
+    let body;
+    if(!cnt) body='<div class="card-hint" style="padding:24px">이 학급에 등록된 학생이 없어요</div>';
+    else if(schoolDays===0) body='<div class="card-hint" style="padding:24px">선택한 기간에 출석 기록이 없어요 📭</div>';
+    else {
+      const trs=rows.map(r=>`<tr>
+        <td>${r.no}</td><td class="nm">${esc(r.name)}</td>
+        <td>${r.attend}</td><td>${r.late}</td><td>${r.early}</td><td>${r.absent}</td>
+        <td><div class="rate-cell"><div class="rate-bar"><div class="rate-fill ${r.rate>=90?'g':(r.rate>=80?'y':'r')}" style="width:${Math.min(100,r.rate)}%"></div></div><span>${Math.round(r.rate)}</span></div></td>
+      </tr>`).join('');
+      body=`<table class="dash-table"><thead><tr><th>번호</th><th class="nm">이름</th><th>출석</th><th class="c-l">지각</th><th class="c-e">조퇴</th><th class="c-a">결석</th><th>출석률</th></tr></thead>
+        <tbody>${trs}</tbody>
+        <tfoot><tr><td colspan="2">합계 / 평균</td><td>${tAttend}</td><td>${tLate}</td><td>${tEarly}</td><td>${tAbsent}</td><td>${avg.toFixed(1)}%</td></tr></tfoot></table>`;
+    }
+    document.getElementById('dash-content').innerHTML=tiles+body;
+    const sdInput=document.getElementById('dash-sd');
+    if(sdInput) sdInput.onchange=()=>{
+      const v=sdInput.value.trim();
+      if(v===''||+v===agg.autoSchoolDays) localStorage.removeItem(sdKey);
+      else localStorage.setItem(sdKey, String(Math.max(0,+v)));
+      this.renderDashboardData();
+    };
+  },
+  dashExcel() {
+    const d=this._dash; const agg=this.dashAggregate(d.classId,d.start,d.end);
+    const schoolDays=this._dashEffectiveDays(agg);
+    const rows=this.dashRows(agg, schoolDays);
+    const q=v=>{ const s=String(v); return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s; };
+    const tLate=rows.reduce((a,r)=>a+r.late,0),tEarly=rows.reduce((a,r)=>a+r.early,0),tAbsent=rows.reduce((a,r)=>a+r.absent,0),tAttend=rows.reduce((a,r)=>a+r.attend,0);
+    const cnt=rows.length; const avg=(cnt>0&&schoolDays>0)?(tAttend/(cnt*schoolDays)*100).toFixed(1):'0.0';
+    const lines=[['학교',agg.schoolName],['학급',agg.className],['기간',`${d.start} ~ ${d.end}`],['수업일수',schoolDays],[],
+      ['번호','이름','출석일수','지각','조퇴','결석','출석률(%)']];
+    rows.forEach(r=>lines.push([r.no,r.name,r.attend,r.late,r.early,r.absent,r.rate.toFixed(1)]));
+    lines.push(['합계/평균','',tAttend,tLate,tEarly,tAbsent,avg]);
+    const csv='﻿'+lines.map(row=>row.map(q).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`출결_${(agg.className||'학급').replace(/[\\/:*?"<>|\s]/g,'')}_${d.start}_${d.end}.csv`;
+    a.click(); URL.revokeObjectURL(a.href);
+    this.playSound('save'); this.toast('엑셀 파일로 저장했어요 📊','success');
+  },
+  dashPrint() {
+    const d=this._dash; const agg=this.dashAggregate(d.classId,d.start,d.end);
+    const schoolDays=this._dashEffectiveDays(agg);
+    const rows=this.dashRows(agg, schoolDays);
+    const tLate=rows.reduce((a,r)=>a+r.late,0),tEarly=rows.reduce((a,r)=>a+r.early,0),tAbsent=rows.reduce((a,r)=>a+r.absent,0),tAttend=rows.reduce((a,r)=>a+r.attend,0);
+    const cnt=rows.length; const avg=(cnt>0&&schoolDays>0)?(tAttend/(cnt*schoolDays)*100).toFixed(1):'0.0';
+    const trs=rows.map(r=>`<tr><td>${r.no}</td><td class="l">${esc(r.name)}</td><td>${r.attend}</td><td>${r.late}</td><td>${r.early}</td><td>${r.absent}</td><td>${Math.round(r.rate)}%</td></tr>`).join('');
+    const html=`<h2>${esc(agg.schoolName)} ${esc(agg.className)} 출결 현황</h2>
+      <div class="meta">기간 ${d.start} ~ ${d.end} · 수업일수 ${schoolDays}일 · 재적 ${cnt}명 · 평균 출석률 ${avg}%</div>
+      <table><thead><tr><th>번호</th><th class="l">이름</th><th>출석일수</th><th>지각</th><th>조퇴</th><th>결석</th><th>출석률</th></tr></thead>
+      <tbody>${trs}</tbody>
+      <tfoot><tr><td colspan="2">합계 / 평균</td><td>${tAttend}</td><td>${tLate}</td><td>${tEarly}</td><td>${tAbsent}</td><td>${avg}%</td></tr></tfoot></table>`;
+    const w=window.open('','_blank');
+    if(!w){ this.toast('팝업이 차단됐어요. 팝업을 허용해 주세요','error'); return; }
+    w.document.write(`<html><head><meta charset="utf-8"><title>출결 ${esc(agg.className)}</title>
+      <style>body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;padding:24px;color:#1e293b}h2{margin:0 0 4px;font-size:20px}.meta{color:#64748b;font-size:13px;margin-bottom:14px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #cbd5e1;padding:7px 9px;font-size:13px;text-align:center}th{background:#f1f5f9}.l{text-align:left}tfoot td{font-weight:800;background:#f8fafc}@media print{body{padding:0}}</style>
+      </head><body>${html}</body></html>`);
+    w.document.close(); w.focus(); setTimeout(()=>{ try{w.print();}catch(e){} }, 350);
   },
 
   openWelcome() {
