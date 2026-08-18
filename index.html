@@ -379,6 +379,11 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .rate-fill{height:7px;border-radius:99px}.rate-fill.g{background:#10b981}.rate-fill.y{background:#f59e0b}.rate-fill.r{background:#ef4444}
 .dash-actions{display:flex;align-items:center;gap:10px;margin-top:16px;border-top:1px solid #eef0f5;padding-top:12px;position:sticky;bottom:0;background:var(--card);z-index:4}
 .dash-note{flex:1;font-size:12px;color:#94a3b8}
+.data-manage-sec{margin-top:22px;border-top:2px solid #eef0f5;padding-top:16px}
+.data-manage-title{font-size:16px;font-weight:800;color:var(--text-sub);margin-bottom:12px}
+/* 설정 탭 안에 인라인으로 들어간 대시보드는 sticky 해제(전체가 함께 스크롤) */
+.settings-section .dash-filter{position:static;top:auto}
+.settings-section .dash-actions{position:static;bottom:auto;box-shadow:none}
 
 /* timetable popup (drag&drop) */
 .tt-popup{display:grid;grid-template-columns:1fr 1fr;gap:20px;min-height:400px}
@@ -1002,7 +1007,8 @@ const App = {
     if (!confirm(`'${cls.className||'이 학급'}'의 학생·시간표·모든 출결 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
     Object.keys(localStorage).forEach(k=>{
       if (k.startsWith('mc_record_'+id+'_') || k.startsWith('mc_timetable_'+id+'_') ||
-          k.startsWith('mc_draft_notes_'+id+'_') || k.startsWith('mc_celebrated_'+id+'_')) localStorage.removeItem(k);
+          k.startsWith('mc_draft_notes_'+id+'_') || k.startsWith('mc_celebrated_'+id+'_') ||
+          k === 'mc_ddays_'+id) localStorage.removeItem(k);
     });
     this.classes = this.classes.filter(c=>c.id!==id);
     localStorage.setItem('mc_classes', JSON.stringify(this.classes));
@@ -2234,11 +2240,20 @@ const App = {
   },
 
   // ── D-DAY (날짜와 무관하게 항상 표시, 삭제 전까지 유지) ──
+  ddayKey() { return 'mc_ddays_' + (this.currentClassId || 'default'); },
   getDdays() {
-    try { return JSON.parse(localStorage.getItem('mc_ddays') || '[]'); } catch(e){ return []; }
+    try {
+      // 기존 전역 D-DAY(mc_ddays)를 현재 학급으로 1회 이전
+      const old = localStorage.getItem('mc_ddays');
+      if (old != null && localStorage.getItem(this.ddayKey()) == null) {
+        localStorage.setItem(this.ddayKey(), old);
+        localStorage.removeItem('mc_ddays');
+      }
+      return JSON.parse(localStorage.getItem(this.ddayKey()) || '[]');
+    } catch(e){ return []; }
   },
   saveDdays(list) {
-    try { localStorage.setItem('mc_ddays', JSON.stringify(list)); } catch(e){}
+    try { localStorage.setItem(this.ddayKey(), JSON.stringify(list)); } catch(e){}
   },
   ddayDiff(dateStr) {
     const b = this.selectedDate || new Date();
@@ -2438,6 +2453,7 @@ const App = {
       schoolName:'', className:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'',
       bookUrl:'', bookTitle:''
     }));
+    this.initDash();                                            // 출결 대시보드 탭용 기본 상태(현재 학급·이번 달)
     document.getElementById('settings-overlay').classList.add('active');
     document.body.style.overflow='hidden';
     document.querySelectorAll('#settings-tabs .settings-tab').forEach(t=>{
@@ -2541,8 +2557,17 @@ const App = {
     const lastBackupTxt = lastBackup
       ? `${new Date(lastBackup).getFullYear()}. ${new Date(lastBackup).getMonth()+1}. ${new Date(lastBackup).getDate()}.`
       : '아직 없음';
-    html += sec('data', `<h3>💾 출결 대시보드 관리</h3>
-      <button class="data-btn primary" id="f-dashboard" style="width:100%;justify-content:center;font-size:16px;padding:15px;margin-bottom:14px"><span class="da-ico">📊</span>출결 대시보드 열기</button>
+    if (!this._dash) this.initDash();
+    html += sec('data', `<h3>📊 출결 대시보드</h3>
+      <div id="dash-filterwrap">${this.dashFilterHTML()}</div>
+      <div id="dash-content"></div>
+      <div class="dash-actions">
+        <span class="dash-note">엑셀 = 수정·계산용 데이터 · 인쇄 = 종이/PDF 보기용</span>
+        <button class="btn-test" id="dash-xls" style="margin:0"><span>📊</span> 엑셀로 저장</button>
+        <button class="btn-test" id="dash-print" style="margin:0;background:var(--primary)"><span>🖨</span> 인쇄</button>
+      </div>
+      <div class="data-manage-sec">
+      <h4 class="data-manage-title">💾 데이터 백업 · 관리</h4>
       <div class="data-notice">
         <div class="dn-row safe"><span class="dn-ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="36" height="36" role="img" aria-label="개인정보 안심"><g clip-rule="evenodd" fill-rule="evenodd"><g><path d="m256 292.358-68.657-49.344c-26.346-18.937-40.659-46.85-40.659-79.297v-87.634c41.432-26.098 75.374-39.147 109.316-39.147s67.884 13.049 109.315 39.146v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#72d561"/><path d="m256 292.358-10.308-7.408 61.793-44.412c26.346-18.937 40.659-46.85 40.659-79.297v-87.634c-30.132-18.981-56.303-31.057-81.394-36.233 30.436 2.462 61.504 15.364 98.564 38.709v87.634c0 32.447-14.312 60.36-40.659 79.297z" fill="#3cbe52"/><path d="m256 257.439 52.108-37.451c18.932-13.607 28.852-32.957 28.852-56.272v-71.686c-24.686-14.374-52.54-26.738-80.96-26.738s-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#3cbe52"/><path d="m256 257.439 7.86-5.65-44.248-31.801c-18.932-13.607-28.852-32.957-28.852-56.272v-71.686c22.405-13.046 47.42-24.436 73.1-26.429-2.614-.203-5.235-.309-7.86-.309-28.421 0-56.275 12.364-80.96 26.738v71.687c0 23.315 9.92 42.665 28.852 56.272z" fill="#30aa44"/><path d="m284.218 124.554c5.918-5.951 15.54-5.978 21.491-.06s5.978 15.541.06 21.492l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-6.017-5.853-6.15-15.475-.298-21.491 5.852-6.017 15.475-6.15 21.491-.297l15.498 15.107z" fill="#eff4f7"/><path d="m308.917 129.17c2.43 5.55 1.383 12.259-3.148 16.815l-51.707 52.191c-5.878 5.911-15.411 5.976-21.371.177l-26.282-25.616c-4.671-4.543-5.795-11.357-3.327-16.994.765 1.749 1.874 3.383 3.327 4.796l26.282 25.616c5.96 5.799 15.493 5.734 21.371-.177l51.707-52.191c1.367-1.372 2.415-2.942 3.148-4.617z" fill="#e2e3e3"/></g><g><path d="m9.021 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.115c-4.14 0-7.363-3.474-7.053-7.602z" fill="#64b5f6"/><path d="m98.817 345.232c3.717-.417 7.491-.639 11.314-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.363-3.474 7.053-7.602-3.638-48.498-41.787-87.761-89.795-93.154z" fill="#42a5f5"/><circle cx="110.131" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m68.576 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.265 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.921-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m300.758 438.386c3.92-52.252 47.9-93.793 101.111-93.793s97.19 41.54 101.11 93.793c.31 4.128-2.914 7.602-7.053 7.602h-188.114c-4.14 0-7.363-3.474-7.054-7.602z" fill="#ffda2d"/><path d="m390.554 345.232c3.717-.417 7.491-.639 11.315-.639 53.211 0 97.19 41.54 101.11 93.793.31 4.128-2.914 7.602-7.053 7.602h-22.629c4.14 0 7.364-3.474 7.053-7.602-3.638-48.498-41.788-87.761-89.796-93.154z" fill="#ffc700"/><circle cx="401.868" cy="284.501" fill="#ffd6bd" r="54.801"/><path d="m360.314 320.225c10.05 11.68 24.938 19.077 41.555 19.077 30.266 0 54.801-24.535 54.801-54.8 0-19.438-10.121-36.51-25.379-46.239 8.254 9.593 13.245 22.075 13.245 35.723 0 30.266-24.535 54.801-54.801 54.801-10.828-.001-20.922-3.143-29.421-8.562z" fill="#f9c6aa"/></g><g><path d="m140.952 466.414c4.46-59.455 54.502-106.721 115.048-106.721s110.587 47.266 115.047 106.721c.353 4.697-3.315 8.65-8.026 8.65h-214.042c-4.711 0-8.379-3.953-8.027-8.65z" fill="#72d561"/><path d="m243.126 360.42c4.229-.475 8.523-.727 12.874-.727 60.545 0 110.587 47.266 115.047 106.72.353 4.698-3.315 8.65-8.026 8.65h-25.748c4.71 0 8.378-3.953 8.025-8.65-4.139-55.182-47.547-99.857-102.172-105.993z" fill="#3cbe52"/><circle cx="256" cy="291.318" fill="#ffd6bd" r="62.354"/><path d="m208.717 331.965c11.435 13.29 28.375 21.707 47.283 21.707 34.437 0 62.354-27.917 62.354-62.354 0-22.116-11.516-41.542-28.877-52.612 9.392 10.916 15.071 25.118 15.071 40.647 0 34.437-27.917 62.354-62.354 62.354-12.321-.001-23.806-3.575-33.477-9.742z" fill="#f9c6aa"/></g></g></svg></span><div><b>개인정보 안심</b><br>모든 기록은 이 브라우저에만 저장돼요. 외부로 전송되지 않아요.</div></div>
         <div class="dn-row warn"><span class="dn-ico">⚠️</span><div><b>브라우저 데이터를 지우면 기록도 삭제</b><br>중요한 기록은 아래 <b>내보내기</b>로 백업해 두세요.</div></div>
@@ -2557,7 +2582,8 @@ const App = {
         <button class="data-btn" id="f-import"><span class="da-ico">📥</span>불러오기</button>
       </div>
       <input type="file" id="f-import-file" accept="application/json" style="display:none">
-      <button class="data-btn danger-ghost" id="f-clean"><span class="da-ico">🗑️</span>오래된 기록 정리 <span class="da-sub">(60일 이전)</span></button>`);
+      <button class="data-btn danger-ghost" id="f-clean"><span class="da-ico">🗑️</span>오래된 기록 정리 <span class="da-sub">(60일 이전)</span></button>
+      </div>`);
 
     c.innerHTML = html;
     this.bindSettingsTab();
@@ -2661,7 +2687,8 @@ const App = {
       document.getElementById('f-book-title').oninput = upd;
       upd();
     } else if (t==='data') {
-      document.getElementById('f-dashboard').onclick = ()=>{ this.closeSettings(); setTimeout(()=>this.openDashboard(), 220); };
+      this.bindDashboard();                                     // 대시보드 필터·엑셀·인쇄 바인딩
+      this.renderDashboardData();                               // 대시보드 표 즉시 렌더
       document.getElementById('f-export').onclick = ()=> this.exportData();
       document.getElementById('f-import').onclick = ()=> document.getElementById('f-import-file').click();
       document.getElementById('f-import-file').onchange = e=> this.importData(e.target.files[0]);
@@ -2760,12 +2787,15 @@ const App = {
 
   // ── 출결 대시보드 ──
   _fmtISO(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; },
-  openDashboard() {
+  initDash() {
     const now = this.selectedDate || new Date();
     const y = now.getFullYear(), mo = now.getMonth()+1;
     const sy = mo>=3 ? y : y-1;                                  // 한국 학년도: 3월~다음해 2월
     this._dash = { classId: this.currentClassId, sy, month: String(mo) };
     this.applyDashPreset();
+  },
+  openDashboard() {
+    this.initDash();
     this.openPopup('📊 출결 대시보드',
       `<div id="dash-filterwrap">${this.dashFilterHTML()}</div>
        <div id="dash-content"></div>
