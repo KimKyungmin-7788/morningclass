@@ -750,17 +750,26 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .lp-dot.done{opacity:.65}
 .lp-close{width:48px;height:48px;border-radius:14px;background:#fff;font-size:22px;font-weight:800;box-shadow:var(--card-shadow);flex-shrink:0}
 .lp-close:hover{background:var(--danger);color:#fff}
-.lp-stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#fff;border-radius:32px;box-shadow:0 24px 70px -24px rgba(124,107,236,.45);padding:34px;overflow-y:auto}
-.lp-step-title{font-size:clamp(26px,3.4vw,44px);font-weight:900;color:#6B5BD6;display:flex;align-items:center;gap:12px;text-align:center}
-.lp-obj{display:flex;flex-direction:column;gap:18px;width:100%;max-width:940px}
-.lp-obj-item{display:flex;gap:16px;align-items:center;font-size:clamp(20px,2.5vw,34px);font-weight:700;line-height:1.45;color:#334155}
-.lp-obj-num{background:#7C6BEC;color:#fff;min-width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
-.lp-text{font-size:clamp(22px,2.7vw,36px);font-weight:700;line-height:1.6;color:#334155;text-align:center;max-width:940px}
-.lp-question{font-size:clamp(24px,3vw,40px);font-weight:800;color:#334155;text-align:center;max-width:940px}
+.lp-stage{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border-radius:28px;box-shadow:0 24px 70px -24px rgba(80,80,120,.4);overflow:hidden}
+.lp-band{display:flex;align-items:center;gap:14px;padding:20px 32px;font-size:clamp(24px,3vw,40px);font-weight:900;flex-shrink:0}
+.lp-body{flex:1;min-height:0;overflow-y:auto;padding:32px 34px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px}
+.lp-obj{display:flex;flex-direction:column;gap:16px;width:100%;max-width:960px}
+.lp-objcard{display:flex;gap:18px;align-items:center;background:var(--step-bg);border-radius:16px;padding:18px 24px;position:relative;overflow:hidden}
+.lp-objcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--step)}
+.lp-objnum{background:var(--step);color:#fff;min-width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex-shrink:0}
+.lp-objtext{font-size:clamp(20px,2.4vw,32px);font-weight:700;line-height:1.45;color:#334155}
+.lp-review{font-size:clamp(22px,2.6vw,36px);font-weight:700;line-height:1.6;color:#334155;text-align:center;max-width:960px;background:var(--step-bg);border-radius:18px;padding:28px 32px}
+.lp-question{font-size:clamp(24px,2.8vw,38px);font-weight:800;color:#334155;text-align:center;max-width:960px;background:var(--step-bg);border-radius:18px;padding:22px 30px}
 .lp-video{width:min(100%,760px);aspect-ratio:16/9;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 12px 40px -12px rgba(0,0,0,.4)}
 .lp-video iframe{width:100%;height:100%;border:0}
-.lp-chips{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:940px}
-.lp-chip{background:#EEF2FF;color:#4338ca;font-weight:800;font-size:clamp(20px,2.3vw,30px);padding:14px 26px;border-radius:18px}
+.lp-chips{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:960px}
+.lp-chip{display:inline-flex;align-items:center;gap:8px;background:var(--step-bg);color:#334155;font-weight:800;font-size:clamp(20px,2.2vw,30px);padding:14px 26px;border-radius:16px;border:2px solid var(--step)}
+.lp-chip i{color:var(--step)}
+.lp-flow{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:8px;width:100%;max-width:1000px}
+.lp-flow-card{flex:1 1 170px;max-width:300px;background:var(--step-bg);border-radius:16px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;border-bottom:5px solid var(--step)}
+.lp-flow-num{background:var(--step);color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0}
+.lp-flow-text{font-size:clamp(17px,2vw,25px);font-weight:700;color:#334155;line-height:1.4}
+.lp-flow-arrow{align-self:center;font-size:30px;color:var(--step);font-weight:900}
 .lp-nav{display:flex;align-items:center;gap:12px}
 .lp-nav button{padding:15px 30px;border-radius:16px;font-weight:800;font-size:20px;background:#fff;box-shadow:var(--card-shadow);transition:.15s}
 .lp-nav button:hover:not(:disabled){transform:translateY(-2px)}
@@ -3584,19 +3593,20 @@ const App = {
     const vid=(think.url||'').match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/);
     const q=(think.question||'').trim();
     const steps=[];
-    if (vid || q) steps.push({ icon:licon('think',22), short:'생각열기', title:`${licon('think',30)} 생각열기`,
+    const C={ think:{c:'#E0930F',bg:'#FEF1D6'}, review:{c:'#0E9C89',bg:'#DBF4F0'}, obj:{c:'#7C6BEC',bg:'#EEEBFF'}, mat:{c:'#3B82F6',bg:'#E3EDFF'}, act:{c:'#1FA34C',bg:'#E0F4E5'} };
+    if (vid || q) steps.push({ ...C.think, icon:licon('think',24), short:'생각열기', title:`${licon('think',34)} 생각열기`,
       body:`${vid?`<div class="lp-video"><iframe src="https://www.youtube.com/embed/${vid[1]}?rel=0" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>`:''}${q?`<div class="lp-question">${esc(q)}</div>`:''}`,
       speak:q||'오늘의 생각열기예요' });
-    if ((l.review||'').trim()) steps.push({ icon:licon('review',22), short:'전시학습', title:`${licon('review',30)} 전시학습 상기`,
-      body:`<div class="lp-text">${esc(l.review).replace(/\n/g,'<br>')}</div>`, speak:l.review });
-    if (objs.length) steps.push({ icon:licon('objective',22), short:'학습목표', title:`${licon('objective',30)} 오늘의 학습목표`,
-      body:`<div class="lp-obj">${objs.map((o,i)=>`<div class="lp-obj-item"><span class="lp-obj-num">${i+1}</span><span>${esc(o)}</span></div>`).join('')}</div>`,
+    if ((l.review||'').trim()) steps.push({ ...C.review, icon:licon('review',24), short:'전시학습', title:`${licon('review',34)} 전시학습 상기`,
+      body:`<div class="lp-review">${esc(l.review).replace(/\n/g,'<br>')}</div>`, speak:l.review });
+    if (objs.length) steps.push({ ...C.obj, icon:licon('objective',24), short:'학습목표', title:`${licon('objective',34)} 오늘의 학습목표`,
+      body:`<div class="lp-obj">${objs.map((o,i)=>`<div class="lp-objcard"><span class="lp-objnum">${i+1}</span><span class="lp-objtext">${esc(o)}</span></div>`).join('')}</div>`,
       speak:'오늘의 학습목표. '+objs.join('. ') });
-    if (mats.length) steps.push({ icon:licon('materials',22), short:'준비물', title:`${licon('materials',30)} 오늘의 준비물`,
-      body:`<div class="lp-chips">${mats.map(m=>`<span class="lp-chip">✅ ${esc(m)}</span>`).join('')}</div>`,
+    if (mats.length) steps.push({ ...C.mat, icon:licon('materials',24), short:'준비물', title:`${licon('materials',34)} 오늘의 준비물`,
+      body:`<div class="lp-chips">${mats.map(m=>`<span class="lp-chip"><i class="ph-fill ph-check-circle"></i>${esc(m)}</span>`).join('')}</div>`,
       speak:'준비물이에요. '+mats.join(', ') });
-    if (acts.length) steps.push({ icon:licon('activity',22), short:'오늘 활동', title:`${licon('activity',30)} 오늘의 활동`,
-      body:`<div class="lp-obj">${acts.map((a,i)=>`<div class="lp-obj-item"><span class="lp-obj-num">${i+1}</span><span>${esc(a)}</span></div>`).join('')}</div>`,
+    if (acts.length) steps.push({ ...C.act, icon:licon('activity',24), short:'오늘 활동', title:`${licon('activity',34)} 오늘의 활동`,
+      body:`<div class="lp-flow">${acts.map((a,i)=>`${i>0?'<span class="lp-flow-arrow">›</span>':''}<div class="lp-flow-card"><span class="lp-flow-num">${i+1}</span><span class="lp-flow-text">${esc(a)}</span></div>`).join('')}</div>`,
       speak:'오늘의 활동이에요. '+acts.join('. ') });
     if (!steps.length) { this.toast('먼저 수업 내용을 입력해 주세요 🧑‍🏫','error'); return; }
     this.ensureAudio();
@@ -3629,12 +3639,12 @@ const App = {
   renderPresentStep() {
     const p=this._present; if(!p) return;
     const s=p.steps[p.i];
-    document.getElementById('lp-stage').innerHTML=`<div class="lp-step-title">${s.title}</div>${s.body}`;
+    document.getElementById('lp-stage').innerHTML=`<div class="lp-band" style="background:${s.bg};color:${s.c}">${s.title}</div><div class="lp-body" style="--step:${s.c};--step-bg:${s.bg}">${s.body}</div>`;
     document.getElementById('lp-rail').innerHTML=p.steps.map((st,idx)=>`<span class="lp-dot ${idx===p.i?'active':''} ${idx<p.i?'done':''}"><i>${st.icon}</i><b>${st.short}</b></span>`).join('');
     document.getElementById('lp-progress').textContent=`${p.i+1} / ${p.steps.length}`;
     document.getElementById('lp-prev').disabled = p.i===0;
     document.getElementById('lp-next').innerHTML = p.i===p.steps.length-1 ? '✅ 시작!' : '다음 ›';
-    this.speak(s.speak);                                         // 단계 넘어갈 때 자동 낭독
+    try{ window.speechSynthesis.cancel(); }catch(e){}            // 단계 넘기면 이전 낭독만 중단 (자동 낭독 안 함)
   },
   presentGo(d) {
     const p=this._present; if(!p) return;
