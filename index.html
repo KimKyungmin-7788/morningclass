@@ -633,12 +633,15 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 /* ── 앱 전환 사이드키 (우측 가장자리) ── */
-#app-side-switch{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:850;display:flex;flex-direction:column;align-items:center;gap:7px;padding:15px 7px;border-radius:16px 0 0 16px;color:#fff;box-shadow:-4px 0 18px rgba(0,0,0,.16);transition:.18s;cursor:pointer}
-#app-side-switch:hover{padding-right:12px}
-#app-side-switch .ss-ico{font-size:21px;line-height:1}
-#app-side-switch .ss-label{writing-mode:vertical-rl;text-orientation:upright;font-size:15px;font-weight:800;letter-spacing:3px}
-#app-side-switch.to-lesson{background:#7C6BEC}
-#app-side-switch.to-morning{background:var(--primary)}
+#app-side-switch{position:fixed;right:0;top:88px;z-index:850;display:flex;flex-direction:column;gap:7px}
+.ass-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 7px;border-radius:16px 0 0 16px;color:#fff;box-shadow:-4px 0 16px rgba(0,0,0,.16);cursor:pointer;transition:.18s;opacity:.42}
+.ass-btn .ss-ico{font-size:20px;line-height:1}
+.ass-btn .ss-label{writing-mode:vertical-rl;text-orientation:upright;font-size:15px;font-weight:800;letter-spacing:3px}
+.ass-btn[data-app="morning"]{background:#F498B4}
+.ass-btn[data-app="lesson"]{background:#7C6BEC}
+.ass-btn.active{opacity:1}
+.ass-btn:not(.active){filter:grayscale(.25)}
+.ass-btn:not(.active):hover{opacity:.72;padding-right:11px}
 /* ── 수업교실 뷰 ── */
 .lic{display:inline-block;vertical-align:-0.24em;object-fit:contain;flex-shrink:0}
 #lesson-view{display:flex;flex-direction:column;gap:20px}
@@ -663,6 +666,47 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .lc-btn.del:hover{background:var(--danger);color:#fff}
 .lc-btn.present{background:#7C6BEC;color:#fff}
 .lc-btn.present:hover{background:#6B5BD6}
+.lc-btn.dup{flex:0 0 auto;width:44px;background:#EEF2FF;color:#6B5BD6;font-size:17px}
+.lc-btn.dup:hover{background:#7C6BEC;color:#fff}
+.lc-date{margin-left:auto;font-size:12px;font-weight:800;color:#6B5BD6;background:#EEE9FF;padding:2px 8px;border-radius:999px}
+/* 수업교실 라이브러리 — 토글·달력·목록 */
+.lesson-hero-bar{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.lesson-viewtog{display:inline-flex;gap:4px;background:#F0EDFF;border-radius:12px;padding:4px}
+.lvt-btn{padding:8px 18px;border-radius:9px;font-weight:800;font-size:14px;color:#6B5BD6;opacity:.6;transition:.15s}
+.lvt-btn.active{background:#7C6BEC;color:#fff;opacity:1}
+.lcal{background:rgba(255,255,255,.72);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:14px 16px;box-shadow:0 8px 28px -16px rgba(124,107,236,.3)}
+.lcal-head{display:flex;align-items:center;justify-content:center;gap:14px;font-size:20px;font-weight:800;color:#6B5BD6;margin-bottom:10px}
+.lcal-head button{width:40px;height:40px;border-radius:10px;background:#F2EFFF;font-size:18px;font-weight:900;color:#6B5BD6}
+.lcal-head button:hover{background:#7C6BEC;color:#fff}
+.lcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.lcal-dow{text-align:center;font-weight:800;font-size:14px;padding:4px 0}
+.lcal-empty{min-height:48px}
+.lcal-day{min-height:48px;border-radius:10px;background:#F8FAFF;cursor:pointer;padding:5px 6px;display:flex;flex-direction:column;gap:3px;transition:.12s;border:2px solid transparent}
+.lcal-day:hover{background:#EEF2FF}
+.lcal-day.sel{border-color:#7C6BEC;background:#F0EDFF}
+.lcal-day .lcal-num{font-size:14px;font-weight:700;color:#334155}
+.lcal-day.sun .lcal-num{color:var(--acc-coral)}
+.lcal-day.sat .lcal-num{color:var(--acc-sky)}
+.lcal-day.hol .lcal-num{color:#ef4444}
+.lcal-dots{display:flex;gap:3px;flex-wrap:wrap}
+.lcal-dot{width:8px;height:8px;border-radius:50%}
+.lcal-daypanel{margin-top:6px}
+.lcal-daytitle{font-size:16px;font-weight:800;color:#334155;margin:6px 2px 12px}
+.lcal-daytitle span{color:var(--text-sub);font-size:14px;font-weight:700}
+.lcal-dayempty{text-align:center;color:var(--text-sub);padding:24px;background:rgba(255,255,255,.5);border-radius:16px}
+.lesson-newday-btn,.lesson-new-btn{padding:11px 22px;border-radius:14px;background:#7C6BEC;color:#fff;font-weight:800;font-size:15px;box-shadow:var(--card-shadow);transition:.18s}
+.lesson-newday-btn{margin-top:12px}
+.lesson-newday-btn:hover,.lesson-new-btn:hover{background:#6B5BD6;transform:translateY(-1px)}
+.lesson-listview{display:flex;flex-direction:column;gap:18px}
+.lesson-group{display:flex;flex-direction:column;gap:10px}
+.lg-title,.lu-title{font-size:16px;font-weight:800;color:#334155;padding:0 2px}
+.lg-title span,.lu-title span{color:var(--text-sub);font-size:14px;font-weight:700;margin-left:4px}
+/* 편집기 날짜 필드 */
+.le-date-row{display:flex;align-items:center;gap:8px;flex:1 1 100%;margin-top:4px}
+.le-date-lbl{font-weight:800;color:#6B5BD6;font-size:14px;white-space:nowrap}
+.le-date-row input[type=date]{flex:0 0 auto;width:auto}
+.le-date-clear{padding:9px 14px;border-radius:10px;background:#F0F4FF;color:var(--text-sub);font-weight:700;font-size:14px}
+.le-date-clear:hover{background:#FFECEC;color:var(--danger)}
 /* 준비 모드(차시 편집기) */
 .lesson-editor{display:flex;flex-direction:column;gap:14px}
 .le-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);border-radius:16px;padding:11px 16px;box-shadow:var(--card-shadow);position:sticky;top:8px;z-index:5}
@@ -778,10 +822,14 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
   </footer>
   </div>
   <div id="lesson-view" hidden></div>
-  <button id="app-side-switch" class="to-lesson" aria-label="수업교실로 전환">
-    <span class="ss-ico"><i class="ph-fill ph-chalkboard-teacher"></i></span>
-    <span class="ss-label">수업교실</span>
-  </button>
+  <div id="app-side-switch">
+    <button class="ass-btn active" data-app="morning" aria-label="아침교실로 전환">
+      <span class="ss-ico"><i class="ph-fill ph-sun-horizon"></i></span><span class="ss-label">아침교실</span>
+    </button>
+    <button class="ass-btn" data-app="lesson" aria-label="수업교실로 전환">
+      <span class="ss-ico"><i class="ph-fill ph-chalkboard-teacher"></i></span><span class="ss-label">수업교실</span>
+    </button>
+  </div>
 </div>
 
 <!-- Common popup -->
@@ -1389,8 +1437,7 @@ const App = {
   },
 
   bindGlobal() {
-    const sideSwitch=document.getElementById('app-side-switch');
-    if (sideSwitch) sideSwitch.onclick=()=>this.setAppMode(this.appMode==='morning'?'lesson':'morning');
+    document.querySelectorAll('.ass-btn').forEach(b=>b.onclick=()=>this.setAppMode(b.dataset.app));
     document.getElementById('btn-mute').onclick = ()=>{
       this.muted = !this.muted;
       localStorage.setItem('mc_muted', this.muted?'1':'0');
@@ -3262,11 +3309,7 @@ const App = {
   setAppMode(mode) {
     this.appMode = mode;
     localStorage.setItem('mc_app_mode', mode);
-    const handle = document.getElementById('app-side-switch');
-    if (handle) {
-      if (mode==='morning') { handle.className='to-lesson'; handle.querySelector('.ss-ico').innerHTML='<i class="ph-fill ph-chalkboard-teacher"></i>'; handle.querySelector('.ss-label').textContent='수업교실'; handle.setAttribute('aria-label','수업교실로 전환'); }
-      else { handle.className='to-morning'; handle.querySelector('.ss-ico').innerHTML='<i class="ph-fill ph-sun-horizon"></i>'; handle.querySelector('.ss-label').textContent='아침교실'; handle.setAttribute('aria-label','아침교실로 전환'); }
-    }
+    document.querySelectorAll('.ass-btn').forEach(b=>b.classList.toggle('active', b.dataset.app===mode));
     const mv=document.getElementById('morning-view'), lv=document.getElementById('lesson-view');
     if (mode==='lesson') {
       document.getElementById('date-gate')?.remove();           // 아침교실 날짜잠금 숨김
@@ -3280,14 +3323,16 @@ const App = {
   lessonModelName(m){ return this.LESSON_MODELS[m] || '직접교수'; },
   getLessons() { try { return JSON.parse(localStorage.getItem('mc_lessons')||'[]'); } catch(e){ return []; } },
   saveLessons(list) { try { localStorage.setItem('mc_lessons', JSON.stringify(list)); } catch(e){} },
-  newLesson() {
+  newLesson(date) {
     const list = this.getLessons();
-    const l = { id:'l'+Date.now(), subject:'', unit:'', title:'새 수업', model:'direct',
+    const d = (date != null) ? date : this._fmtISO(this.selectedDate || new Date());
+    const l = { id:'l'+Date.now(), date:d, subject:'', unit:'', title:'새 수업', model:'direct',
       think:{type:'video', url:'', title:'', question:''},   // 생각열기 (동기유발)
       review:'', objectives:[''], materials:[], activity:[''], createdAt:Date.now() };
     list.unshift(l); this.saveLessons(list);
-    this.renderLessonView();
-    this.toast('새 수업을 만들었어요 (편집은 다음 단계에서)','success');
+    if (date != null) this._lessonSelDay = date;
+    this.openLessonEditor(l.id);                             // 만들면 바로 편집기로
+    this.toast('새 수업을 만들었어요','success');
   },
   deleteLesson(id) {
     const l = this.getLessons().find(x=>x.id===id);
@@ -3295,40 +3340,128 @@ const App = {
     this.saveLessons(this.getLessons().filter(x=>x.id!==id));
     this.renderLessonView(); this.toast('삭제했어요','success');
   },
+  duplicateLesson(id) {
+    const list = this.getLessons(); const src = list.find(x=>x.id===id); if(!src) return;
+    const copy = JSON.parse(JSON.stringify(src));
+    copy.id='l'+Date.now(); copy.title=(src.title||'수업')+' 복사'; copy.createdAt=Date.now();
+    list.unshift(copy); this.saveLessons(list);
+    this.renderLessonView();
+    this.toast('복제했어요. 편집기에서 날짜를 바꿔 쓰세요','success');
+  },
+  subjectColor(subj) {
+    const colors=['#5BB6FF','#7C6BEC','#F498B4','#6BCB77','#FFC93C','#FF8A7A','#38BDF8','#F472B6'];
+    const s=(subj||'').trim(); if(!s) return '#cbd5e1';
+    let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+    return colors[h%colors.length];
+  },
+  lessonCardHTML(l) {
+    const dtxt = l.date ? `${+l.date.slice(5,7)}/${+l.date.slice(8,10)}` : '미지정';
+    return `<div class="lesson-card" data-id="${l.id}">
+      <div class="lc-top">
+        <span class="lc-subject">${esc(l.subject||'과목 미정')}</span>
+        <span class="lc-model">${esc(this.lessonModelName(l.model))}</span>
+      </div>
+      <div class="lc-title">${esc(l.title||'제목 없음')}</div>
+      <div class="lc-unit">${esc(l.unit||'')}<span class="lc-date">📅 ${dtxt}</span></div>
+      <div class="lc-actions">
+        <button class="lc-btn prepare" data-act="prepare">${licon('prep',18)} 준비</button>
+        <button class="lc-btn present" data-act="present">${licon('present',18)} 발표</button>
+        <button class="lc-btn dup" data-act="dup" aria-label="복제">⧉</button>
+        <button class="lc-btn del" data-act="del" aria-label="삭제">🗑️</button>
+      </div>
+    </div>`;
+  },
   renderLessonView() {
     const lv = document.getElementById('lesson-view');
     if (!lv) return;
+    if (!this._lessonView) this._lessonView = 'list';
+    const base = this.selectedDate || new Date();
+    if (!this._lessonMonth) this._lessonMonth = { y:base.getFullYear(), m:base.getMonth() };
+    if (!this._lessonSelDay) this._lessonSelDay = this._fmtISO(base);
     const lessons = this.getLessons();
-    const cards = lessons.map(l=>`
-      <div class="lesson-card" data-id="${l.id}">
-        <div class="lc-top">
-          <span class="lc-subject">${esc(l.subject||'과목 미정')}</span>
-          <span class="lc-model">${esc(this.lessonModelName(l.model))}</span>
-        </div>
-        <div class="lc-title">${esc(l.title||'제목 없음')}</div>
-        <div class="lc-unit">${esc(l.unit||'')}</div>
-        <div class="lc-actions">
-          <button class="lc-btn prepare" data-act="prepare">${licon('prep',18)} 준비</button>
-          <button class="lc-btn present" data-act="present">${licon('present',18)} 발표</button>
-          <button class="lc-btn del" data-act="del" aria-label="삭제">🗑️</button>
-        </div>
-      </div>`).join('');
-    lv.innerHTML = `
+    const hero = `
       <div class="lesson-hero">
         <h2>${licon('room',34)} 수업교실</h2>
-        <p>수업 도입(생각열기 · 전시학습 · 학습목표 · 준비물 · 오늘의 활동)을 준비해<br>학생에게 크게 보여주고 읽어줘요.</p>
-        <button class="lesson-new-btn" id="lesson-new">➕ 새 수업 만들기</button>
+        <div class="lesson-hero-bar">
+          <div class="lesson-viewtog">
+            <button class="lvt-btn ${this._lessonView==='list'?'active':''}" data-view="list">📋 목록</button>
+            <button class="lvt-btn ${this._lessonView==='calendar'?'active':''}" data-view="calendar">📅 달력</button>
+          </div>
+          <button class="lesson-new-btn" id="lesson-new">➕ 수업 등록</button>
+        </div>
+      </div>`;
+    lv.innerHTML = hero + (this._lessonView==='calendar' ? this.lessonCalendarHTML(lessons) : this.lessonListHTML(lessons));
+    this.bindLessonView();
+  },
+  lessonCalendarHTML(lessons) {
+    const {y,m} = this._lessonMonth;
+    const dayNames=['일','월','화','수','목','금','토'];
+    const startDow=new Date(y,m,1).getDay();
+    const last=new Date(y,m+1,0).getDate();
+    const byDay={};
+    lessons.forEach(l=>{ if(l.date){ const ly=+l.date.slice(0,4), lm=+l.date.slice(5,7), ld=+l.date.slice(8,10); if(ly===y && lm===m+1){ (byDay[ld]=byDay[ld]||[]).push(l); } } });
+    const sel=this._lessonSelDay;
+    const cells=[]; for(let i=0;i<startDow;i++)cells.push(null); for(let i=1;i<=last;i++)cells.push(i);
+    const grid = cells.map(c=>{
+      if(c==null) return `<div class="lcal-empty"></div>`;
+      const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(c).padStart(2,'0')}`;
+      const dt=new Date(y,m,c); const dow=dt.getDay();
+      const hol=this.holidayName(dt);
+      const ls=byDay[c]||[];
+      const dots=ls.slice(0,4).map(l=>`<span class="lcal-dot" style="background:${this.subjectColor(l.subject)}"></span>`).join('');
+      const cls=['lcal-day', iso===sel?'sel':'', dow===0?'sun':'', dow===6?'sat':'', hol?'hol':''].filter(Boolean).join(' ');
+      return `<div class="${cls}" data-day="${iso}"><span class="lcal-num">${c}</span>${dots?`<span class="lcal-dots">${dots}</span>`:''}</div>`;
+    }).join('');
+    const selLessons=lessons.filter(l=>l.date===sel);
+    const sd=new Date(sel+'T00:00:00');
+    const selLabel=`${sd.getMonth()+1}월 ${sd.getDate()}일 (${dayNames[sd.getDay()]})`;
+    const undated=lessons.filter(l=>!l.date);
+    return `
+      <div class="lcal">
+        <div class="lcal-head"><button id="lcal-prev">‹</button><span>${y}년 ${m+1}월</span><button id="lcal-next">›</button></div>
+        <div class="lcal-grid">
+          ${dayNames.map((n,i)=>`<div class="lcal-dow" style="color:${i===0?'var(--acc-coral)':i===6?'var(--acc-sky)':'var(--text-sub)'}">${n}</div>`).join('')}
+          ${grid}
+        </div>
       </div>
-      ${lessons.length
-        ? `<div class="lesson-list">${cards}</div>`
-        : `<div class="lesson-empty">아직 만든 수업이 없어요.<br><b>➕ 새 수업 만들기</b>로 시작해요 ${licon('room',20)}</div>`}`;
-    document.getElementById('lesson-new').onclick = ()=> this.newLesson();
+      <div class="lcal-daypanel">
+        <div class="lcal-daytitle">${selLabel}의 수업 <span>${selLessons.length}개</span></div>
+        ${selLessons.length ? `<div class="lesson-list">${selLessons.map(l=>this.lessonCardHTML(l)).join('')}</div>` : `<div class="lcal-dayempty">이 날 등록된 수업이 없어요</div>`}
+        <button class="lesson-newday-btn" id="lesson-newday">➕ 이 날 수업 등록</button>
+      </div>
+      ${undated.length ? `<div class="lesson-group"><div class="lg-title">🗂️ 미지정 보관함 <span>${undated.length}개</span></div><div class="lesson-list">${undated.map(l=>this.lessonCardHTML(l)).join('')}</div></div>` : ''}`;
+  },
+  lessonListHTML(lessons) {
+    if(!lessons.length) return `<div class="lesson-empty">아직 등록한 수업이 없어요.<br><b>➕ 수업 등록</b>으로 시작해요 ${licon('room',20)}</div>`;
+    const dayNames=['일','월','화','수','목','금','토'];
+    const sorted=[...lessons].sort((a,b)=>{ if(!a.date&&!b.date)return 0; if(!a.date)return 1; if(!b.date)return -1; return a.date<b.date?1:-1; });
+    const groups=[]; const idx={};
+    sorted.forEach(l=>{ const key=l.date||'미지정'; if(idx[key]==null){idx[key]=groups.length; groups.push({key, items:[]});} groups[idx[key]].items.push(l); });
+    const groupHTML=groups.map(g=>{
+      let label;
+      if(g.key==='미지정') label='🗂️ 미지정 보관함';
+      else { const d=new Date(g.key+'T00:00:00'); label=`${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}. (${dayNames[d.getDay()]})`; }
+      return `<div class="lesson-group"><div class="lg-title">${label} <span>${g.items.length}개</span></div><div class="lesson-list">${g.items.map(l=>this.lessonCardHTML(l)).join('')}</div></div>`;
+    }).join('');
+    return `<div class="lesson-listview">${groupHTML}</div>`;
+  },
+  bindLessonView() {
+    const lv=document.getElementById('lesson-view');
+    document.getElementById('lesson-new').onclick=()=>this.newLesson();
+    lv.querySelectorAll('.lvt-btn').forEach(b=>b.onclick=()=>{ this._lessonView=b.dataset.view; this.renderLessonView(); });
+    const prev=document.getElementById('lcal-prev'), next=document.getElementById('lcal-next');
+    if(prev) prev.onclick=()=>{ let {y,m}=this._lessonMonth; m--; if(m<0){m=11;y--;} this._lessonMonth={y,m}; this.renderLessonView(); };
+    if(next) next.onclick=()=>{ let {y,m}=this._lessonMonth; m++; if(m>11){m=0;y++;} this._lessonMonth={y,m}; this.renderLessonView(); };
+    lv.querySelectorAll('.lcal-day').forEach(d=>d.onclick=()=>{ this._lessonSelDay=d.dataset.day; this.renderLessonView(); });
+    const newday=document.getElementById('lesson-newday');
+    if(newday) newday.onclick=()=>this.newLesson(this._lessonSelDay);
     lv.querySelectorAll('.lesson-card').forEach(card=>{
       card.querySelectorAll('.lc-btn').forEach(b=>b.onclick=()=>{
         const id=card.dataset.id, act=b.dataset.act;
-        if (act==='del') this.deleteLesson(id);
-        else if (act==='prepare') this.openLessonEditor(id);
-        else if (act==='present') this.openLessonPresent(id);
+        if(act==='del') this.deleteLesson(id);
+        else if(act==='prepare') this.openLessonEditor(id);
+        else if(act==='present') this.openLessonPresent(id);
+        else if(act==='dup') this.duplicateLesson(id);
       });
     });
   },
@@ -3372,6 +3505,11 @@ const App = {
           <input id="le-title" placeholder="차시 제목" value="${esc(l.title||'')}">
           <select id="le-model">${modelOpts}</select>
           <button class="le-tpl-btn" id="le-tpl">✨ 이 모형 예시 넣기</button>
+          <div class="le-date-row">
+            <span class="le-date-lbl">📅 수업 날짜</span>
+            <input type="date" id="le-date" value="${esc(l.date||'')}">
+            <button class="le-date-clear" id="le-date-clear" title="날짜 비우기(보관함)">비우기</button>
+          </div>
         </div>
         <div class="le-card">
           <div class="le-card-h">${licon('think',24)} 생각열기 <span class="le-card-sub">동기유발 · 생각 여는 영상/질문</span></div>
@@ -3409,6 +3547,8 @@ const App = {
     $('le-unit').oninput    = e=> this.patchLesson(l=>l.unit=e.target.value);
     $('le-title').oninput   = e=> this.patchLesson(l=>l.title=e.target.value);
     $('le-model').onchange  = e=> this.patchLesson(l=>l.model=e.target.value);
+    $('le-date').onchange   = e=> this.patchLesson(l=>l.date=e.target.value);
+    $('le-date-clear').onclick = ()=>{ this.patchLesson(l=>l.date=''); this.renderLessonEditor(); };
     $('le-tpl').onclick     = ()=> this.applyLessonTemplate();
     $('le-think-url').oninput = e=> this.patchLesson(l=>l.think.url=e.target.value);
     $('le-think-url').onblur  = ()=> this.renderLessonEditor();
