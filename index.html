@@ -716,7 +716,11 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .le-done{padding:10px 22px;border-radius:12px;background:#7C6BEC;color:#fff;font-weight:800}
 .le-done:hover{background:#6B5BD6}
 .le-basic{display:flex;flex-wrap:wrap;gap:8px;background:rgba(255,255,255,.62);border-radius:16px;padding:14px;box-shadow:var(--card-shadow)}
-.le-basic input{flex:1 1 150px;min-width:0}
+.le-basic input,.le-basic select{flex:1 1 150px;min-width:0}
+.le-basic .le-period{flex:0 0 100px}
+.le-basic select#le-subject{flex:1 1 130px}
+.lp-link{display:inline-flex;align-items:center;gap:8px;font-size:clamp(20px,2.2vw,28px);font-weight:800;color:#0E9C89;background:var(--step-bg);border:2px solid var(--step);padding:14px 28px;border-radius:16px;text-decoration:none}
+.lp-link:hover{background:var(--step);color:#fff}
 .le-basic input,.le-basic select{padding:11px 12px;border:2px solid #e5e9f2;border-radius:12px;font-size:15px;font-weight:600;background:#fff}
 .le-tpl-btn{padding:11px 16px;border-radius:12px;background:#FFF3D6;color:#b45309;font-weight:800;white-space:nowrap}
 .le-tpl-btn:hover{background:var(--secondary);color:#fff}
@@ -3335,7 +3339,7 @@ const App = {
   newLesson(date) {
     const list = this.getLessons();
     const d = (date != null) ? date : this._fmtISO(this.selectedDate || new Date());
-    const l = { id:'l'+Date.now(), date:d, subject:'', unit:'', title:'새 수업', model:'direct',
+    const l = { id:'l'+Date.now(), date:d, subject:'', unit:'', title:'', model:'direct',
       think:{type:'video', url:'', title:'', question:''},   // 생각열기 (동기유발)
       review:'', objectives:[''], materials:[], activity:[''], createdAt:Date.now() };
     list.unshift(l); this.saveLessons(list);
@@ -3501,6 +3505,9 @@ const App = {
     l.think      = l.think || {type:'video', url:'', title:'', question:''};
     const modelOpts = Object.entries(this.LESSON_MODELS).map(([k,v])=>`<option value="${k}" ${l.model===k?'selected':''}>${v}</option>`).join('');
     const vid = (l.think.url||'').match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/);
+    const SUBJ=['국어','수학','바른 생활','슬기로운 생활','즐거운 생활','사회','과학','체육','음악','미술','실과','정보','진로와 직업','창체','일상생활'];
+    const curSubj=l.subject||'';
+    const subjectOpts=`<option value="" ${!curSubj?'selected':''}>과목 선택</option>`+SUBJ.map(s=>`<option ${curSubj===s?'selected':''}>${s}</option>`).join('')+(curSubj && !SUBJ.includes(curSubj)?`<option selected>${esc(curSubj)}</option>`:'');
     lv.innerHTML = `
       <div class="lesson-editor">
         <div class="le-bar">
@@ -3509,9 +3516,10 @@ const App = {
           <button class="le-done" id="le-done">✅ 완료</button>
         </div>
         <div class="le-basic">
-          <input id="le-subject" placeholder="과목 (예: 진로와직업)" value="${esc(l.subject||'')}">
+          <select id="le-subject">${subjectOpts}</select>
           <input id="le-unit" placeholder="단원 (예: 3단원 나의 미래)" value="${esc(l.unit||'')}">
-          <input id="le-title" placeholder="차시 제목" value="${esc(l.title||'')}">
+          <input id="le-title" placeholder="수업 주제" value="${esc(l.title||'')}">
+          <input id="le-period" class="le-period" placeholder="차시(선택)" value="${esc(l.period||'')}">
           <select id="le-model">${modelOpts}</select>
           <button class="le-tpl-btn" id="le-tpl">✨ 이 모형 예시 넣기</button>
           <div class="le-date-row">
@@ -3521,13 +3529,14 @@ const App = {
           </div>
         </div>
         <div class="le-card">
-          <div class="le-card-h">${licon('think',24)} 생각열기 <span class="le-card-sub">동기유발 · 생각 여는 영상/질문</span></div>
-          <input id="le-think-url" placeholder="영상 URL (유튜브 등, 비워도 됨)" value="${esc(l.think.url||'')}">
+          <div class="le-card-h">${licon('think',24)} 생각열기 <span class="le-card-sub">영상 링크와 질문을 입력하세요</span></div>
+          <input id="le-think-url" placeholder="영상 링크 (유튜브 등, 비워도 됨)" value="${esc(l.think.url||'')}">
           ${vid?`<img class="le-thumb" src="https://img.youtube.com/vi/${vid[1]}/mqdefault.jpg" alt="영상 미리보기">`:''}
           <textarea id="le-think-q" placeholder="생각 여는 질문 (예: 이 영상에서 무엇을 보았나요?)">${esc(l.think.question||'')}</textarea>
         </div>
         <div class="le-card">
-          <div class="le-card-h">${licon('review',24)} 전시학습 상기 <span class="le-card-sub">지난 시간 떠올리기</span></div>
+          <div class="le-card-h">${licon('review',24)} 전시학습 상기 <span class="le-card-sub">지난 시간 떠올리기 · 링크 첨부 가능</span></div>
+          <input id="le-review-url" placeholder="링크 (영상·웹사이트 등, 선택)" value="${esc(l.reviewUrl||'')}">
           <textarea id="le-review" placeholder="지난 시간에 배운 핵심이나 확인 질문">${esc(l.review||'')}</textarea>
         </div>
         <div class="le-card">
@@ -3552,9 +3561,10 @@ const App = {
     const $ = id=>document.getElementById(id);
     $('le-back').onclick = ()=> this.renderLessonView();
     $('le-done').onclick = ()=>{ this.playSound('save'); this.toast('저장했어요 ✅','success'); this.renderLessonView(); };
-    $('le-subject').oninput = e=> this.patchLesson(l=>l.subject=e.target.value);
+    $('le-subject').onchange= e=> this.patchLesson(l=>l.subject=e.target.value);
     $('le-unit').oninput    = e=> this.patchLesson(l=>l.unit=e.target.value);
     $('le-title').oninput   = e=> this.patchLesson(l=>l.title=e.target.value);
+    $('le-period').oninput  = e=> this.patchLesson(l=>l.period=e.target.value);
     $('le-model').onchange  = e=> this.patchLesson(l=>l.model=e.target.value);
     $('le-date').onchange   = e=> this.patchLesson(l=>l.date=e.target.value);
     $('le-date-clear').onclick = ()=>{ this.patchLesson(l=>l.date=''); this.renderLessonEditor(); };
@@ -3563,6 +3573,7 @@ const App = {
     $('le-think-url').onblur  = ()=> this.renderLessonEditor();
     $('le-think-q').oninput   = e=> this.patchLesson(l=>l.think.question=e.target.value);
     $('le-review').oninput    = e=> this.patchLesson(l=>l.review=e.target.value);
+    $('le-review-url').oninput= e=> this.patchLesson(l=>l.reviewUrl=e.target.value);
     document.querySelectorAll('#le-obj-list input').forEach(inp=>inp.oninput=e=>this.patchLesson(l=>l.objectives[+e.target.dataset.oi]=e.target.value));
     document.querySelectorAll('#le-obj-list .le-line-del').forEach(b=>b.onclick=()=>{ this.patchLesson(l=>{l.objectives.splice(+b.dataset.od,1); if(!l.objectives.length)l.objectives.push('');}); this.renderLessonEditor(); });
     $('le-obj-add').onclick = ()=>{ this.patchLesson(l=>l.objectives.push('')); this.renderLessonEditor(); };
@@ -3597,8 +3608,11 @@ const App = {
     if (vid || q) steps.push({ ...C.think, icon:licon('think',24), short:'생각열기', title:`${licon('think',34)} 생각열기`,
       body:`${vid?`<div class="lp-video"><iframe src="https://www.youtube.com/embed/${vid[1]}?rel=0" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>`:''}${q?`<div class="lp-question">${esc(q)}</div>`:''}`,
       speak:q||'오늘의 생각열기예요' });
-    if ((l.review||'').trim()) steps.push({ ...C.review, icon:licon('review',24), short:'전시학습', title:`${licon('review',34)} 전시학습 상기`,
-      body:`<div class="lp-review">${esc(l.review).replace(/\n/g,'<br>')}</div>`, speak:l.review });
+    const rvid=(l.reviewUrl||'').match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/);
+    const rurl=(l.reviewUrl||'').trim();
+    if ((l.review||'').trim() || rurl) steps.push({ ...C.review, icon:licon('review',24), short:'전시학습', title:`${licon('review',34)} 전시학습 상기`,
+      body:`${rvid?`<div class="lp-video"><iframe src="https://www.youtube.com/embed/${rvid[1]}?rel=0" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>`:''}${(l.review||'').trim()?`<div class="lp-review">${esc(l.review).replace(/\n/g,'<br>')}</div>`:''}${(rurl && !rvid)?`<a class="lp-link" href="${esc(rurl)}" target="_blank" rel="noopener">🔗 링크 열기</a>`:''}`,
+      speak:l.review||'전시학습을 살펴봐요' });
     if (objs.length) steps.push({ ...C.obj, icon:licon('objective',24), short:'학습목표', title:`${licon('objective',34)} 오늘의 학습목표`,
       body:`<div class="lp-obj">${objs.map((o,i)=>`<div class="lp-objcard"><span class="lp-objnum">${i+1}</span><span class="lp-objtext">${esc(o)}</span></div>`).join('')}</div>`,
       speak:'오늘의 학습목표. '+objs.join('. ') });
