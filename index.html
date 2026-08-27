@@ -444,7 +444,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .settings-section .dash-actions{position:static;bottom:auto;box-shadow:none}
 
 /* timetable popup (drag&drop) */
-.tt-popup{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-height:340px}
+.tt-popup{display:grid;grid-template-columns:4fr 6fr;gap:16px;min-height:340px}
 .tt-slots,.tt-bank{display:flex;flex-direction:column;gap:5px}
 .tt-section-title{font-size:17px;font-weight:700;color:var(--text-sub);margin-bottom:2px}
 .tt-slot{display:flex;align-items:center;gap:10px;padding:3px 10px;background:#F8FAFF;border:2px dashed #C7D5EE;border-radius:12px;min-height:42px;transition:.15s}
@@ -457,18 +457,17 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .subject-chip.in-slot .ico{font-size:18px}
 .tt-slot.correct .check{color:var(--success);font-size:22px;font-weight:900}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.tt-bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));grid-auto-rows:68px;gap:8px;padding:10px;background:#F8FAFF;border-radius:14px;flex:1;align-content:start;min-height:200px;max-height:480px;overflow-y:auto}
+.tt-bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));grid-auto-rows:56px;gap:8px;padding:10px;background:#F8FAFF;border-radius:14px;flex:1;align-content:start;min-height:200px;max-height:480px;overflow-y:auto}
 .subject-chip{padding:12px 8px;background:#fff;border:2px solid rgba(91,182,255,.5);border-radius:16px;display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:4px 6px;font-weight:700;font-size:18px;color:var(--text);cursor:grab;user-select:none;touch-action:none;transition:.15s;min-height:54px;word-break:keep-all;overflow-wrap:break-word}
 .subject-chip:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
 .subject-chip.dragging{opacity:.4;transform:rotate(2deg) scale(1.05)}
 .subject-chip .ico{font-size:22px}
 .subject-chip.ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;transform:rotate(3deg);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .subject-chip{text-align:center;line-height:1.25}
-.subject-chip .nm{max-width:100%;min-width:0}
-.subject-chip.long{flex-direction:column;font-size:13.5px;gap:2px;padding:9px 5px;line-height:1.2}
-.subject-chip.long .ico{font-size:17px}
+.subject-chip .nm{max-width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subject-chip.long{font-size:15px;gap:5px;padding:10px 6px}
+.subject-chip.long .ico{font-size:19px}
 .subject-chip.in-slot.long{font-size:14px;padding:4px 10px}
-.tt-level-tag{font-size:13px;font-weight:800;color:#6B5BD6;background:#EEE9FF;padding:3px 10px;border-radius:999px;vertical-align:middle}
 .subject-chip.add-chip{border-style:dashed;border-color:var(--secondary);color:var(--secondary);cursor:pointer}
 .subject-chip.add-chip:hover{background:#FFF8E0}
 .slot-clear{background:#FFE5E5;color:var(--danger);border-radius:50%;width:28px;height:28px;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -958,8 +957,10 @@ const SUBJECT_ICONS = {
   '진로와직업':'🧰','자율':'🌱','동아리':'🤝',
   // 2022 개정 기본 교육과정 교과명
   '바른 생활':'🙋','슬기로운 생활':'🧠','즐거운 생활':'🎈','실과':'🔧',
-  '진로와 직업':'🧰','일상생활 활동':'🏠',
-  '창체(자율·자치 활동)':'🌱','창체(동아리 활동)':'🤝','창체(진로 활동)':'🧭'
+  '진로와 직업':'🧰','일상생활':'🏠',
+  '창체(자율자치)':'🌱','창체(동아리)':'🤝','창체(진로)':'🧭',
+  // 이전 표기(활동 포함) — 이미 배치된 시간표 호환
+  '일상생활 활동':'🏠','창체(자율·자치 활동)':'🌱','창체(동아리 활동)':'🤝','창체(진로 활동)':'🧭'
 };
 const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
 // HTML/속성 안전 이스케이프 — 학생 이름·교과명 등 사용자 입력값을 innerHTML에 넣을 때 사용
@@ -967,11 +968,11 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 // 2022 개정 특수교육 기본 교육과정(교육부 고시 제2022-34호 [별첨 3]) 학교급별 교과(군)·창체·일상생활 활동
 const SUBJECTS_BY_LEVEL = {
   elem:   ['국어','사회','수학','과학','바른 생활','슬기로운 생활','즐거운 생활','체육','음악','미술','실과',
-           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)'],
+           '일상생활','창체(자율자치)','창체(동아리)','창체(진로)'],
   middle: ['국어','사회','수학','과학','진로와 직업','체육','음악','미술',
-           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)'],
+           '일상생활','창체(자율자치)','창체(동아리)','창체(진로)'],
   high:   ['국어','사회','수학','과학','체육','음악','미술','진로와 직업',
-           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)']
+           '일상생활','창체(자율자치)','창체(동아리)','창체(진로)']
 };
 const SCHOOL_LEVELS = [['elem','초등학교'],['middle','중학교'],['high','고등학교']];
 const levelName = lv => (SCHOOL_LEVELS.find(([k])=>k===lv)||[,'초등학교'])[1];
@@ -985,7 +986,8 @@ const guessLevel = (schoolName) => {
 };
 const ALL_LEVEL_SUBJECTS = [...new Set(Object.values(SUBJECTS_BY_LEVEL).flat())];
 // 예전 버전에서 쓰던 교과명 — 이미 저장된 시간표가 있으므로 커스텀 교과로 중복 등록되지 않게 유지
-const LEGACY_SUBJECTS = ['진로와직업','진로','자율','동아리'];
+const LEGACY_SUBJECTS = ['진로와직업','진로','자율','동아리',
+  '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)'];
 const MAX_TIMETABLE_PERIODS = 7;
 // NEIS 급식 API 키는 코드에 두지 않음.
 // 배포(Vercel): 서버리스 함수 /api/neis 가 환경변수 NEIS_KEY 로 처리 → 브라우저·저장소에 키 노출 없음.
@@ -2010,9 +2012,9 @@ const App = {
           }).join('')}
         </div>
         <div class="tt-bank">
-          <div class="tt-section-title">교과 보관함 <span class="tt-level-tag">${levelName(this.schoolLevel())} 과정</span> <span style="font-weight:500;color:var(--text-sub);font-size:15px">끌어서 옮겨요</span></div>
+          <div class="tt-section-title">교과 보관함</div>
           <div class="tt-bank-grid" data-bank="1">
-            ${bank.map(s=>`<div class="subject-chip ${s.length>4?'long':''}" draggable="true" data-from="bank" data-name="${esc(s)}"><span class="ico">${subjectIcon(s)}</span><span class="nm">${esc(s)}</span></div>`).join('')}
+            ${bank.map(s=>`<div class="subject-chip ${s.length>4?'long':''}" draggable="true" data-from="bank" data-name="${esc(s)}" title="${esc(s)}"><span class="ico">${subjectIcon(s)}</span><span class="nm">${esc(s)}</span></div>`).join('')}
             <button class="subject-chip add-chip" id="tt-add-subject" type="button"><span class="ico">➕</span>직접입력</button>
           </div>
         </div>
