@@ -457,12 +457,18 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .subject-chip.in-slot .ico{font-size:18px}
 .tt-slot.correct .check{color:var(--success);font-size:22px;font-weight:900}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.tt-bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;background:#F8FAFF;border-radius:14px;flex:1;align-content:start;min-height:200px;max-height:480px;overflow-y:auto}
-.subject-chip{padding:14px 10px;background:#fff;border:2px solid rgba(91,182,255,.5);border-radius:16px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:18px;color:var(--text);cursor:grab;user-select:none;touch-action:none;transition:.15s;min-height:54px}
+.tt-bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));grid-auto-rows:68px;gap:8px;padding:10px;background:#F8FAFF;border-radius:14px;flex:1;align-content:start;min-height:200px;max-height:480px;overflow-y:auto}
+.subject-chip{padding:12px 8px;background:#fff;border:2px solid rgba(91,182,255,.5);border-radius:16px;display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:4px 6px;font-weight:700;font-size:18px;color:var(--text);cursor:grab;user-select:none;touch-action:none;transition:.15s;min-height:54px;word-break:keep-all;overflow-wrap:break-word}
 .subject-chip:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
 .subject-chip.dragging{opacity:.4;transform:rotate(2deg) scale(1.05)}
 .subject-chip .ico{font-size:22px}
 .subject-chip.ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;transform:rotate(3deg);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.subject-chip{text-align:center;line-height:1.25}
+.subject-chip .nm{max-width:100%;min-width:0}
+.subject-chip.long{flex-direction:column;font-size:13.5px;gap:2px;padding:9px 5px;line-height:1.2}
+.subject-chip.long .ico{font-size:17px}
+.subject-chip.in-slot.long{font-size:14px;padding:4px 10px}
+.tt-level-tag{font-size:13px;font-weight:800;color:#6B5BD6;background:#EEE9FF;padding:3px 10px;border-radius:999px;vertical-align:middle}
 .subject-chip.add-chip{border-style:dashed;border-color:var(--secondary);color:var(--secondary);cursor:pointer}
 .subject-chip.add-chip:hover{background:#FFF8E0}
 .slot-clear{background:#FFE5E5;color:var(--danger);border-radius:50%;width:28px;height:28px;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -513,6 +519,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .class-chip:hover{border-color:var(--primary);color:var(--primary)}
 .class-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .class-chip.add{border-style:dashed;color:var(--primary);border-color:var(--primary)}
+.level-switcher{display:flex;flex-wrap:wrap;gap:8px}
 .class-pick-list{display:flex;flex-direction:column;gap:10px}
 .class-pick-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:16px 20px;border-radius:16px;border:2px solid #e5e9f2;background:#fff;cursor:pointer;text-align:left;transition:.15s}
 .class-pick-btn:hover{border-color:var(--primary);background:#f5faff;transform:translateY(-2px);box-shadow:0 6px 18px rgba(91,182,255,.18)}
@@ -948,12 +955,37 @@ const SUBJECT_ICONS = {
   '국어':'📚','영어':'📚','수학':'🔢','도덕':'💖',
   '체육':'⚽','음악':'🎵','미술':'🎨','과학':'🔬',
   '사회':'🌍','직업':'🔧','창체':'🎭','진로':'🧭',
-  '진로와직업':'🧰','자율':'🌱','동아리':'🤝'
+  '진로와직업':'🧰','자율':'🌱','동아리':'🤝',
+  // 2022 개정 기본 교육과정 교과명
+  '바른 생활':'🙋','슬기로운 생활':'🧠','즐거운 생활':'🎈','실과':'🔧',
+  '진로와 직업':'🧰','일상생활 활동':'🏠',
+  '창체(자율·자치 활동)':'🌱','창체(동아리 활동)':'🤝','창체(진로 활동)':'🧭'
 };
 const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
 // HTML/속성 안전 이스케이프 — 학생 이름·교과명 등 사용자 입력값을 innerHTML에 넣을 때 사용
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const DEFAULT_SUBJECTS = ['국어','수학','사회','과학','음악','미술','체육','진로와직업','진로','자율','동아리'];
+// 2022 개정 특수교육 기본 교육과정(교육부 고시 제2022-34호 [별첨 3]) 학교급별 교과(군)·창체·일상생활 활동
+const SUBJECTS_BY_LEVEL = {
+  elem:   ['국어','사회','수학','과학','바른 생활','슬기로운 생활','즐거운 생활','체육','음악','미술','실과',
+           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)'],
+  middle: ['국어','사회','수학','과학','진로와 직업','체육','음악','미술',
+           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)'],
+  high:   ['국어','사회','수학','과학','체육','음악','미술','진로와 직업',
+           '일상생활 활동','창체(자율·자치 활동)','창체(동아리 활동)','창체(진로 활동)']
+};
+const SCHOOL_LEVELS = [['elem','초등학교'],['middle','중학교'],['high','고등학교']];
+const levelName = lv => (SCHOOL_LEVELS.find(([k])=>k===lv)||[,'초등학교'])[1];
+// 학교명에 학교급이 드러나면 자동 추정 (특수학교처럼 드러나지 않으면 null → 교사가 직접 선택)
+const guessLevel = (schoolName) => {
+  const n = String(schoolName||'');
+  if (/고등학교|고교/.test(n)) return 'high';
+  if (/중학교/.test(n)) return 'middle';
+  if (/초등학교|국민학교/.test(n)) return 'elem';
+  return null;
+};
+const ALL_LEVEL_SUBJECTS = [...new Set(Object.values(SUBJECTS_BY_LEVEL).flat())];
+// 예전 버전에서 쓰던 교과명 — 이미 저장된 시간표가 있으므로 커스텀 교과로 중복 등록되지 않게 유지
+const LEGACY_SUBJECTS = ['진로와직업','진로','자율','동아리'];
 const MAX_TIMETABLE_PERIODS = 7;
 // NEIS 급식 API 키는 코드에 두지 않음.
 // 배포(Vercel): 서버리스 함수 /api/neis 가 환경변수 NEIS_KEY 로 처리 → 브라우저·저장소에 키 노출 없음.
@@ -963,7 +995,7 @@ const neisKey = () => (App.settings && App.settings.neisKey) || DEFAULT_NEIS_KEY
 const getCustomSubjects = () => { try { return JSON.parse(localStorage.getItem('mc_custom_subjects')||'[]'); } catch(e){ return []; } };
 const addCustomSubject = (name) => {
   const list = getCustomSubjects();
-  if (!list.includes(name) && !DEFAULT_SUBJECTS.includes(name)) {
+  if (!list.includes(name) && !ALL_LEVEL_SUBJECTS.includes(name) && !LEGACY_SUBJECTS.includes(name)) {
     list.push(name);
     localStorage.setItem('mc_custom_subjects', JSON.stringify(list));
   }
@@ -1259,6 +1291,16 @@ const App = {
     }});
   },
 
+  // ── 학교급(초·중·고) → 해당 과정 교과 목록 ──
+  // 저장된 값이 없으면 학교명에서 추정하고, 그래도 모르면 초등학교로 둠(특수학교는 교사가 직접 선택)
+  schoolLevel(src) {
+    const s = src || this.settings || {};
+    return s.schoolLevel || guessLevel(s.schoolName) || 'elem';
+  },
+  levelSubjects(src) {
+    return SUBJECTS_BY_LEVEL[this.schoolLevel(src)] || SUBJECTS_BY_LEVEL.elem;
+  },
+
   // ── 학급별 저장 키 헬퍼 (여러 학급을 동시에 저장·전환) ──
   classPrefix() { return (this.currentClassId || 'default') + '_'; },
   rkey(dateKey) { return 'mc_record_' + this.classPrefix() + (dateKey==null ? this.todayKey : dateKey); },
@@ -1302,7 +1344,7 @@ const App = {
       });
       localStorage.removeItem('mc_settings');
     } else {
-      this.classes.push({ id, schoolName:'', className:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'', bookUrl:'', bookTitle:'' });
+      this.classes.push({ id, schoolName:'', className:'', schoolLevel:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'', bookUrl:'', bookTitle:'' });
     }
     localStorage.setItem('mc_classes', JSON.stringify(this.classes));
     localStorage.setItem('mc_current_class', id);
@@ -1356,7 +1398,7 @@ const App = {
     const id = 'c' + Date.now();
     // 같은 학교의 다른 반이 흔하므로 학교명·급식코드·영상은 이어받고 학급명·학생만 비움
     const cls = {
-      id, schoolName: src.schoolName||'', className:'', students:[],
+      id, schoolName: src.schoolName||'', className:'', schoolLevel: src.schoolLevel||'', students:[],
       neisKey: src.neisKey||'', neisAtptCode: src.neisAtptCode||'', neisSchoolCode: src.neisSchoolCode||'',
       bookUrl: src.bookUrl||'', bookTitle: src.bookTitle||''
     };
@@ -1943,7 +1985,9 @@ const App = {
 
     const buildBank = ()=>{
       const custom = getCustomSubjects();
-      return [...DEFAULT_SUBJECTS, ...custom];
+      // 예전에 배치해 둔 교과가 목록에서 사라지지 않도록, 지금 시간표에 들어있는 이름도 함께 노출
+      const inUse = [...answer, ...slots].map(x=>(x||'').trim()).filter(Boolean);
+      return [...new Set([...this.levelSubjects(), ...custom, ...inUse])];
     };
 
     const renderBody = ()=>{
@@ -1958,7 +2002,7 @@ const App = {
             return `<div class="tt-slot ${isC?'correct':''}" data-slot="${i}">
               <span class="pnum">${i+1}교시</span>
               <div class="drop-zone" data-slot="${i}">
-                ${cur?`<div class="subject-chip in-slot" draggable="true" data-from="slot" data-slot="${i}" data-name="${esc(cur)}"><span class="ico">${subjectIcon(cur)}</span>${esc(cur)}</div>`:'<span style="color:var(--text-sub);font-size:16px">여기에 끌어다 놓으세요</span>'}
+                ${cur?`<div class="subject-chip in-slot ${cur.length>6?'long':''}" draggable="true" data-from="slot" data-slot="${i}" data-name="${esc(cur)}"><span class="ico">${subjectIcon(cur)}</span><span class="nm">${esc(cur)}</span></div>`:'<span style="color:var(--text-sub);font-size:16px">여기에 끌어다 놓으세요</span>'}
               </div>
               ${cur?`<button class="slot-clear" data-clear="${i}" title="비우기">✕</button>`:''}
               ${isC?'<span class="check">✓</span>':''}
@@ -1966,9 +2010,9 @@ const App = {
           }).join('')}
         </div>
         <div class="tt-bank">
-          <div class="tt-section-title">교과 보관함 <span style="font-weight:500;color:var(--text-sub);font-size:15px">끌어서 옮겨요</span></div>
+          <div class="tt-section-title">교과 보관함 <span class="tt-level-tag">${levelName(this.schoolLevel())} 과정</span> <span style="font-weight:500;color:var(--text-sub);font-size:15px">끌어서 옮겨요</span></div>
           <div class="tt-bank-grid" data-bank="1">
-            ${bank.map(s=>`<div class="subject-chip" draggable="true" data-from="bank" data-name="${esc(s)}"><span class="ico">${subjectIcon(s)}</span>${esc(s)}</div>`).join('')}
+            ${bank.map(s=>`<div class="subject-chip ${s.length>4?'long':''}" draggable="true" data-from="bank" data-name="${esc(s)}"><span class="ico">${subjectIcon(s)}</span><span class="nm">${esc(s)}</span></div>`).join('')}
             <button class="subject-chip add-chip" id="tt-add-subject" type="button"><span class="ico">➕</span>직접입력</button>
           </div>
         </div>
@@ -2837,7 +2881,7 @@ const App = {
   // ── Settings ──
   openSettings() {
     this.settingsDraft = JSON.parse(JSON.stringify(this.settings || {
-      schoolName:'', className:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'',
+      schoolName:'', className:'', schoolLevel:'', students:[], neisKey:'', neisAtptCode:'', neisSchoolCode:'',
       bookUrl:'', bookTitle:''
     }));
     this.initDash();                                            // 출결 대시보드 탭용 기본 상태(현재 학급·이번 달)
@@ -2895,6 +2939,11 @@ const App = {
         <div id="school-search-results"></div>
       </div>
       <div class="field"><label>학급명 (직접 입력)</label><input id="f-class" value="${esc(s.className||'')}" placeholder="예: 3학년 2반"></div>
+      <div class="field"><label>과정 (학교급)</label>
+        <div class="level-switcher">${SCHOOL_LEVELS.map(([k,nm])=>
+          `<button class="class-chip js-level ${this.schoolLevel(s)===k?'active':''}" data-level="${k}">${nm}</button>`).join('')}</div>
+        <div class="hint">2022 개정 특수교육 기본 교육과정 기준으로 <b>시간표 교과 보관함</b>과 <b>수업교실 과목 목록</b>에 해당 과정의 교과가 나와요. 저장을 눌러야 반영돼요.</div>
+      </div>
       <div class="field">
         <div class="hint" id="meal-link-status">${s.neisSchoolCode ? '✅ 급식 연동됨 — 검색한 학교의 급식을 불러와요' : '🍱 학교를 검색해 선택하면 급식이 자동 연동돼요'}</div>
         <button class="btn-test" id="f-test-meal">🧪 급식 연동 테스트</button>
@@ -2984,6 +3033,11 @@ const App = {
     const t = this.settingsTab;
     // 학급 선택 카드 (info·students 탭 공용) — class 기반으로 전환·추가 바인딩
     document.querySelectorAll('.js-class-chip').forEach(b=>b.onclick=()=>this.switchClass(b.dataset.cid));
+    document.querySelectorAll('.js-level').forEach(b=>b.onclick=()=>{
+      s.schoolLevel = b.dataset.level;                            // 저장 시 학급에 반영
+      this.playSound('select');
+      document.querySelectorAll('.js-level').forEach(x=>x.classList.toggle('active', x===b));
+    });
     document.querySelectorAll('.js-class-add').forEach(b=>b.onclick=()=>this.addClass());
     if (t==='info') {
       document.getElementById('class-del')?.addEventListener('click', ()=>this.deleteClass(this.currentClassId));
@@ -3007,6 +3061,11 @@ const App = {
             s.neisAtptCode = r.ATPT_OFCDC_SC_CODE;
             s.neisSchoolCode = r.SD_SCHUL_CODE;
             s.schoolName = r.SCHUL_NM;
+            const lv = guessLevel(r.SCHUL_NM);                    // 학교명에 초·중·고가 드러나면 과정 자동 선택
+            if (lv) {
+              s.schoolLevel = lv;
+              document.querySelectorAll('.js-level').forEach(x=>x.classList.toggle('active', x.dataset.level===lv));
+            }
             const st = document.getElementById('meal-link-status'); if (st) st.textContent = `✅ ${r.SCHUL_NM} — 급식 연동됨`;
             this.playSound('select');
             this.toast(`✅ ${r.SCHUL_NM} 선택됨`,'success');
@@ -3602,7 +3661,7 @@ const App = {
     l.think      = l.think || {type:'video', url:'', title:'', question:''};
     const modelOpts = Object.entries(this.LESSON_MODELS).map(([k,v])=>`<option value="${k}" ${l.model===k?'selected':''}>${v}</option>`).join('');
     const vid = (l.think.url||'').match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/);
-    const SUBJ=['국어','수학','바른 생활','슬기로운 생활','즐거운 생활','사회','과학','체육','음악','미술','실과','정보','진로와 직업','창체','일상생활'];
+    const SUBJ=this.levelSubjects();                            // 학급 과정(초·중·고)에 맞는 교과만
     const curSubj=l.subject||'';
     const subjectOpts=`<option value="" ${!curSubj?'selected':''}>과목 선택</option>`+SUBJ.map(s=>`<option ${curSubj===s?'selected':''}>${s}</option>`).join('')+(curSubj && !SUBJ.includes(curSubj)?`<option selected>${esc(curSubj)}</option>`:'');
     lv.innerHTML = `
