@@ -370,9 +370,8 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 /* 위치 기반 자동 조회 버튼 */
 .vico{display:inline-block;vertical-align:-.18em;flex:0 0 auto}
 .card-hint .vico{vertical-align:-.25em;margin-right:4px}
-.card.geo-loading{opacity:.75;cursor:progress}
 @keyframes gpsPing{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
-.geo-loading .vico.gps{animation:gpsPing .9s ease-in-out infinite}
+.auto-fetch-btn:disabled .vico.gps{animation:gpsPing .9s ease-in-out infinite}
 .auto-fetch-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:16px;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--acc-sky),var(--primary));color:#fff;font-weight:700;font-size:18px;box-shadow:0 6px 16px rgba(91,182,255,.3);transition:.2s}
 .auto-fetch-btn:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
 .auto-fetch-btn:disabled{opacity:.7;cursor:wait;transform:none}
@@ -1513,8 +1512,8 @@ const App = {
       }
     });
 
-    document.getElementById('card-weather').onclick = ()=> this.record.weather ? this.openWeather() : this.geoFillWeather();
-    document.getElementById('card-dust').onclick    = ()=> this.record.dust    ? this.openDust()    : this.geoFillDust();
+    document.getElementById('card-weather').onclick = ()=> this.openWeather();
+    document.getElementById('card-dust').onclick = ()=> this.openDust();
     document.getElementById('card-attendance').onclick = ()=> this.openAttendance();
     document.getElementById('card-timetable').onclick = ()=> this.openTimetable();
     document.getElementById('card-notes').onclick = ()=> this.openNotes();
@@ -1658,7 +1657,7 @@ const App = {
       c.innerHTML = `${head}
         <div class="card-result"><div class="v3-weather-wrap" style="color:${col}"><i class="ph-fill ${ph} v3-weather-ico"></i></div><div class="label">${w.label}</div></div>`;
     } else {
-      c.innerHTML = `${head}<div class="card-hint">${gpsicon(22)} 터치하면 GPS로 날씨를 불러와요</div>`;
+      c.innerHTML = `${head}<div class="card-hint">터치해서 날씨를 선택해요 👆</div>`;
     }
   },
   openWeather() {
@@ -1691,7 +1690,7 @@ const App = {
         <div class="card-result"><div class="emoji" role="img" aria-label="${d.label}">${d.emoji}</div><div class="label">${d.label}</div><div class="v3-pill">${d.hint}</div></div>`;
     } else {
       c.innerHTML = `<div class="v3-title">${chip}오늘의 미세먼지</div>
-        <div class="card-hint">${gpsicon(22)} 터치하면 GPS로 미세먼지를 불러와요</div>`;
+        <div class="card-hint">터치해서 미세먼지를 확인해요 👆</div>`;
     }
   },
   openDust() {
@@ -1754,26 +1753,6 @@ const App = {
     this.speak(`오늘 날씨는 ${w.label} 입니다.`);
     this.renderWeather(); this.checkComplete(); this.autoSaveDraft();
   },
-  // 카드를 바로 눌렀을 때 — 팝업 없이 GPS로 채움, 실패하면 직접 선택 팝업으로 넘어감
-  async geoFillWeather() {
-    this.ensureAudio();
-    const c = document.getElementById('card-weather');
-    if (c._geoBusy) return;
-    c._geoBusy = true; c.classList.add('geo-loading');
-    const keep = c.innerHTML;
-    c.innerHTML = `<div class="v3-title"><span class="v3-ico" style="background:#fef3c7;color:#d97706"><i class="ph-fill ph-sun-horizon"></i></span>오늘의 날씨</div>
-      <div class="card-hint">${gpsicon(24)} GPS로 날씨를 불러오는 중...</div>`;
-    try {
-      const w = await this.geoWeather();
-      this.applyWeather(w, ' (GPS):');
-    } catch(e){
-      c.innerHTML = keep;
-      this.toast(e.message==='no_geo' ? '이 기기는 위치를 지원하지 않아요' : (e.code===1 ? '위치 권한이 꺼져 있어요 — 직접 선택해 주세요' : 'GPS 조회 실패 — 직접 선택해 주세요'),'error');
-      this.openWeather();
-    } finally {
-      c._geoBusy = false; c.classList.remove('geo-loading');
-    }
-  },
   async autoWeather() {
     const btn = document.getElementById('wx-auto');
     this.ensureAudio();
@@ -1802,25 +1781,6 @@ const App = {
     this.toast(`미세먼지 (GPS): ${d.label}${pm10!=null?` · PM10 ${Math.round(pm10)}`:''}`,'success');
     this.speak(`오늘 미세먼지는 ${d.label} 입니다. ${d.hint}`);
     this.renderDust(); this.checkComplete(); this.autoSaveDraft();
-  },
-  async geoFillDust() {
-    this.ensureAudio();
-    const c = document.getElementById('card-dust');
-    if (c._geoBusy) return;
-    c._geoBusy = true; c.classList.add('geo-loading');
-    const keep = c.innerHTML;
-    c.innerHTML = `<div class="v3-title"><span class="v3-ico" style="background:#f3e8ff;color:#9333ea"><i class="ph-fill ph-wind"></i></span>오늘의 미세먼지</div>
-      <div class="card-hint">${gpsicon(24)} GPS로 미세먼지를 불러오는 중...</div>`;
-    try {
-      const {d, pm10} = await this.geoDust();
-      this.applyDust(d, pm10);
-    } catch(e){
-      c.innerHTML = keep;
-      this.toast(e.message==='no_geo' ? '이 기기는 위치를 지원하지 않아요' : (e.code===1 ? '위치 권한이 꺼져 있어요 — 직접 선택해 주세요' : 'GPS 조회 실패 — 직접 선택해 주세요'),'error');
-      this.openDust();
-    } finally {
-      c._geoBusy = false; c.classList.remove('geo-loading');
-    }
   },
   async autoDust() {
     const btn = document.getElementById('dust-auto');
