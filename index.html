@@ -337,7 +337,7 @@ footer .status.done{color:var(--success)}
 .meal-dish .md-pic{margin:0 10px 10px;padding:6px;border-radius:10px;background:#fff;border:1.5px solid #fde7b0;font-size:13px;font-weight:800;color:#b45309;display:flex;align-items:center;justify-content:center;gap:4px;transition:.15s}
 .meal-dish .md-pic:hover{background:#FFF3CC}
 .dp-pic{display:flex;flex-direction:column;gap:14px;background:#F3F8F6;border:1.5px solid #cfe3dc;border-radius:16px;padding:16px}
-.dp-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.dp-head{display:flex;gap:12px;align-items:center;justify-content:space-between}
 .dp-title{font-size:20px;font-weight:900;color:var(--text);margin-bottom:4px}
 .dp-back{padding:10px 16px;border-radius:12px;background:#fff;border:1.5px solid #d6dde8;font-weight:800;white-space:nowrap}
 .dp-search{display:flex;flex-wrap:wrap;gap:8px}
@@ -346,6 +346,10 @@ footer .status.done{color:var(--success)}
 .dp-search #dp-find{background:var(--primary);border-color:var(--primary);color:#fff}
 .dp-clear{color:var(--danger)!important}
 .dp-cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.dp-cands:empty{display:none}
+.dp-cands .card-hint{grid-column:1/-1}
+.dp-tip{padding:12px 16px;border-radius:12px;background:#FFF7D6;border:2px solid #F5C84B;color:#7A4B00;font-size:16px;font-weight:700;line-height:1.5}
+.dp-tip .dp-ex{display:inline-block;margin-left:4px;padding:2px 10px;border-radius:99px;background:#fff;color:#92400e;font-size:15px}
 .dp-cand{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:12px;background:#fff;border:1.5px solid #e2e8f0;font-weight:800;font-size:14px;transition:.15s}
 .dp-cand:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--card-shadow)}
 .dp-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f8fafc;display:block}
@@ -2664,8 +2668,7 @@ const App = {
     const cur = this.mealImages()[this.dishKey(name)]?.src;
     b.innerHTML = `<div class="dp-pic">
       <div class="dp-head">
-        <div><div class="dp-title">🖼️ 그림 설정 — ${esc(name)}</div>
-          <div class="hint">고른 그림은 저장돼서, 다음에 같은 메뉴가 나오면 자동으로 보여요. 그림이 없어도 괜찮아요.</div></div>
+        <div class="dp-title">🖼️ 그림 설정 — ${esc(name)}</div>
         <button class="dp-back" id="dp-back">설정 닫기</button>
       </div>
       <div class="dp-search">
@@ -2674,7 +2677,8 @@ const App = {
         <label class="dp-file">📁 내 파일<input type="file" id="dp-file" accept="image/*" hidden></label>
         ${cur?'<button id="dp-clear" class="dp-clear">그림 없애기</button>':''}
       </div>
-      <div class="dp-cands" id="dp-cands"><div class="card-hint">🔍 그림 찾기를 눌러 후보를 불러와요</div></div>
+      <div class="dp-tip">💡 원하는 이미지가 안 나올 경우 <b>검색어를 단순화</b>해 보세요. <span class="dp-ex">예: 코코넛대왕새우튀김 → <b>새우튀김</b></span></div>
+      <div class="dp-cands" id="dp-cands"></div>
     </div>`;
     const back = ()=> this.showMealDishes();
     document.getElementById('dp-back').onclick = back;
