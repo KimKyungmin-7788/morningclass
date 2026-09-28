@@ -1313,7 +1313,18 @@ const App = {
   },
   // 날짜 입력은 하루 단위 — 오늘(실제 날짜) 입력했는지로 판단
   realTodayKey() { const n=new Date(); return `${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()}`; },
-  isDateSet() { return (this._dateUserSet || localStorage.getItem('mc_date_set')) === this.realTodayKey(); },
+  // 날짜 입력 여부는 학급별로 따로 저장 — 한 학급에서 입력해도 다른 학급은 그날 처음이면 안내가 뜸
+  dateSetKey() { return 'mc_date_set_' + (this.currentClassId || 'default'); },
+  isDateSet() {
+    let v = (this._dateSetMem || {})[this.currentClassId];
+    if (!v) { try { v = localStorage.getItem(this.dateSetKey()); } catch(e){} }
+    return v === this.realTodayKey();
+  },
+  markDateSet() {
+    const today = this.realTodayKey();
+    (this._dateSetMem || (this._dateSetMem = {}))[this.currentClassId] = today;
+    try { localStorage.setItem(this.dateSetKey(), today); localStorage.removeItem('mc_date_set'); } catch(e){}   // 예전 공용 표시는 정리
+  },
   // 매년 고정 공휴일 (양력)
   FIXED_HOLIDAYS: {'01-01':'신정','03-01':'삼일절','05-05':'어린이날','06-06':'현충일','08-15':'광복절','10-03':'개천절','10-09':'한글날','12-25':'성탄절'},
   // 음력 기반·대체공휴일 (연도별, 2025~2026)
@@ -1408,7 +1419,7 @@ const App = {
 
     const confirm = ()=>{
       if(!st.pickD) return;
-      this._dateUserSet = this.realTodayKey(); localStorage.setItem('mc_date_set', this._dateUserSet);
+      this.markDateSet();
       this.loadDate(st.pickD); this.loadRecord(); this.renderAll(); this.checkDateGate();
       this.playSound('save'); this.toast(`${st.pickD.getFullYear()}.${st.pickD.getMonth()+1}.${st.pickD.getDate()} 불러왔어요`,'success');
       const pd = st.pickD;                                    // 달력·붙이기 모드 공통 확정 멘트
@@ -1652,7 +1663,7 @@ const App = {
     Object.keys(localStorage).forEach(k=>{
       if (k.startsWith('mc_record_'+id+'_') || k.startsWith('mc_timetable_'+id+'_') ||
           k.startsWith('mc_draft_notes_'+id+'_') || k.startsWith('mc_celebrated_'+id+'_') ||
-          k === 'mc_ddays_'+id) localStorage.removeItem(k);
+          k === 'mc_ddays_'+id || k === 'mc_date_set_'+id) localStorage.removeItem(k);
     });
     this.classes = this.classes.filter(c=>c.id!==id);
     localStorage.setItem('mc_classes', JSON.stringify(this.classes));
@@ -1917,6 +1928,7 @@ const App = {
 
   // ── Render dashboard ──
   renderAll() {
+    this.renderDatePicker();                                     // 학급이 바뀌면 상단 날짜 칸도 그 학급 기준으로
     this.renderWeather(); this.renderDust(); this.renderAttendance();
     this.renderTimetable(); this.renderMeal(); this.renderEmotions();
     this.renderHelper(); this.renderNotes(); this.renderSuggest(); this.renderBook(); this.renderDday(); this.updateProgress();
@@ -3776,7 +3788,9 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
   closeSettings() {
     const ov = document.getElementById('settings-overlay');
     ov.classList.add('closing');
-    setTimeout(()=>{ ov.classList.remove('active','closing'); document.body.style.overflow=''; },180);
+    setTimeout(()=>{ ov.classList.remove('active','closing'); document.body.style.overflow='';
+      if (this.appMode !== 'lesson') this.checkDateGate();       // 설정에서 학급을 바꾼 뒤 닫아도 그 학급의 날짜 안내 확인
+    },180);
   },
   // 학급 선택·전환 카드 (info·students 탭에서 공용 사용, class 기반 바인딩)
   classSwitcherField(s, opts={}) {
