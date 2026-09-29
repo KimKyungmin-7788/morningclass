@@ -12,7 +12,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
 <script>
   // 이미 학급을 등록한 선생님은 소개 화면 없이 바로 앱으로 (주소에 ?intro 를 붙이면 소개 화면 유지)
-  try {
+  // 개발 단계에서는 꺼 둠 — 매번 소개 화면이 보이도록. 나중에 true로 바꾸면 다시 동작
+  const SKIP_LANDING_FOR_RETURNING = false;
+  if (SKIP_LANDING_FOR_RETURNING) try {
     const cls = JSON.parse(localStorage.getItem('mc_classes') || '[]');
     if (cls.length && !location.search.includes('intro')) location.replace('./app.html');
   } catch (e) {}

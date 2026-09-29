@@ -319,15 +319,48 @@ footer .status.done{color:var(--success)}
 .meal-summary{flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;align-self:center;text-align:center;font-size:clamp(15px,1.1vw,19px);font-weight:var(--fw-label);line-height:1.45;color:var(--text);padding:4px 6px;word-break:keep-all}
 .meal-modal{display:flex;flex-direction:column;gap:14px;height:min(calc(90vh - 130px),640px)}
 .meal-modal .mm-body{flex:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding:2px}
-.meal-dishes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;align-content:start}
-.meal-dish{display:flex;flex-direction:column;background:linear-gradient(135deg,#FFF8E8,#FFFDF4);border:2px solid #fde7b0;border-radius:18px;overflow:hidden;opacity:0;transform:translateY(10px);animation:fadeUp .35s forwards;box-shadow:0 4px 12px rgba(255,201,60,.14)}
-.meal-dish .md-img{aspect-ratio:16/11;display:flex;align-items:center;justify-content:center;background:#fff7e6 center/cover no-repeat;font-size:44px;border-bottom:2px dashed #fde7b0}
-.meal-dish .md-name{padding:12px 10px 4px;text-align:center;font-size:clamp(17px,1.3vw,22px);font-weight:var(--fw-title);color:var(--text);word-break:keep-all}
-.meal-dish .md-warn{min-height:10px;padding:0 10px 10px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
-.meal-dish .md-img{position:relative;overflow:hidden}
-.meal-dish .md-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.meal-dish .md-pic{margin:0 10px 10px;padding:6px;border-radius:10px;background:#fff;border:1.5px solid #fde7b0;font-size:13px;font-weight:var(--fw-label);color:#b45309;display:flex;align-items:center;justify-content:center;gap:4px;transition:.15s}
-.meal-dish .md-pic:hover{background:#FFF3CC}
+/* 급식 목록: 한 줄에 메뉴 하나 · 번호 · 7개 이상이면 두 열 + 가운데 점선 */
+.mv-toggle{display:inline-flex;background:#F0F4FF;border-radius:12px;padding:4px;gap:4px}
+.mv-toggle button{padding:7px 14px;border-radius:9px;font-size:15px;font-weight:var(--fw-label);color:var(--text-sub)}
+.mv-toggle button.on{background:#fff;color:var(--primary-dark);box-shadow:0 2px 6px rgba(91,182,255,.2)}
+.meal-list{display:grid;grid-template-columns:minmax(0,1fr);gap:0 22px;max-width:760px;width:100%;margin:0 auto}
+.meal-list.two{grid-template-columns:minmax(0,1fr) 2px minmax(0,1fr);max-width:none}
+.ml-col{display:flex;flex-direction:column;gap:10px}
+.ml-divider{border-left:2px dashed #d6dde8;margin:6px 0}
+.ml-row{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:16px;border:2px solid #dfe7f1;background:#fff;opacity:0;transform:translateY(10px);animation:fadeUp .35s forwards}
+.ml-row:nth-child(even){background:#F6F9FD}
+.meal-list.still .ml-row{animation:none;opacity:1;transform:none}
+.ml-num{flex:none;width:36px;height:36px;border-radius:50%;background:#E8F4FD;color:var(--primary-dark);font-size:18px;font-weight:var(--fw-title);display:grid;place-items:center}
+/* 그림 높이 = 급식 창에서 목록이 쓸 수 있는 높이를 줄 수(--rows)로 나눈 값 → 스크롤 없이 가능한 한 크게 */
+.ml-img{flex:none;height:clamp(44px,calc((min(90vh - 130px, 640px) - 75px - var(--rows,4) * 34px) / var(--rows,4)),128px);aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:#FFF7E6;display:grid;place-items:center;font-size:30px;position:relative}
+.ml-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ml-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ml-name{font-size:clamp(20px,1.6vw,26px);font-weight:var(--fw-title);line-height:1.25;word-break:keep-all;color:var(--text)}
+.meal-list.text .ml-img{display:none}
+.meal-list.text .ml-row{padding:14px 18px}
+.meal-list.text .ml-name{font-size:clamp(24px,2vw,32px)}
+.ml-warn{display:flex;flex-wrap:wrap;gap:4px}
+.ml-row.alert{border-color:#fca5a5;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+/* 선생님: 이름을 누르면 바로 고치기, 그림 모서리 돋보기로 그림 다시 찾기 */
+.ml-name{cursor:text;border-radius:8px;padding:2px 6px;margin:-2px -6px;transition:background .15s}
+.ml-name:hover{background:#F0F7FF;box-shadow:inset 0 -2px 0 #BFDDF7}
+.ml-name-input{width:100%;font:inherit;font-size:clamp(20px,1.6vw,26px);font-weight:var(--fw-title);color:var(--text);padding:2px 6px;margin:-4px -8px;border:2px solid var(--primary);border-radius:8px;background:#fff;outline:none}
+.meal-list.text .ml-name-input{font-size:clamp(24px,2vw,32px)}
+.ml-zoom{position:absolute;right:4px;bottom:4px;z-index:1;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(27,58,87,.25);display:grid;place-items:center;font-size:14px;color:var(--text);transition:transform .15s}
+.ml-zoom:hover{transform:scale(1.12);background:#fff}
+/* 그림 다시 찾기 — 검색어 단순화 안내 */
+.isub-tip{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 18px;border-radius:16px;background:#FFF7D6;border:2.5px solid #F5C84B;text-align:center}
+.isub-tip .t{font-size:19px;font-weight:var(--fw-title);color:#7A4B00;line-height:1.4}
+.isub-tip .t b{color:#B45309;background:linear-gradient(transparent 58%,#FFE08A 58%)}
+.isub-tip .ex{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.isub-tip .ex .from{padding:6px 14px;border-radius:99px;background:#fff;color:#92400e;font-size:17px;font-weight:var(--fw-label);text-decoration:line-through;text-decoration-color:rgba(180,83,9,.55);opacity:.85}
+.isub-tip .ex .arrow{font-size:22px;font-weight:var(--fw-display);color:#B45309}
+.isub-tip .ex .to{padding:7px 18px;border-radius:99px;background:#B45309;color:#fff;font-size:20px;font-weight:var(--fw-display);box-shadow:0 4px 10px rgba(180,83,9,.25)}
+.isub{position:fixed;inset:0;z-index:1100;background:rgba(27,58,87,.35);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s}
+.isub-card{background:#fff;border-radius:22px;padding:22px;width:100%;max-width:720px;max-height:88vh;overflow:auto;box-shadow:var(--popup-shadow);display:flex;flex-direction:column;gap:14px}
+.isub-head{display:flex;align-items:center;gap:10px}
+.isub-title{flex:1;font-size:20px;font-weight:var(--fw-title);color:var(--text)}
+.dp-cands.isub-cands{grid-template-columns:repeat(3,minmax(0,1fr))}
 .dp-pic{display:flex;flex-direction:column;gap:14px;background:#F3F8F6;border:1.5px solid #cfe3dc;border-radius:16px;padding:16px}
 .dp-head{display:flex;gap:12px;align-items:center;justify-content:space-between}
 .dp-title{font-size:20px;font-weight:var(--fw-title);color:var(--text);margin-bottom:4px}
@@ -348,7 +381,6 @@ footer .status.done{color:var(--success)}
 .dp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 /* 알레르기 경고 */
 .md-note{margin-bottom:12px;padding:10px 14px;border-radius:12px;background:#F0F7FF;color:var(--text-sub);font-size:14px;font-weight:var(--fw-label)}
-.meal-dish.alert{border-color:#fca5a5;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
 .md-alert{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:99px;background:#FEE2E2;color:#b91c1c;font-size:14px;font-weight:var(--fw-label)}
 .md-alert small{font-size:11px;font-weight:var(--fw-body);color:#dc2626;opacity:.85}
 .meal-summary:has(+ .meal-alert-line){-webkit-line-clamp:2;flex:0 0 auto;max-height:2.9em;margin:auto 0}
@@ -364,16 +396,20 @@ footer .status.done{color:var(--success)}
 .al-chip.on{background:var(--danger);border-color:var(--danger);color:#fff}
 @media (max-width:640px){.al-row{grid-template-columns:1fr}}
 .ws-modal{display:flex;flex-direction:column;gap:12px;height:min(calc(90vh - 130px),760px)}
+.ws-tabs{display:flex;gap:8px;flex-shrink:0}
+.ws-tabs button{flex:1;padding:11px;border-radius:12px;background:#F0F4FF;font-weight:var(--fw-label);font-size:16px;color:var(--text-sub);transition:.15s}
+.ws-tabs button.on{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(91,182,255,.3)}
 .ws-opts{display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0}
 .ws-opt{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;background:#F0F4FF;font-weight:var(--fw-label);font-size:15px;cursor:pointer}
 .ws-opt input{width:18px;height:18px;accent-color:var(--primary)}
 .ws-prev{flex:1;min-height:0;position:relative;border-radius:14px;overflow:hidden;background:#d9dee7}
 .ws-prev iframe{width:100%;height:100%;border:0;display:block}
 .ws-prev .meal-loading{position:absolute;inset:0;background:#fff}
-.mm-tools button:disabled{opacity:.5;cursor:not-allowed}
-.mm-tools{display:flex;flex-wrap:wrap;gap:10px;padding-top:14px;border-top:2px solid #f1f4fa;flex-shrink:0}
-.mm-tools button{flex:1 1 150px;display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 10px;border-radius:14px;background:#F0F4FF;font-weight:var(--fw-label);font-size:16px;color:var(--text);transition:.15s}
-.mm-tools button:hover:not(:disabled){background:var(--primary);color:#fff}
+.mm-tools>button:disabled{opacity:.5;cursor:not-allowed}
+.mm-tools{display:flex;flex-wrap:wrap;gap:10px;padding-top:14px;border-top:2px solid #f1f4fa;flex-shrink:0;align-items:center}
+.mm-tools>button{flex:1 1 130px;display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 10px;border-radius:14px;background:#F0F4FF;font-weight:var(--fw-label);font-size:16px;color:var(--text);transition:.15s}
+.mm-tools>button:hover:not(:disabled){background:var(--primary);color:#fff}
+.mm-tools .mv-toggle{flex:none}
 .mm-tools button.soon{background:#f8fafc;color:#94a3b8;border:2px dashed #e2e8f0;cursor:not-allowed}
 .mm-tools .soon-tag{font-size:11px;font-weight:var(--fw-label);background:#e2e8f0;color:#64748b;padding:2px 7px;border-radius:99px}
 .meal-loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
@@ -1068,6 +1104,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
   <div class="popup-card" id="popup-card">
     <div class="popup-header">
       <h2 class="popup-title" id="popup-title">제목</h2>
+      <div id="popup-extra"></div>
       <button class="popup-close" id="popup-close" aria-label="닫기">✕</button>
     </div>
     <div id="popup-body"></div>
@@ -1147,6 +1184,7 @@ const SUBJECT_ICONS = {
   '진로와직업':'🧰','자율':'🌱','동아리':'🤝',
   // 2022 개정 기본 교육과정 교과명
   '바른 생활':'🙋','슬기로운 생활':'🧠','즐거운 생활':'🎈','실과':'🔧',
+  '봄':'🌸','여름':'🌻','가을':'🍁','겨울':'⛄',
   '진로와 직업':'🧰','일상생활':'🏠',
   '창체(자율자치)':'🌱','창체(동아리)':'🤝','창체(진로)':'🧭',
   // 이전 표기(활동 포함) — 이미 배치된 시간표 호환
@@ -1157,8 +1195,8 @@ const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // 2022 개정 특수교육 기본 교육과정(교육부 고시 제2022-34호 [별첨 3]) 학교급별 교과(군)·창체·일상생활 활동
 const SUBJECTS_BY_LEVEL = {
-  elem:   ['국어','사회','수학','과학','바른 생활','슬기로운 생활','즐거운 생활','체육','음악','미술','실과',
-           '일상생활','창체(자율자치)','창체(동아리)','창체(진로)'],
+  elem:   ['국어','사회','수학','과학','봄','여름','가을','겨울','체육','음악','미술','실과',
+           '일상생활','창체(자율자치)','창체(동아리)','창체(진로)','바른 생활','슬기로운 생활','즐거운 생활'],
   middle: ['국어','사회','수학','과학','진로와 직업','체육','음악','미술',
            '일상생활','창체(자율자치)','창체(동아리)','창체(진로)'],
   high:   ['국어','사회','수학','과학','체육','음악','미술','진로와 직업',
@@ -1320,14 +1358,60 @@ const App = {
   },
   // 매년 고정 공휴일 (양력)
   FIXED_HOLIDAYS: {'01-01':'신정','03-01':'삼일절','05-05':'어린이날','06-06':'현충일','08-15':'광복절','10-03':'개천절','10-09':'한글날','12-25':'성탄절'},
-  // 음력 기반·대체공휴일 (연도별, 2025~2026)
-  VAR_HOLIDAYS: {
-    '2025-01-28':'설날','2025-01-29':'설날','2025-01-30':'설날','2025-03-03':'대체공휴일','2025-05-06':'대체공휴일','2025-10-05':'추석','2025-10-06':'추석','2025-10-07':'추석','2025-10-08':'대체공휴일',
-    '2026-02-16':'설날','2026-02-17':'설날','2026-02-18':'설날','2026-03-02':'대체공휴일','2026-05-24':'부처님오신날','2026-05-25':'대체공휴일','2026-08-17':'대체공휴일','2026-09-24':'추석','2026-09-25':'추석','2026-09-26':'추석','2026-09-28':'대체공휴일','2026-10-05':'대체공휴일'
+  // 음력 공휴일의 양력 날짜 (설날·추석 당일, 부처님오신날) — 새 학년도가 오면 이 표에 한 줄만 추가
+  LUNAR_HOLIDAYS: {
+    2025:{seol:'01-29', chuseok:'10-06', buddha:'05-05'},
+    2026:{seol:'02-17', chuseok:'09-25', buddha:'05-24'},
+    2027:{seol:'02-07', chuseok:'09-15', buddha:'05-13'},
+    2028:{seol:'01-27', chuseok:'10-03', buddha:'05-02'}
+  },
+  // 선거일·임시공휴일 (정부가 따로 정하는 날)
+  SPECIAL_HOLIDAYS: {'2025-01-27':'임시공휴일','2025-06-03':'대통령선거일','2026-06-03':'지방선거일','2028-04-12':'국회의원선거일'},
+  // 대체공휴일은 표로 적지 않고 규정(관공서의 공휴일에 관한 규정 제3조)대로 계산한다
+  //  · 설날·추석 연휴: 일요일 또는 다른 공휴일과 겹칠 때만 (토요일은 해당 없음) → 연휴 다음 첫 평일
+  //  · 삼일절·어린이날·부처님오신날·광복절·개천절·한글날·성탄절: 토·일요일 또는 다른 공휴일과 겹칠 때 → 다음 첫 평일
+  //  · 신정·현충일·선거일: 대체공휴일 없음
+  holidaysOfYear(y) {
+    this._holCache = this._holCache || {};
+    if (this._holCache[y]) return this._holCache[y];
+    const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const on = {};                                   // 날짜 → [{name, sub:'weekend'|'sunday'|null, group}]
+    const add = (d, name, sub, group) => (on[key(d)] = on[key(d)] || []).push({name, sub, group, d});
+    const SUB_WEEKEND = ['삼일절','어린이날','광복절','개천절','한글날','성탄절'];
+    for (const [md, name] of Object.entries(this.FIXED_HOLIDAYS))
+      add(new Date(`${y}-${md}T00:00:00`), name, SUB_WEEKEND.includes(name) ? 'weekend' : null);
+    const lunar = this.LUNAR_HOLIDAYS[y];
+    if (lunar) {
+      for (const [k, name] of [['seol','설날'], ['chuseok','추석']]) {
+        const mid = new Date(`${y}-${lunar[k]}T00:00:00`);
+        const end = new Date(mid); end.setDate(end.getDate()+1);
+        for (let i=-1; i<=1; i++) { const d = new Date(mid); d.setDate(d.getDate()+i); add(d, name, 'sunday', end); }
+      }
+      add(new Date(`${y}-${lunar.buddha}T00:00:00`), '부처님오신날', 'weekend');
+    }
+    for (const [ymd, name] of Object.entries(this.SPECIAL_HOLIDAYS))
+      if (ymd.startsWith(y+'-')) add(new Date(`${ymd}T00:00:00`), name, null);
+
+    const out = {};
+    for (const [k, list] of Object.entries(on)) out[k] = list.map(h=>h.name).filter((n,i,a)=>a.indexOf(n)===i).join('·');
+    // 겹친 날마다 필요한 대체공휴일 수 계산 → 다음 첫 평일(휴일·이미 정한 대체일 제외)에 배정
+    const isOff = d => d.getDay()===0 || d.getDay()===6 || out[key(d)];
+    for (const k of Object.keys(on).sort()) {
+      const list = on[k], dow = list[0].d.getDay();
+      const eligible = list.filter(h => h.sub==='weekend' ? (dow===0 || dow===6) : h.sub==='sunday' ? dow===0 : false);
+      const overlap = list.filter(h=>h.sub).length && list.length > 1;
+      let need = dow===0 || dow===6 ? eligible.length : 0;
+      if (overlap && need===0) need = list.length - 1;    // 평일에 공휴일끼리 겹침 (예: 어린이날=부처님오신날)
+      if (!need) continue;
+      const from = list.reduce((m,h)=> h.group && h.group>m ? h.group : m, list[0].d);   // 설·추석은 연휴가 끝난 뒤부터
+      const d = new Date(from);
+      while (need > 0) { d.setDate(d.getDate()+1); if (!isOff(d)) { out[key(d)] = '대체공휴일'; need--; } }
+    }
+    return (this._holCache[y] = out);
   },
   holidayName(dt) {
-    const mm=String(dt.getMonth()+1).padStart(2,'0'), dd=String(dt.getDate()).padStart(2,'0');
-    return this.VAR_HOLIDAYS[`${dt.getFullYear()}-${mm}-${dd}`] || this.FIXED_HOLIDAYS[`${mm}-${dd}`] || '';
+    const k = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    return this.holidaysOfYear(dt.getFullYear())[k] || '';
   },
   openDatePicker(){
     this.ensureAudio();
@@ -1711,8 +1795,8 @@ const App = {
       el.id = 'date-gate'; el.className = 'date-gate';
       el.innerHTML = `<div class="date-gate-box">
         <div class="dg-emoji">📅</div>
-        <h2>먼저 날짜를 선택해주세요</h2>
-        <p>오늘 날짜를 입력하면 아침 활동을 시작할 수 있어요.</p>
+        <h2>날짜 반장님!</h2>
+        <p>오늘은 며칠일까요?</p>
         <button class="dg-btn" id="dg-open">📅 날짜 선택하기</button>
       </div>`;
       document.body.appendChild(el);
@@ -1888,6 +1972,7 @@ const App = {
   openPopup(title, bodyHTML, opts={}) {
     this.prevFocus = document.activeElement;
     document.getElementById('popup-title').textContent = title;
+    document.getElementById('popup-extra').innerHTML = opts.headerExtra || '';   // 제목 줄 오른쪽에 둘 버튼 (예: 급식 보기 방식)
     document.getElementById('popup-body').innerHTML = bodyHTML;
     const card = document.getElementById('popup-card');
     card.classList.toggle('large', !!opts.large);
@@ -2515,12 +2600,12 @@ const App = {
     this.openPopup('🍱 오늘의 급식', `<div class="meal-modal"><div class="mm-body" id="mm-body">${loadingHTML}</div>
       <div class="mm-tools">
         <button id="mm-reload"><i class="ph-bold ph-arrows-clockwise"></i> 다시 불러오기</button>
-        <button id="mm-manual">✏️ 직접 입력</button>
         <button id="mm-allergy">🧒 알레르기 설정</button>
         <button id="mm-ws">📝 학습지 제작</button>
-      </div></div>`, {large:true, onMount:()=>{
+      </div></div>`, {large:true,
+      headerExtra:`<div class="mv-toggle" id="mv-toggle" role="group" aria-label="보기 방식"><button data-v="pic">🖼️ 그림 + 글자</button><button data-v="text">🔤 글자만</button></div>`,
+      onMount:()=>{
         document.getElementById('mm-reload').onclick = ()=> this.fetchMealInto(true);
-        document.getElementById('mm-manual').onclick = ()=> this.openManualMeal();
         document.getElementById('mm-allergy').onclick = ()=> this.openAllergySettings();
         document.getElementById('mm-ws').onclick = ()=> this.openWorksheet();
         this.fetchMealInto(!!force);
@@ -2543,26 +2628,28 @@ const App = {
     const s = this.settings, rec = this.record, key = this.rkey();   // 요청한 학급·날짜의 기록 (응답 전에 학급이 바뀌어도 섞이지 않게)
     if (!s?.neisAtptCode || !s?.neisSchoolCode) {
       await minWait;
-      show(msg('⚙️ 설정에서 학교를 검색해 등록해 주세요<br><span style="font-size:16px">또는 아래 ✏️ 직접 입력을 눌러요</span>'));
+      show(msg('⚙️ 설정에서 학교를 검색해 등록해 주세요'));
       return;
     }
     try {
       const [data] = await Promise.all([
-        this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:1, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey}),
+        this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:5, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey}),
         minWait
       ]);
       if (data?.mealServiceDietInfo) {
-        const row = data.mealServiceDietInfo[1].row[0];
+        const row = this.pickLunch(data.mealServiceDietInfo[1].row);
         // "쇠고기미역국 (5.6.16)" → 이름과 알레르기 번호 분리
         const dishes = (row.DDISH_NM || '').split(/<br\s*\/?>/i).map(x=>this.parseDish(x)).filter(d=>d.name);
         // 불러오는 사이 학급·날짜가 바뀌었으면, 요청한 학급의 기록에만 저장하고 지금 화면은 건드리지 않음
+        const nutri = this.parseNutri(row);                         // 영양 학습지에 쓰는 칼로리·영양소
         if (this.record !== rec || this.rkey() !== key) {
-          Object.assign(rec, {mealText: dishes.map(d=>d.name).join('\n'), mealDishes: dishes, mealLoadedAt: new Date().toISOString()});
+          Object.assign(rec, {mealText: dishes.map(d=>d.name).join('\n'), mealDishes: dishes, mealNutri: nutri, mealLoadedAt: new Date().toISOString()});
           try { localStorage.setItem(key, JSON.stringify(rec)); } catch(e){}
           clearInterval(interval); return;
         }
         this.record.mealText = dishes.map(d=>d.name).join('\n');
         this.record.mealDishes = dishes;                           // 알레르기 경고에 사용
+        this.record.mealNutri = nutri;
         this.record.mealLoadedAt = new Date().toISOString();
         this.playSound('complete');
         this.speak(`오늘 급식 메뉴는, ${dishes.map(d=>d.name).join(', ')} 입니다.`);
@@ -2573,8 +2660,21 @@ const App = {
       } else { throw new Error('no_data'); }
     } catch(e) {
       await minWait;
-      show(msg('🍽️ 급식을 가져올 수 없어요<br><span style="font-size:16px">🔄 다시 불러오기 또는 ✏️ 직접 입력을 눌러요</span>'));
+      show(msg('🍽️ 급식을 가져올 수 없어요<br><span style="font-size:16px">🔄 다시 불러오기를 눌러요</span>'));
     }
+  },
+  // 조식·중식·석식이 있는 학교(기숙사형 등)에서도 점심을 '오늘의 급식'으로 — 중식(코드 2)이 없으면 첫 끼니
+  pickLunch(rows) { return (rows||[]).find(r=>String(r.MMEAL_SC_CODE)==='2') || (rows||[])[0]; },
+  // NEIS 영양 정보 → {kcal, carb, prot, fat, vitA, thia, ribo, vitC, ca, fe} (학교 영양사가 입력한 공식 값)
+  parseNutri(row) {
+    if (!row) return null;
+    const MAP = {'탄수화물':'carb','단백질':'prot','지방':'fat','비타민A':'vitA','티아민':'thia','리보플라빈':'ribo','비타민C':'vitC','칼슘':'ca','철분':'fe'};
+    const out = {kcal: parseFloat(row.CAL_INFO) || null};
+    String(row.NTR_INFO||'').split(/<br\s*\/?>/i).forEach(line=>{
+      const m = line.match(/^\s*([^(:]+)\s*(?:\([^)]*\))?\s*:\s*([\d.]+)/);
+      if (m && MAP[m[1].trim()]) out[MAP[m[1].trim()]] = parseFloat(m[2]);
+    });
+    return out.kcal || out.carb ? out : null;
   },
   // "쇠고기미역국 (5.6.16)" / "배추김치9.13." → {name, codes:[알레르기 번호]}
   parseDish(x) {
@@ -2598,30 +2698,91 @@ const App = {
     const items = (this.record.mealText||'').split('\n').filter(x=>x.trim());
     return [...new Set(items.flatMap(it=>this.dishAlerts(it).map(a=>a.name)))];
   },
-  // 메뉴 카드: 그림(저장된 그림 또는 자동 검색) + 메뉴명 + 알레르기 경고
-  mealDishesHTML() {
-    const items = (this.record.mealText||'').split('\n').filter(x=>x.trim());
+  // 메뉴 목록: 한 줄에 메뉴 하나(번호 · 그림 · 이름 · 알레르기 경고). 급식표 순서 그대로, 7개 이상이면 두 열
+  mealView() { try { return localStorage.getItem('mc_meal_view') === 'text' ? 'text' : 'pic'; } catch(e){ return 'pic'; } },
+  mealItems() { return (this.record.mealText||'').split('\n').filter(x=>x.trim()); },
+  mealDishesHTML(still) {
+    const items = this.mealItems();
     const imgs = this.mealImages();
-    const hasCodes = (this.record.mealDishes||[]).some(d=>d.codes?.length);
-    const hasAllergy = Object.values(this.studentAllergies()).some(a=>a?.length);
-    const note = !hasAllergy ? '<div class="md-note">🧒 아래 <b>알레르기 설정</b>에서 학생 알레르기를 입력하면, 주의할 메뉴에 학생 이름이 표시돼요</div>'
-      : !hasCodes ? '<div class="md-note">ℹ️ 이 메뉴에는 알레르기 번호가 없어 경고를 확인할 수 없어요 (직접 입력 시 <b>메뉴 (1.2.5)</b>처럼 번호를 함께 적어요)</div>' : '';
-    return `${note}<div class="meal-dishes">${items.map((it,i)=>{
+    const view = this.mealView();
+    const row = (it, i)=>{
       const src = imgs[this.dishKey(it)]?.src;
       const alerts = this.dishAlerts(it);
-      return `<div class="meal-dish ${alerts.length?'alert':''}" style="animation-delay:${i*0.07}s" data-dish="${esc(it)}">
-        <div class="md-img">${src?`<img src="${esc(src)}" alt="${esc(it)}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🍽️'}))">`:'<span>🍽️</span>'}</div>
-        <div class="md-name">${esc(it)}</div>
-        <div class="md-warn">${alerts.map(a=>`<span class="md-alert" title="${esc(a.hits.map(c=>this.ALLERGENS[c]).join(', '))}">⚠️ ${esc(a.name)}<small>${esc(a.hits.map(c=>this.ALLERGENS[c]).join('·'))}</small></span>`).join('')}</div>
-        <button class="md-pic" data-dish="${esc(it)}"><i class="ph-bold ph-image"></i> 그림</button>
+      return `<div class="ml-row ${alerts.length?'alert':''}" style="animation-delay:${i*0.06}s">
+        <span class="ml-num">${i+1}</span>
+        <span class="ml-img">${src?`<img src="${esc(src)}" alt="${esc(it)}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🍽️'}))">`:'<span>🍽️</span>'}
+          <button class="ml-zoom" data-i="${i}" title="그림 다시 찾기" aria-label="${esc(it)} 그림 다시 찾기">🔍</button></span>
+        <div class="ml-main">
+          <div class="ml-name" data-i="${i}" tabindex="0" role="button" title="눌러서 이름 고치기">${esc(it)}</div>
+          ${alerts.length ? `<div class="ml-warn">${alerts.map(a=>`<span class="md-alert" title="${esc(a.hits.map(c=>this.ALLERGENS[c]).join(', '))}">⚠️ ${esc(a.name)}<small>${esc(a.hits.map(c=>this.ALLERGENS[c]).join('·'))}</small></span>`).join('')}</div>` : ''}
+        </div>
       </div>`;
-    }).join('')}</div>`;
+    };
+    const two = items.length >= 3, half = Math.ceil(items.length/2);   // 3개부터 두 열 — 줄 수를 줄여 그림을 크게
+    const rows = two ? half : items.length;
+    const cols = two
+      ? `<div class="ml-col">${items.slice(0,half).map((it,i)=>row(it,i)).join('')}</div><div class="ml-divider" aria-hidden="true"></div><div class="ml-col">${items.slice(half).map((it,i)=>row(it,i+half)).join('')}</div>`
+      : `<div class="ml-col">${items.map(row).join('')}</div>`;
+    return `<div class="meal-list ${two?'two':''} ${view==='text'?'text':''} ${still?'still':''}" style="--rows:${Math.max(rows,1)}">${cols}</div>`;
   },
-  showMealDishes() {
+  showMealDishes(still) {
     const b = document.getElementById('mm-body'); if (!b) return;
-    b.innerHTML = this.mealDishesHTML();
-    b.querySelectorAll('.md-pic').forEach(btn=>btn.onclick=()=>this.openDishPicture(btn.dataset.dish));
+    b.innerHTML = this.mealDishesHTML(still);
+    // 보기 방식 버튼은 아래 도구 줄에 있음 (목록이 세로 공간을 최대한 쓰도록)
+    const view = this.mealView();
+    document.querySelectorAll('#mv-toggle button').forEach(btn=>{
+      btn.classList.toggle('on', btn.dataset.v === view);
+      btn.onclick = ()=>{
+        try { localStorage.setItem('mc_meal_view', btn.dataset.v); } catch(e){}
+        this.playSound('select'); this.showMealDishes(true);
+      };
+    });
+    // 메뉴 이름을 누르면 그 자리에서 입력칸으로 바뀜 → Enter·다른 곳 누르기로 저장, Esc로 취소
+    b.querySelectorAll('.ml-name').forEach(el=>{
+      const startEdit = ()=>{
+        if (el.querySelector('input')) return;
+        const i = +el.dataset.i, old = this.mealItems()[i] || '';
+        el.innerHTML = `<input class="ml-name-input" value="${esc(old)}" maxlength="40" aria-label="${i+1}번 메뉴 이름">`;
+        const inp = el.querySelector('input');
+        inp.focus(); inp.select();
+        let done = false;
+        const finish = save=>{
+          if (done) return; done = true;
+          if (save && this.renameDish(i, inp.value)) { this.playSound('select'); this.showMealDishes(true); }
+          else el.textContent = old;
+        };
+        inp.onkeydown = e=>{
+          if (e.isComposing || e.keyCode===229) return;           // 한글 조합 중 Enter는 글자 확정용 — 마지막 글자가 빠지지 않게 무시
+          if (e.key==='Enter') { e.preventDefault(); finish(true); }
+          else if (e.key==='Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }   // 급식 창은 닫지 않음
+        };
+        inp.onblur = ()=> finish(true);
+        inp.onclick = e=> e.stopPropagation();
+      };
+      el.onclick = startEdit;
+      el.onkeydown = e=>{ if ((e.key==='Enter'||e.key===' ') && e.target===el) { e.preventDefault(); startEdit(); } };
+    });
+    b.querySelectorAll('.ml-zoom').forEach(btn=>btn.onclick=e=>{
+      e.stopPropagation();
+      const name = this.mealItems()[+btn.dataset.i];
+      if (name) this.openDishImageSearch(name);
+    });
     this.autoMealImages();
+  },
+  // 메뉴 이름 바꾸기: 급식 기록(글자·알레르기 번호)을 함께 고침. "우유 (2)"처럼 적으면 번호도 반영
+  renameDish(i, raw) {
+    const items = this.mealItems();
+    const p = this.parseDish(String(raw||''));
+    const old = items[i];
+    if (!p.name || old == null) return false;
+    const ds = this.record.mealDishes;
+    const d = Array.isArray(ds) ? (ds[i]?.name===old ? ds[i] : ds.find(x=>x.name===old)) : null;
+    if (p.name === old && !p.codes.length) return false;
+    items[i] = p.name;
+    this.record.mealText = items.join('\n');
+    if (d) { d.name = p.name; if (p.codes.length) d.codes = p.codes; }
+    this.renderMeal(); this.autoSaveDraft();
+    return true;
   },
 
   // ── 급식 그림: 메뉴 이름별로 저장해 다음에 같은 메뉴가 나오면 자동으로 보여줌 ──
@@ -2667,47 +2828,60 @@ const App = {
         if (r.items?.[0]) { this.setMealImage(n, {src:r.items[0].thumb, full:r.items[0].link, auto:true}); added++; }
       }
     } finally { this._autoImgBusy = false; }
-    if (added && document.querySelector('#mm-body .meal-dishes')) this.showMealDishes();
+    // 선생님이 이름을 고치는 중이면 입력을 방해하지 않도록 새로 그리지 않음 (다음에 그릴 때 그림이 보임)
+    if (added && document.querySelector('#mm-body .meal-list') && !document.activeElement?.classList.contains('ml-name-input')) this.showMealDishes(true);
   },
-  // 그림 설정 화면 (모달 안에서 전환): 그림 찾기 → 후보 선택 / 내 파일 / 그림 없애기
-  openDishPicture(name) {
-    const b = document.getElementById('mm-body'); if (!b) return;
+  // 그림 다시 찾기: 급식 창 위에 작은 창을 띄워 검색 후보(최대 6개) 중에서 고름 / 내 파일 / 그림 없애기
+  openDishImageSearch(name) {
+    document.getElementById('isub')?.remove();
     const cur = this.mealImages()[this.dishKey(name)]?.src;
-    b.innerHTML = `<div class="dp-pic">
-      <div class="dp-head">
-        <div class="dp-title">🖼️ 그림 설정 — ${esc(name)}</div>
-        <button class="dp-back" id="dp-back">설정 닫기</button>
+    const el = document.createElement('div');
+    el.id = 'isub'; el.className = 'isub';
+    el.innerHTML = `<div class="isub-card" role="dialog" aria-modal="true" aria-label="그림 다시 찾기">
+      <div class="isub-head">
+        <div class="isub-title">🔍 그림 다시 찾기 — ${esc(name)}</div>
+        <button class="popup-close" id="isub-x" aria-label="닫기">✕</button>
       </div>
       <div class="dp-search">
-        <input id="dp-q" value="${esc(name)}" placeholder="검색어">
-        <button id="dp-find">🔍 그림 찾기</button>
-        <label class="dp-file">📁 내 파일<input type="file" id="dp-file" accept="image/*" hidden></label>
-        ${cur?'<button id="dp-clear" class="dp-clear">그림 없애기</button>':''}
+        <input id="isub-q" value="${esc(name)}" placeholder="검색어" aria-label="검색어">
+        <button id="isub-find">🔍 찾기</button>
+        <label class="dp-file">📁 내 파일<input type="file" id="isub-file" accept="image/*" hidden></label>
+        ${cur?'<button id="isub-clear" class="dp-clear">그림 없애기</button>':''}
       </div>
-      <div class="dp-tip">💡 원하는 이미지가 안 나올 경우 <b>검색어를 단순화</b>해 보세요. <span class="dp-ex">예: 코코넛대왕새우튀김 → <b>새우튀김</b></span></div>
-      <div class="dp-cands" id="dp-cands"></div>
+      <div class="isub-tip">
+        <div class="t">💡 원하는 그림이 안 나오면 <b>검색어를 단순화</b>해 보세요</div>
+        <div class="ex"><span class="from">코코넛대왕새우튀김</span><span class="arrow">→</span><span class="to">새우튀김</span></div>
+      </div>
+      <div class="dp-cands isub-cands" id="isub-cands"></div>
     </div>`;
-    const back = ()=> this.showMealDishes();
-    document.getElementById('dp-back').onclick = back;
-    const clr = document.getElementById('dp-clear');
+    document.body.appendChild(el);
+    // Esc는 이 작은 창만 닫고 급식 창은 그대로 둠
+    const onKey = e=>{ if (e.key==='Escape') { e.preventDefault(); e.stopPropagation(); back(); } };
+    const back = ()=>{ window.removeEventListener('keydown', onKey, true); el.remove(); this.showMealDishes(true); };
+    window.addEventListener('keydown', onKey, true);
+    el.onclick = e=>{ if (e.target === el) back(); };
+    document.getElementById('isub-x').onclick = back;
+    const clr = document.getElementById('isub-clear');
     if (clr) clr.onclick = ()=>{ this.setMealImage(name, {src:'', none:true}); this.toast('그림을 없앴어요','success'); back(); };
     const find = async ()=>{
-      const q = document.getElementById('dp-q').value.trim() || name;
-      const box = document.getElementById('dp-cands');
+      const q = document.getElementById('isub-q').value.trim() || name;
+      const box = document.getElementById('isub-cands');
       box.innerHTML = '<div class="card-hint">🔍 찾는 중...</div>';
       const r = await this.searchImages(q);
-      if (!document.getElementById('dp-cands')) return;
-      if (!r.items.length) { box.innerHTML = '<div class="card-hint">검색 결과가 없어요. 검색어를 바꾸거나 📁 내 파일로 넣어 주세요</div>'; return; }
-      box.innerHTML = r.items.map((it,i)=>`<button class="dp-cand" data-i="${i}"><span class="dp-thumb"><img src="${esc(it.thumb)}" alt="" referrerpolicy="no-referrer" loading="lazy"></span><span>후보 ${i+1} 선택</span></button>`).join('')
+      if (!document.getElementById('isub-cands')) return;
+      const items = r.items.slice(0, 6);
+      if (!items.length) { box.innerHTML = '<div class="card-hint">검색 결과가 없어요. 검색어를 바꾸거나 📁 내 파일로 넣어 주세요</div>'; return; }
+      box.innerHTML = items.map((it,i)=>`<button class="dp-cand" data-i="${i}"><span class="dp-thumb"><img src="${esc(it.thumb)}" alt="" referrerpolicy="no-referrer" loading="lazy"></span><span>후보 ${i+1} 선택</span></button>`).join('')
         + (r.src==='commons' ? '<div class="hint" style="grid-column:1/-1">※ 이미지 검색 키가 연결되지 않아 위키미디어 공용 그림에서 찾았어요</div>' : '');
       box.querySelectorAll('.dp-cand').forEach(c=>c.onclick=()=>{
-        this.setMealImage(name, {src:r.items[+c.dataset.i].thumb, full:r.items[+c.dataset.i].link});
+        this.setMealImage(name, {src:items[+c.dataset.i].thumb, full:items[+c.dataset.i].link});
         this.playSound('select'); this.toast(`'${name}' 그림을 저장했어요`,'success'); back();
       });
     };
-    document.getElementById('dp-find').onclick = find;
-    document.getElementById('dp-q').onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); find(); } };
-    document.getElementById('dp-file').onchange = e=>{
+    document.getElementById('isub-find').onclick = find;
+    document.getElementById('isub-q').onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); find(); } };
+    find();                                                        // 열자마자 메뉴 이름으로 후보를 찾아 보여줌
+    document.getElementById('isub-file').onchange = e=>{
       const f = e.target.files?.[0]; if (!f) return;
       const rd = new FileReader();
       rd.onload = ()=>{
@@ -2750,36 +2924,80 @@ const App = {
     if (key) return await this.fetchWithFallback(`https://open.neis.go.kr/hub/${endpoint}?KEY=${encodeURIComponent(key)}&${qs}`);
     throw new Error('neis_unavailable');
   },
-  openManualMeal() {
-    // 불러온 메뉴에 알레르기 번호가 있으면 "메뉴 (1.2.5)" 형태로 함께 보여줌
-    const dishes = this.record.mealDishes;
-    const cur = dishes?.length ? dishes.map(d=>d.codes?.length ? `${d.name} (${d.codes.join('.')})` : d.name).join('\n')
-      : (this.record.mealText || '');
-    this.openPopup('✏️ 급식 직접 입력', `
-      <div class="hint" style="margin-bottom:8px">한 줄에 메뉴 하나씩 적어요. 알레르기 번호는 <b>우유 (2)</b>, <b>쇠고기미역국 (5.6.16)</b>처럼 괄호에 함께 적으면 경고에 쓰여요.</div>
-      <textarea class="notes-textarea" id="meal-input" placeholder="예: 백미밥&#10;쇠고기미역국 (5.6.16)&#10;우유 (2)">${esc(cur)}</textarea>
-      <div class="popup-actions">
-        <button class="btn-cancel" id="mm-cancel">취소</button>
-        <button class="btn-save" id="mm-save">💾 저장</button>
-      </div>`, {onMount:()=>{
-        document.getElementById('mm-cancel').onclick=()=>this.openMeal();   // 급식 모달로 돌아감
-        document.getElementById('mm-save').onclick=()=>{
-          const parsed = document.getElementById('meal-input').value.split('\n').map(x=>this.parseDish(x)).filter(d=>d.name);
-          this.record.mealText = parsed.map(d=>d.name).join('\n');
-          this.record.mealDishes = parsed.length ? parsed : null;
-          this.record.mealLoadedAt = new Date().toISOString();
-          this.playSound('save'); this.toast('급식 저장!','success');
-          this.renderMeal(); this.checkComplete(); this.autoSaveDraft();
-          if (this.record.mealText) this.openMeal(); else this.closePopup();
-        };
-      }});
-  },
   // ── 📝 급식 학습지 (A4): 식판+따라쓰기 / 붙임자료 / 동그라미 / 크게 따라쓰기 — 인쇄·PDF ──
   WS_PARTS: [
     ['tray',  '🍽️ 식판 + 따라쓰기'],
     ['cut',   '✂️ 붙임자료 (오려 붙이기)'],
     ['trace', '✏️ 오늘의 메뉴 따라쓰기 (크게)']
   ],
+  // ── 🥗 영양 학습지: 식품구성자전거(보건복지부·한국영양학회) + NEIS 급식 영양 정보 ──
+  NUT_PARTS: [
+    ['bike',   '🚲 식품구성자전거 붙이기'],
+    ['even',   '🔍 오늘 메뉴 자세히 알아봐요'],
+    ['signal', '🚦 오늘의 영양 신호등'],
+    ['energy', '🥧 오늘 식판의 에너지'],
+    ['ncut',   '✂️ 붙임 자료']
+  ],
+  // 식품구성자전거 뒷바퀴 6칸 — 칸 크기는 권장 섭취 비율을 단순화한 것(곡류·채소가 크고 기름·설탕이 가장 작음)
+  NUT_GROUPS: [
+    {k:'grain', name:'곡류',     sub:'밥·빵·국수',  emo:'🍚', frac:.28, fill:'#FDF0D5', ex:'밥, 잡곡밥, 빵, 국수, 떡, 감자, 고구마'},
+    {k:'veg',   name:'채소',     sub:'나물·김치',   emo:'🥕', frac:.24, fill:'#E4F3D8', ex:'김치, 나물, 버섯, 무, 오이, 시금치, 미역'},
+    {k:'meat',  name:'고기·생선', sub:'달걀·콩',     emo:'🐟', frac:.20, fill:'#FBE3DC', ex:'소·돼지·닭고기, 생선, 달걀, 두부, 콩, 만두'},
+    {k:'fruit', name:'과일',     sub:'',           emo:'🍎', frac:.12, fill:'#FCE4EC', ex:'귤, 사과, 배, 포도, 바나나, 딸기, 수박'},
+    {k:'milk',  name:'우유',     sub:'요구르트·치즈', emo:'🥛', frac:.11, fill:'#DDEBFA', ex:'우유, 요구르트, 치즈, 요플레'},
+    {k:'fat',   name:'기름·설탕', sub:'',           emo:'🧈', frac:.05, fill:'#ECEAE4', ex:'식용유, 버터, 마요네즈, 설탕, 꿀'}
+  ],
+  // 학교급식 영양관리기준(학교급식법 시행규칙 별표 3, 2021.1.29 개정) 한 끼 기준 — 남녀 권장섭취량 평균(단백질은 기준량 평균)
+  NUTRI_STD: {
+    e1:{label:'초등 1~3학년', kcal:535, prot:11.7, vitC:16.7, ca:234},
+    e2:{label:'초등 4~6학년', kcal:635, prot:15.9, vitC:23.4, ca:267},
+    m: {label:'중학생',       kcal:755, prot:19.2, vitC:30.0, ca:317},
+    h: {label:'고등학생',     kcal:785, prot:20.1, vitC:33.4, ca:284}
+  },
+  // src: 이 영양소가 많이 든 음식을 메뉴 이름으로 찾는 말 (NEIS는 메뉴별 영양 정보를 주지 않아 이름으로 추정)
+  NUT_KEYS: [
+    {k:'ca',   name:'칼슘',   emo:'🦴', desc:'뼈와 이를 튼튼하게 해요', color:'#3B82F6', unit:'mg',
+      src:/우유|요구르트|요거트|요플레|치즈|멸치|두부|두유|뱅어|잔새우|뼈째/},
+    {k:'prot', name:'단백질', emo:'💪', desc:'근육과 몸을 만들어요',   color:'#F97316', unit:'g',
+      src:/고기|돼지|쇠고기|소고기|닭|오리|제육|불고기|갈비|햄|소시지|베이컨|너겟|까스|가스$|생선|고등어|삼치|꽁치|연어|참치|명태|동태|코다리|조기|갈치|가자미|임연수|오징어|낙지|주꾸미|쭈꾸미|새우|어묵|달걀|계란|메추리알|두부|콩|만두|미트|스테이크|장조림|탕수|치킨|너비아니|함박|떡갈비/},
+    {k:'vitC', name:'비타민C', emo:'🍊', desc:'감기를 이겨내요',       color:'#22C55E', unit:'mg',
+      src:/귤|오렌지|딸기|키위|레몬|자몽|파인애플|망고|토마토|파프리카|피망|브로콜리|양배추|감자|고구마|시금치|풋고추|김치|겉절이|깍두기|한라봉|천혜향|레드향|유자|사과|배$|수박|참외|멜론/}
+  ],
+  // 메뉴 이름 → 식품구성자전거 식품군 {main, also[]} (정답지용 자동 분류 — 선생님 확인 전제)
+  //  · 우리말 음식 이름은 뒤쪽 재료가 중심("베이컨감자채볶음" → 감자)이라, 가장 뒤에 나온 재료의 무리를 정답으로
+  //  · 볶음·튀김(기름), 야채·채소 같은 말은 '함께 인정'에만 씀
+  FOOD_RULES: {
+    grain: /밥|죽|누룽지|국수|냉면|우동|라면|짜장|짬뽕|스파게티|파스타|마카로니|빵|토스트|샌드위치|버거|피자|떡(?!갈비)|감자|고구마|옥수수|묵|시리얼|만두|수제비|또띠아|와플|핫케이크|팬케이크|머핀|베이글|찐빵|호떡|쌀|면|라이스|당면|잡채|김말이|파전|부침개|전병/g,
+    meat:  /고기|돼지|쇠고기|소고기|한우|닭|치킨|오리|제육|불고기|갈비|햄(?!버거)|소시지|소세지|베이컨|너겟|돈가스|돈까스|돈육|등심|안심|목살|삼겹|생선|고등어|삼치|꽁치|연어|참치|명태|동태|코다리|황태|북어|조기|갈치|가자미|임연수|멸치(?!액젓|육수)|오징어|낙지|주꾸미|쭈꾸미|새우(?!젓)|게살|꽃게|조개|바지락|홍합|어묵|맛살|달걀|계란|메추리알|두부|유부|콩(?!나물)|청국장|만두|미트|스테이크|장조림|너비아니|함박|떡갈비|동그랑땡|완자|수육|편육|육개장|보쌈|해물/g,
+    fruit: /과일샐러드|과일사라다|귤|오렌지|사과|배(?![가-힣])|포도|바나나|수박|딸기|키위|레몬|자몽|파인애플|망고|복숭아|자두|참외|멜론|체리|블루베리|방울토마토|과일|홍시|곶감|한라봉|천혜향|레드향|유자|석류|주스|쥬스|과일샐러드|과일사라다/g,
+    milk:  /우유|요구르트|요거트|요플레|치즈|아이스크림|밀크|라떼/g,
+    veg:   /김치|깍두기|총각|겉절이|나물|샐러드|버섯|미역|다시마|^김(?!치|밥|말이)|김구이|김가루|김자반|김무침|파래|톳|잡채|카레|비빔|파전|대파|쪽파|시금치|오이|배추|무채|무국|무생채|무조림|열무|단무지|무말랭이|브로콜리|당근|호박|가지|콩나물|숙주|고사리|도라지|파프리카|피망|양파|상추|쌈|깻잎|부추|연근|우엉|피클|장아찌|토마토|고추|청경채|쑥갓|미나리|냉이|달래|아욱|근대|얼갈이/g,
+    fat:   /마요|버터|과자|케이크|쿠키|초코|사탕|젤리|음료|탄산|사이다|콜라|시럽|도넛|츄러스|꿀|잼|푸딩|크림/g
+  },
+  FOOD_WEAK: {fat:/볶음|튀김|까스|가스|전$|부침|강정|맛탕|탕수|볶이|프라이/, veg:/야채|채소/},
+  foodGroupsOf(name) {
+    const n = String(name).replace(/\s/g,''), order = ['grain','meat','fruit','milk','veg','fat'];
+    const last = {};
+    for (const g of order) for (const m of n.matchAll(this.FOOD_RULES[g])) last[g] = Math.max(last[g] ?? -1, m.index + m[0].length);
+    const hit = order.filter(g=>last[g] != null);
+    const main = hit.sort((a,b)=> last[b]-last[a] || order.indexOf(a)-order.indexOf(b))[0] || null;
+    const also = order.filter(g=> g!==main && (last[g] != null || this.FOOD_WEAK[g]?.test(n)));
+    return {main: main || (also.length ? also.shift() : null), also};
+  },
+  defaultNutriStd() { const lv = this.schoolLevel(); return lv==='high' ? 'h' : lv==='middle' ? 'm' : 'e2'; },
+  // 영양 학습지용 데이터: 오늘 영양 정보 (급식을 불러올 때 저장한 값, 없으면 그날 급식을 다시 조회) — 날짜별로 한 번만
+  async loadNutriData() {
+    const key = this.todayKey, s = this.settings;
+    if (this._wsNut?.key === key && this._wsNut.cid === this.currentClassId) return this._wsNut;
+    const out = {key, cid:this.currentClassId, today:this.record.mealNutri || null};
+    if (!out.today && s?.neisAtptCode && s?.neisSchoolCode) {
+      try {
+        const data = await this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:5, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:key});
+        out.today = this.parseNutri(this.pickLunch(data?.mealServiceDietInfo?.[1]?.row));
+      } catch(e){}
+    }
+    return (this._wsNut = out);
+  },
   // 따라쓰기용 이름: 괄호 안 설명(자율 등)·기호를 빼고 최대 10자
   wsTraceName(n) { return String(n).replace(/\(.*?\)|\[.*?\]|<.*?>/g,'').replace(/https?:\S+/g,'').replace(/[^\p{L}\p{N} ]/gu,'').trim().slice(0,10) || String(n).slice(0,10); },
   // 식판 칸 배정: 밥 → 큰 네모 칸, 국·찌개 → 둥근 칸, 나머지 → 반찬 칸
@@ -2788,8 +3006,10 @@ const App = {
     const items = (this.record.mealText||'').split('\n').map(x=>x.trim()).filter(Boolean);
     if (!items.length) { this.toast('먼저 급식 메뉴를 불러오거나 입력해 주세요','error'); return; }
     const sel = this._wsSel || (this._wsSel = {tray:true, cut:true, trace:true});
+    const nsel = this._wsNSel || (this._wsNSel = {bike:true, even:true, signal:true, energy:true, ncut:true});
     this.openPopup('📝 급식 학습지 만들기', `<div class="ws-modal">
-      <div class="ws-opts">${this.WS_PARTS.map(([k,l])=>`<label class="ws-opt"><input type="checkbox" data-k="${k}" ${sel[k]?'checked':''}> ${l}</label>`).join('')}</div>
+      <div class="ws-tabs" role="tablist"><button data-t="basic" role="tab">📝 기본 학습지</button><button data-t="nutri" role="tab">🥗 영양 학습지</button></div>
+      <div class="ws-opts" id="ws-opts"></div>
       <div class="ws-prev"><div class="meal-loading" id="ws-loading"><div class="spinner">📝</div><div class="text">학습지를 만드는 중... (그림 불러오는 중)</div></div><iframe id="ws-frame" title="학습지 미리보기"></iframe></div>
       <div class="mm-tools">
         <button id="ws-back">← 급식으로</button>
@@ -2799,14 +3019,30 @@ const App = {
         document.getElementById('ws-back').onclick = ()=> this.openMeal();
         const imgs = await this.wsImages(items);
         if (!document.getElementById('ws-frame')) return;           // 기다리는 사이 창을 닫음
-        const render = ()=>{
+        let ndata = null, seq = 0;
+        const render = async ()=>{
           const f = document.getElementById('ws-frame'); if (!f) return;
-          const any = Object.values(sel).some(Boolean);
-          f.srcdoc = this.buildWorksheetHTML(items, imgs, sel);
+          const tab = this._wsTab || 'basic', my = ++seq;
+          if (tab==='nutri' && !ndata) {                             // 영양 정보는 영양 탭을 처음 열 때 한 번 불러옴
+            f.srcdoc = `<body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:90vh;color:#64748b;font-size:18px">🥗 급식 영양 정보를 불러오는 중...</body>`;
+            ndata = await this.loadNutriData();
+            if (my !== seq || !document.getElementById('ws-frame')) return;
+          }
+          const any = tab==='nutri' ? this.NUT_PARTS.some(([k])=>nsel[k]) : Object.values(sel).some(Boolean);
+          f.srcdoc = this.buildWorksheetHTML(items, imgs, tab==='nutri' ? nsel : sel, tab, ndata);
           document.getElementById('ws-print').disabled = document.getElementById('ws-pdf').disabled = !any;
         };
+        // 탭마다 고를 수 있는 쪽이 다름: 기본(식판·붙임·따라쓰기) / 영양(자전거·메뉴 알아보기·신호등·에너지·붙임)
+        const drawOpts = ()=>{
+          const tab = this._wsTab || 'basic';
+          document.querySelectorAll('.ws-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===tab));
+          const cb = (k,l,src)=>`<label class="ws-opt"><input type="checkbox" data-k="${k}" ${src[k]?'checked':''}> ${l}</label>`;
+          document.getElementById('ws-opts').innerHTML = (tab==='basic' ? this.WS_PARTS.map(([k,l])=>cb(k,l,sel)) : this.NUT_PARTS.map(([k,l])=>cb(k,l,nsel))).join('');
+          document.querySelectorAll('#ws-opts input').forEach(c=>c.onchange=()=>{ ((this._wsTab||'basic')==='nutri'?nsel:sel)[c.dataset.k]=c.checked; render(); });
+        };
+        document.querySelectorAll('.ws-tabs button').forEach(b=>b.onclick=()=>{ this._wsTab = b.dataset.t; this.playSound('select'); drawOpts(); render(); });
         document.getElementById('ws-loading')?.remove();
-        document.querySelectorAll('.ws-opt input').forEach(cb=>cb.onchange=()=>{ sel[cb.dataset.k]=cb.checked; render(); });
+        drawOpts();
         document.getElementById('ws-print').onclick = async ()=>{       // 점선체 글꼴이 다 받아진 뒤 인쇄
           const w=document.getElementById('ws-frame').contentWindow;
           try { await w.document.fonts.ready; } catch(e){}
@@ -2815,6 +3051,128 @@ const App = {
         document.getElementById('ws-pdf').onclick = ()=> this.worksheetPDF();
         render();
       }});
+  },
+  // 영양 학습지 쪽들 — 그림(SVG)은 PDF 저장(html2canvas)에서도 그대로 나오도록 도형으로 그림
+  nutriPages(items, imgs, nsel, nd, H) {
+    const {head, pic, E, cells} = H, pages = [];
+    const std = this.NUTRI_STD[this.defaultNutriStd()];               // 학급의 학교급(초·중·고)에 맞는 기준
+    const n = nd?.today;
+    const noData = msg=>`<div class="nodata">📡 ${msg}<br><small>설정에서 학교를 등록하고, 급식을 불러온 날에 만들어 주세요</small></div>`;
+    const T = Math.PI*2;
+    const f1 = v=> (Math.round(v*10)/10).toString();
+
+    // 1) 식품구성자전거 붙이기 — 작은 뒷바퀴(6칸) + 바깥쪽에 같은 색의 흐린 띠(붙이는 자리) + 물 앞바퀴
+    if (nsel.bike) {
+      const cx=100, cy=100, R=42, RO=96, pt=(a,r)=>[cx+r*Math.sin(a*T), cy-r*Math.cos(a*T)];
+      const f2 = v=>v.toFixed(2);
+      let a=0, band='', secs='', labels='';
+      for (const g of this.NUT_GROUPS) {
+        const a0=a, a1=a+g.frac, big = g.frac>.5?1:0; a=a1;
+        const [x0,y0]=pt(a0,R), [x1,y1]=pt(a1,R), [o0x,o0y]=pt(a0,RO), [o1x,o1y]=pt(a1,RO);
+        // 바깥 띠: 안쪽 바퀴와 같은 각도의 고리 조각을 흐리게 칠하고 점선 테두리 → "여기에 붙이면 돼요"
+        band += `<path d="M${f2(o0x)},${f2(o0y)} A${RO},${RO} 0 ${big} 1 ${f2(o1x)},${f2(o1y)} L${f2(x1)},${f2(y1)} A${R},${R} 0 ${big} 0 ${f2(x0)},${f2(y0)} Z" fill="${g.fill}" fill-opacity=".55" stroke="#9aa3b0" stroke-width=".5" stroke-dasharray="2 1.6"/>`;
+        secs += `<path d="M${cx},${cy} L${f2(x0)},${f2(y0)} A${R},${R} 0 ${big} 1 ${f2(x1)},${f2(y1)} Z" fill="${g.fill}" stroke="#374151" stroke-width=".7"/>`;
+        const small = g.frac < .08, [lx,ly] = pt((a0+a1)/2, small ? R+7 : R*.62);
+        labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-family="Noto Sans KR" fill="#111">
+          <tspan x="${lx.toFixed(1)}" font-size="${small?3.6:5}" font-weight="900">${g.emo} ${E(g.name)}</tspan>
+          ${g.sub && !small ? `<tspan x="${lx.toFixed(1)}" dy="5" font-size="3.4" font-weight="700" fill="#6b7280">${E(g.sub)}</tspan>` : ''}</text>`;
+      }
+      pages.push(`<section class="page">${head('🚲 식품구성자전거 붙이기', '붙임 자료의 음식을 오려서, 바퀴 바깥의 같은 색 흐린 칸에 붙여요.')}
+        <svg class="bike" viewBox="0 0 250 200" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="${cx},${cy} 208,44 226,162" fill="none" stroke="#64748b" stroke-width="2.6" stroke-linejoin="round"/>
+          <line x1="199" y1="41" x2="217" y2="37" stroke="#374151" stroke-width="3.2" stroke-linecap="round"/>
+          ${band}${secs}<circle cx="${cx}" cy="${cy}" r="5" fill="#fff" stroke="#374151" stroke-width=".8"/>${labels}
+          <circle cx="226" cy="162" r="21" fill="#DBEAFE" stroke="#374151" stroke-width=".9"/>
+          <text x="226" y="161" text-anchor="middle" font-family="Noto Sans KR" font-size="6" font-weight="900" fill="#1e3a8a">💧 물</text>
+          <text x="226" y="168" text-anchor="middle" font-family="Noto Sans KR" font-size="3.4" font-weight="700" fill="#1e40af">충분히 마셔요</text>
+        </svg>
+        <div class="foot">※ 칸이 클수록 자주, 많이 먹어요. 여러 칸에 들어가는 음식(예: 비빔밥)은 이유를 말하면 어느 칸이든 좋아요.
+          식품구성자전거(보건복지부·한국영양학회)를 단순화한 그림이에요.</div>
+        <div class="chk bfoot"><div class="chk-t">✅ 붙인 음식에 ✓ 해요</div>
+          <div class="chk-g">${items.map(x=>`<span><i></i>${E(x)}</span>`).join('')}</div></div>
+      </section>`);
+    }
+    // 2) 오늘 메뉴 자세히 알아봐요 — 위쪽 보기(6가지 식품군과 예시 음식)를 보고, 메뉴마다 어느 식품군인지 ○
+    if (nsel.even) {
+      const bogi = `<div class="bogi"><div class="bogi-t">📖 보기 — 식품구성자전거 6가지 식품군</div>
+        <div class="bogi-g">${this.NUT_GROUPS.map(g=>`<div class="bg" style="background:${g.fill}"><b>${g.emo} ${E(g.name)}</b><span>${E(g.ex)}</span></div>`).join('')}</div></div>`;
+      const row = (x,i)=>`<div class="mrow"><span class="mno">${i+1}</span><div class="mpic">${pic(x)}</div><div class="mname">${E(x)}</div>
+        <div class="mgrp">${this.NUT_GROUPS.map(g=>`<span>${g.emo}<small>${E(g.name)}</small></span>`).join('')}</div></div>`;
+      const per = Math.ceil(items.length / Math.ceil(items.length/9));   // 한 장에 9개까지, 넘치면 장마다 고르게
+      for (let p=0; p<items.length; p+=per) {
+        pages.push(`<section class="page">${head('🔍 오늘 메뉴 자세히 알아봐요', `보기를 보고, 메뉴마다 어느 식품군인지 ○ 해요. 여러 개여도 좋아요.${items.length>per?` (${p/per+1}/${Math.ceil(items.length/per)})`:''}`)}
+          ${bogi}${items.slice(p, p+per).map((x,i)=>row(x, p+i)).join('')}
+        </section>`);
+      }
+    }
+    // 3) 오늘의 영양 신호등 — 기준(한 끼) 대비 구슬 5개(4개 = 기준만큼), 표정은 학생이 고름
+    if (nsel.signal) {
+      pages.push(`<section class="page">${head('🚦 오늘의 영양 신호등','오늘 점심에 들어 있는 만큼 구슬이 색칠돼 있어요. 알맞은 표정에 ○ 해요.')}
+        ${!n ? noData('오늘 급식의 영양 정보를 불러오지 못했어요') : this.NUT_KEYS.map(k=>{
+          const v = n[k.k], ratio = v != null ? v / std[k.k] : 0, on = Math.max(0, Math.min(5, Math.round(ratio*4)));
+          const foods = items.filter(x=>k.src.test(x)).slice(0,3);   // 이 영양소가 많이 든 오늘 메뉴 (이름으로 추정)
+          return `<div class="srow"><div class="shd"><span>${k.emo} ${k.name}</span><small>${v!=null?`${f1(v)}${k.unit} · 기준의 ${Math.round(ratio*100)}%`:'정보 없음'}</small></div>
+            <div class="sdesc">${k.desc}</div>
+            <div class="sbody"><div class="marbles">${Array.from({length:5},(_,i)=>`<span class="mb ${i<on?'on':''}" style="--c:${k.color}"></span>`).join('')}</div>
+              <div class="faces"><div><span class="f">😊</span>넉넉해요</div><div><span class="f">🙂</span>조금 모자라요</div><div><span class="f">😟</span>부족해요</div></div></div>
+            <div class="sfood"><span class="sft">이 음식에 많이 들어 있어요</span>${foods.length
+              ? foods.map(x=>`<span class="sf">${pic(x)}<b>${E(x)}</b></span>`).join('')
+              : '<span class="sfn">오늘 메뉴에서 찾아보세요</span>'}</div></div>`; }).join('')}
+        ${n ? `<div class="src">오늘 점심 ${n.kcal?Math.round(n.kcal)+'kcal · ':''}구슬 4개 = 한 끼 기준만큼 (${E(std.label)}, 학교급식 영양관리기준 · 학교급식법 시행규칙 별표 3) · 음식은 메뉴 이름으로 고른 예시예요</div>` : ''}
+      </section>`);
+    }
+    // 4) 오늘 식판의 에너지 — 탄수화물·단백질·지방을 에너지(1g당 4·4·9kcal)로 바꾼 원그래프
+    if (nsel.energy) {
+      let body = noData('오늘 급식의 영양 정보를 불러오지 못했어요');
+      if (n && n.carb != null && n.prot != null && n.fat != null) {
+        // 영양소마다 오늘 메뉴 중 해당 식품군이 든 음식을 함께 보여줌 (식품군 자동 분류 사용)
+        const grp = items.map(x=>{ const r=this.foodGroupsOf(x); return {x, all:[r.main, ...r.also]}; });
+        const menusOf = ks => grp.filter(g=>g.all.some(k=>ks.includes(k))).map(g=>g.x);
+        const parts = [
+          {name:'탄수화물', kcal:n.carb*4, color:'#F59E0B', desc:'힘을 내요',             menus:menusOf(['grain'])},
+          {name:'단백질',   kcal:n.prot*4, color:'#F97316', desc:'몸을 만들어요',         menus:menusOf(['meat','milk'])},
+          {name:'지방',     kcal:n.fat*9,  color:'#A8A29E', desc:'힘을 내요, 조금만',     menus:menusOf(['fat'])}];
+        const tot = parts.reduce((s,p)=>s+p.kcal,0) || 1;
+        let a=0; const c=55, r=50, pt=(t,rr)=>[c+rr*Math.sin(t*T), c-rr*Math.cos(t*T)];
+        // 조각마다 영양소 이름을 점선체로 따라 쓰는 칸을 얹음 (작은 조각은 원 바깥에)
+        let labs = '';
+        const sl = parts.map(p=>{ const fr=p.kcal/tot, a0=a, a1=a+fr; a=a1; p.pct=Math.round(fr*100);
+          const [x0,y0]=pt(a0,r), [x1,y1]=pt(a1,r), [lx,ly]=pt((a0+a1)/2, fr<.1 ? r*1.3 : r*.6);
+          labs += `<div class="plab" style="left:${(lx/110*100).toFixed(1)}%;top:${(ly/110*100).toFixed(1)}%">${cells(p.name, p.name.length, 11.7, 'dot')}<b>${p.pct}%</b></div>`;
+          return `<path d="M${c},${c} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${fr>.5?1:0} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${p.color}" stroke="#fff" stroke-width="1"/>`; }).join('');
+        body = `<div class="piebox"><svg class="pie" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">${sl}</svg>${labs}</div>
+          <div class="leg">${parts.map(p=>`<div><i style="background:${p.color}"></i><span class="lgn">${p.name} ${p.pct}%</span><span class="lgd"><small>${p.desc}</small>
+            <em>🍽️ ${p.menus.length ? p.menus.slice(0,4).map(E).join(' · ') + (p.menus.length>4?' 등':'') : (p.name==='지방' ? '볶음·튀김에 쓰는 기름' : '오늘 메뉴에서 찾아보세요')}</em></span></div>`).join('')}</div>
+          <div class="q2">✏️ 가장 큰 에너지에 ○ 해요</div>
+          <div class="choices">${parts.map(p=>`<div class="ch"><span class="chc" style="background:${p.color}"></span><b>${p.name}</b><span class="cho"></span></div>`).join('')}</div>
+          <div class="src">탄수화물 ${f1(n.carb)}g · 단백질 ${f1(n.prot)}g · 지방 ${f1(n.fat)}g을 에너지로 바꿔 계산 (1g당 4·4·9kcal)${n.kcal?` · 오늘 점심 ${Math.round(n.kcal)}kcal`:''}</div>`;
+      }
+      pages.push(`<section class="page">${head('🥧 오늘 식판의 에너지','원그래프의 점선 글자를 따라 쓰고, 가장 큰 에너지에 ○ 해요.')}${body}</section>`);
+    }
+    // 5) 붙임 자료 — 오늘 메뉴 그림 카드 (자전거 칸에 붙이기 좋은 같은 크기)
+    if (nsel.ncut) {
+      // 아래쪽에 오늘 급식 기준 정답지(선생님용) — 한 쪽 안에 들어가게 메뉴가 많으면 두 줄로
+      const G = Object.fromEntries(this.NUT_GROUPS.map(g=>[g.k, g]));
+      const gname = k=> G[k] ? `${G[k].emo} ${E(G[k].name)}` : '';
+      const key = items.map((x,i)=>{ const r = this.foodGroupsOf(x);
+        return `<div class="ak"><span class="akn">${i+1}</span><b class="akx">${E(x)}</b><span class="akm">${r.main ? gname(r.main) : '직접 확인'}</span>${r.also.length ? `<span class="aka">+ ${r.also.map(gname).join(', ')}</span>` : ''}</div>`; }).join('');
+      pages.push(`<section class="page">${head('✂️ 붙임 자료','점선을 따라 오려서 식품구성자전거의 알맞은 칸에 붙여요.')}
+        <div class="cuts">${items.map(x=>`<div class="cut ncut">${pic(x)}<span class="cname">${E(x)}</span></div>`).join('')}</div>
+      </section>`);
+      // 선생님용 정답지 (따로 한 장) — 식품군 정답 + 가장 큰 에너지
+      let energyAns = '';
+      if (n && n.carb != null && n.prot != null && n.fat != null) {
+        const en = [['탄수화물', n.carb*4], ['단백질', n.prot*4], ['지방', n.fat*9]], tot = en.reduce((s,e)=>s+e[1],0) || 1;
+        const top = en.slice().sort((x,y)=>y[1]-x[1])[0];
+        energyAns = `<div class="akey-sec">🥧 오늘 식판의 에너지 — 가장 큰 에너지: <b>${top[0]}</b> <small>(${en.map(e=>`${e[0]} ${Math.round(e[1]/tot*100)}%`).join(' · ')})</small></div>`;
+      }
+      pages.push(`<section class="page teacher">${head('🔑 정답지 (선생님용)','오늘 급식 기준 · 메뉴 이름으로 자동 분류한 예시예요. 수업 전에 한 번 확인해 주세요.')}
+        <div class="akey-sec">🚲 식품구성자전거 · 🔍 오늘 메뉴 자세히 알아봐요 — 메뉴별 식품군 <small><b>+</b>는 함께 인정할 답</small></div>
+        <div class="akey-g">${key}</div>
+        ${energyAns}
+      </section>`);
+    }
+    return pages;
   },
   // 메뉴별 그림을 data URL로 준비 (서버 경유로 받아 PDF에도 그림이 들어가게). 실패하면 원래 주소, 없으면 null
   async wsImages(items) {
@@ -2843,7 +3201,7 @@ const App = {
     }));
     return out;
   },
-  buildWorksheetHTML(items, imgs, sel) {
+  buildWorksheetHTML(items, imgs, sel, mode, ndata) {
     const d = this.selectedDate, dn = ['일','월','화','수','목','금','토'][d.getDay()];
     const dateStr = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${dn}요일`;
     const E = s=>esc(s);
@@ -2852,6 +3210,8 @@ const App = {
     const cells = (text, len, size, mode)=>`<div class="cells" style="--c:${size.toFixed(1)}mm">${Array.from({length:len},(_,i)=>{
       const ch = mode==='blank' ? '' : (text[i]||''); return `<span class="cell ${mode}">${ch===' '?'':E(ch)}</span>`; }).join('')}</div>`;
     const pages = [];
+    if (mode === 'nutri') pages.push(...this.nutriPages(items, imgs, sel, ndata, {head, pic, E, cells}));
+    else {
 
     // 1) 식판 + 따라쓰기: A4 위쪽 절반에 식판, 아래에 메뉴마다 검정 글자 → 점선 글자 → 빈칸.
     //    칸은 크게(13mm) 유지하고, 1쪽에 다 안 들어가면 다음 쪽으로 이어서 씀
@@ -2898,6 +3258,7 @@ const App = {
         </section>`);
       }
     }
+    }   // 기본 학습지 끝
     if (!pages.length) pages.push(`<section class="page"><div class="empty">위에서 만들 학습지를 하나 이상 골라 주세요</div></section>`);
     return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
@@ -2951,6 +3312,77 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
 .blk.c .bimg img,.blk.c .bimg .noimg{width:31mm;height:31mm}
 .blk.c .brows{gap:2mm}
 .empty{margin:auto;font-size:14pt;color:#888;font-weight:700}
+/* ── 영양 학습지 ── */
+.bike{width:100%;height:auto;display:block;margin:0 0 2mm}
+.bogi{border:.5mm solid #374151;border-radius:3mm;padding:3mm 4mm;margin-bottom:4mm;flex:none}
+.bogi-t{font-size:12pt;font-weight:900;margin-bottom:2mm}
+.bogi-g{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm}
+.bg{border-radius:2mm;padding:2mm 3mm;display:flex;flex-direction:column;gap:.5mm}
+.bg b{font-size:11.5pt;font-weight:900}
+.bg span{font-size:8.5pt;color:#374151;font-weight:500;line-height:1.35}
+.mrow{display:flex;align-items:center;gap:3mm;border:.35mm solid #9aa3b0;border-radius:3mm;padding:1.8mm 3mm;margin-bottom:2.2mm;flex:none}
+.mno{width:6.5mm;height:6.5mm;border-radius:50%;background:#374151;color:#fff;font-size:9pt;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.mpic{width:22mm;height:17mm;flex:none;border-radius:2mm;overflow:hidden}
+.mpic img,.mpic .noimg{width:100%;height:100%;object-fit:cover}
+.mname{width:34mm;flex:none;font-size:11.5pt;font-weight:900;line-height:1.25;word-break:keep-all}
+.mgrp{display:flex;gap:1.6mm;margin-left:auto}
+.mgrp span{width:15mm;height:15mm;border:.4mm solid #9aa3b0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12pt;line-height:1.1}
+.mgrp small{font-size:5.6pt;font-weight:700;color:#374151;white-space:nowrap}
+.sfood{display:flex;align-items:center;gap:2.5mm;margin-top:3mm;padding-top:2.5mm;border-top:.3mm dashed #cbd5e1;flex-wrap:nowrap;overflow:hidden}
+.sft{font-size:9pt;font-weight:700;color:#4b5563;flex:none;width:17mm;line-height:1.25}
+.sf{display:flex;align-items:center;gap:1.8mm;border:.3mm solid #d1d5db;border-radius:2mm;padding:1mm 2mm 1mm 1mm;min-width:0}
+.sf b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf img,.sf .noimg{width:14mm;height:11mm;object-fit:cover;border-radius:1.5mm;font-size:6pt}
+.sf b{font-size:10.5pt;font-weight:900}
+.sfn{font-size:10pt;color:#9ca3af;font-weight:700}
+.piebox{position:relative;width:118mm;margin:4mm auto 6mm}
+.piebox .pie{width:100%;margin:0}
+.plab{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:1mm;background:#fff;border-radius:2mm;padding:1.5mm;box-shadow:0 0 0 .3mm #9aa3b0}
+.plab b{font-size:10pt;font-weight:900;color:#374151}
+.srow{border:.35mm solid #9aa3b0;border-radius:3mm;padding:4mm 5mm;margin-bottom:4mm}
+.shd{display:flex;justify-content:space-between;align-items:baseline;font-size:17pt;font-weight:900}
+.shd small{font-size:10pt;color:#6b7280;font-weight:500}
+.sdesc{font-size:11.5pt;color:#4b5563;margin:1mm 0 3mm;font-weight:500}
+.sbody{display:flex;align-items:center;gap:6mm}
+.marbles{display:flex;gap:2.5mm}
+.mb{width:12mm;height:12mm;border-radius:50%;border:.6mm solid var(--c)}
+.mb.on{background:var(--c)}
+.faces{margin-left:auto;display:flex;gap:4mm;text-align:center;font-size:8.5pt;color:#374151;font-weight:700}
+.faces div{display:flex;flex-direction:column;align-items:center;gap:1.2mm}
+.faces .f{font-size:19pt;width:15mm;height:15mm;border:.35mm dashed #9ca3af;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.pie{width:105mm;display:block;margin:4mm auto 6mm}
+.leg{display:flex;flex-direction:column;gap:3.5mm;margin:0 auto 7mm;width:fit-content}
+.leg div{display:flex;align-items:flex-start;gap:3mm;font-size:14pt;font-weight:900}
+.leg i{width:7mm;height:7mm;border-radius:1.5mm;display:inline-block;flex:none;margin-top:.8mm}
+.leg .lgn{width:36mm;flex:none}
+.leg .lgd{display:flex;flex-direction:column;gap:.8mm}
+.leg small{font-weight:500;color:#4b5563;font-size:11pt}
+.leg em{font-style:normal;font-weight:700;color:#111;font-size:11pt;line-height:1.35;max-width:115mm}
+.q2{text-align:center;font-size:14pt;font-weight:900;margin-bottom:4mm}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+.ch{border:.5mm solid #374151;border-radius:4mm;padding:4mm 3mm;display:flex;flex-direction:column;align-items:center;gap:3mm}
+.chc{width:100%;height:7mm;border-radius:2mm}
+.ch b{font-size:17pt;font-weight:900}
+.cho{width:20mm;height:20mm;border:.5mm dashed #9aa3b0;border-radius:50%}
+.src{font-size:8.5pt;color:#6b7280;margin-top:auto;padding-top:3mm;line-height:1.5}
+.cut.ncut{width:30mm;height:36mm}
+.akey-sec{font-size:13pt;font-weight:900;margin:3mm 0 3mm;display:flex;align-items:baseline;gap:3mm;flex-wrap:wrap}
+.akey-sec small{font-size:9.5pt;color:#6b7280;font-weight:500}
+.akey-g{display:grid;grid-template-columns:1fr;gap:1.5mm;margin-bottom:6mm}
+.ak{display:flex;align-items:center;gap:3mm;font-size:12pt;border-bottom:.25mm solid #e5e7eb;padding:1.8mm 0}
+.akn{width:6mm;height:6mm;border-radius:50%;background:#374151;color:#fff;font-size:8.5pt;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.akx{font-weight:900;width:58mm;flex:none}
+.akm{font-weight:900;color:#111}
+.aka{color:#6b7280;font-weight:500;font-size:10.5pt}
+.teacher .hd{border-bottom-color:#b45309}
+.bfoot{margin-top:auto}
+.chk{border:.35mm solid #9aa3b0;border-radius:3mm;padding:4mm 5mm}
+.chk-t{font-size:13pt;font-weight:900;margin-bottom:3mm}
+.chk-g{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm 6mm}
+.chk-g span{display:flex;align-items:center;gap:2.5mm;font-size:12.5pt;font-weight:700}
+.chk-g i{width:6.5mm;height:6.5mm;border:.45mm solid #333;border-radius:1mm;flex:none}
+.nodata{margin:auto;text-align:center;font-size:14pt;color:#6b7280;font-weight:700;line-height:1.7}
+.nodata small{font-size:10pt;font-weight:500}
 </style></head><body>${pages.join('')}</body></html>`;
   },
   // PDF 저장: 미리보기의 각 A4 쪽을 그림으로 떠서 PDF 한 파일로 (html2canvas + jsPDF)
@@ -2974,7 +3406,7 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
         pdf.addImage(cv.toDataURL('image/jpeg', .92), 'JPEG', 0, 0, 210, 297);
       }
       const d = this.selectedDate;
-      pdf.save(`급식학습지_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.pdf`);
+      pdf.save(`${this._wsTab==='nutri'?'영양학습지':'급식학습지'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.pdf`);
       this.toast('PDF를 저장했어요 📄','success');
     } catch(e) {
       this.toast('PDF를 만들지 못했어요. 🖨️ 인쇄에서 "PDF로 저장"을 골라 주세요','error');
@@ -3961,9 +4393,9 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
         if (!s.neisAtptCode || !s.neisSchoolCode) { r.textContent='먼저 학교를 검색해 선택해 주세요'; return; }
         r.textContent='조회 중...';
         try {
-          const data = await this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:1, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey});
+          const data = await this.neisRequest('mealServiceDietInfo', {pIndex:1, pSize:5, ATPT_OFCDC_SC_CODE:s.neisAtptCode, SD_SCHUL_CODE:s.neisSchoolCode, MLSV_YMD:this.todayKey});
           if (data?.mealServiceDietInfo) {
-            r.textContent = '✅ 성공!\n' + (data.mealServiceDietInfo[1].row[0].DDISH_NM||'').replace(/<br\/>/g,'\n');
+            r.textContent = '✅ 성공!\n' + (this.pickLunch(data.mealServiceDietInfo[1].row)?.DDISH_NM||'').replace(/<br\/>/g,'\n');
           } else r.textContent = '⚠️ 데이터 없음 (오늘 급식이 없거나 코드 오류)';
         } catch(e){ r.textContent='❌ 호출 실패'; }
       };
