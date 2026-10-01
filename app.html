@@ -975,18 +975,6 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .wl-card b{font-size:clamp(17px,1.6vw,21px);font-weight:var(--fw-title)}
 .wl-card small{font-size:14px;color:var(--text-sub);line-height:1.5}
 .wl-note{margin-top:16px;font-size:13px;color:var(--text-sub)}
-.welcome .wl-quiet{display:block;margin:10px auto 0;padding:2px 6px;background:none;border:none;border-radius:0;box-shadow:none;font-size:11px;font-weight:400;color:#a8b2c4;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
-.welcome .wl-quiet:hover{color:var(--text-sub);background:none;transform:none}
-.roster-modal{display:flex;flex-direction:column;gap:14px;min-width:min(380px,80vw)}
-.roster-modal label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:var(--fw-label);color:var(--text-sub)}
-.roster-modal select,.roster-modal input{padding:11px 12px;border:2px solid #c9d5ea;border-radius:10px;background:#F6F9FF;font-size:16px;font-family:inherit;color:var(--text)}
-.roster-modal select:focus,.roster-modal input:focus{outline:none;border-color:var(--primary);background:#fff}
-.rm-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px}
-.rm-msg{min-height:20px;font-size:14px;color:var(--danger);text-align:center}
-.rm-btns{display:flex;gap:10px}
-.roster-modal .rm-btns button{flex:1;padding:12px;border-radius:12px;font-size:16px;font-weight:var(--fw-label);cursor:pointer}
-.roster-modal .rm-go{background:var(--primary);color:#fff;border:none}.roster-modal .rm-go:disabled{opacity:.6}
-.roster-modal .rm-ghost{background:#fff;border:1.5px solid #d6dde8;color:var(--text-sub)}
 @media (max-width:520px){.wl-choices{grid-template-columns:1fr}}
 
 @media(prefers-reduced-motion:reduce){
@@ -5314,72 +5302,10 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
           <button class="wl-card demo" id="welcome-demo"><span class="wl-ico">🧭</span><b>체험학급으로 둘러보기</b><small>${esc(d.schoolName)} ${esc(d.className)} · 학생 ${d.students.length}명<br>바로 써 볼 수 있어요</small></button>
         </div>
         <div class="wl-note">체험학급은 나중에 ⚙️ 설정에서 학급을 추가한 뒤 삭제할 수 있어요.</div>
-        <button class="wl-quiet" id="welcome-roster">강릉오성학교 학급 불러오기</button>
       </div>`, {onMount:()=>{
-        document.getElementById('welcome-roster').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openRosterLoad(), 200); };
         document.getElementById('welcome-mine').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openSettings(), 200); };
         document.getElementById('welcome-demo').onclick = ()=> this.startDemoClass();
       }});
-  },
-  // 우리 학교(강릉오성학교) 학급 불러오기: 과정·학년·반을 고르고 비밀번호가 맞으면 서버(/api/roster)가 그 학급 명단을 내려줌
-  ROSTER_SCHOOL: { schoolName:'강릉오성학교', neisAtptCode:'K10', neisSchoolCode:'7801212' },
-  ROSTER_LEVELS: [['초등','elem','초등'],['중학','middle','중학'],['고등','high','고등'],['전공','high','전공과']],
-  openRosterLoad() {
-    const opt = (n,suf)=>Array.from({length:n},(_,i)=>`<option value="${i+1}">${i+1}${suf}</option>`).join('');
-    const html = `<div class="roster-modal">
-      <div class="rm-row">
-        <label>과정<select id="rm-level">${this.ROSTER_LEVELS.map(l=>`<option value="${l[0]}">${l[2]}</option>`).join('')}</select></label>
-        <label>학년<select id="rm-grade">${opt(6,'학년')}</select></label>
-        <label>반<select id="rm-cls">${opt(4,'반')}</select></label>
-      </div>
-      <label class="rm-pin">비밀번호<input id="rm-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="비밀번호"></label>
-      <div class="rm-msg" id="rm-msg" role="status"></div>
-      <div class="rm-btns"><button id="rm-back" class="rm-ghost">← 처음으로</button><button id="rm-go" class="rm-go">불러오기</button></div>
-    </div>`;
-    this.openPopup('🏫 우리 학교 학급 불러오기', html, {onMount:()=>{
-      const msg = t=>{ document.getElementById('rm-msg').textContent = t; };
-      document.getElementById('rm-back').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openWelcome(), 200); };
-      const go = async ()=>{
-        const pin = document.getElementById('rm-pin').value.trim();
-        if (!pin) { msg('비밀번호를 입력해 주세요'); return; }
-        const level = document.getElementById('rm-level').value, grade = +document.getElementById('rm-grade').value, cls = +document.getElementById('rm-cls').value;
-        const btn = document.getElementById('rm-go'); btn.disabled = true; msg('확인 중...');
-        try {
-          const r = await fetch('/api/roster', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({level, grade, cls, pin}) });
-          if (r.status===401) { msg('비밀번호가 맞지 않아요'); document.getElementById('rm-pin').select(); }
-          else if (r.status===429) msg('너무 많이 틀렸어요. 잠시 뒤에 다시 해 주세요');
-          else if (r.status===404) msg('그 학급은 명단에 없어요. 과정·학년·반을 확인해 주세요');
-          else if (r.status===503) msg('아직 설정되지 않았어요');
-          else if (!r.ok) msg('불러오지 못했어요. 잠시 뒤에 다시 해 주세요');
-          else { const d = await r.json(); this.startRosterClass(level, grade, cls, d.students||[]); return; }
-        } catch(e){ msg('연결에 실패했어요. 인터넷을 확인해 주세요'); }
-        btn.disabled = false;
-      };
-      document.getElementById('rm-go').onclick = go;
-      document.getElementById('rm-pin').addEventListener('keydown', e=>{ if (e.key==='Enter') { e.preventDefault(); go(); } });
-      document.getElementById('rm-pin').focus();
-    }});
-  },
-  startRosterClass(level, grade, cls, students) {
-    const lv = this.ROSTER_LEVELS.find(l=>l[0]===level) || this.ROSTER_LEVELS[0];
-    const d = { ...this.ROSTER_SCHOOL, className: `${level==='전공'?'전공과 ':''}${grade}학년 ${cls}반`, schoolLevel: lv[1], students: students.slice() };
-    const cur = this.settings;
-    if (cur && !cur.students?.length) Object.assign(cur, d);
-    else {
-      const id = 'c' + Date.now();
-      this.classes.push({ id, ...d, neisKey:'', bookUrl: cur?.bookUrl||'', bookTitle: cur?.bookTitle||'' });
-      this.currentClassId = id;
-      localStorage.setItem('mc_current_class', id);
-      this.applyCurrentClass();
-    }
-    this.persistClasses();
-    this.applyCurrentClass();
-    this.loadRecord();
-    this.renderAll();
-    this.playSound('select');
-    this.closePopup();
-    this.toast(`🏫 ${d.schoolName} ${d.className} 학생 ${students.length}명을 불러왔어요`,'success');
-    setTimeout(()=>this.checkDateGate(), 260);
   },
   // 체험학급 시작: 학생이 없는 현재 학급이면 그 자리에 채우고, 아니면 새 학급으로 추가
   startDemoClass() {
