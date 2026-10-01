@@ -911,6 +911,17 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .welcome h2{font-size:28px;margin-bottom:14px;color:var(--primary)}
 .welcome p{font-size:17px;color:var(--text-sub);margin-bottom:22px;line-height:1.6}
 .welcome button{padding:14px 32px;border-radius:14px;background:var(--primary);color:#fff;font-weight:var(--fw-label);font-size:17px}
+.welcome p{margin-bottom:18px}
+.wl-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.welcome .wl-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;border-radius:20px;background:#F4F8FF;color:var(--text);border:3px solid transparent;font-weight:var(--fw-body);transition:.15s}
+.welcome .wl-card:hover{transform:translateY(-3px);border-color:var(--primary);background:#fff}
+.welcome .wl-card.demo{background:#FFF6EA}
+.welcome .wl-card.demo:hover{border-color:#f97316}
+.wl-ico{font-size:44px;line-height:1}
+.wl-card b{font-size:clamp(17px,1.6vw,21px);font-weight:var(--fw-title)}
+.wl-card small{font-size:14px;color:var(--text-sub);line-height:1.5}
+.wl-note{margin-top:16px;font-size:13px;color:var(--text-sub)}
+@media (max-width:520px){.wl-choices{grid-template-columns:1fr}}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
@@ -5085,15 +5096,48 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     w.document.close(); w.focus(); setTimeout(()=>{ try{w.print();}catch(e){} }, 350);
   },
 
+  // 체험학급 기본값: 이름은 체험학교지만 급식은 강릉오성학교(강원 K10 / 7801212)로 불러옴
+  DEMO_CLASS: {
+    schoolName: '체험학교', className: '4학년 1반', schoolLevel: 'elem',
+    students: ['김안목','김강문','김경포','김순긋','김사천'],
+    neisAtptCode: 'K10', neisSchoolCode: '7801212'
+  },
   openWelcome() {
+    const d = this.DEMO_CLASS;
     this.openPopup('🌅 환영합니다!', `
       <div class="welcome">
         <h2>아침교실에 오신 것을 환영해요!</h2>
-        <p>먼저 학급 정보와 학생을 등록해 주세요.<br>설정은 언제든 ⚙️ 버튼에서 변경할 수 있어요.</p>
-        <button id="welcome-btn">⚙️ 설정 시작하기</button>
+        <p>어떻게 시작할까요?</p>
+        <div class="wl-choices">
+          <button class="wl-card" id="welcome-mine"><span class="wl-ico">🏫</span><b>내 학급 만들기</b><small>학교·학급·학생을<br>직접 등록해요</small></button>
+          <button class="wl-card demo" id="welcome-demo"><span class="wl-ico">🧭</span><b>체험학급으로 둘러보기</b><small>${esc(d.schoolName)} ${esc(d.className)} · 학생 ${d.students.length}명<br>바로 써 볼 수 있어요</small></button>
+        </div>
+        <div class="wl-note">체험학급은 나중에 ⚙️ 설정에서 학급을 추가한 뒤 삭제할 수 있어요.</div>
       </div>`, {onMount:()=>{
-        document.getElementById('welcome-btn').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openSettings(), 200); };
+        document.getElementById('welcome-mine').onclick = ()=>{ this.closePopup(); setTimeout(()=>this.openSettings(), 200); };
+        document.getElementById('welcome-demo').onclick = ()=> this.startDemoClass();
       }});
+  },
+  // 체험학급 시작: 학생이 없는 현재 학급이면 그 자리에 채우고, 아니면 새 학급으로 추가
+  startDemoClass() {
+    const d = JSON.parse(JSON.stringify(this.DEMO_CLASS));
+    const cur = this.settings;
+    if (cur && !cur.students?.length) Object.assign(cur, d, {demo:true});
+    else {
+      const id = 'c' + Date.now();
+      this.classes.push({ id, ...d, demo:true, neisKey:'', bookUrl: cur?.bookUrl||'', bookTitle: cur?.bookTitle||'' });
+      this.currentClassId = id;
+      localStorage.setItem('mc_current_class', id);
+      this.applyCurrentClass();
+    }
+    this.persistClasses();
+    this.applyCurrentClass();
+    this.loadRecord();
+    this.renderAll();
+    this.playSound('select');
+    this.closePopup();
+    this.toast(`🧭 체험학급(${d.schoolName} ${d.className})으로 시작해요`,'success');
+    setTimeout(()=>this.checkDateGate(), 260);
   },
 
   // ════════ 수업교실 ════════
