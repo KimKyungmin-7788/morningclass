@@ -15,7 +15,11 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') { res.status(405).json({ error: 'method' }); return; }
   const PIN = process.env.ROSTER_PIN, RAW = process.env.ROSTER_JSON;
-  if (!PIN || !RAW) { res.status(503).json({ error: 'not_configured' }); return; }
+  if (!PIN || !RAW) {
+    const missing = [!PIN && 'ROSTER_PIN', !RAW && 'ROSTER_JSON'].filter(Boolean);   // 값이 아니라 빠진 이름만 알려줌
+    res.status(503).json({ error: 'not_configured', missing });
+    return;
+  }
 
   const host = req.headers.host, from = req.headers.origin;
   if (from) {
