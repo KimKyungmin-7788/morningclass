@@ -211,7 +211,7 @@ footer .status.done{color:var(--success)}
 .card.w-snow{background:linear-gradient(135deg,#F0F4FA,#FFFFFF)}
 .card.w-cloud{background:linear-gradient(135deg,#F5F5F5,#FFFFFF)}
 /* ── 날씨별 컨셉 카드 ── */
-.card.wxc{position:relative;overflow:hidden;isolation:isolate}
+.card.wxc{position:relative;overflow:hidden;isolation:isolate;container-type:inline-size}
 .card.wxc>*:not(.wx-scene){position:relative;z-index:1}
 .wxc-sunny{background:linear-gradient(160deg,#FFE58A 0%,#FFC76B 55%,#FF9F6B 100%)!important}
 .wxc-partly{background:linear-gradient(170deg,#9FD8FF 0%,#CDEBFF 60%,#FFF3D1 100%)!important}
@@ -221,17 +221,56 @@ footer .status.done{color:var(--success)}
 .wxc-snow{background:linear-gradient(175deg,#DDEEFF 0%,#F2F8FF 60%,#FFFFFF 100%)!important}
 .wxc-rain .v3-title,.wxc-storm .v3-title,.wxc-rain .card-result,.wxc-storm .card-result,.wxc-rain .wxr-inner,.wxc-storm .wxr-inner{color:#fff}
 .wx-result{gap:2px}
-.wx-ico{font-size:clamp(46px,4vw,68px);filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.wx-ico{font-size:clamp(30px,min(24cqw,7vh),68px);filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
 .wxc-sunny .wx-ico,.wxc-sunny .wxr-ico{color:#fff7c2}
 .wxc-partly .wx-ico,.wxc-partly .wxr-ico{color:#f59e0b}
 .wxc-cloudy .wx-ico,.wxc-cloudy .wxr-ico{color:#7c8699}
 .wxc-rain .wx-ico,.wxc-rain .wxr-ico{color:#d6ecff}
 .wxc-storm .wx-ico,.wxc-storm .wxr-ico{color:#fde047}
 .wxc-snow .wx-ico,.wxc-snow .wxr-ico{color:#7cc4ff}
+.wx-temp,.wxr-temp{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 8px;box-sizing:border-box;max-width:100%;background:rgba(255,255,255,.88);color:#1e293b;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.wx-temp{margin-top:6px;padding:4px 8px}
+.wxr-temp{margin-top:6px;padding:8px 22px;border-radius:20px}
+.wxt-name{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:var(--fw-label);color:#64748b}
+.wxr-temp .wxt-name{font-size:16px}
+.wx-temp b{font-size:clamp(20px,11cqw,32px);font-weight:var(--fw-display);line-height:1}
+.wxr-temp b{font-size:clamp(36px,4vw,56px);font-weight:var(--fw-display);line-height:1}
+.wx-feel{font-size:clamp(11px,6.5cqw,13px);font-weight:var(--fw-label);padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.8);color:#334155;white-space:nowrap}
+.wxr-temp .wx-feel{font-size:clamp(16px,1.6vw,22px);padding:4px 14px}
+.wx-feel.cold,.feel-chip.cold{background:#dbeafe;color:#1d4ed8}.wx-feel.cool,.feel-chip.cool{background:#e0f2fe;color:#0369a1}
+.wx-feel.good,.feel-chip.good{background:#dcfce7;color:#15803d}.wx-feel.warm,.feel-chip.warm{background:#fef3c7;color:#b45309}.wx-feel.hot,.feel-chip.hot{background:#fee2e2;color:#b91c1c}
+.choice-item.on{border-color:var(--primary);background:#fff;box-shadow:0 6px 16px rgba(91,182,255,.35);transform:translateY(-2px)}
+.wx-skip{display:block;margin:0 auto;padding:6px 12px;font-size:14px;color:var(--text-sub);text-decoration:underline;background:none}
+.wx-sheet-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;padding:11px;border-radius:14px;background:#FFF7E6;border:2px solid #fcd9a8;color:#b45309;font-weight:var(--fw-label);font-size:16px;transition:.15s}
+.wx-sheet-btn:hover{background:#FFEFCF;transform:translateY(-1px)}
+.wxres-head{text-align:center;font-size:clamp(20px,2vw,26px);font-weight:var(--fw-title);margin-bottom:10px}
+.wxres-head.ok{color:#15803d}.wxres-head.no{color:#b45309}
+.wxres-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.wxres-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 10px;border-radius:20px;background:#F8FAFF;border:4px solid #e2e8f0;text-align:center;overflow:hidden}
+.wxres-card.ok{border-color:#4ade80;background:#f0fdf4}.wxres-card.no{border-color:#f87171;background:#fef2f2}
+.wxres-ct{display:flex;align-items:center;justify-content:center;gap:6px;font-size:clamp(15px,1.5vw,18px);font-weight:var(--fw-title);color:#475569;margin-bottom:2px}
+.wxres-card .em{font-size:clamp(34px,4vw,46px);line-height:1.1}
+.wxres-card .lb{font-size:clamp(17px,1.8vw,22px);font-weight:var(--fw-title)}
+.wxres-card .lb.none{font-size:14px;color:var(--text-sub);font-weight:var(--fw-body);padding:14px 0}
+.wxres-ans{text-align:center;font-size:15px;font-weight:var(--fw-label);color:#fff;background:#6366f1;border-radius:99px;width:max-content;margin:12px auto -14px;padding:3px 18px;position:relative;z-index:2}
+.wx-reveal.sm{min-height:0;padding-top:14px}
+.wx-reveal.sm .wxr-ico{font-size:72px}
+.wx-mark{position:relative;width:44px;height:44px;flex:none;animation:hwPop .5s cubic-bezier(.34,1.56,.64,1)}
+.wx-mark.big{position:absolute;top:8px;right:8px;width:clamp(44px,5vw,60px);height:clamp(44px,5vw,60px);z-index:2}
+.wx-mark.ok::before{content:'';position:absolute;inset:3px;border:7px solid #22c55e;border-radius:50%}
+.wx-mark.no::before,.wx-mark.no::after{content:'';position:absolute;left:2px;right:2px;top:50%;height:7px;margin-top:-3.5px;border-radius:4px;background:#ef4444;transform:rotate(45deg)}
+.wx-mark.no::after{transform:rotate(-45deg)}
+.wxp-sec{border-radius:18px;padding:10px 12px;margin-bottom:12px;background:#F4F8FF}
+.wxp-sec.temp{background:#FFF6EA;border:2px dashed #fcd9a8}
+.wxp-h{display:flex;align-items:center;gap:6px;font-size:17px;font-weight:var(--fw-title);color:#c2410c;margin-bottom:8px}
+.wxp-h.sky{color:#0369a1}.wxp-h small{font-size:13px;font-weight:var(--fw-body);color:var(--text-sub)}
+.wxp-sec .choice-grid{margin-bottom:0}
+.feel-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.feel-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:14px;border:3px solid transparent;cursor:pointer;font-weight:var(--fw-label);font-size:clamp(11px,2.6vw,15px);white-space:nowrap;transition:.15s}
+.feel-chip .em{font-size:clamp(22px,5vw,30px);line-height:1}
+.feel-chip:hover{transform:translateY(-2px)}
+.feel-chip.on{border-color:#f97316;box-shadow:0 4px 12px rgba(249,115,22,.35);transform:translateY(-2px)}
 .wx-title{font-size:13px;font-weight:var(--fw-title);opacity:.85}
-.wx-items{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:4px}
-.wx-items span{font-size:12px;font-weight:var(--fw-label);padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.75);color:#334155;white-space:nowrap}
-.wx-items.big span{font-size:17px;padding:6px 14px}
 /* 움직이는 배경 */
 .wx-scene{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .wx-scene i{position:absolute;display:block}
@@ -1236,6 +1275,15 @@ const WEATHER = [
   {emoji:'☁️',label:'흐림',cls:'w-cloud'},{emoji:'🌧️',label:'비',cls:'w-rain'},
   {emoji:'⛈️',label:'천둥번개',cls:'w-rain'},{emoji:'❄️',label:'눈',cls:'w-snow'}
 ];
+// 기온 → 체감 (등교 기준). max: 이 온도 이하
+const FEEL = [
+  {k:'cold', emoji:'🥶', label:'추워요',    max:8,   say:'따뜻하게 입어요'},
+  {k:'cool', emoji:'🧥', label:'쌀쌀해요',  max:16,  say:'겉옷을 챙겨요'},
+  {k:'good', emoji:'😊', label:'딱 좋아요', max:24,  say:'활동하기 좋아요'},
+  {k:'warm', emoji:'😅', label:'살짝 더워요', max:27, say:'가볍게 입어요'},
+  {k:'hot',  emoji:'🥵', label:'더워요',    max:99,  say:'시원하게 입고 물을 자주 마셔요'}
+];
+const feelFromTemp = t => (t==null||isNaN(t)) ? null : FEEL.find(f=>Math.round(t)<=f.max);
 const DUST = [
   {emoji:'😁',label:'좋음',hint:'마스크 안 써도 돼요',level:0},
   {emoji:'🌿',label:'보통',hint:'평소처럼 활동해요',level:1},
@@ -2014,14 +2062,21 @@ const App = {
 
   // ── 날씨별 컨셉: 색·움직임·한마디·준비물 ──
   WX_THEME: {
-    '맑음':     {k:'sunny',  ph:'ph-sun',             title:'햇살 가득한 날',   say:'햇볕이 쨍쨍 비춰요',                          items:['🧢 모자','💧 물']},
-    '구름조금': {k:'partly', ph:'ph-cloud-sun',       title:'산책하기 좋은 날', say:'해님이 구름이랑 숨바꼭질해요',                  items:['🧥 얇은 겉옷']},
-    '흐림':     {k:'cloudy', ph:'ph-cloud',           title:'포근한 구름 이불', say:'구름이 하늘을 포근하게 덮었어요',               items:['🧥 겉옷']},
-    '비':       {k:'rain',   ph:'ph-cloud-rain',      title:'빗방울 톡톡',      say:'톡톡! 비가 와요. 우산을 챙겨요',                items:['☂️ 우산','🥾 장화']},
-    '천둥번개': {k:'storm',  ph:'ph-cloud-lightning', title:'번쩍 우르릉',      say:'천둥이 쳐요. 교실에서 안전하게 지내요',         items:['🏫 실내 활동']},
-    '눈':       {k:'snow',   ph:'ph-cloud-snow',      title:'하얀 눈나라',      say:'펑펑 눈이 와요! 미끄러지지 않게 조심해요',      items:['🧤 장갑','🧣 목도리']}
+    '맑음':     {k:'sunny',  ph:'ph-sun',             title:'햇살 가득한 날',   say:'햇볕이 쨍쨍 비춰요'},
+    '구름조금': {k:'partly', ph:'ph-cloud-sun',       title:'산책하기 좋은 날', say:'해님이 구름이랑 숨바꼭질해요'},
+    '흐림':     {k:'cloudy', ph:'ph-cloud',           title:'포근한 구름 이불', say:'구름이 하늘을 포근하게 덮었어요'},
+    '비':       {k:'rain',   ph:'ph-cloud-rain',      title:'빗방울 톡톡',      say:'톡톡! 비가 와요. 우산을 챙겨요'},
+    '천둥번개': {k:'storm',  ph:'ph-cloud-lightning', title:'번쩍 우르릉',      say:'천둥이 쳐요. 교실에서 안전하게 지내요'},
+    '눈':       {k:'snow',   ph:'ph-cloud-snow',      title:'하얀 눈나라',      say:'펑펑 눈이 와요! 미끄러지지 않게 조심해요'}
   },
   wxTheme(w) { return this.WX_THEME[w?.label] || this.WX_THEME['맑음']; },
+  wxFeel(w) { return w?.temp!=null ? feelFromTemp(w.temp) : (FEEL.find(f=>f.k===w?.feel) || null); },
+  wxTempHTML(w, cls) {
+    const f = this.wxFeel(w);
+    if (!f) return '';
+    // 날씨와 구분되도록 온도계 아이콘 + "기온" 이름표를 단 별도 패널로 그린다
+    return `<div class="${cls}"><span class="wxt-name"><i class="ph-fill ph-thermometer-simple"></i>기온</span>${w.temp!=null?`<b>${Math.round(w.temp)}°</b>`:''}<span class="wx-feel ${f.k}">${f.emoji} ${f.label}</span></div>`;
+  },
   // 날씨 장면(움직이는 배경) — 카드와 선택 연출에서 함께 사용
   wxSceneHTML(k, big) {
     const n = big ? 1.8 : 1, rnd = (a,b)=> (a + Math.random()*(b-a)).toFixed(2);
@@ -2046,8 +2101,7 @@ const App = {
     const head = `<div class="v3-title"><span class="v3-ico" style="background:#fef3c7;color:#d97706"><i class="ph-fill ph-sun-horizon"></i></span>오늘의 날씨${w?'<span class="v3-check"><i class="ph-bold ph-check"></i></span>':''}</div>`;
     if (w) {
       c.innerHTML = `${this.wxSceneHTML(t.k)}${head}
-        <div class="card-result wx-result"><i class="ph-fill ${t.ph} wx-ico"></i><div class="label">${w.label}</div><div class="wx-title">${t.title}</div>
-          <div class="wx-items">${t.items.map(x=>`<span>${x}</span>`).join('')}</div></div>`;
+        <div class="card-result wx-result"><i class="ph-fill ${t.ph} wx-ico"></i><div class="label">${w.label}</div><div class="wx-title">${t.title}</div>${this.wxTempHTML(w,'wx-temp')}</div>`;
     } else {
       c.innerHTML = `${head}<div class="card-hint">터치해서 날씨를 선택해요 👆</div>`;
     }
@@ -2057,13 +2111,13 @@ const App = {
     this.record.weather = w; this.playSound('select');
     this.renderWeather(); this.checkComplete(); this.autoSaveDraft();
     const t = this.wxTheme(w);
-    this.toast(`날씨${how||':'} ${w.label} ${w.emoji}`,'success');
-    this.speak(`오늘 날씨는 ${w.label} 입니다. ${t.say}`);
+    const f = this.wxFeel(w);
+    this.toast(`날씨${how||':'} ${w.label} ${w.emoji}${w.temp!=null?` ${Math.round(w.temp)}°`:''}`,'success');
+    this.speak(`오늘 날씨는 ${w.label} 입니다. ${w.temp!=null?`기온은 ${Math.round(w.temp)}도, `:''}${f?`${f.label}. ${f.say}. `:''}${t.say}`);
     const html = `<div class="wx-reveal wxc-${t.k}" id="wx-reveal">${this.wxSceneHTML(t.k, true)}
       <div class="wxr-inner"><i class="ph-fill ${t.ph} wxr-ico"></i>
         <div class="wxr-label">${w.label}</div><div class="wxr-title">${t.title}</div>
-        <div class="wxr-say">${t.say}</div>
-        <div class="wx-items big">${t.items.map(x=>`<span>${x}</span>`).join('')}</div></div></div>`;
+        <div class="wxr-say">${t.say}</div>${this.wxTempHTML(w,'wxr-temp')}</div></div>`;
     const done = ()=>{ clearTimeout(this._wxTimer); if (document.getElementById('wx-reveal')) this.closePopup(); };
     this.openPopup(`${w.emoji} 오늘의 날씨`, html, {onMount:()=>{ document.getElementById('wx-reveal').onclick = done; }});
     clearTimeout(this._wxTimer);
@@ -2071,18 +2125,81 @@ const App = {
   },
   openWeather() {
     this.ensureAudio();
-    const html = `<div class="choice-grid cols-3">${WEATHER.map((w,i)=>
+    this._wxFeel = null; this._wxPick = null;
+    const html = `<div class="wxp-sec temp">
+        <div class="wxp-h"><i class="ph-fill ph-thermometer-simple"></i>기온 <small>(고르지 않아도 돼요)</small></div>
+        <div class="feel-row">${FEEL.map(f=>`<button class="feel-chip ${f.k}" data-k="${f.k}"><span class="em">${f.emoji}</span>${f.label}</button>`).join('')}</div>
+      </div>
+      <div class="wxp-sec">
+        <div class="wxp-h sky"><i class="ph-fill ph-cloud-sun"></i>날씨 <small>(하나 골라요)</small></div>
+        <div class="choice-grid cols-3">${WEATHER.map((w,i)=>
       `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${w.label}">${w.emoji}</span><span class="lb">${w.label}</span></button>`
-    ).join('')}</div>
-      <div class="choice-divider">— 또는 GPS로 불러와요 —</div>
-      <button class="auto-fetch-btn" id="wx-auto" style="margin-bottom:0">${gpsicon(24)} GPS로 날씨 불러오기</button>`;
+    ).join('')}</div></div>
+      <button class="auto-fetch-btn" id="wx-auto" style="margin-bottom:6px">${gpsicon(24)} GPS로 정답 확인하기</button>
+      <button class="wx-skip" id="wx-skip">GPS 없이 내 선택 그대로 저장</button>`;
     this.openPopup('오늘 날씨는 어때요?', html, {onMount:()=>{
-      const auto = document.getElementById('wx-auto');
-      if (auto) auto.onclick = ()=> this.autoWeather();
+      document.getElementById('wx-auto').onclick = ()=> this.checkWeather();      document.getElementById('wx-skip').onclick = ()=>{
+        if (this._wxPick==null) { this.toast('날씨를 먼저 골라요','error'); return; }
+        const w = {...WEATHER[this._wxPick]}; if (this._wxFeel) w.feel = this._wxFeel;
+        this.chooseWeather(w);
+      };
+      document.querySelectorAll('#popup-body .feel-chip').forEach(b=>b.onclick=()=>{
+        const on = this._wxFeel === b.dataset.k;
+        this._wxFeel = on ? null : b.dataset.k; // 다시 누르면 해제
+        document.querySelectorAll('#popup-body .feel-chip').forEach(x=>x.classList.toggle('on', x.dataset.k===this._wxFeel));
+      });
       document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
-        this.chooseWeather(WEATHER[+b.dataset.i]);
+        this._wxPick = +b.dataset.i; this.playSound('select');
+        document.querySelectorAll('#popup-body .choice-item').forEach(x=>x.classList.toggle('on', x===b));
       });
     }});
+  },
+  // 학생이 고른 날씨·기온을 GPS 정답과 비교 → 맞으면 ○, 틀리면 ✕ + 정답(날씨 + 기온 표현 + 숫자)
+  async checkWeather() {
+    if (this._wxPick==null) { this.toast('날씨를 먼저 골라요 👆','error'); return; }
+    const btn = document.getElementById('wx-auto');
+    this.ensureAudio();
+    btn.disabled = true; btn.innerHTML = `${gpsicon(24)} 정답 확인 중...`;
+    let ans;
+    try { ans = await this.geoWeather(); }
+    catch(e){
+      btn.disabled = false; btn.innerHTML = `${gpsicon(24)} GPS로 정답 확인하기`;
+      this.toast(e.message==='no_geo' ? '이 기기는 위치를 지원하지 않아요' : (e.code===1 ? '위치 권한이 꺼져 있어요 — 아래 버튼으로 저장해요' : 'GPS 조회 실패 — 아래 버튼으로 저장해요'),'error');
+      return;
+    }
+    const guess = WEATHER[this._wxPick], gf = FEEL.find(f=>f.k===this._wxFeel) || null;
+    const af = this.wxFeel(ans);
+    const wOk = guess.label === ans.label;
+    const fOk = (gf && af) ? gf.k === af.k : null;   // 기온을 고르지 않았거나 GPS에 기온이 없으면 판정 안 함
+    const allOk = wOk && fOk !== false;
+    ans.guess = {label:guess.label, feel:gf?.k||null, wOk, fOk};
+    this.record.weather = ans;
+    this.renderWeather(); this.checkComplete(); this.autoSaveDraft();
+    this.playSound(allOk ? 'correct' : 'wrong');
+    // 위: 내가 고른 날씨·기온을 2열 카드로 (카드 자체에 ○/✕) / 아래: 정답 장면(날씨 + 기온 표현 + 숫자)
+    const t = this.wxTheme(ans);
+    const card = (icon, name, mine, ok) => `<div class="wxres-card ${ok===true?'ok':ok===false?'no':''}">
+        ${ok===null ? '' : `<span class="wx-mark big ${ok?'ok':'no'}" role="img" aria-label="${ok?'맞아요':'틀렸어요'}"></span>`}
+        <div class="wxres-ct"><i class="ph-fill ${icon}"></i>${name}</div>
+        ${mine ? `<div class="em">${mine.emoji}</div><div class="lb">${mine.label}</div>` : '<div class="lb none">고르지 않았어요</div>'}
+      </div>`;
+    const html = `<div class="wxres-head ${allOk?'ok':'no'}">${allOk?'🎉 모두 맞았어요!':'🤔 정답을 확인해요'}</div>
+      <div class="wxres-grid">
+        ${card('ph-cloud-sun','날씨', guess, wOk)}
+        ${card('ph-thermometer-simple','기온', gf, gf && fOk!==null ? fOk : null)}
+      </div>
+      <div class="wxres-ans">정답</div>
+      <div class="wx-reveal sm wxc-${t.k}" id="wx-reveal">${this.wxSceneHTML(t.k, true)}
+        <div class="wxr-inner"><i class="ph-fill ${t.ph} wxr-ico"></i>
+          <div class="wxr-label">${ans.label}</div>${this.wxTempHTML(ans,'wxr-temp')}</div></div>
+      <button class="auto-fetch-btn" id="wx-ok" style="margin:12px 0 0">확인</button>
+      <button class="wx-sheet-btn" id="wx-sheet">📝 날씨 활동지 만들기</button>`;   // 정답을 확인한 뒤에만 활동지로 갈 수 있음
+    this.openPopup('오늘 날씨 정답 확인', html, {onMount:()=>{
+      document.getElementById('wx-ok').onclick = ()=> this.closePopup();
+      document.getElementById('wx-sheet').onclick = ()=> this.ACTIVITY_SHEETS.weather.open();
+    }});
+    this.speak(allOk ? `맞아요! 오늘 날씨는 ${ans.label}${ans.temp!=null?`, ${Math.round(ans.temp)}도`:''}${af?`, ${af.label}`:''} 입니다.`
+                     : `아쉬워요. 정답은 ${ans.label}${ans.temp!=null?`, ${Math.round(ans.temp)}도`:''}${af?`, ${af.label}`:''} 입니다.`);
   },
 
   renderDust() {
@@ -2148,24 +2265,12 @@ const App = {
   async geoWeather() {
     const pos = await this.getPosition();
     const {latitude:lat, longitude:lon} = pos.coords;
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code`);
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code,temperature_2m`);
     const data = await r.json();
-    const w = this.weatherFromCode(data?.current?.weather_code);
-    if (!w) throw new Error('no_map');
-    return w;
-  },
-  applyWeather(w, how) { this.chooseWeather(w, how); },
-  async autoWeather() {
-    const btn = document.getElementById('wx-auto');
-    this.ensureAudio();
-    if (btn){ btn.disabled=true; btn.innerHTML=`${gpsicon(24)} 위치 확인 중...`; }
-    try {
-      const w = await this.geoWeather();
-      this.applyWeather(w, ' (GPS):');
-    } catch(e){
-      if (btn){ btn.disabled=false; btn.innerHTML=`${gpsicon(24)} GPS로 날씨 불러오기`; }
-      this.toast(e.message==='no_geo' ? '이 기기는 위치를 지원하지 않아요' : (e.code===1 ? '위치 권한이 꺼져 있어요 — 직접 선택해 주세요' : 'GPS 조회 실패 — 직접 선택해 주세요'),'error');
-    }
+    const base = this.weatherFromCode(data?.current?.weather_code);
+    if (!base) throw new Error('no_map');
+    const temp = data?.current?.temperature_2m;
+    return temp!=null && !isNaN(temp) ? {...base, temp:Math.round(temp*10)/10} : {...base};
   },
   // GPS 좌표로 현재 PM10 조회
   async geoDust() {
@@ -2806,7 +2911,7 @@ const App = {
       const items = Object.values(d?.query?.pages||{}).sort((a,b)=>a.index-b.index)
         .map(p=>p.imageinfo?.[0]?.thumburl).filter(Boolean).slice(0,6).map(t=>({thumb:t}));
       return {src:'commons', items};
-    } catch(e){ return {src:'none', items:[]}; }
+    } catch(e){ return {src:'none'}; }
   },
   // 저장된 그림이 없는 메뉴는 이미지 검색 키가 연결돼 있을 때만 첫 번째 결과를 자동으로 넣음
   async autoMealImages() {
@@ -3005,6 +3110,7 @@ const App = {
   openWorksheet() {
     const items = (this.record.mealText||'').split('\n').map(x=>x.trim()).filter(Boolean);
     if (!items.length) { this.toast('먼저 급식 메뉴를 불러오거나 입력해 주세요','error'); return; }
+    this._wsPdfBase = null;   // 급식 학습지 파일명을 쓰도록 (날씨 활동지가 바꿔 둔 값 되돌림)
     const sel = this._wsSel || (this._wsSel = {tray:true, cut:true, trace:true});
     const nsel = this._wsNSel || (this._wsNSel = {bike:true, even:true, signal:true, energy:true, ncut:true});
     this.openPopup('📝 급식 학습지 만들기', `<div class="ws-modal">
@@ -3406,11 +3512,219 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
         pdf.addImage(cv.toDataURL('image/jpeg', .92), 'JPEG', 0, 0, 210, 297);
       }
       const d = this.selectedDate;
-      pdf.save(`${this._wsTab==='nutri'?'영양학습지':'급식학습지'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.pdf`);
+      pdf.save(`${this._wsPdfBase || (this._wsTab==='nutri'?'영양학습지':'급식학습지')}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.pdf`);
       this.toast('PDF를 저장했어요 📄','success');
     } catch(e) {
       this.toast('PDF를 만들지 못했어요. 🖨️ 인쇄에서 "PDF로 저장"을 골라 주세요','error');
     } finally { btn.disabled = false; btn.textContent = '📄 PDF 저장'; }
+  },
+  // ── 📝 날씨 활동지 (A4) ──
+  // 영역별 활동지를 모아 보는 '활동지 목록'(예정)에서 이 표로 불러 쓸 수 있게 모듈로 등록해 둔다
+  ACTIVITY_SHEETS: {
+    weather: {title:'🌤️ 날씨 활동지', open:()=> App.openWeatherSheet()}
+  },
+  WSW_PARTS: [
+    ['weather', '🌤️ 날씨 알아보기'], ['temp', '🌡️ 기온 알아보기'], ['clothes', '👕 알맞은 옷 고르기'],
+    ['predict', '🔮 내 예상과 정답'], ['key', '✅ 정답지 (교사용)']
+  ],
+  // 옷·물건 보기: fit(기온, 날씨종류) → 오늘 날씨에 알맞으면 true
+  WSW_CLOTHES: [
+    {e:'🧤', n:'장갑',    fit:(t,k)=> t<=8 || k==='snow'},
+    {e:'🧣', n:'목도리',  fit:(t,k)=> t<=8 || k==='snow'},
+    {e:'🧥', n:'겉옷',    fit:(t)=> t<=16},
+    {e:'👔', n:'긴팔 옷', fit:(t)=> t>=9 && t<=24},   // 👚는 반팔로 보여서 소매 긴 셔츠(👔)로
+    {e:'👕', n:'반팔 옷', fit:(t)=> t>=25},
+    {e:'🩳', n:'반바지',  fit:(t)=> t>=28},
+    {e:'☂️', n:'우산',    fit:(t,k)=> k==='rain' || k==='storm'},
+    {e:'🥾', n:'장화',    fit:(t,k)=> k==='rain'},
+    {e:'🧢', n:'모자',    fit:(t,k)=> (k==='sunny' || k==='partly') && t>=20}
+  ],
+  // 오늘 날씨 정답 (GPS로 확인한 값). 기온 숫자가 없으면 체감 단계의 대표 온도로 옷 정답을 구함
+  wswAnswer() {
+    const w = this.record.weather; if (!w) return null;
+    const f = this.wxFeel(w), rep = {cold:5, cool:13, good:20, warm:26, hot:30};
+    return {w, t:this.wxTheme(w), f, hasNum:w.temp!=null, temp: w.temp!=null ? w.temp : (f ? rep[f.k] : null)};
+  },
+  // 온도계 그림 (-10~40°C). 관 안쪽에 눈금선을 넣어 색칠하면서 읽을 수 있게 함. temp를 주면 그 높이까지 빨갛게 (정답지용)
+  wswThermo(temp) {
+    const y = v=> 150 - (v+10)*2.7;
+    let ticks = '';
+    for (let v=-10; v<=40; v+=5) {
+      const long = v%10===0, yy = y(v).toFixed(1);
+      ticks += `<line x1="25" x2="${long?45:36}" y1="${yy}" y2="${yy}" stroke="#555" stroke-width="${long?1.1:.8}"/>`
+             + (long ? `<text x="50" y="${(+yy+3).toFixed(1)}" font-size="10" font-weight="700" fill="#111">${v}</text>` : '');
+    }
+    const on = temp!=null, tt = on ? Math.max(-10, Math.min(40, temp)) : 0;
+    return `<svg viewBox="0 0 80 180" xmlns="http://www.w3.org/2000/svg">
+      <rect x="24" y="10" width="22" height="150" rx="11" fill="#fff" stroke="#111" stroke-width="1.5"/>
+      <circle cx="35" cy="163" r="15" fill="${on?'#ef4444':'#fff'}" stroke="#111" stroke-width="1.5"/>
+      ${on ? `<rect x="30" y="${y(tt).toFixed(1)}" width="10" height="${(162-y(tt)).toFixed(1)}" fill="#ef4444"/>` : ''}
+      ${ticks}<text x="52" y="10" font-size="9" font-weight="700" fill="#111">°C</text></svg>`;
+  },
+  openWeatherSheet() {
+    this._wsPdfBase = '날씨활동지';
+    const st = this._wxSheet || (this._wxSheet = {sec:{weather:true, temp:true, clothes:true, predict:true, key:false}, lvl:'easy'});
+    this.openPopup('📝 날씨 활동지 만들기', `<div class="ws-modal">
+      <div class="ws-opts" id="ws-opts"></div>
+      <div class="ws-opts" id="ws-lvl"></div>
+      <div class="ws-prev"><iframe id="ws-frame" title="활동지 미리보기"></iframe></div>
+      <div class="mm-tools">
+        <button id="ws-back">닫기</button>
+        <button id="ws-print">🖨️ 인쇄</button>
+        <button id="ws-pdf">📄 PDF 저장</button>
+      </div></div>`, {large:true, onMount:()=>{
+        const render = ()=>{
+          const f = document.getElementById('ws-frame'); if (!f) return;
+          f.srcdoc = this.buildWeatherSheetHTML(st);
+          document.getElementById('ws-print').disabled = document.getElementById('ws-pdf').disabled = !Object.values(st.sec).some(Boolean);
+        };
+        const draw = ()=>{
+          document.getElementById('ws-opts').innerHTML = this.WSW_PARTS.map(([k,l])=>`<label class="ws-opt"><input type="checkbox" data-k="${k}" ${st.sec[k]?'checked':''}> ${l}</label>`).join('');
+          document.getElementById('ws-lvl').innerHTML = `<span class="ws-opt" style="background:none;padding-left:0">글쓰기</span>`
+            + [['easy','✏️ 따라쓰기'],['mid','📝 스스로 쓰기']].map(([k,l])=>`<label class="ws-opt"><input type="radio" name="wsl" value="${k}" ${st.lvl===k?'checked':''}> ${l}</label>`).join('');
+          document.querySelectorAll('#ws-opts input').forEach(c=>c.onchange=()=>{ st.sec[c.dataset.k] = c.checked; render(); });
+          document.querySelectorAll('#ws-lvl input[name=wsl]').forEach(r=>r.onchange=()=>{ st.lvl = r.value; this.playSound('select'); render(); });
+        };
+        document.getElementById('ws-back').onclick = ()=> this.closePopup();
+        document.getElementById('ws-print').onclick = async ()=>{
+          const w = document.getElementById('ws-frame').contentWindow;
+          try { await w.document.fonts.ready; } catch(e){}
+          w.focus(); w.print();
+        };
+        document.getElementById('ws-pdf').onclick = ()=> this.worksheetPDF();
+        draw(); render();
+      }});
+  },
+  buildWeatherSheetHTML(o) {
+    const d = this.selectedDate, dn = ['일','월','화','수','목','금','토'];
+    const dateStr = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${dn[d.getDay()]}요일`;
+    const E = s=>esc(s), a = this.wswAnswer(), lvl = o.lvl;
+    const lvlName = {easy:'따라쓰기', mid:'스스로 쓰기'}[lvl] || '';
+    const NO = ['①','②','③','④'];
+    const eyo = s=>{ const c = s.charCodeAt(s.length-1) - 0xAC00; return (c>=0 && c%28!==0) ? '이에요' : '예요'; };
+    const head = (title, sub)=>`<div class="hd"><div><h1>${title}</h1><div class="sub">${dateStr}${sub?` · ${sub}`:''}</div></div><div class="nm">이름 <span></span></div></div>`;
+    // 글쓰기 칸: 따라쓰기=점선 글자 위에 덧쓰기, 스스로 쓰기=글자 수만큼 빈칸 (정답을 모르면 ph칸)
+    const cells = (text, ph, size)=>{
+      const t = [...(text||'')], known = t.length>0, n = known ? t.length : (ph||6), dot = known && lvl==='easy';
+      return `<span class="cells"${size?` style="--c:${size}mm"`:''}>${Array.from({length:n},(_,i)=>`<span class="cell${dot?' dot':''}">${dot ? E(t[i]===' '?'':t[i]) : ''}</span>`).join('')}</span>`;
+    };
+    const blocks = [];
+    const add = (k, h, fn)=>{ if (o.sec[k]) blocks.push({h, fn}); };
+
+    add('weather', 102, no=>`<h2>${no} 오늘의 날씨는 어때요? 알맞은 그림에 ○ 해요</h2>
+      <div class="wgrid">${WEATHER.map(w=>`<div class="wc"><div class="we">${w.emoji}</div><div class="wl">${E(w.label)}</div></div>`).join('')}</div>
+      <div class="wline">오늘 날씨는 ${cells(a?.w.label,4,18)} <span>${a ? eyo(a.w.label) : '이에요'}.</span></div>`);
+
+    // 한 문제 안의 활동을 가·나·다·라 상자로 나눠 구분
+    add('temp', 120, no=>`<h2>${no} 오늘의 기온 알아보기</h2>
+      <div class="trow">
+        <div class="step thermo"><div class="st"><span class="sb">가</span>온도계 색칠</div>${this.wswThermo(null)}<div class="tip">오늘 기온까지 빨갛게</div></div>
+        <div class="tright">
+          <div class="step"><div class="st"><span class="sb">나</span>오늘 기온을 써요</div>
+            <div class="tl1">오늘 기온은 ${cells(a?.hasNum ? String(Math.round(a.temp)) : '',2)}<span>°C 예요.</span></div></div>
+          <div class="step"><div class="st"><span class="sb">다</span>알맞은 말에 ○ 해요</div>
+            <div class="faces">${FEEL.map(f=>`<div class="fc"><div class="fe">${f.emoji}</div><div class="fl">${E(f.label)}</div></div>`).join('')}</div></div>
+          <div class="step"><div class="st"><span class="sb">라</span>기온 표현을 써요</div>
+            <div class="tl1">오늘은 ${cells(a?.f?.label,6)}</div></div>
+        </div></div>`);
+
+    add('clothes', 82, no=>`<h2>${no} 오늘 날씨에 알맞은 옷과 물건에 ○ 해요</h2>
+      <div class="cgrid">${this.WSW_CLOTHES.map(c=>`<div class="cc"><span class="ce">${c.e}</span><span class="cn">${E(c.n)}</span></div>`).join('')}</div>`);
+
+    add('predict', 62, no=>`<h2>${no} 내 예상과 GPS 정답을 비교해요 <small>같으면 ○, 다르면 ✕ 를 골라요</small></h2>
+      <div class="pt">
+        <div class="h"></div><div class="h">내 예상</div><div class="h">정답</div><div class="h">같아요?</div>
+        <div class="h r">🌤️ 날씨</div><div class="r"></div><div class="r"></div><div class="r ox"><span>○</span><span>✕</span></div>
+        <div class="h r">🌡️ 기온</div><div class="r"></div><div class="r"></div><div class="r ox"><span>○</span><span>✕</span></div>
+      </div>`);
+
+    // 쪽 나누기: 한 쪽에 들어가는 만큼 차례로 담음 (머리글 뺀 본문 높이 약 245mm)
+    const pages = []; let cur = [], left = 245, n = 0;
+    const flush = ()=>{ if (cur.length) { pages.push(`<section class="page">${head('🌤️ 날씨 활동지', lvlName)}${cur.join('')}</section>`); cur = []; left = 245; } };
+    blocks.forEach(b=>{
+      if (b.h > left) flush();
+      cur.push(`<div class="blk" style="height:${b.h}mm">${b.fn(NO[n++])}</div>`); left -= b.h;
+    });
+    flush();
+
+    if (o.sec.key) {
+      if (!a) pages.push(`<section class="page teacher">${head('✅ 날씨 활동지 정답지 (교사용)','')}<div class="nodata">오늘 날씨를 먼저 정해 주세요<br><small>날씨 칸에서 GPS로 정답을 확인하면 정답이 채워져요</small></div></section>`);
+      else {
+        const g = a.w.guess, fits = this.WSW_CLOTHES.filter(c=>c.fit(a.temp ?? 20, a.t.k));
+        const gw = g ? WEATHER.find(w=>w.label===g.label) : null, gf = g?.feel ? FEEL.find(f=>f.k===g.feel) : null;
+        pages.push(`<section class="page teacher">${head('✅ 날씨 활동지 정답지 (교사용)','')}
+          <div class="kwrap"><div class="thermo-k">${this.wswThermo(a.hasNum ? a.temp : null)}</div>
+            <div class="kcol">
+              <div class="kr">🌤️ 날씨 <b>${a.w.emoji} ${E(a.w.label)}</b></div>
+              <div class="kr">🌡️ 기온 <b>${a.hasNum ? `${Math.round(a.temp)}°C` : '—'}</b>${a.f ? `<b>${a.f.emoji} ${E(a.f.label)}</b>` : ''}</div>
+              <div class="kr">👕 알맞은 옷·물건 <b class="kfit">${fits.length ? fits.map(c=>`${c.e} ${E(c.n)}`).join(' &nbsp; ') : '해당 없음'}</b></div>
+              ${g ? `<div class="kr">🔮 학생 예상 <b>${gw?`${gw.emoji} ${E(gw.label)}`:''} ${g.wOk?'○':'✕'}</b>${gf?`<b>${gf.emoji} ${E(gf.label)} ${g.fOk===false?'✕':'○'}</b>`:''}</div>` : ''}
+            </div></div>
+          <div class="src">${a.hasNum ? '기온은 GPS(Open-Meteo)로 확인한 현재 값이에요. ' : '기온 숫자가 없어 체감 단계로 옷 정답을 정했어요. '}온도계는 ${a.hasNum?'오늘 기온까지 빨갛게 칠해 보였어요':'학생이 색칠해요'}.<br>옷·물건 정답은 기온(8° 이하 겉옷·장갑, 25° 이상 반팔, 28° 이상 반바지 등)과 날씨(비·눈)로 정한 예시예요.</div>
+        </section>`);
+      }
+    }
+    if (!pages.length) pages.push(`<section class="page"><div class="empty">위에서 만들 활동지를 하나 이상 골라 주세요</div></section>`);
+    return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'LDotted';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211548@font-209/font-209/%E1%84%8B%E1%85%A6%E1%86%AF%E1%84%8C%E1%85%A5%E1%86%B7%E1%84%89%E1%85%A5%E1%86%AB%E1%84%8E%E1%85%A6.woff2') format('woff2');font-weight:400;font-display:block}
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#d9dee7;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;background:#fff;margin:6mm auto;padding:12mm 14mm;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none;break-after:page}.page:last-child{break-after:auto}}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:6mm;border-bottom:.7mm solid #111;padding-bottom:2.5mm;margin-bottom:5mm;flex:none}
+.hd h1{font-size:20pt;font-weight:900;line-height:1.2}
+.hd .sub{font-size:9.5pt;color:#555;margin-top:1mm;font-weight:500}
+.hd .nm{font-size:12pt;font-weight:700;white-space:nowrap}
+.hd .nm span{display:inline-block;width:32mm;border-bottom:.3mm solid #111;margin-left:2mm}
+.blk{display:flex;flex-direction:column;overflow:hidden;flex:none}
+h2{font-size:13pt;font-weight:900;margin:0 0 3mm;flex:none}
+h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
+.cells{--c:14mm;display:inline-flex;vertical-align:middle;flex:none}
+.cell{width:var(--c);height:var(--c);border:.3mm solid #444;margin-left:-.3mm;position:relative;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-weight:700;font-size:calc(var(--c) * .78);line-height:1;background:#fff}
+.cell::before{content:'';position:absolute;left:50%;top:0;bottom:0;border-left:.2mm dashed #c9ced6}
+.cell::after{content:'';position:absolute;top:50%;left:0;right:0;border-top:.2mm dashed #c9ced6}
+.cell.dot{font-family:'LDotted',sans-serif;font-weight:400;color:#000;font-size:calc(var(--c) * .84)}
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.wc{border:.4mm solid #9aa3b0;border-radius:3mm;height:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
+.we{font-size:16mm;line-height:1}.wl{font-size:12pt;font-weight:900}
+.wline{margin-top:5mm;font-size:17pt;font-weight:700;display:flex;align-items:center;justify-content:center;gap:3mm;flex-wrap:wrap}
+.trow{display:flex;gap:4mm;flex:1;min-height:0}
+.step{border:.4mm solid #9aa3b0;border-radius:3mm;padding:2.5mm 4mm 3mm;display:flex;flex-direction:column;gap:2mm}
+.st{display:flex;align-items:center;gap:2mm;font-size:11.5pt;font-weight:900;flex:none}
+.sb{width:6.5mm;height:6.5mm;border-radius:50%;background:#374151;color:#fff;font-size:9pt;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.step.thermo{width:48mm;flex:none;align-items:center}
+.step.thermo .st{align-self:flex-start}
+.step.thermo svg{width:36mm;height:auto;display:block}
+.tip{font-size:9pt;color:#6b7280;font-weight:500}
+.tright{flex:1;display:flex;flex-direction:column;gap:3mm;min-width:0}
+.tright .step{flex:1;justify-content:center}
+.tl1{font-size:15pt;font-weight:700;display:flex;align-items:center;gap:2mm;flex-wrap:wrap}
+.faces{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm}
+.fc{border:.4mm solid #9aa3b0;border-radius:3mm;height:22mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
+.fe{font-size:9mm;line-height:1}.fl{font-size:8pt;font-weight:900;text-align:center;line-height:1.2}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.cc{border:.4mm solid #9aa3b0;border-radius:3mm;height:19mm;display:flex;align-items:center;gap:3mm;padding:0 4mm}
+.ce{font-size:10mm;line-height:1}.cn{font-size:13pt;font-weight:900}
+.pt{display:grid;grid-template-columns:28mm 1fr 1fr 40mm;border-top:.4mm solid #374151;border-left:.4mm solid #374151}
+.pt>div{border-right:.4mm solid #374151;border-bottom:.4mm solid #374151;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12pt;font-weight:700;padding:1mm;line-height:1.3}
+.pt .h{background:#f3f4f6;font-weight:900;height:9mm}
+.pt .r{height:20mm}
+.pt .ox{gap:8mm;font-size:26pt;font-weight:900}
+.pt .ox span{width:14mm;height:14mm;border:.4mm solid #9aa3b0;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1}
+.teacher .hd{border-bottom-color:#b45309}
+.kwrap{display:flex;gap:8mm;align-items:flex-start}
+.thermo-k{width:36mm;flex:none}.thermo-k svg{width:36mm;height:auto;display:block}
+.kcol{flex:1;display:flex;flex-direction:column;gap:4mm}
+.kr{display:flex;align-items:center;flex-wrap:wrap;gap:3mm 5mm;border:.35mm solid #9aa3b0;border-radius:3mm;padding:4mm 5mm;font-size:13pt;font-weight:700}
+.kr b{font-size:20pt;font-weight:900}.kr b.kfit{font-size:15pt;line-height:1.7}
+.src{font-size:8.5pt;color:#6b7280;margin-top:auto;padding-top:3mm;line-height:1.6}
+.empty{margin:auto;font-size:14pt;color:#888;font-weight:700}
+.nodata{margin:auto;text-align:center;font-size:14pt;color:#6b7280;font-weight:700;line-height:1.7}
+.nodata small{font-size:10pt;font-weight:500}
+</style></head><body>${pages.join('')}</body></html>`;
   },
   // 학생별 알레르기 설정 (학급 설정에 저장) — 급식 모달에서 열고, 닫으면 급식 모달로 돌아감
   openAllergySettings() {
@@ -4536,7 +4850,7 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
       const ems = Object.entries(r.emotions||{}).map(([n,v])=>`${esc(n)}: ${v.emoji} ${esc(v.label)}`).join(', ');
       const att = Object.entries(r.attendance||{}).map(([n,v])=>`${esc(n)}: ${esc(v)}`).join(', ');
       document.getElementById('record-detail').innerHTML = `<div class="record-detail">
-        <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}`:'-'}</div>
+        <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}${r.weather.temp!=null?` ${Math.round(r.weather.temp)}°`:''}${(f=>f?` · ${f.label}`:'')(r.weather.temp!=null?feelFromTemp(r.weather.temp):FEEL.find(x=>x.k===r.weather.feel))}`:'-'}</div>
         <h4>미세먼지</h4><div class="row">${r.dust?`${r.dust.emoji} ${r.dust.label}`:'-'}</div>
         <h4>출석</h4><div class="row">${att||'-'}</div>
         <h4>오늘의 도우미</h4><div class="row">${(r.helpers||[]).filter(Boolean).map(esc).join(', ')||'-'}</div>
@@ -4925,7 +5239,7 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
     const dayNames=['일','월','화','수','목','금','토'];
     const sorted=[...lessons].sort((a,b)=>{ if(!a.date&&!b.date)return 0; if(!a.date)return 1; if(!b.date)return -1; return a.date<b.date?1:-1; });
     const groups=[]; const idx={};
-    sorted.forEach(l=>{ const key=l.date||'미지정'; if(idx[key]==null){idx[key]=groups.length; groups.push({key, items:[]});} groups[idx[key]].items.push(l); });
+    sorted.forEach(l=>{ const key=l.date||'미지정'; if(idx[key]==null){idx[key]=groups.length; groups.push({key});} groups[idx[key]].items.push(l); });
     const groupHTML=groups.map(g=>{
       let label;
       if(g.key==='미지정') label='🗂️ 미지정 보관함';
