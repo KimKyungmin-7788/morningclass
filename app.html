@@ -388,8 +388,9 @@ footer .status.done{color:var(--success)}
 .ml-name:hover{background:#F0F7FF;box-shadow:inset 0 -2px 0 #BFDDF7}
 .ml-name-input{width:100%;font:inherit;font-size:clamp(20px,1.6vw,26px);font-weight:var(--fw-title);color:var(--text);padding:2px 6px;margin:-4px -8px;border:2px solid var(--primary);border-radius:8px;background:#fff;outline:none}
 .meal-list.text .ml-name-input{font-size:clamp(24px,2vw,32px)}
-.ml-zoom{position:absolute;right:4px;bottom:4px;z-index:1;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(27,58,87,.25);display:grid;place-items:center;font-size:14px;color:var(--text);transition:transform .15s}
-.ml-zoom:hover{transform:scale(1.12);background:#fff}
+.ml-zoom{position:absolute;right:4px;bottom:4px;z-index:1;display:flex;align-items:center;gap:5px;padding:2px 10px 2px 2px;border-radius:99px;background:rgba(255,255,255,.95);box-shadow:0 2px 6px rgba(27,58,87,.25);font-size:13px;font-weight:var(--fw-label);color:#1d4ed8;white-space:nowrap;transition:transform .15s}
+.ml-zoom i{width:26px;height:26px;border-radius:50%;background:#2563eb;color:#fff;display:grid;place-items:center;font-size:15px}
+.ml-zoom:hover{transform:scale(1.08);background:#fff}
 /* 그림 다시 찾기 — 검색어 단순화 안내 */
 .isub-tip{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 18px;border-radius:16px;background:#FFF7D6;border:2.5px solid #F5C84B;text-align:center}
 .isub-tip .t{font-size:19px;font-weight:var(--fw-title);color:#7A4B00;line-height:1.4}
@@ -412,6 +413,11 @@ footer .status.done{color:var(--success)}
 .dp-search button,.dp-file{padding:10px 16px;border-radius:12px;background:#fff;border:1.5px solid #d6dde8;font-weight:var(--fw-label);font-size:15px;cursor:pointer;white-space:nowrap}
 .dp-search #dp-find{background:var(--primary);border-color:var(--primary);color:#fff}
 .dp-clear{color:var(--danger)!important}
+.isub-sugg{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.isub-sugg .lb{font-size:15px;font-weight:var(--fw-label);color:#7A4B00}
+.isub-sugg .sg{padding:8px 16px;border-radius:99px;background:#FFF7D6;border:2px solid #F5C84B;color:#7A4B00;font-size:16px;font-weight:var(--fw-label);cursor:pointer}
+.isub-sugg .sg:hover{background:#FFE9A0}
+.isub-sugg .dp-clear{margin-left:auto;padding:8px 16px;border-radius:12px;background:#fff;border:1.5px solid #d6dde8;font-weight:var(--fw-label);font-size:15px;cursor:pointer;white-space:nowrap}
 .dp-cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .dp-cands:empty{display:none}
 .dp-cands .card-hint{grid-column:1/-1}
@@ -2834,7 +2840,7 @@ const App = {
       return `<div class="ml-row ${alerts.length?'alert':''}" style="animation-delay:${i*0.06}s">
         <span class="ml-num">${i+1}</span>
         <span class="ml-img">${src?`<img src="${esc(src)}" alt="${esc(it)}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🍽️'}))">`:'<span>🍽️</span>'}
-          <button class="ml-zoom" data-i="${i}" title="그림 다시 찾기" aria-label="${esc(it)} 그림 다시 찾기">🔍</button></span>
+          <button class="ml-zoom" data-i="${i}" title="그림 바꾸기" aria-label="${esc(it)} 그림 바꾸기"><i class="ph-bold ph-arrows-clockwise"></i><span>바꾸기</span></button></span>
         <div class="ml-main">
           <div class="ml-name" data-i="${i}" tabindex="0" role="button" title="눌러서 이름 고치기">${esc(it)}</div>
           ${alerts.length ? `<div class="ml-warn">${alerts.map(a=>`<span class="md-alert" title="${esc(a.hits.map(c=>this.ALLERGENS[c]).join(', '))}">⚠️ ${esc(a.name)}<small>${esc(a.hits.map(c=>this.ALLERGENS[c]).join('·'))}</small></span>`).join('')}</div>` : ''}
@@ -2954,6 +2960,25 @@ const App = {
     // 선생님이 이름을 고치는 중이면 입력을 방해하지 않도록 새로 그리지 않음 (다음에 그릴 때 그림이 보임)
     if (added && document.querySelector('#mm-body .meal-list') && !document.activeElement?.classList.contains('ml-name-input')) this.showMealDishes(true);
   },
+  // 메뉴 이름을 단순하게 줄인 검색어 후보 (최대 3개). 예: 코코넛대왕새우튀김 → 새우튀김, 새우, 튀김
+  simplifyDishQueries(name) {
+    const base = String(name||'').replace(/\([^)]*\)|[0-9.\s]+/g,'').trim();
+    const MOD = ['코코넛','대왕','쇠고기','소고기','돼지','닭','매콤','매운','얼큰','해물','치즈','수제','특별','한입','옛날','순살','바삭','사천','춘천','부산','전주','안동','양념','간장','마늘','고추'];
+    const END = ['샌드위치','커틀릿','샐러드','스테이크','떡볶이','맛탕','튀김','볶음','조림','구이','무침','찌개','국수','볶음밥','비빔밥','덮밥','김치','나물','까스','국','탕','찜','전','죽','면','밥','빵','떡','포크','스프','수프'];
+    let core = base, again = true;
+    while (again) { again = false; for (const m of MOD) if (core.startsWith(m) && core.length > m.length+1) { core = core.slice(m.length); again = true; break; } }
+    const end = END.find(e=>base.endsWith(e));
+    const out = [core];
+    if (end) {
+      const P = base.slice(0, base.length-end.length);
+      const I = P.length<=3 ? P : P.slice(-2);   // 재료 이름이 세 글자 이하면 통째로 (고구마)
+      out.push(I+end, I, end);
+    } else {
+      if (base.length>=4) out.push(base.slice(-3));
+      if (base.length>=5) out.push(base.slice(-2));
+    }
+    return [...new Set(out.filter(q=>q && q.length>=2 && q!==base))].slice(0,3);
+  },
   // 그림 다시 찾기: 급식 창 위에 작은 창을 띄워 검색 후보(최대 6개) 중에서 고름 / 내 파일 / 그림 없애기
   openDishImageSearch(name) {
     document.getElementById('isub')?.remove();
@@ -2969,6 +2994,10 @@ const App = {
         <input id="isub-q" value="${esc(name)}" placeholder="검색어" aria-label="검색어">
         <button id="isub-find">🔍 찾기</button>
         <label class="dp-file">📁 내 파일<input type="file" id="isub-file" accept="image/*" hidden></label>
+      </div>
+      <div class="isub-sugg">
+        <span class="lb">💡 추천 검색어</span>
+        ${this.simplifyDishQueries(name).map(q=>`<button class="sg" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
         ${cur?'<button id="isub-clear" class="dp-clear">그림 없애기</button>':''}
       </div>
       <div class="isub-tip">
@@ -3002,6 +3031,7 @@ const App = {
       });
     };
     document.getElementById('isub-find').onclick = find;
+    el.querySelectorAll('.isub-sugg .sg').forEach(b=>b.onclick=()=>{ document.getElementById('isub-q').value = b.dataset.q; find(); });   // 누르면 자동 입력 + 검색
     document.getElementById('isub-q').onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); find(); } };
     find();                                                        // 열자마자 메뉴 이름으로 후보를 찾아 보여줌
     document.getElementById('isub-file').onchange = e=>{
