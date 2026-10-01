@@ -231,8 +231,8 @@ footer .status.done{color:var(--success)}
 .wx-temp,.wxr-temp{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 8px;box-sizing:border-box;max-width:100%;background:rgba(255,255,255,.88);color:#1e293b;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .wx-temp{margin-top:6px;padding:4px 8px}
 .wxr-temp{margin-top:6px;padding:8px 22px;border-radius:20px}
-.wxt-name{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:var(--fw-label);color:#64748b}
-.wxr-temp .wxt-name{font-size:16px}
+.wxt-ico{font-size:clamp(18px,9cqw,24px);color:#64748b}
+.wxr-temp .wxt-ico{font-size:32px}
 .wx-temp b{font-size:clamp(20px,11cqw,32px);font-weight:var(--fw-display);line-height:1}
 .wxr-temp b{font-size:clamp(36px,4vw,56px);font-weight:var(--fw-display);line-height:1}
 .wx-feel{font-size:clamp(11px,6.5cqw,13px);font-weight:var(--fw-label);padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.8);color:#334155;white-space:nowrap}
@@ -267,6 +267,7 @@ footer .status.done{color:var(--success)}
 .wxp-sec .choice-grid{margin-bottom:0}
 .feel-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .feel-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:14px;border:3px solid transparent;cursor:pointer;font-weight:var(--fw-label);font-size:clamp(11px,2.6vw,15px);white-space:nowrap;transition:.15s}
+.feel-chip .rg{font-size:clamp(10px,2.2vw,12px);font-weight:var(--fw-body)}
 .feel-chip .em{font-size:clamp(22px,5vw,30px);line-height:1}
 .feel-chip:hover{transform:translateY(-2px)}
 .feel-chip.on{border-color:#f97316;box-shadow:0 4px 12px rgba(249,115,22,.35);transform:translateY(-2px)}
@@ -1277,11 +1278,11 @@ const WEATHER = [
 ];
 // 기온 → 체감 (등교 기준). max: 이 온도 이하
 const FEEL = [
-  {k:'cold', emoji:'🥶', label:'추워요',    max:8,   say:'따뜻하게 입어요'},
-  {k:'cool', emoji:'🧥', label:'쌀쌀해요',  max:16,  say:'겉옷을 챙겨요'},
-  {k:'good', emoji:'😊', label:'딱 좋아요', max:24,  say:'활동하기 좋아요'},
-  {k:'warm', emoji:'😅', label:'살짝 더워요', max:27, say:'가볍게 입어요'},
-  {k:'hot',  emoji:'🥵', label:'더워요',    max:99,  say:'시원하게 입고 물을 자주 마셔요'}
+  {k:'cold', rng:'8° 이하', emoji:'🥶', label:'추워요',    max:8,   say:'따뜻하게 입어요'},
+  {k:'cool', rng:'9~16°', emoji:'🧥', label:'쌀쌀해요',  max:16,  say:'겉옷을 챙겨요'},
+  {k:'good', rng:'17~24°', emoji:'🍃', label:'적당해요', max:24,  say:'가벼운 옷이면 돼요'},
+  {k:'warm', rng:'25~27°', emoji:'😅', label:'살짝 더워요', max:27, say:'가볍게 입어요'},
+  {k:'hot',  rng:'28° 이상', emoji:'🥵', label:'더워요',    max:99,  say:'시원하게 입고 물을 자주 마셔요'}
 ];
 const feelFromTemp = t => (t==null||isNaN(t)) ? null : FEEL.find(f=>Math.round(t)<=f.max);
 const DUST = [
@@ -2075,7 +2076,7 @@ const App = {
     const f = this.wxFeel(w);
     if (!f) return '';
     // 날씨와 구분되도록 온도계 아이콘 + "기온" 이름표를 단 별도 패널로 그린다
-    return `<div class="${cls}"><span class="wxt-name"><i class="ph-fill ph-thermometer-simple"></i>기온</span>${w.temp!=null?`<b>${Math.round(w.temp)}°</b>`:''}<span class="wx-feel ${f.k}">${f.emoji} ${f.label}</span></div>`;
+    return `<div class="${cls}"><i class="ph-fill ph-thermometer-simple wxt-ico" aria-hidden="true"></i>${w.temp!=null?`<b>${Math.round(w.temp)}°</b>`:''}<span class="wx-feel ${f.k}">${f.emoji} ${f.label}</span></div>`;
   },
   // 날씨 장면(움직이는 배경) — 카드와 선택 연출에서 함께 사용
   wxSceneHTML(k, big) {
@@ -2128,7 +2129,7 @@ const App = {
     this._wxFeel = null; this._wxPick = null;
     const html = `<div class="wxp-sec temp">
         <div class="wxp-h"><i class="ph-fill ph-thermometer-simple"></i>기온 <small>(고르지 않아도 돼요)</small></div>
-        <div class="feel-row">${FEEL.map(f=>`<button class="feel-chip ${f.k}" data-k="${f.k}"><span class="em">${f.emoji}</span>${f.label}</button>`).join('')}</div>
+        <div class="feel-row">${FEEL.map(f=>`<button class="feel-chip ${f.k}" data-k="${f.k}"><span class="em">${f.emoji}</span>${f.label}<span class="rg">${f.rng}</span></button>`).join('')}</div>
       </div>
       <div class="wxp-sec">
         <div class="wxp-h sky"><i class="ph-fill ph-cloud-sun"></i>날씨 <small>(하나 골라요)</small></div>
@@ -3623,7 +3624,7 @@ h2{font-size:13pt;font-weight:900;margin:3mm 0 3mm}
           <div class="step"><div class="st"><span class="sb">나</span>오늘 기온을 써요</div>
             <div class="tl1">오늘 기온은 ${cells(a?.hasNum ? String(Math.round(a.temp)) : '',2)}<span>°C 예요.</span></div></div>
           <div class="step"><div class="st"><span class="sb">다</span>알맞은 말에 ○ 해요</div>
-            <div class="faces">${FEEL.map(f=>`<div class="fc"><div class="fe">${f.emoji}</div><div class="fl">${E(f.label)}</div></div>`).join('')}</div></div>
+            <div class="faces">${FEEL.map(f=>`<div class="fc"><div class="fe">${f.emoji}</div><div class="fl">${E(f.label)}</div><div class="fr">${f.rng}</div></div>`).join('')}</div></div>
           <div class="step"><div class="st"><span class="sb">라</span>기온 표현을 써요</div>
             <div class="tl1">오늘은 ${cells(a?.f?.label,6)}</div></div>
         </div></div>`);
@@ -3703,8 +3704,8 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
 .tright .step{flex:1;justify-content:center}
 .tl1{font-size:15pt;font-weight:700;display:flex;align-items:center;gap:2mm;flex-wrap:wrap}
 .faces{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm}
-.fc{border:.4mm solid #9aa3b0;border-radius:3mm;height:22mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
-.fe{font-size:9mm;line-height:1}.fl{font-size:8pt;font-weight:900;text-align:center;line-height:1.2}
+.fc{border:.4mm solid #9aa3b0;border-radius:3mm;height:24mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
+.fe{font-size:9mm;line-height:1}.fl{font-size:8pt;font-weight:900;text-align:center;line-height:1.2}.fr{font-size:7pt;color:#555;font-weight:500}
 .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
 .cc{border:.4mm solid #9aa3b0;border-radius:3mm;height:19mm;display:flex;align-items:center;gap:3mm;padding:0 4mm}
 .ce{font-size:10mm;line-height:1}.cn{font-size:13pt;font-weight:900}
