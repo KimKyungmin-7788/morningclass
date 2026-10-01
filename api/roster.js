@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
   fails.delete(ip);
 
   let roster;
-  try { roster = JSON.parse(RAW); } catch (e) { res.status(500).json({ error: 'bad_config' }); return; }
+  try { roster = JSON.parse(RAW); } catch (e) { res.status(500).json({ error: 'bad_config', len: RAW.length, head: RAW.slice(0, 1), tail: RAW.slice(-1) }); return; }   // 임시 진단: 길이와 첫·끝 글자만
   const students = roster && roster[String(b.level)] && roster[String(b.level)][`${+b.grade}-${+b.cls}`];
   if (!students) { res.status(404).json({ error: 'no_class' }); return; }
   res.status(200).json({ students });
