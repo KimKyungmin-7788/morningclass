@@ -1909,7 +1909,7 @@ const App = {
       this.muted = !this.muted;
       localStorage.setItem('mc_muted', this.muted?'1':'0');
       document.getElementById('btn-mute').innerHTML = `<i class="ph-fill ph-speaker-${this.muted?'slash':'high'}"></i>`;
-      if (this.muted && 'speechSynthesis' in window) { try{window.speechSynthesis.cancel();}catch(e){} }
+      if (this.muted) this.stopSpeech();
     };
     document.getElementById('btn-save').onclick = ()=>{ this.playSound('save'); this.saveRecord(); };
     document.getElementById('btn-records').onclick = ()=> this.openRecords();
@@ -1990,14 +1990,42 @@ const App = {
       console.log('[TTS] unlocked. voices:', this.ttsVoices.map(v=>v.lang));
     } catch(e){ console.warn('[TTS] unlock failed', e); }
   },
+  // 학생 이름이 든 문장은 opts.local:true 로 불러 브라우저 목소리로만 읽는다 (외부 전송 금지)
   speak(text, opts={}) {
     text = String(text || '').trim();
     if (this.muted || !text) return;
-    if (!('speechSynthesis' in window)) { console.warn('[TTS] not supported'); return; }
     const now = Date.now();
     if (text === this.ttsLastText && now - this.ttsLastAt < 350) return;
     this.ttsLastText = text;
     this.ttsLastAt = now;
+    this.stopSpeech();
+    const seq = this._ttsSeq;
+    if (opts.local || this._cloudTtsOff || text.length > 200) { this.speakBrowser(text, opts); return; }
+    const rate = opts.rate ?? 0.95;
+    const url = `/api/tts?t=${encodeURIComponent(text)}&r=${rate}`;
+    fetch(url).then(r=>{
+      if (!r.ok) { if (r.status===503 || r.status===403) this._cloudTtsOff = true; throw new Error('tts_'+r.status); }
+      return r.blob();
+    }).then(blob=>{
+      if (seq !== this._ttsSeq || this.muted) return;      // 그 사이 다른 안내가 시작되었거나 음소거됨
+      const au = new Audio(URL.createObjectURL(blob));
+      au.volume = opts.volume ?? 1.0;
+      au.onended = ()=>URL.revokeObjectURL(au.src);
+      this._ttsAudio = au;
+      return au.play();
+    }).catch(e=>{
+      console.warn('[TTS] cloud failed, browser voice', e.message||e);
+      if (seq === this._ttsSeq && !this.muted) this.speakBrowser(text, opts);
+    });
+  },
+  _ttsSeq: 0, _ttsAudio: null, _cloudTtsOff: false,
+  stopSpeech() {
+    this._ttsSeq++;
+    try { if (this._ttsAudio) { this._ttsAudio.pause(); this._ttsAudio = null; } } catch(e){}
+    try { window.speechSynthesis?.cancel(); } catch(e){}
+  },
+  speakBrowser(text, opts={}) {
+    if (!('speechSynthesis' in window)) { console.warn('[TTS] not supported'); return; }
     this.unlockTTS();
     const doSpeak = (tryCount=0)=>{
       try {
@@ -2384,7 +2412,7 @@ const App = {
           row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
             att[row.dataset.n] = b.dataset.v; this.playSound('check');
             const lbl = {present:'출석', late:'지각', early:'조퇴', absent:'결석'}[b.dataset.v] || '';
-            this.speak(`${row.dataset.n} ${lbl}`);
+            this.speak(`${row.dataset.n} ${lbl}`, {local:true});
             refresh();
           });
         });
@@ -3836,14 +3864,14 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
       <div class="choice-grid cols-4">${EMOTIONS.map((e,i)=>
         `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${e.l}">${e.e}</span><span class="lb">${e.l}</span></button>`
       ).join('')}</div>`;
-    this.speak(`${name} 친구, 오늘 기분이 어때요?`);
+    this.speak(`${name} 친구, 오늘 기분이 어때요?`, {local:true});
     this.openPopup(`💖 ${name}의 마음 일기`, html, {onMount:()=>{
       document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
         const e = EMOTIONS[+b.dataset.i];
         this.record.emotions[name] = {emoji:e.e, label:e.l};
         this.playSound('emotion');
         this.toast(`${name}: ${e.l} ${e.e}`,'success');
-        this.speak(`${name} 친구의 오늘 기분은 ${e.l} 입니다.`);
+        this.speak(`${name} 친구의 오늘 기분은 ${e.l} 입니다.`, {local:true});
         this.closePopup(); this.renderEmotions(); this.checkComplete(); this.autoSaveDraft();
       });
     }});
@@ -3963,7 +3991,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
             refresh(); burst();
             this.playSound('fanfare');
             this.toast(`행운의 주인공: ${winners.join(', ')} 👑`,'success');
-            setTimeout(()=>this.speak(`오늘의 행운의 주인공은, ${winners.join(', ')} 입니다! 축하해요!`, {pitch:1.15}), 450);
+            setTimeout(()=>this.speak(`오늘의 행운의 주인공은, ${winners.join(', ')} 입니다! 축하해요!`, {pitch:1.15, local:true}), 450);
             this.autoSaveDraft(); this.renderHelper();
           }
         };
@@ -4035,7 +4063,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
             this.record.helperPickedAt = new Date().toISOString();
             this.playSound('complete');
             this.toast(`오늘의 도우미: ${winners.join(', ')} 🌟`,'success');
-            this.speak(`오늘의 도우미는, ${winners.join(', ')} 입니다.`);
+            this.speak(`오늘의 도우미는, ${winners.join(', ')} 입니다.`, {local:true});
             this.autoSaveDraft(); this.renderHelper();
             spinning = false;
             refresh();
@@ -5493,7 +5521,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     document.getElementById('lp-progress').textContent=`${p.i+1} / ${p.steps.length}`;
     document.getElementById('lp-prev').disabled = p.i===0;
     document.getElementById('lp-next').innerHTML = p.i===p.steps.length-1 ? '✅ 시작!' : '다음 ›';
-    try{ window.speechSynthesis.cancel(); }catch(e){}            // 단계 넘기면 이전 낭독만 중단 (자동 낭독 안 함)
+    this.stopSpeech();            // 단계 넘기면 이전 낭독만 중단 (자동 낭독 안 함)
   },
   presentGo(d) {
     const p=this._present; if(!p) return;
@@ -5503,7 +5531,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     p.i=ni; this.playSound('select'); this.renderPresentStep();
   },
   closeLessonPresent() {
-    try{ window.speechSynthesis.cancel(); }catch(e){}
+    this.stopSpeech();
     document.removeEventListener('keydown', this._presentKey);
     document.getElementById('lesson-present')?.remove();
     document.body.style.overflow='';
