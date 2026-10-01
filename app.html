@@ -243,6 +243,8 @@ footer .status.done{color:var(--success)}
 .wx-skip{display:block;margin:0 auto;padding:6px 12px;font-size:14px;color:var(--text-sub);text-decoration:underline;background:none}
 .wx-sheet-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;padding:11px;border-radius:14px;background:#FFF7E6;border:2px solid #fcd9a8;color:#b45309;font-weight:var(--fw-label);font-size:16px;transition:.15s}
 .wx-sheet-btn:hover{background:#FFEFCF;transform:translateY(-1px)}
+.hdr-icon-btn{width:42px;height:42px;padding:8px;border-radius:12px;background:#FFF7E6;border:2px solid #fcd9a8;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.hdr-icon-btn:hover{background:#FFEFCF;transform:translateY(-1px)}
 .wxres-head{text-align:center;font-size:clamp(20px,2vw,26px);font-weight:var(--fw-title);margin-bottom:10px}
 .wxres-head.ok{color:#15803d}.wxres-head.no{color:#b45309}
 .wxres-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -2158,10 +2160,12 @@ const App = {
       document.querySelectorAll('#popup-body .feel-chip').forEach(b=>b.onclick=()=>{
         const on = this._wxFeel === b.dataset.k;
         this._wxFeel = on ? null : b.dataset.k; // 다시 누르면 해제
+        if (!on) { const f = FEEL.find(x=>x.k===b.dataset.k); if (f) this.speak(f.label); }   // 누를 때마다 읽어줌
         document.querySelectorAll('#popup-body .feel-chip').forEach(x=>x.classList.toggle('on', x.dataset.k===this._wxFeel));
       });
       document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
         this._wxPick = +b.dataset.i; this.playSound('select');
+        this.speak(WEATHER[this._wxPick].label);   // 누를 때마다 읽어줌
         document.querySelectorAll('#popup-body .choice-item').forEach(x=>x.classList.toggle('on', x===b));
       });
     }});
@@ -2205,13 +2209,15 @@ const App = {
         <div class="wxr-inner"><i class="ph-fill ${t.ph} wxr-ico"></i>
           <div class="wxr-label">${ans.label}</div>${this.wxTempHTML(ans,'wxr-temp')}</div></div>
       <button class="auto-fetch-btn" id="wx-ok" style="margin:12px 0 0">확인</button>
-      <button class="wx-sheet-btn" id="wx-sheet">📝 날씨 활동지 만들기</button>`;   // 정답을 확인한 뒤에만 활동지로 갈 수 있음
-    this.openPopup('오늘 날씨 정답 확인', html, {onMount:()=>{
+      `;
+    // 정답을 확인한 뒤에만 활동지로 갈 수 있음 — 제목 줄 오른쪽(닫기 버튼 옆)의 활동지 아이콘
+    const sheetBtn = `<button class="hdr-icon-btn" id="wx-sheet" type="button" title="날씨 활동지 만들기" aria-label="날씨 활동지 만들기"><svg aria-hidden="true"  viewBox="0 0 511.608 511.608" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><g><path d="m395.116 460.181v-8.785c-65.175-24.771-132.375-23.423-201.285 0-7.477 22.436.186 40.659 29.679 52.712h127.679c24.258 0 43.927-19.669 43.927-43.927z" fill="#fd8087"/><path d="m193.831 451.396-77.336-323.803h-8.785c-24.258 0-43.927 19.669-43.927 43.927v288.662c0 24.258 19.669 43.927 43.927 43.927h115.8c-12.129-15.073-22.301-32.86-29.679-52.713z" fill="#fe646f"/><path d="m342.404 67.35h-52.712c-8.981-5.383-20.155-5.558-29.3-.458l-.821.458h-45.182c-26.607 26.105-86.85 288.662 81.974 384.045 5.003 0 112.5 0 107.538 0 24.26 0 43.927-19.667 43.927-43.927v-234.694l-70.952-36.982z" fill="#ffe177"/><g fill="#ffd15b"><path d="m203.476 187.142-19.209-119.792h-23.846c-24.258 0-43.927 19.669-43.927 43.927v296.192c0 24.258 19.669 43.927 43.927 43.927h135.941c-54.93-72.887-87.513-172.759-92.886-264.254z"/><path d="m447.828 172.774h-63.505c-23.153 0-41.919-18.766-41.919-41.919v-63.505z"/><path d="m402.646 383.623c0-12.48-10.111-22.591-22.591-22.591h-36.145c-29.619 0-32.757 10.101-32.757 22.591 0 12.48 3.689 22.591 32.757 22.591h36.146c12.464 0 22.59-10.101 22.59-22.591z"/></g><path d="m321.319 383.623c0-12.464 10.1-22.591 22.591-22.591h-39.157c-12.464 0-22.591 10.101-22.591 22.591 0 12.48 10.111 22.591 22.591 22.591h39.157c-12.48 0-22.591-10.111-22.591-22.591z" fill="#ffc344"/><path d="m289.692 59.82v7.53h-30.121v-7.53c0-12.48-10.111-22.591-22.591-22.591-12.465 0-22.591 10.101-22.591 22.591v90.364c0 8.313 6.747 15.061 15.061 15.061 8.3 0 15.061-6.747 15.061-15.061v-22.591c0-8.313 6.747-15.061 15.061-15.061 8.3 0 15.061 6.747 15.061 15.061v22.591c0 24.95-20.232 45.182-45.182 45.182-24.963 0-45.182-20.24-45.182-45.182 0-16.676 0-84.24 0-90.364 0-29.107 23.605-52.712 52.712-52.712 29.089 0 52.711 23.594 52.711 52.712z" fill="#eaf6ff"/><path d="m362.043 268.911c16.275 0 29.469 10.502 29.469 23.464s-13.193 23.474-29.469 23.474c-16.286 0-29.479-10.512-29.479-23.474 0-12.961 13.193-23.464 29.479-23.464z" fill="#fff"/><path d="m202.28 268.911c16.286 0 29.479 10.502 29.479 23.464s-13.193 23.474-29.479 23.474c-16.275 0-29.469-10.512-29.469-23.474 0-12.961 13.193-23.464 29.469-23.464z" fill="#fff"/><path d="m219.459 277.285c4.143 0 7.5-3.358 7.5-7.5v-12.048c-.344-9.931-14.66-9.923-15 0v12.048c0 4.142 3.357 7.5 7.5 7.5z"/><path d="m344.864 277.285c4.143 0 7.5-3.358 7.5-7.5v-12.048c-.344-9.931-14.66-9.923-15 0v12.048c0 4.142 3.357 7.5 7.5 7.5z"/><path d="m282.162 284.453c8.513 0 16.6-3.685 22.186-10.108 2.719-3.126 2.388-7.863-.737-10.581-3.126-2.718-7.862-2.388-10.581.737-5.427 6.541-16.31 6.54-21.735.001-2.716-3.127-7.454-3.457-10.58-.738-3.126 2.718-3.457 7.455-.738 10.58 5.584 6.425 13.674 10.11 22.185 10.109z"/><path d="m226.695 443.898h-66.27c-20.087 0-36.43-16.343-36.43-36.43v-163.16c-.344-9.931-14.66-9.923-15 0v163.16c0 28.358 23.071 51.43 51.43 51.43h66.27c9.931-.344 9.923-14.66 0-15z"/><path d="m453.132 167.471c-.102-.101-105.544-105.543-105.434-105.433-1.341-1.336-3.255-2.188-5.294-2.188h-45.212v-.03c-3.037-79.789-117.417-79.73-120.425 0v.028h-16.342c-28.358 0-51.43 23.071-51.43 51.43v8.814h-1.286c-28.356 0-51.427 23.07-51.427 51.427v288.662c0 28.357 23.07 51.427 51.427 51.427h243.48c28.356 0 51.427-23.07 51.427-51.427v-1.283h1.289c28.353 0 51.42-23.071 51.42-51.43v-234.69c0-1.908-.803-3.92-2.193-5.307zm-103.228-82.015 79.817 79.818h-45.398c-18.979 0-34.419-15.44-34.419-34.419zm-158.137-25.636c2.28-59.913 88.166-59.866 90.425 0v.03h-15.121v-.03c-1.518-39.874-58.679-39.845-60.183 0v90.364c1.138 29.896 43.994 29.873 45.121 0v-22.592c.357-10.009 14.769-10.002 15.122 0v22.592c-1.901 49.933-73.481 49.896-75.364 0zm30.121.03v-.03c.761-19.998 29.429-19.982 30.183 0v.03zm182.017 384.048c-12.173-.003 8.838-.002-142.21 0-9.931.344-9.923 14.66 0 15h125.921v1.283c0 20.086-16.341 36.427-36.427 36.427h-243.479c-20.086 0-36.427-16.341-36.427-36.427v-288.662c0-20.086 16.341-36.427 36.427-36.427h1.286v74.216c.344 9.931 14.66 9.923 15 0v-98.03c0-20.087 16.343-36.43 36.43-36.43h16.342v75.336c2.657 69.811 102.732 69.757 105.364 0v-22.592c-1.138-29.897-43.995-29.873-45.122 0v22.592c-.356 10.009-14.768 10.001-15.121 0v-75.334h113.016v56.006c0 27.25 22.169 49.419 49.419 49.419h56.002v227.193c-.001 20.087-16.339 36.43-36.421 36.43z"/><path d="m380.055 353.532h-75.303c-39.874 1.518-39.845 58.679 0 60.183h75.303c39.876-1.519 39.844-58.68 0-60.183zm0 45.182h-75.303c-19.998-.761-19.982-29.429 0-30.183h75.303c19.997.762 19.983 29.43 0 30.183z"/></g></svg></button>`;
+    this.openPopup('오늘 날씨 정답 확인', html, {headerExtra:sheetBtn, onMount:()=>{
       document.getElementById('wx-ok').onclick = ()=> this.closePopup();
       document.getElementById('wx-sheet').onclick = ()=> this.ACTIVITY_SHEETS.weather.open();
     }});
-    this.speak(allOk ? `맞아요! 오늘 날씨는 ${ans.label}${ans.temp!=null?`, ${Math.round(ans.temp)}도`:''}${af?`, ${af.label}`:''} 입니다.`
-                     : `아쉬워요. 정답은 ${ans.label}${ans.temp!=null?`, ${Math.round(ans.temp)}도`:''}${af?`, ${af.label}`:''} 입니다.`);
+    // 맞음·틀림 평가 없이 정답 날씨만 읽어줌
+    this.speak(`오늘 날씨는 ${ans.label}${ans.temp!=null?`, ${Math.round(ans.temp)}도`:''}${af?`, ${af.label}`:''} 입니다.`);
   },
 
   renderDust() {
