@@ -679,6 +679,58 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .ai-tg.on .knob{background:var(--success)}
 .ai-tg.on .knob::after{left:21px}
 
+/* ── 감정: 사람 몸에 감정 넣기 (전자칠판 전체 화면) ── */
+.student-card .em{position:relative;display:inline-block}
+.student-card .em-img{display:block;height:1.2em;width:auto;max-width:1.6em;object-fit:contain;margin:0 auto}
+.em-more{position:absolute;right:-16px;bottom:-4px;background:var(--acc-coral);color:#fff;font-size:14px;font-weight:var(--fw-title);line-height:1;padding:4px 7px;border-radius:99px;box-shadow:0 2px 6px rgba(255,138,122,.4)}
+.emo-modal{display:grid;grid-template-columns:minmax(240px,27%) 1fr minmax(220px,25%);gap:clamp(12px,1.4vw,24px);height:min(70vh,700px);touch-action:none;user-select:none;-webkit-user-select:none}
+.emo-mode button{display:inline-flex;align-items:center;gap:5px}
+.emo-palette{background:#FFFBF2;border:2px solid #f3e9d8;border-radius:22px;padding:clamp(14px,1.4vw,24px);display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 24px rgba(120,90,60,.12);min-height:0}
+.emo-pal-title{font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:#4a3b2e;display:flex;align-items:center;gap:8px}
+.emo-pal-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:clamp(8px,1vw,14px)}
+.emo-pal-item{background:#fffdf8;border:2.5px solid #f1e8d8;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0;cursor:grab;touch-action:none;transition:transform .15s,border-color .15s,box-shadow .15s}
+.emo-pal-item .emo-tok{width:clamp(60px,5.4vw,104px);height:auto;aspect-ratio:1}
+.emo-pal-item .lb{font-size:clamp(16px,1.2vw,22px);font-weight:var(--fw-title);color:#4a3b2e}
+.emo-pal-item:active{transform:scale(.96)}
+.emo-pal-item.dragging{opacity:.45}
+.emo-pal-item.picked{border-color:#ffb547;background:#fff4dc;box-shadow:0 0 0 5px rgba(255,190,80,.35);animation:emoWiggle 1s ease-in-out infinite}
+.emo-tok{position:relative;display:block;width:100%;aspect-ratio:1}
+.emo-tok img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.emo-center{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0;border-radius:22px;padding:12px;background:radial-gradient(ellipse 90% 40% at 50% 108%,#d6edbd 0 55%,transparent 75%),linear-gradient(180deg,#e3f2fd 0%,#f1f8f1 60%,#e6f3d4 100%)}
+.emo-q{text-align:center;font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:var(--text);flex-shrink:0}
+.emo-fig-box{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.emo-fig-wrap{position:relative;height:100%;max-height:100%;aspect-ratio:427/735;max-width:100%}
+.emo-fig{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;transition:filter .2s}
+.emo-fig-wrap.hot .emo-fig,.emo-fig-wrap.awaiting .emo-fig{filter:drop-shadow(0 0 10px rgba(255,190,70,.85)) drop-shadow(0 0 3px rgba(255,190,70,.9))}
+.mode-tap .emo-center:has(.awaiting){cursor:copy}
+.emo-placed{position:absolute;inset:0;pointer-events:none}
+.emo-in{position:absolute;width:28%;aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:auto;touch-action:none;cursor:grab;font-size:clamp(28px,2.6vw,50px);border-radius:50%}
+.emo-in .emo-tok{width:100%}
+.emo-in.main{width:40%;background:none;border:none}             /* 첫 감정: 그림 속 셔츠의 감정 친구 위 투명한 누르는 자리 */
+.mode-tap .emo-in.main:hover{outline:3px dashed #ff8a7a;outline-offset:-4px}
+.emo-fig.morph{animation:emoMorph .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes emoMorph{0%{transform:scale(.94);filter:brightness(1.25)}55%{transform:scale(1.03)}100%{transform:scale(1);filter:none}}
+.emo-in.pop{animation:emoDrop .45s cubic-bezier(.34,1.56,.64,1)}
+.emo-in.dragging{opacity:.3}
+.mode-tap .emo-in{cursor:pointer}
+.mode-tap .emo-in:hover{outline:3px dashed #ff8a7a;outline-offset:-4px}
+.emo-ghost{position:fixed;left:0;top:0;z-index:1600;pointer-events:none;font-size:clamp(32px,3vw,58px);filter:drop-shadow(0 10px 14px rgba(80,60,40,.25))}
+.emo-ghost .emo-tok{width:100%;transform:scale(1.08)}
+.emo-side{display:flex;flex-direction:column;gap:clamp(12px,2vh,26px);justify-content:center;min-height:0}
+.emo-guide{font-size:clamp(18px,1.4vw,26px);color:#4a3b2e;line-height:1.5;background:#F8FAFF;border-radius:22px;padding:clamp(14px,1.4vw,22px)}
+.emo-guide b{color:#e0702e}
+.emo-cloud{background:#fff3b8;border-radius:46% 54% 50% 50%/60% 55% 45% 40%;padding:clamp(20px,2.4vw,40px) clamp(16px,1.6vw,28px);text-align:center;font-size:clamp(18px,1.35vw,25px);color:#5b4a3a;line-height:1.55;box-shadow:0 6px 18px rgba(230,190,60,.25)}
+.emo-cloud b{font-size:1.2em;color:#4a3b2e}
+.emo-actions{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+.emo-reset{padding:clamp(12px,1.4vh,18px);border-radius:99px;background:rgba(255,255,255,.75);border:2px solid #e5dccd;font-size:clamp(17px,1.3vw,23px);font-weight:var(--fw-label);color:#7a6858;display:flex;align-items:center;justify-content:center;gap:8px}
+.emo-done{padding:clamp(18px,2.4vh,30px);border-radius:99px;background:linear-gradient(135deg,#ffb547,#ff8a5c);color:#fff;font-size:clamp(24px,2vw,36px);font-weight:var(--fw-title);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 22px rgba(255,140,80,.38);transition:.2s}
+.emo-done:disabled,.emo-reset:disabled{background:#ddd8d0;color:#9a9188;box-shadow:none;border-color:transparent;cursor:not-allowed}
+.emo-modal button:focus-visible{outline:4px solid var(--primary);outline-offset:3px}
+@keyframes emoDrop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes emoWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+@media (prefers-reduced-motion: reduce){.emo-in.pop,.emo-pal-item.picked,.emo-fig.morph{animation:none}}
+@media (max-aspect-ratio: 1/1){.emo-modal{grid-template-columns:1fr 1fr;grid-template-rows:1fr auto;height:min(80vh,900px)}.emo-center{grid-row:1}.emo-palette{grid-row:1;grid-column:2}.emo-side{grid-column:1/-1;flex-direction:row}.emo-cloud{display:none}}
+
 /* 출결 대시보드 */
 .dash-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#EEF3FF;border-radius:14px;padding:10px 12px;position:sticky;top:0;z-index:4}
 .dash-filter select,.dash-filter input{padding:9px 10px;border:2px solid #dbe3f0;border-radius:10px;font-size:14px;font-weight:var(--fw-label);background:#fff;color:#334155}
@@ -1358,9 +1410,26 @@ const DUST = [
   {emoji:'⚠️',label:'매우나쁨',hint:'실외활동 주의해요',level:3}
 ];
 const EMOTIONS = [
-  {e:'😊',l:'기쁨'},{e:'😢',l:'슬픔'},{e:'😡',l:'화남'},{e:'😴',l:'피곤'},
-  {e:'😆',l:'신남'},{e:'😰',l:'불안'},{e:'😑',l:'그냥'},{e:'🤢',l:'아픔'}
+  {k:'joy',e:'😊',l:'기쁨',say:'기뻐요'},{k:'sad',e:'😢',l:'슬픔',say:'슬퍼요'},
+  {k:'angry',e:'😡',l:'화남',say:'화나요'},{k:'tired',e:'😴',l:'피곤',say:'피곤해요'},
+  {k:'excited',e:'😆',l:'신남',say:'신나요'},{k:'anxious',e:'😰',l:'불안',say:'불안해요'},
+  {k:'meh',e:'😑',l:'그냥',say:'그냥 그래요'},{k:'sick',e:'🤢',l:'아픔',say:'아파요'}
 ];
+const EMO_ZONES = {head:'머리', chest:'가슴', belly:'배', arms:'팔', legs:'다리'};
+const emoImg = k => `img/emotion/${k}.webp`;
+// 사람 그림(524×754, 기본·감정별 표정 9장이 같은 틀) 기준 비율 좌표: 마음 자리(셔츠 점선 동그라미) 중심, 몸 부위 경계
+const EMO_PERSON = {src:'img/emotion/person.webp', w:524, h:754, heart:{x:.496, y:.581},
+  zone:{head:.414, chest:.546, legs:.786, armL:.309, armR:.674}};
+// 첫 감정을 넣으면 사람이 그 감정 표정·몸짓으로 바뀐다 (그림 속 셔츠에 첫 감정 친구가 그려져 있음)
+const emoPose = k => k ? `img/emotion/person-${k}.webp` : EMO_PERSON.src;
+const EMO_MAX = 10;   // 한 사람 몸에 넣을 수 있는 감정 수 (너무 많으면 겹쳐서 안 보임)
+// 감정 기록 → 몸에 넣은 감정 목록. 예전 기록({emoji,label}만 있음)은 가슴에 하나 있는 것으로 본다
+const emoItems = v => {
+  if (!v) return [];
+  if (Array.isArray(v.items)) return v.items.filter(it=>EMOTIONS.some(e=>e.k===it.k));
+  const e = EMOTIONS.find(x=>x.l===v.label);
+  return e ? [{k:e.k, x:.5, y:.47, zone:'chest'}] : [];
+};
 
 const App = {
   audio: null, muted: false, currentOnClose: null,
@@ -3898,8 +3967,10 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     c.innerHTML = `<div class="v3-title">${emChip}우리반 감정${allDone?'<span class="v3-badge"><i class="ph-bold ph-check"></i>모두 완료</span>':''}</div>
       <div class="students-grid">${eligible.map(n=>{
         const v = em[n];
+        const kinds = [...new Set(emoItems(v).map(it=>it.k))].map(k=>EMOTIONS.find(e=>e.k===k));
+        const more = kinds.length>1 ? `<span class="em-more">+${kinds.length-1}</span>` : '';
         return `<div class="student-card ${v?'filled':''}" data-name="${esc(n)}" tabindex="0" role="button" aria-label="${esc(n)} 감정 선택">
-          <div class="em" role="img" aria-label="${v?v.label:'미선택'}">${v?v.emoji:'❓'}</div>
+          <div class="em" role="img" aria-label="${v?(kinds.length?kinds.map(e=>e.l).join(', '):esc(v.label)):'미선택'}">${kinds.length?`<img class="em-img" src="${emoImg(kinds[0].k)}" alt="">`:(v?v.emoji:'❓')}${more}</div>
           <div class="nm">${esc(n)}</div>
         </div>`;
       }).join('')}</div>`;
@@ -3907,29 +3978,250 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
       sc.onclick = ()=> this.openEmotion(sc.dataset.name);
     });
   },
+  // 감정 넣는 방식: 'drag'(끌어서 넣기, 기본) | 'tap'(눌러서 넣기) — 학급별 저장
+  emoMode() { return this.settings?.emoMode === 'tap' ? 'tap' : 'drag'; },
+  // 사람 그림 투명도 지도 — 놓은 자리가 몸 안인지 알파값으로 판정 (한 번 만들어 재사용)
+  emoBodyMask(src) {
+    const cache = this._emoMasks || (this._emoMasks = {});
+    if (src in cache) return Promise.resolve(cache[src]);
+    return new Promise(res=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try {
+          const W = 120, H = Math.round(W*EMO_PERSON.h/EMO_PERSON.w), cv = document.createElement('canvas');
+          cv.width = W; cv.height = H;
+          const cx = cv.getContext('2d'); cx.drawImage(img, 0, 0, W, H);
+          const a = cx.getImageData(0, 0, W, H).data;
+          cache[src] = {at:(x,y)=>{ const i = Math.floor(y*H)*W + Math.floor(x*W); return a[i*4+3] > 100; }};
+        } catch(e) { cache[src] = null; }
+        res(cache[src]);
+      };
+      img.onerror = ()=>{ cache[src] = null; res(null); };
+      img.src = src;
+    });
+  },
   openEmotion(name) {
     this.ensureAudio();
-    // 학생 이름을 크게 강조 — "내가 나의 감정을 고른다" 느낌
+    let items = emoItems(this.record.emotions[name]).map(it=>({...it}));
+    let picked = null;                                            // 눌러서 넣기에서 고른 감정 k
+    const blob = (e, cls='') => `<span class="emo-tok ${cls}"><img src="${emoImg(e.k)}" alt="" draggable="false"></span>`;
     const html = `
-      <div style="text-align:center;margin:6px 0 22px">
-        <div style="font-size:18px;color:var(--text-sub);font-weight:600;margin-bottom:6px">오늘의 주인공</div>
-        <div class="handwriting" style="font-size:clamp(40px,4.6vw,72px);font-weight:900;color:var(--acc-coral);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1),nameFloat 2.4s ease-in-out infinite;line-height:1.1">${esc(name)}</div>
-        <div style="margin-top:10px;font-size:clamp(20px,1.6vw,26px);font-weight:700;color:var(--text)">지금 내 마음은 어떤가요? 💭</div>
-      </div>
-      <div class="choice-grid cols-4">${EMOTIONS.map((e,i)=>
-        `<button class="choice-item" data-i="${i}"><span class="em" role="img" aria-label="${e.l}">${e.e}</span><span class="lb">${e.l}</span></button>`
-      ).join('')}</div>`;
-    this.speak(`${name} 친구, 오늘 기분이 어때요?`);
-    this.openPopup(`💖 ${name}의 마음 일기`, html, {onMount:()=>{
-      document.querySelectorAll('#popup-body .choice-item').forEach(b=>b.onclick=()=>{
-        const e = EMOTIONS[+b.dataset.i];
-        this.record.emotions[name] = {emoji:e.e, label:e.l};
-        this.playSound('emotion');
-        this.toast(`${name}: ${e.l} ${e.e}`,'success');
-        this.speak(`${name} 친구의 오늘 기분은 ${e.l} 입니다.`);
-        this.closePopup(); this.renderEmotions(); this.checkComplete(); this.autoSaveDraft();
+      <div class="emo-modal" id="emo-modal">
+        <div class="emo-palette">
+          <div class="emo-pal-title"><span>❤️</span> 감정 친구들</div>
+          <div class="emo-pal-grid">${EMOTIONS.map(e=>`<button class="emo-pal-item" data-k="${e.k}" aria-label="${e.l}">${blob(e)}<span class="lb">${e.l}</span></button>`).join('')}</div>
+        </div>
+        <div class="emo-center">
+          <div class="emo-q handwriting">지금 내 마음속에는 어떤 감정이 있을까?</div>
+          <div class="emo-fig-box"><div class="emo-fig-wrap" id="emo-fig-wrap"><img class="emo-fig" id="emo-fig" src="${emoPose(items[0]?.k)}" alt="" draggable="false"><div class="emo-placed" id="emo-placed"></div></div></div>
+        </div>
+        <div class="emo-side">
+          <div class="emo-guide handwriting" id="emo-guide"></div>
+          <div class="emo-cloud handwriting">여러 감정이<br>함께 있을 수 있어요.<br><b>괜찮아요!</b></div>
+          <div class="emo-actions">
+            <button class="emo-reset" id="emo-reset"><i class="ph-bold ph-arrow-counter-clockwise"></i> 다시 하기</button>
+            <button class="emo-done" id="emo-done">완료하기 <i class="ph-bold ph-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>`;
+    const modeToggle = `<div class="mv-toggle emo-mode" role="group" aria-label="넣는 방식">
+      <button data-m="drag"><i class="ph-bold ph-hand-grabbing"></i> 끌어서 넣기</button>
+      <button data-m="tap"><i class="ph-bold ph-hand-pointing"></i> 눌러서 넣기</button></div>`;
+    this.openPopup(`💖 ${name}의 마음 일기`, html, {large:true, headerExtra:modeToggle, onMount:()=>this.bindEmotion(name, items, picked, blob)});
+    this.speak(`${name} 친구, 마음속에 어떤 감정이 있나요?`);
+  },
+  bindEmotion(name, items, picked, blob) {
+    const st = document.getElementById('emo-modal'), modeEls = document.querySelectorAll('#popup-extra .emo-mode button');
+    const wrap = st.querySelector('#emo-fig-wrap'), placed = st.querySelector('#emo-placed');
+    const E = k => EMOTIONS.find(e=>e.k===k);
+    const fig = st.querySelector('#emo-fig');
+    // 표정 그림 9장을 미리 받아 두고(바뀔 때 깜빡이지 않게) 몸 판정용 투명도 지도도 만든다
+    [null, ...EMOTIONS.map(e=>e.k)].forEach(k=>this.emoBodyMask(emoPose(k)));
+    const curMask = () => (this._emoMasks||{})[emoPose(items[0]?.k)];
+    let poseK = items[0]?.k || null;
+    // 첫 감정(주인공 감정)이 바뀌면 사람 그림을 그 감정 표정으로 바꾼다
+    const syncPose = () => {
+      const k = items[0]?.k || null;
+      if (k === poseK) return;
+      poseK = k; fig.src = emoPose(k);
+      fig.classList.remove('morph'); void fig.offsetWidth; fig.classList.add('morph');
+    };
+
+    // 화면 좌표 → 사람 그림 기준 비율 좌표(0~1). 가운데 칸 밖이면 null
+    // (사람 그림 옆 빈자리에 놓아도 받아 주고, 그림 가장자리로 붙인 뒤 몸 안으로 당긴다)
+    const area = st.querySelector('.emo-center');
+    const toBox = (cx, cy) => {
+      const a = area.getBoundingClientRect();
+      if (cx<a.left || cx>a.right || cy<a.top || cy>a.bottom) return null;
+      const r = wrap.getBoundingClientRect(), cl = v => Math.max(0, Math.min(.999, v));
+      return {x:cl((cx-r.left)/r.width), y:cl((cy-r.top)/r.height)};
+    };
+    const inside = p => { const mask = curMask(); return mask ? mask.at(Math.min(.999,p.x), Math.min(.999,p.y)) : (p.x>.2 && p.x<.8 && p.y>.05 && p.y<.95); };
+    // 몸 밖(그림 칸 안)에 놓으면 마음 자리(점선 동그라미) 쪽으로 끌어당겨 몸 안에 넣는다 — 손이 정확하지 않아도 들어가게
+    const snapIn = p => {
+      const c = EMO_PERSON.heart;
+      for (let i=0; i<=24 && !inside(p); i++) p = {x:p.x+(c.x-p.x)*.12, y:p.y+(c.y-p.y)*.12};
+      return p;
+    };
+    const zoneOf = p => { const z = EMO_PERSON.zone;
+      return p.y<z.head ? 'head' : p.y>=z.legs ? 'legs' : (p.x<z.armL||p.x>z.armR) ? 'arms' : p.y<z.chest ? 'chest' : 'belly'; };
+    // 놓을 곳 계산: 가운데 칸 밖이면 null (넣지 않음)
+    const dropAt = (cx, cy) => { const p = toBox(cx, cy); if (!p) return null; const q = snapIn(p); return {x:q.x, y:q.y, zone:zoneOf(q)}; };
+    // 셔츠 점선 동그라미(마음 자리) 안인지 — 여기에 놓으면 그 감정이 첫 감정(주인공)이 된다
+    const inHeart = p => p && ((p.x-EMO_PERSON.heart.x)/.13)**2 + ((p.y-EMO_PERSON.heart.y)/.11)**2 <= 1;
+    const heartPos = () => ({x:EMO_PERSON.heart.x+(Math.random()-.5)*.16, y:EMO_PERSON.heart.y+(Math.random()-.5)*.1, zone:'belly'});
+
+    const guideText = () => this.emoMode()==='drag'
+      ? (items.length>=2 ? '가장 큰 감정을<br><b>가운데 동그라미</b>로 옮겨 보세요.' : '감정 친구를 <b>끌어서</b><br>사람 안에 넣어 보세요.')
+      : (picked ? `<b>${E(picked).l}</b>을(를) 넣을 곳을<br>사람 몸에서 눌러 보세요.` : '감정 친구를 <b>누르고</b>,<br>사람 몸을 눌러 넣어 보세요.');
+    const renderUI = () => {
+      const mode = this.emoMode();
+      modeEls.forEach(b=>{ const on = b.dataset.m===mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+      st.classList.toggle('mode-tap', mode==='tap');
+      st.querySelectorAll('.emo-pal-item').forEach(b=>{
+        const on = mode==='tap' && b.dataset.k===picked;
+        b.classList.toggle('picked', on); b.setAttribute('aria-pressed', on);
       });
-    }});
+      wrap.classList.toggle('awaiting', mode==='tap' && !!picked);
+      st.querySelector('#emo-guide').innerHTML = guideText();
+      st.querySelector('#emo-done').disabled = !items.length;
+      st.querySelector('#emo-reset').disabled = !items.length;
+    };
+    const renderPlaced = (popIdx=-1) => {
+      syncPose();
+      placed.innerHTML = items.map((it,i)=>{ const e = E(it.k);
+        if (i===0) return `<button class="emo-in main" data-i="0" style="left:${EMO_PERSON.heart.x*100}%;top:${EMO_PERSON.heart.y*100}%" aria-label="첫 감정 ${e.l} (${EMO_ZONES[it.zone]||''}) 빼기"></button>`;
+        return `<button class="emo-in ${i===popIdx?'pop':''}" data-i="${i}" style="left:${it.x*100}%;top:${it.y*100}%" aria-label="${e.l} (${EMO_ZONES[it.zone]||''}) 빼기">${blob(e)}</button>`;
+      }).join('');
+      bindPlaced();
+    };
+    const add = (k, pos) => {
+      if (items.length >= EMO_MAX) { this.playSound('wrong'); this.toast(`감정은 ${EMO_MAX}개까지 넣을 수 있어요`); return false; }
+      items.push({k, ...pos});
+      this.playSound('emotion'); this.speak(E(k).say);   // 넣으면 "기뻐요"처럼 감정을 말로 읽어 준다
+      renderPlaced(items.length-1); renderUI();
+      return true;
+    };
+    // 주인공 바꾸기: 감정 it을 첫 자리로. 원래 첫 감정이 마음 자리에 있었다면 옆으로 비켜 준다
+    // 비켜 줄 자리 후보 — 새 표정 그림의 몸 안이면서 다른 감정·셔츠 그림과 가장 먼 곳을 고른다
+    const SPOTS = [[.5,.2],[.36,.42],[.64,.42],[.42,.86],[.58,.86],[.18,.5],[.82,.5],[.24,.62],[.76,.62]];
+    const freeSpot = self => {
+      const others = items.filter(o=>o!==self).map((o,i)=>i===0 ? EMO_PERSON.heart : o);
+      let best = null, bestD = -1;
+      for (const [x,y] of SPOTS) {
+        if (!inside({x,y}) || inHeart({x,y})) continue;
+        const d = Math.min(...others.map(o=>Math.hypot(o.x-x, (o.y-y)*EMO_PERSON.h/EMO_PERSON.w)));
+        if (d > bestD) { bestD = d; best = {x,y}; }
+      }
+      return best || snapIn({x:EMO_PERSON.heart.x+.2, y:EMO_PERSON.heart.y-.06});
+    };
+    const makeMain = it => {
+      const old = items[0];
+      for (let j=items.length-1; j>=0; j--) if (items[j].k===it.k) items.splice(j,1);   // 같은 감정이 몸에 또 있으면 하나로
+      items.unshift(it);
+      if (old && old!==it && items.includes(old) && inHeart(old)) {    // 원래 첫 감정이 마음 자리에 있었으면 옆으로 비켜 준다
+        const q = freeSpot(old); Object.assign(old, {x:q.x, y:q.y, zone:zoneOf(q)});
+      }
+      this.playSound('sparkle'); this.speak(E(it.k).say);
+      renderPlaced(); renderUI();
+    };
+    const removeAt = i => {
+      items.splice(i,1);
+      this.playSound('check');
+      renderPlaced(); renderUI();
+    };
+
+    // 끌기: 손가락/펜/마우스를 모두 Pointer Events로 처리. 거의 안 움직이고 떼면 '탭'으로 본다
+    const startDrag = (ev, k, fromIdx, srcEl) => {
+      if (ev.button>0) return;
+      ev.preventDefault();
+      const sx = ev.clientX, sy = ev.clientY, pid = ev.pointerId;
+      let ghost = null, moved = false;
+      const move = m => {
+        if (m.pointerId!==pid) return;
+        if (!moved && Math.hypot(m.clientX-sx, m.clientY-sy) < 10) return;
+        if (!moved) {
+          moved = true;
+          ghost = document.createElement('div'); ghost.className = 'emo-ghost';
+          ghost.innerHTML = blob(E(k)); document.body.appendChild(ghost);
+          ghost.style.width = ghost.style.height = Math.round(wrap.getBoundingClientRect().width*.22)+'px';
+          srcEl?.classList.add('dragging');
+          this.playSound('select');
+        }
+        ghost.style.transform = `translate(${m.clientX}px,${m.clientY}px) translate(-50%,-50%)`;
+        wrap.classList.toggle('hot', !!toBox(m.clientX, m.clientY));
+      };
+      const up = u => {
+        if (u.pointerId!==pid) return;
+        window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        wrap.classList.remove('hot'); srcEl?.classList.remove('dragging');
+        if (!moved) {                                              // 탭
+          if (fromIdx!=null) removeAt(fromIdx);
+          else add(k, heartPos());  // 누르기만 하면 마음 자리(점선 동그라미)에 쏙
+          return;
+        }
+        ghost.remove();
+        const pos = u.type==='pointercancel' ? null : dropAt(u.clientX, u.clientY);
+        const toHeart = !!pos && items.length>0 && inHeart(toBox(u.clientX, u.clientY));
+        if (fromIdx>0 && toHeart) {                                 // 몸에 넣은 감정을 마음 자리로 → 주인공
+          makeMain(Object.assign(items.splice(fromIdx,1)[0], pos));
+        } else if (fromIdx==null && toHeart) {                       // 새 감정을 마음 자리로 → 바로 주인공
+          if (items.length >= EMO_MAX) { this.playSound('wrong'); this.toast(`감정은 ${EMO_MAX}개까지 넣을 수 있어요`); }
+          else makeMain({k, ...pos});
+        } else if (fromIdx!=null) {                                // 몸 안에서 옮기기 — 밖으로 빼면 지우기
+          if (pos) { Object.assign(items[fromIdx], pos); this.playSound('select'); renderPlaced(fromIdx===0 ? -1 : fromIdx); }
+          else removeAt(fromIdx);
+        } else if (pos) add(k, pos);
+        else this.playSound('wrong');
+      };
+      window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    };
+
+    const bindPlaced = () => placed.querySelectorAll('.emo-in').forEach(b=>{
+      const i = +b.dataset.i;
+      if (this.emoMode()==='drag') { b.onpointerdown = ev=>startDrag(ev, items[i].k, i, b); b.onclick = null; }
+      else { b.onpointerdown = null; b.onclick = ev=>{ if (picked) return; ev.stopPropagation(); removeAt(i); }; }   // 감정을 골라 둔 상태면 넣기(아래 area)로 넘긴다
+      b.onkeydown = ev=>{ if (ev.key==='Enter'||ev.key===' '||ev.key==='Delete'||ev.key==='Backspace') { ev.preventDefault(); removeAt(i); } };
+    });
+    const bindPalette = () => st.querySelectorAll('.emo-pal-item').forEach(b=>{
+      const k = b.dataset.k;
+      if (this.emoMode()==='drag') { b.onpointerdown = ev=>startDrag(ev, k, null, b); b.onclick = null; }
+      else {
+        b.onpointerdown = null;
+        b.onclick = ()=>{ picked = picked===k ? null : k; this.playSound('select'); if (picked) this.speak(E(k).say); renderUI(); };
+      }
+      // 키보드: Enter/Space로 바로 넣기
+      b.onkeydown = ev=>{ if (ev.key==='Enter'||ev.key===' ') { ev.preventDefault(); add(k, heartPos()); } };
+    });
+    // 눌러서 넣기: 고른 감정을 누른 자리에
+    area.onclick = ev=>{
+      if (this.emoMode()!=='tap' || !picked) return;
+      const pos = dropAt(ev.clientX, ev.clientY);
+      if (!pos) return;
+      if (items.length && inHeart(toBox(ev.clientX, ev.clientY))) {   // 마음 자리를 누르면 고른 감정이 주인공
+        if (items.length >= EMO_MAX) { this.playSound('wrong'); this.toast(`감정은 ${EMO_MAX}개까지 넣을 수 있어요`); }
+        else makeMain({k:picked, ...pos});
+      } else add(picked, pos);
+    };
+
+    modeEls.forEach(b=>b.onclick=()=>{
+      if (!this.settings || this.emoMode()===b.dataset.m) return;
+      this.settings.emoMode = b.dataset.m; this.persistClasses();
+      picked = null; this.playSound('select');
+      bindPalette(); bindPlaced(); renderUI();
+    });
+    st.querySelector('#emo-reset').onclick = ()=>{ items = []; picked = null; this.playSound('check'); renderPlaced(); renderUI(); };
+    st.querySelector('#emo-done').onclick = ()=>{
+      if (!items.length) return;
+      const first = E(items[0].k), labels = [...new Set(items.map(it=>E(it.k).l))];
+      this.record.emotions[name] = {emoji:first.e, label:first.l,
+        items: items.map(it=>({k:it.k, x:+it.x.toFixed(3), y:+it.y.toFixed(3), zone:it.zone}))};
+      this.playSound('save');
+      this.toast(`${name}: ${labels.join(', ')}`,'success');
+      this.closePopup(); this.renderEmotions(); this.checkComplete(); this.autoSaveDraft();
+    };
+
+    bindPalette(); renderPlaced(); renderUI();
   },
 
   // ── 도우미 카드: 🎲 오늘의 도우미 / 🍀 행운의 주인공 두 가지 모드 (학급별 저장) ──
@@ -4949,7 +5241,11 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     document.querySelectorAll('.record-item').forEach(el=>el.onclick=()=>{
       const r = JSON.parse(localStorage.getItem(el.dataset.k)||'{}');
       const k = el.dataset.k;
-      const ems = Object.entries(r.emotions||{}).map(([n,v])=>`${esc(n)}: ${v.emoji} ${esc(v.label)}`).join(', ');
+      const ems = Object.entries(r.emotions||{}).map(([n,v])=>{
+        const its = emoItems(v);
+        if (!its.length) return `${esc(n)}: ${v.emoji} ${esc(v.label)}`;
+        return `${esc(n)}: ${its.map(it=>{ const e = EMOTIONS.find(x=>x.k===it.k); return `${e.e}${e.l}(${EMO_ZONES[it.zone]||''})`; }).join(' ')}`;
+      }).join(' · ');
       const att = Object.entries(r.attendance||{}).map(([n,v])=>`${esc(n)}: ${esc(v)}`).join(', ');
       document.getElementById('record-detail').innerHTML = `<div class="record-detail">
         <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}${r.weather.temp!=null?` ${Math.round(r.weather.temp)}°`:''}${(f=>f?` · ${f.label}`:'')(r.weather.temp!=null?feelFromTemp(r.weather.temp):FEEL.find(x=>x.k===r.weather.feel))}`:'-'}</div>
