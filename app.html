@@ -683,20 +683,20 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .student-card .em{position:relative;display:inline-block}
 .student-card .em-img{display:block;height:1.2em;width:auto;max-width:1.6em;object-fit:contain;margin:0 auto}
 .em-more{position:absolute;right:-16px;bottom:-4px;background:var(--acc-coral);color:#fff;font-size:14px;font-weight:var(--fw-title);line-height:1;padding:4px 7px;border-radius:99px;box-shadow:0 2px 6px rgba(255,138,122,.4)}
-.emo-modal{display:grid;grid-template-columns:minmax(240px,27%) 1fr minmax(220px,25%);gap:clamp(12px,1.4vw,24px);height:min(70vh,700px);touch-action:none;user-select:none;-webkit-user-select:none}
+.emo-modal{display:grid;grid-template-columns:6fr 4fr;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"center pal" "center side";gap:clamp(12px,1.4vw,24px);height:min(70vh,700px);touch-action:none;user-select:none;-webkit-user-select:none}
 .emo-mode button{display:inline-flex;align-items:center;gap:5px}
-.emo-palette{background:#FFFBF2;border:2px solid #f3e9d8;border-radius:22px;padding:clamp(14px,1.4vw,24px);display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 24px rgba(120,90,60,.12);min-height:0}
+.emo-palette{grid-area:pal;background:#FFFBF2;border:2px solid #f3e9d8;border-radius:22px;padding:clamp(10px,1vw,18px);display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 24px rgba(120,90,60,.12);min-height:0}
 .emo-pal-title{font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:#4a3b2e;display:flex;align-items:center;gap:8px}
-.emo-pal-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:clamp(8px,1vw,14px)}
-.emo-pal-item{background:#fffdf8;border:2.5px solid #f1e8d8;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0;cursor:grab;touch-action:none;transition:transform .15s,border-color .15s,box-shadow .15s}
-.emo-pal-item .emo-tok{width:clamp(60px,5.4vw,104px);height:auto;aspect-ratio:1}
-.emo-pal-item .lb{font-size:clamp(16px,1.2vw,22px);font-weight:var(--fw-title);color:#4a3b2e}
+.emo-pal-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(6px,.7vw,12px)}
+.emo-pal-item{background:#fffdf8;border:2.5px solid #f1e8d8;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:0;min-width:0;padding:4px 2px;cursor:grab;touch-action:none;transition:transform .15s,border-color .15s,box-shadow .15s}
+.emo-pal-item .emo-tok{width:100%;max-width:150px;height:auto;aspect-ratio:1}
+.emo-pal-item .lb{font-size:clamp(17px,1.35vw,25px);font-weight:var(--fw-title);color:#4a3b2e}
 .emo-pal-item:active{transform:scale(.96)}
 .emo-pal-item.dragging{opacity:.45}
 .emo-pal-item.picked{border-color:#ffb547;background:#fff4dc;box-shadow:0 0 0 5px rgba(255,190,80,.35);animation:emoWiggle 1s ease-in-out infinite}
 .emo-tok{position:relative;display:block;width:100%;aspect-ratio:1}
 .emo-tok img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
-.emo-center{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0;border-radius:22px;padding:12px;background:radial-gradient(ellipse 90% 40% at 50% 108%,#d6edbd 0 55%,transparent 75%),linear-gradient(180deg,#e3f2fd 0%,#f1f8f1 60%,#e6f3d4 100%)}
+.emo-center{grid-area:center;display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0;border-radius:22px;padding:12px;background:radial-gradient(ellipse 90% 40% at 50% 108%,#d6edbd 0 55%,transparent 75%),linear-gradient(180deg,#e3f2fd 0%,#f1f8f1 60%,#e6f3d4 100%)}
 .emo-q{text-align:center;font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:var(--text);flex-shrink:0}
 .emo-fig-box{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
 .emo-fig-wrap{position:relative;height:100%;max-height:100%;aspect-ratio:427/735;max-width:100%}
@@ -716,20 +716,21 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .mode-tap .emo-in:hover{outline:3px dashed #ff8a7a;outline-offset:-4px}
 .emo-ghost{position:fixed;left:0;top:0;z-index:1600;pointer-events:none;font-size:clamp(32px,3vw,58px);filter:drop-shadow(0 10px 14px rgba(80,60,40,.25))}
 .emo-ghost .emo-tok{width:100%;transform:scale(1.08)}
-.emo-side{display:flex;flex-direction:column;gap:clamp(12px,2vh,26px);justify-content:center;min-height:0}
-.emo-guide{font-size:clamp(18px,1.4vw,26px);color:#4a3b2e;line-height:1.5;background:#F8FAFF;border-radius:22px;padding:clamp(14px,1.4vw,22px)}
+.emo-side{grid-area:side;display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);min-height:0}
+.emo-guide{font-size:clamp(16px,1.2vw,22px);color:#4a3b2e;line-height:1.45;background:#F8FAFF;border-radius:18px;padding:clamp(8px,1vw,14px) clamp(12px,1.2vw,18px);text-align:center}
+.emo-guide:empty{display:none}
 .emo-guide b{color:#e0702e}
-.emo-cloud{background:#fff3b8;border-radius:46% 54% 50% 50%/60% 55% 45% 40%;padding:clamp(20px,2.4vw,40px) clamp(16px,1.6vw,28px);text-align:center;font-size:clamp(18px,1.35vw,25px);color:#5b4a3a;line-height:1.55;box-shadow:0 6px 18px rgba(230,190,60,.25)}
-.emo-cloud b{font-size:1.2em;color:#4a3b2e}
-.emo-actions{display:flex;flex-direction:column;gap:10px;margin-top:auto}
-.emo-reset{padding:clamp(12px,1.4vh,18px);border-radius:99px;background:rgba(255,255,255,.75);border:2px solid #e5dccd;font-size:clamp(17px,1.3vw,23px);font-weight:var(--fw-label);color:#7a6858;display:flex;align-items:center;justify-content:center;gap:8px}
-.emo-done{padding:clamp(18px,2.4vh,30px);border-radius:99px;background:linear-gradient(135deg,#ffb547,#ff8a5c);color:#fff;font-size:clamp(24px,2vw,36px);font-weight:var(--fw-title);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 22px rgba(255,140,80,.38);transition:.2s}
+.emo-cloud{background:#fff3b8;border-radius:18px;padding:clamp(8px,1vw,12px) clamp(12px,1.2vw,18px);text-align:center;font-size:clamp(15px,1.1vw,20px);color:#5b4a3a;line-height:1.4;box-shadow:0 4px 12px rgba(230,190,60,.2)}
+.emo-cloud b{font-size:1.1em;color:#4a3b2e;white-space:nowrap}
+.emo-actions{display:flex;gap:10px}
+.emo-reset{padding:clamp(12px,1.4vh,18px);border-radius:99px;background:rgba(255,255,255,.75);border:2px solid #e5dccd;font-size:clamp(17px,1.3vw,23px);font-weight:var(--fw-label);color:#7a6858;flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+.emo-done{flex:1.6;padding:clamp(12px,1.8vh,22px);border-radius:99px;background:linear-gradient(135deg,#ffb547,#ff8a5c);color:#fff;font-size:clamp(20px,1.6vw,30px);font-weight:var(--fw-title);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 22px rgba(255,140,80,.38);transition:.2s}
 .emo-done:disabled,.emo-reset:disabled{background:#ddd8d0;color:#9a9188;box-shadow:none;border-color:transparent;cursor:not-allowed}
 .emo-modal button:focus-visible{outline:4px solid var(--primary);outline-offset:3px}
 @keyframes emoDrop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 @keyframes emoWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
 @media (prefers-reduced-motion: reduce){.emo-in.pop,.emo-pal-item.picked,.emo-fig.morph{animation:none}}
-@media (max-aspect-ratio: 1/1){.emo-modal{grid-template-columns:1fr 1fr;grid-template-rows:1fr auto;height:min(80vh,900px)}.emo-center{grid-row:1}.emo-palette{grid-row:1;grid-column:2}.emo-side{grid-column:1/-1;flex-direction:row}.emo-cloud{display:none}}
+@media (max-aspect-ratio: 1/1){.emo-modal{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto auto;grid-template-areas:"center" "pal" "side";height:min(85vh,1000px)}.emo-pal-grid{flex:none}.emo-pal-item .emo-tok{width:min(100%,clamp(64px,13vw,130px))}}
 
 /* 출결 대시보드 */
 .dash-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#EEF3FF;border-radius:14px;padding:10px 12px;position:sticky;top:0;z-index:4}
@@ -4017,7 +4018,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         </div>
         <div class="emo-side">
           <div class="emo-guide handwriting" id="emo-guide"></div>
-          <div class="emo-cloud handwriting">여러 감정이<br>함께 있을 수 있어요.<br><b>괜찮아요!</b></div>
+          <div class="emo-cloud handwriting">여러 감정이 함께 있을 수 있어요. <b>괜찮아요!</b></div>
           <div class="emo-actions">
             <button class="emo-reset" id="emo-reset"><i class="ph-bold ph-arrow-counter-clockwise"></i> 다시 하기</button>
             <button class="emo-done" id="emo-done">완료하기 <i class="ph-bold ph-arrow-right"></i></button>
@@ -4072,8 +4073,8 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     const heartPos = () => ({x:EMO_PERSON.heart.x+(Math.random()-.5)*.16, y:EMO_PERSON.heart.y+(Math.random()-.5)*.1, zone:'belly'});
 
     const guideText = () => this.emoMode()==='drag'
-      ? (items.length>=2 ? '가장 큰 감정을<br><b>가운데 동그라미</b>로 옮겨 보세요.' : '감정 친구를 <b>끌어서</b><br>사람 안에 넣어 보세요.')
-      : (picked ? `<b>${E(picked).l}</b>을(를) 넣을 곳을<br>사람 몸에서 눌러 보세요.` : '감정 친구를 <b>누르고</b>,<br>사람 몸을 눌러 넣어 보세요.');
+      ? (items.length>=2 ? '가장 큰 감정을 <b>가운데 동그라미</b>로 옮겨 보세요.' : '')
+      : (picked ? `<b>${E(picked).l}</b>을(를) 넣을 곳을 사람 몸에서 눌러 보세요.` : '감정 친구를 <b>누르고</b>, 사람 몸을 눌러 넣어 보세요.');
     const renderUI = () => {
       const mode = this.emoMode();
       modeEls.forEach(b=>{ const on = b.dataset.m===mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
