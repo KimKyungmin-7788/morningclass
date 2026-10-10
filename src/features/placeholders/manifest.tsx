@@ -19,8 +19,6 @@ const SMALL: CSSProperties = { flex: '0 0 auto', minHeight: 170 };
 const SIDE: CSSProperties = { flex: 1.1, minHeight: 160 };
 
 const SLOTS: Slot[] = [
-  { id: 'weather', col: 0, order: 1, title: '오늘의 날씨', icon: 'ph-fill ph-sun', tint: '#fef3c7', color: '#d97706', step: 3 },
-  { id: 'dust', col: 0, order: 2, title: '오늘의 미세먼지', icon: 'ph-fill ph-wind', tint: '#ede9fe', color: '#7c3aed', step: 3 },
   { id: 'attendance', col: 0, order: 3, title: '오늘의 출석', icon: 'ph-fill ph-hand-waving', tint: '#ffedd5', color: '#ea580c', step: 4 },
   { id: 'timetable', col: 1, order: 1, title: '오늘의 시간표', icon: 'ph-fill ph-calendar-check', tint: '#e0e7ff', color: '#4f46e5', step: 5 },
   { id: 'dday', col: 1, order: 2, title: 'D-DAY', icon: 'ph-fill ph-flag-pennant', tint: '#e0e7ff', color: '#4f46e5', step: 3, style: SMALL },
