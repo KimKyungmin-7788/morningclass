@@ -14,11 +14,12 @@ import type { ClassRoom, Dish } from '@/core/data/types';
 import type { FeatureManifest } from '../types';
 import { ALLERGENS, dishAlerts, dishKey, mealAlertNames, parseMealRow, renameDish, shownDishes, simplifyDishQueries } from './model';
 import { autoMealImages, searchImages, shrinkImage, type ImageHit } from './images';
+import { MealSheets } from '@/features/worksheets/Worksheets';
 
 // 오늘의 급식: 카드에는 메뉴 요약과 알레르기 주의, 창에서는 메뉴 목록(그림+글자 / 글자만)
 
 const CHIP = { icon: 'ph-fill ph-bowl-food', tint: '#ffedd5', color: '#ea580c' };
-type View = null | 'meal' | 'allergy';
+type View = null | 'meal' | 'allergy' | 'sheet';
 
 function MealCard() {
   const cls = useCurrentClass();
@@ -38,7 +39,8 @@ function MealCard() {
           </>
         ) : <div className="card-hint">🍱 터치해서 오늘 급식을 알아봐요</div>}
       </CardFrame>
-      {view === 'meal' && cls && <MealWindow cls={cls} onClose={() => setView(null)} onAllergy={() => setView('allergy')} />}
+      {view === 'meal' && cls && <MealWindow cls={cls} onClose={() => setView(null)} onAllergy={() => setView('allergy')} onSheet={() => setView('sheet')} />}
+      {view === 'sheet' && <MealSheets onBack={() => setView('meal')} />}
       {view === 'allergy' && cls && <AllergyWindow cls={cls} onBack={() => setView('meal')} />}
     </>
   );
@@ -48,7 +50,7 @@ type Phase = { at: 'loading' } | { at: 'list' } | { at: 'msg'; text: React.React
 const SPIN = ['🍳', '🍚', '🍲', '🥗', '🍱'];
 const wait = (ms: number) => new Promise<void>((r) => { setTimeout(r, ms); });
 
-function MealWindow({ cls, onClose, onAllergy }: { cls: ClassRoom; onClose: () => void; onAllergy: () => void }) {
+function MealWindow({ cls, onClose, onAllergy, onSheet }: { cls: ClassRoom; onClose: () => void; onAllergy: () => void; onSheet: () => void }) {
   const date = useDay((s) => s.date);
   const dishes = useDay((s) => s.record.meal?.dishes) ?? [];
   const view = usePrefs((s) => s.mealView);
@@ -104,7 +106,11 @@ function MealWindow({ cls, onClose, onAllergy }: { cls: ClassRoom; onClose: () =
         <div className="mm-tools">
           <button onClick={() => void load(true)}><i className="ph-bold ph-arrows-clockwise" /> 다시 불러오기</button>
           <button onClick={onAllergy}>🧒 알레르기 설정</button>
-          <button className="soon" disabled title="7단계(나)에서 옮겨요">📝 학습지 제작 <span className="soon-tag">옮기는 중</span></button>
+          <button onClick={() => {
+            if (!dishes.length) { toast('먼저 급식 메뉴를 불러오거나 입력해 주세요', 'error'); return; }
+            if (!shownDishes(dishes, cls.options.mealHidden).length) { toast('보이는 메뉴가 없어요. 숨긴 메뉴를 다시 보이게 해 주세요', 'error'); return; }
+            onSheet();
+          }}>📝 학습지 제작</button>
         </div>
       </div>
     </Popup>

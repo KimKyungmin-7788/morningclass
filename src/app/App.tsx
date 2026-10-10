@@ -9,6 +9,7 @@ import { Dashboard } from './Dashboard';
 import { Footer } from './Footer';
 import { SideSwitch } from './SideSwitch';
 import { BackupReminder } from '@/features/onboarding/Onboarding';
+import { Celebrate } from './Celebrate';
 
 // 화면 뼈대: 아침교실(상단 줄 · 대시보드 · 진행률) / 수업교실, 오른쪽 옆 탭으로 전환
 export function App() {
@@ -65,6 +66,7 @@ export function App() {
         <SideSwitch />
       </div>
       {appMode === 'morning' && <BackupReminder />}
+      {appMode === 'morning' && <Celebrate />}
       <ToastHost />
     </>
   );

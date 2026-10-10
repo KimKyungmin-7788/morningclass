@@ -9,6 +9,7 @@ import { useDay } from '@/core/data/day';
 import { FEEL, WEATHER, judgeWeather, wxFeel, wxTheme, type WeatherKind, type WeatherValue } from './model';
 import { geoErrorText, geoWeather } from './geo';
 import { WeatherScene } from './WeatherScene';
+import { WeatherSheet } from '@/features/worksheets/Worksheets';
 
 // 오늘의 날씨: 직접 고르기 → (선택) GPS 로 정답 확인. 고르면 날씨 장면을 크게 보여 준다.
 
@@ -16,7 +17,8 @@ type Stage =
   | { at: 'closed' }
   | { at: 'pick' }
   | { at: 'reveal'; w: WeatherValue }
-  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null };
+  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null }
+  | { at: 'sheet' };
 
 /** 날씨와 구분되도록 온도계 아이콘을 단 기온 패널 */
 function Temp({ w, cls }: { w: WeatherValue; cls: string }) {
@@ -159,7 +161,13 @@ export function WeatherCard() {
         const gf = FEEL.find((f) => f.k === guessFeel) ?? null;
         const { wOk, fOk, allOk } = judgeWeather(guess.label, guessFeel, ans);
         return (
-          <Popup title="오늘 날씨 정답 확인" onClose={close}>
+          <Popup title="오늘 날씨 정답 확인" onClose={close}
+            headerExtra={(
+              // 정답을 확인한 뒤에만 활동지로 갈 수 있다
+              <button className="hdr-icon-btn labeled" type="button" title="날씨 활동지 만들기" aria-label="날씨 활동지 만들기" onClick={() => setStage({ at: 'sheet' })}>
+                <i className="ph-fill ph-notepad" style={{ fontSize: 24 }} />날씨 활동지
+              </button>
+            )}>
             <div className={`wxres-head ${allOk ? 'ok' : 'no'}`}>{allOk ? '🎉 모두 맞았어요!' : '🤔 정답을 확인해요'}</div>
             <div className="wxres-grid">
               {resultCard('ph-cloud-sun', '날씨', guess, wOk)}
@@ -176,6 +184,7 @@ export function WeatherCard() {
           </Popup>
         );
       })()}
+      {stage.at === 'sheet' && <WeatherSheet onClose={close} />}
     </>
   );
 }
