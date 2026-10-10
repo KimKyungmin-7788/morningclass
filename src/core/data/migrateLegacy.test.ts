@@ -31,6 +31,7 @@ function sampleDump(): LegacyDump {
     mc_timetable_c1_1: j({ periods: ['', '', '', '', '', '', ''] }),
     mc_ddays_c1: j([{ title: '소풍', date: '2026-10-20' }]),
     mc_date_set_c1: '2026-10-9',
+    'mc_sd_c1_2026-10-01_2026-10-31': '18', 'mc_sd_gone_2026-10-01_2026-10-31': '5',
     mc_lessons: j([{ id: 'l1', title: '덧셈' }]),
     mc_meal_images: j({ 현미밥: { src: 'https://x/y.jpg', auto: true }, 깨진것: 3 }),
     mc_video_list: j([{ url: 'https://youtu.be/abc', videoId: 'abc', title: '아침 음악', playedAt: '2026-10-08T00:00:00.000Z' }]),
@@ -98,6 +99,7 @@ describe('기존 자료 변환', () => {
     const { data, prefs, report } = migrateLegacy(sampleDump());
     expect(data.ddays).toEqual({ c1: [{ title: '소풍', date: '2026-10-20' }] });
     expect(data.dateSet).toEqual({ c1: '2026-10-9' });
+    expect(data.schoolDays).toEqual({ 'c1_2026-10-01_2026-10-31': 18 });   // 삭제된 학급의 값은 옮기지 않는다
     expect(data.lessons).toEqual([{ id: 'l1', title: '덧셈' }]);
     expect(data.mealImages).toEqual({ 현미밥: { src: 'https://x/y.jpg', auto: true } });
     expect(data.videos).toHaveLength(1);

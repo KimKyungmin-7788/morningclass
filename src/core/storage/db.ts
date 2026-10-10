@@ -49,6 +49,7 @@ async function tx<T>(stores: Store[], mode: IDBTransactionMode, run: (t: IDBTran
 
 // ── 낱개 값 ──
 export const kvGet = <T>(key: string) => tx(['kv'], 'readonly', (t) => done(t.objectStore('kv').get(key) as IDBRequest<T | undefined>));
+export const kvDelete = (key: string) => tx(['kv'], 'readwrite', (t) => { t.objectStore('kv').delete(key); });
 export const kvSet = (key: string, value: unknown) => tx(['kv'], 'readwrite', (t) => { t.objectStore('kv').put(value, key); });
 
 // ── 학급 ──
@@ -64,12 +65,14 @@ export function deleteClassData(classId: ClassId) {
     t.objectStore('timetables').delete(range);
     t.objectStore('kv').delete(`ddays:${classId}`);
     t.objectStore('kv').delete(`dateSet:${classId}`);
+    t.objectStore('kv').delete(IDBKeyRange.bound(`sd:${classId}_`, `sd:${classId}_\uffff`));
   });
 }
 
 // ── 하루 기록 ──
 export const getRecord = (classId: ClassId, date: DateKey) =>
   tx(['records'], 'readonly', (t) => done(t.objectStore('records').get([classId, date]) as IDBRequest<DayRecord | undefined>));
+export const deleteRecord = (classId: ClassId, date: DateKey) => tx(['records'], 'readwrite', (t) => { t.objectStore('records').delete([classId, date]); });
 export const putRecord = (rec: DayRecord) => tx(['records'], 'readwrite', (t) => { t.objectStore('records').put(rec); });
 /** 한 학급의 기록 전체 (날짜순) — 출결 대시보드·이전 기록 보기용 */
 export const getRecordsOf = (classId: ClassId) =>
@@ -95,7 +98,7 @@ export function readAll(): Promise<AppData> {
       schemaVersion: (kvMap.get('schemaVersion') as number) ?? SCHEMA_VERSION,
       classes, records, timetables,
       currentClassId: (kvMap.get('currentClassId') as string) ?? classes[0]?.id ?? '',
-      ddays: grouped('ddays:'), dateSet: grouped('dateSet:'),
+      ddays: grouped('ddays:'), dateSet: grouped('dateSet:'), schoolDays: grouped('sd:'),
       lessons: (kvMap.get('lessons') as AppData['lessons']) ?? [],
       videos: (kvMap.get('videos') as AppData['videos']) ?? [],
       mealImages: Object.fromEntries(imgKeys.map((k, i) => [String(k), imgVals[i]])),
@@ -114,6 +117,7 @@ export function replaceAll(data: AppData): Promise<void> {
     kv.put(data.videos, 'videos');
     for (const [id, v] of Object.entries(data.ddays)) kv.put(v, `ddays:${id}`);
     for (const [id, v] of Object.entries(data.dateSet)) kv.put(v, `dateSet:${id}`);
+    for (const [k, v] of Object.entries(data.schoolDays ?? {})) kv.put(v, `sd:${k}`);
     for (const c of data.classes) t.objectStore('classes').put(c);
     for (const r of data.records) t.objectStore('records').put(r);
     for (const tt of data.timetables) t.objectStore('timetables').put(tt);

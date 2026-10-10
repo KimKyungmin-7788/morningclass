@@ -205,6 +205,7 @@ export function migrateLegacy(dump: LegacyDump): MigrationResult {
   const timetables: Timetable[] = [];
   const ddays: AppData['ddays'] = {};
   const dateSet: AppData['dateSet'] = {};
+  const schoolDays: AppData['schoolDays'] = {};
   let orphanRecords = 0;
   const classOf = (id: string | undefined): ClassId | null => (id == null ? (single ? firstId : null) : rosters.has(id) ? id : null);
 
@@ -226,6 +227,9 @@ export function migrateLegacy(dump: LegacyDump): MigrationResult {
       if (rosters.has(m[1])) ddays[m[1]] = parse<unknown[]>(dump[key], []).map(obj);
     } else if ((m = key.match(/^mc_date_set_(.+)$/))) {
       if (rosters.has(m[1])) dateSet[m[1]] = dump[key];
+    } else if ((m = key.match(/^mc_sd_(.+)_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})$/))) {
+      const n = Number(dump[key]);
+      if (rosters.has(m[1]) && Number.isFinite(n) && n >= 0) schoolDays[`${m[1]}_${m[2]}_${m[3]}`] = n;
     }
   }
   // 학급 구분이 없던 시절의 D-DAY·날짜 입력 표시는 지금 학급으로 (기존 앱과 같은 규칙)
@@ -265,7 +269,7 @@ export function migrateLegacy(dump: LegacyDump): MigrationResult {
   };
 
   const data: AppData = {
-    schemaVersion: SCHEMA_VERSION, classes, currentClassId, records, timetables, ddays, dateSet,
+    schemaVersion: SCHEMA_VERSION, classes, currentClassId, records, timetables, ddays, dateSet, schoolDays,
     lessons: parse<unknown[]>(dump.mc_lessons, []).map(obj), mealImages, videos,
   };
   const students = classes.reduce((n, c) => n + c.students.length, 0);

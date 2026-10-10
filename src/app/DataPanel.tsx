@@ -6,6 +6,7 @@ import { activeStudents, useData } from '@/core/data/store';
 import { backupFileName, buildBackup, parseBackup } from '@/core/data/backup';
 import type { MigrationReport } from '@/core/data/migrateLegacy';
 import * as db from '@/core/storage/db';
+import { AttendanceDashboard } from '@/features/attendance/Dashboard';
 
 // 2단계 임시 화면: 저장소에 무엇이 들어 있는지 보고, 백업을 내보내고 가져온다.
 // 5단계에서 설정 창(학급·학생·백업 탭)이 생기면 그쪽으로 옮기고 이 파일은 지운다.
@@ -15,6 +16,7 @@ export function DataPanel({ onClose }: { onClose: () => void }) {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [report, setReport] = useState<MigrationReport | null>(migration);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dash, setDash] = useState(false);
 
   const refresh = () => {
     void db.readAll().then((d) => {
@@ -53,6 +55,8 @@ export function DataPanel({ onClose }: { onClose: () => void }) {
     }
   };
 
+  if (dash) return <AttendanceDashboard onClose={() => setDash(false)} />;
+
   return (
     <Popup title="🗂️ 자료 (임시 화면)" onClose={onClose}>
       <div className="hint" style={{ marginBottom: 12 }}>
@@ -84,6 +88,7 @@ export function DataPanel({ onClose }: { onClose: () => void }) {
         </div>
       )}
       <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => void importBackup(e.target.files?.[0])} />
+      <button className="btn-test" style={{ marginTop: 14 }} onClick={() => setDash(true)}>📊 출결 대시보드 열기</button>
       <PopupActions>
         <button className="btn-cancel" onClick={() => fileRef.current?.click()}>📥 백업 가져오기</button>
         <button className="btn-save" onClick={() => void exportBackup()}>📤 백업 내보내기</button>

@@ -3,15 +3,17 @@ import { usePrefs } from '@/core/prefs';
 import { useCurrentClass } from '@/core/data/store';
 import { DataPanel } from './DataPanel';
 import { DateCard } from '@/features/date/DateCard';
+import { RecordsPanel } from '@/features/attendance/RecordsPanel';
 import { ensureAudio, playSound } from '@/core/sound';
 import { toast } from '@/core/ui/toast';
 
-// 상단 줄. 기록·설정·기능 제안은 해당 단계에서 실제 기능과 연결한다.
+// 상단 줄. 설정·기능 제안은 5단계에서 실제 기능과 연결한다.
 export function Header() {
   const muted = usePrefs((s) => s.muted);
   const setPrefs = usePrefs((s) => s.set);
   const cls = useCurrentClass();
   const [dataOpen, setDataOpen] = useState(false);
+  const [recordsOpen, setRecordsOpen] = useState(false);
   const later = (what: string) => () => toast(`${what}: 아직 옮기는 중이에요`);
 
   return (
@@ -42,7 +44,7 @@ export function Header() {
           onClick={() => { ensureAudio(); playSound('save'); toast('💾 자동으로 저장되고 있어요', 'success'); }}>
           <i className="ph-fill ph-floppy-disk" />
         </button>
-        <button title="이전 기록 보기" aria-label="이전 기록 보기" onClick={later('이전 기록')}>
+        <button title="이전 기록 보기" aria-label="이전 기록 보기" onClick={() => setRecordsOpen(true)}>
           <i className="ph-fill ph-folder-open" />
         </button>
         <button title="설정" aria-label="설정 열기" onClick={() => setDataOpen(true)}>
@@ -51,6 +53,7 @@ export function Header() {
       </div>
     </header>
     {dataOpen && <DataPanel onClose={() => setDataOpen(false)} />}
+    {recordsOpen && <RecordsPanel onClose={() => setRecordsOpen(false)} />}
     </>
   );
 }

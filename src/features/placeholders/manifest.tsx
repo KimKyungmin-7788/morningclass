@@ -15,14 +15,11 @@ interface Slot {
   icon: string; tint: string; color: string; step: number; style?: CSSProperties;
 }
 
-const SMALL: CSSProperties = { flex: '0 0 auto', minHeight: 170 };
 const SIDE: CSSProperties = { flex: 1.1, minHeight: 160 };
 
 const SLOTS: Slot[] = [
-  { id: 'attendance', col: 0, order: 3, title: '오늘의 출석', icon: 'ph-fill ph-hand-waving', tint: '#ffedd5', color: '#ea580c', step: 4 },
   { id: 'timetable', col: 1, order: 1, title: '오늘의 시간표', icon: 'ph-fill ph-calendar-check', tint: '#e0e7ff', color: '#4f46e5', step: 5 },
   { id: 'emotions', col: 2, order: 1, title: '우리반 감정', icon: 'ph-fill ph-smiley', tint: '#fce7f3', color: '#db2777', step: 6 },
-  { id: 'helper', col: 2, order: 2, title: '오늘의 도우미', icon: 'ph-duotone ph-dice-five', tint: '#ede9fe', color: '#7c3aed', step: 4, style: SMALL },
   { id: 'meal', col: 3, order: 1, title: '오늘의 급식', icon: 'ph-fill ph-bowl-food', tint: '#ffedd5', color: '#ea580c', step: 7, style: SIDE },
 ];
 

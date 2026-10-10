@@ -95,6 +95,8 @@ export interface AppData {
   ddays: Record<ClassId, Loose[]>;
   /** 학급별 "오늘 날짜를 입력했는지" (실제 날짜 문자열) */
   dateSet: Record<ClassId, string>;
+  /** 출결 대시보드에서 손으로 고친 수업일수. 열쇠 '<학급>_<시작일>_<종료일>' */
+  schoolDays: Record<string, number>;
   lessons: Loose[];
   mealImages: Record<string, MealImage>;
   videos: VideoItem[];
@@ -125,7 +127,7 @@ export function emptyData(): AppData {
   const cls = emptyClass(newId('c'));
   return {
     schemaVersion: SCHEMA_VERSION, classes: [cls], currentClassId: cls.id,
-    records: [], timetables: [], ddays: {}, dateSet: {}, lessons: [], mealImages: {}, videos: [],
+    records: [], timetables: [], ddays: {}, dateSet: {}, schoolDays: {}, lessons: [], mealImages: {}, videos: [],
   };
 }
 
