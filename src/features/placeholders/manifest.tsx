@@ -18,7 +18,6 @@ interface Slot {
 const SIDE: CSSProperties = { flex: 1.1, minHeight: 160 };
 
 const SLOTS: Slot[] = [
-  { id: 'emotions', col: 2, order: 1, title: '우리반 감정', icon: 'ph-fill ph-smiley', tint: '#fce7f3', color: '#db2777', step: 6 },
   { id: 'meal', col: 3, order: 1, title: '오늘의 급식', icon: 'ph-fill ph-bowl-food', tint: '#ffedd5', color: '#ea580c', step: 7, style: SIDE },
 ];
 
