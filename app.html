@@ -376,7 +376,7 @@ footer .status.done{color:var(--success)}
 .meal-list.still .ml-row{animation:none;opacity:1;transform:none}
 .ml-num{flex:none;width:36px;height:36px;border-radius:50%;background:#E8F4FD;color:var(--primary-dark);font-size:18px;font-weight:var(--fw-title);display:grid;place-items:center}
 /* 그림 높이 = 급식 창에서 목록이 쓸 수 있는 높이를 줄 수(--rows)로 나눈 값 → 스크롤 없이 가능한 한 크게 */
-.ml-img{flex:none;height:clamp(44px,calc((min(90vh - 130px, 640px) - 75px - var(--rows,4) * 34px) / var(--rows,4)),128px);aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:#FFF7E6;display:grid;place-items:center;font-size:30px;position:relative}
+.ml-img{flex:none;height:clamp(44px,calc((min(90vh - 130px, 640px) - 75px - var(--bar,0px) - var(--rows,4) * 34px) / var(--rows,4)),128px);aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:#FFF7E6;display:grid;place-items:center;font-size:30px;position:relative}
 .ml-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .ml-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .ml-name{font-size:clamp(20px,1.6vw,26px);font-weight:var(--fw-title);line-height:1.25;word-break:keep-all;color:var(--text)}
@@ -384,6 +384,12 @@ footer .status.done{color:var(--success)}
 .meal-list.text .ml-row{padding:14px 18px}
 .meal-list.text .ml-name{font-size:clamp(24px,2vw,32px)}
 .ml-warn{display:flex;flex-wrap:wrap;gap:4px}
+/* 선생님: 메뉴 숨기기(우유처럼 매일 나오는 메뉴) — 학급별로 기억, 아래 '숨긴 메뉴'에서 다시 보이기 */
+.ml-hide{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#94a3b8;opacity:.6;transition:.15s}
+.ml-hide:hover,.ml-hide:focus-visible{background:#F0F4FF;color:var(--text);opacity:1}
+.ml-hidden{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--text-sub);font-weight:var(--fw-label)}
+.ml-hidden button{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;background:#F0F4FF;font-size:13px;font-weight:var(--fw-label);color:var(--text-sub)}
+.ml-hidden button:hover{background:var(--primary);color:#fff}
 .ml-row.alert{border-color:#fca5a5;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
 /* 선생님: 이름을 누르면 바로 고치기, 그림 모서리 돋보기로 그림 다시 찾기 */
 .ml-name{cursor:text;border-radius:8px;padding:2px 6px;margin:-2px -6px;transition:background .15s}
@@ -482,14 +488,46 @@ footer .status.done{color:var(--success)}
 /* notes - 손글씨 폰트, 컴팩트 */
 .notes-display{flex:1;display:flex;align-items:center;justify-content:center;font-family:'Paperozi','Noto Sans KR',sans-serif;font-size:clamp(16px,1.2vw,20px);font-weight:var(--fw-label);line-height:1.4;text-align:center;white-space:pre-wrap;padding:6px;color:var(--text);overflow:auto;word-break:break-word}
 /* 기능 추가 예정 · 기능 제안 */
-#card-suggest{background:#f4f5f7!important;border-color:#dfe3ea!important;box-shadow:none!important}
-#card-suggest .v3-title{color:#a3acb9}
-#card-suggest .v3-ico{background:#e5e7eb!important;color:#a3acb9!important}
-.sg-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-.sg-text{color:#a3acb9;font-weight:var(--fw-body);font-size:clamp(14px,1.05vw,17px);text-align:center}
-.sg-btn{padding:11px 20px;border-radius:14px;background:linear-gradient(135deg,#FFB547,#FF7A59);color:#fff;font-weight:var(--fw-label);font-size:clamp(14px,1.05vw,17px);box-shadow:0 6px 16px rgba(255,122,89,.4);transition:.15s;animation:sgGlow 2.2s ease-in-out infinite}
-@keyframes sgGlow{0%,100%{box-shadow:0 6px 16px rgba(255,122,89,.35)}50%{box-shadow:0 6px 22px rgba(255,122,89,.65)}}
-.sg-btn:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+/* 수업 도구 카드 (시계·타이머·스톱워치) */
+.tl-side{margin-left:auto;display:inline-flex;gap:4px;flex-shrink:0}
+.tl-side button{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:#94a3b8;background:#f1f5f9;transition:.15s}
+.tl-side button:hover{background:var(--primary);color:#fff}
+.tl-row{flex:1;display:flex;gap:8px;align-items:stretch;min-height:0;margin-top:8px}
+.tl-btn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:16px;background:#F0F7FF;border:2px solid #dbeafe;color:#0369a1;transition:.15s;padding:6px 2px}
+.tl-btn:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+.tl-btn i{font-size:clamp(18px,1.4vw,24px)}
+.tl-btn b{font-size:clamp(16px,1.3vw,24px);font-weight:var(--fw-title);font-variant-numeric:tabular-nums;color:var(--text);line-height:1.15}
+.tl-btn span{font-size:12px;font-weight:var(--fw-label);color:var(--text-sub)}
+.tl-btn.run{background:#FFF4E5;border-color:#ffb547;color:#c2410c}
+/* 수업 도구 창 */
+.tp{display:flex;flex-direction:column;gap:16px;height:min(calc(90vh - 150px),620px)}
+.tp-tabs{align-self:center;flex:none}
+.tp-tabs button{display:inline-flex;align-items:center;gap:6px;font-size:17px;padding:9px 18px}
+.tp-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:clamp(20px,4vw,60px)}
+@media (max-aspect-ratio: 1/1){.tp-stage{flex-direction:column}.tp-analog,.tp-pie{max-width:80%!important;height:auto!important;width:min(70%,420px)}}
+.tp-analog{height:min(100%,460px);max-width:42%;aspect-ratio:1;flex:none}
+.tp-analog text{font-size:20px;font-weight:700;text-anchor:middle;fill:#334155;font-family:inherit}
+.tp-side{display:flex;flex-direction:column;align-items:center;gap:16px}
+.tp-date{font-size:clamp(20px,2vw,32px);font-weight:var(--fw-label);color:var(--text-sub)}
+.tp-big{white-space:nowrap}
+.tp-big b{font-size:clamp(44px,5.4vw,92px);font-weight:var(--fw-display);font-variant-numeric:tabular-nums;color:var(--text);line-height:1}
+.tp-big small{font-size:clamp(24px,3vw,44px);font-weight:var(--fw-title);color:#94a3b8;margin-left:10px;font-variant-numeric:tabular-nums}
+.tp-big.sw b{font-size:clamp(72px,12vw,190px)}
+.tp-stage.stopwatch{flex-direction:column}
+.tp-pie{--p:100%;height:min(100%,440px);max-width:46%;aspect-ratio:1;flex:none;border-radius:50%;background:conic-gradient(#ff7a59 var(--p),#eef2f7 0);display:grid;place-items:center;box-shadow:0 10px 30px -10px rgba(255,122,89,.5)}
+.tp-pie-in{width:62%;aspect-ratio:1;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 8px rgba(0,0,0,.08)}
+.tp-pie-in b{font-size:clamp(36px,5vw,76px);font-weight:var(--fw-display);font-variant-numeric:tabular-nums;line-height:1}
+.tp-pie-in span{font-size:clamp(20px,2.4vw,34px);font-weight:var(--fw-title);color:#ef4444}
+.tp-pie.done{animation:tpPulse 1s ease-in-out 3}
+.tp-presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:340px}
+.tp-presets button{padding:10px 16px;border-radius:12px;background:#F0F4FF;font-size:17px;font-weight:var(--fw-label);min-width:68px;transition:.15s}
+.tp-presets button.on{background:var(--primary);color:#fff}
+.tp-ctl{display:flex;gap:10px}
+.tp-ctl button{padding:16px 24px;border-radius:99px;background:#F0F4FF;font-size:clamp(18px,1.6vw,24px);font-weight:var(--fw-title);color:var(--text-sub)}
+.tp-ctl .tp-go{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;min-width:150px;box-shadow:0 8px 18px -8px rgba(16,185,129,.7)}
+.tp-ctl .tp-go.stop{background:linear-gradient(135deg,#ffb547,#ff8a5c);box-shadow:0 8px 18px -8px rgba(255,138,92,.7)}
+@media (prefers-reduced-motion: reduce){.tp-pie.done{animation:none}}
+@keyframes tpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 .sg-name{width:100%;margin-top:10px;padding:12px 14px;border:2px solid #e5e9f2;border-radius:12px;font-size:16px}
 .sg-name:focus{outline:none;border-color:var(--primary)}
 .sg-mailto{display:block;margin-top:10px;text-align:center;padding:10px;border-radius:12px;background:#FFF8E0;color:#b45309;font-weight:var(--fw-label);text-decoration:none}
@@ -591,6 +629,11 @@ footer .status.done{color:var(--success)}
 header .actions button{color:#94a3b8}
 header .actions button:hover{color:var(--primary)}
 header .actions button.primary{color:#fff}
+/* 기능 제안: 아이콘만 있는 다른 버튼과 달리 글자를 함께 보여 줌 */
+header .actions button.suggest{width:auto;gap:6px;padding:0 16px 0 12px;font-size:16px;font-weight:var(--fw-label);color:#9a5b12;background:#FFF7E6;border:2px solid #fcd9a8;white-space:nowrap}
+header .actions button.suggest i{font-size:22px;color:#f59e0b}
+header .actions button.suggest:hover{color:#9a5b12;background:#FFEFCF}
+@media (max-width:1100px){header .actions button.suggest{width:48px;padding:0}header .actions button.suggest span{display:none}}
 header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:center}
 .helper-winner .hw-em i{color:#eab308}
 .book-label i{color:#3b82f6}
@@ -671,15 +714,20 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .att-toolbar{display:flex;gap:10px;margin-bottom:14px}
 .att-toolbar button{flex:1;padding:14px;border-radius:16px;background:#F0F4FF;font-weight:var(--fw-label);font-size:18px;transition:.2s}
 .att-toolbar button:hover{background:var(--primary);color:#fff}
-/* 지각·결석 학생 감정·도우미 포함 토글 */
-.att-incl{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px 10px;align-items:center;background:#F8FAFF;border:1.5px solid #e5ecf8;border-radius:14px;padding:10px 14px;margin-bottom:14px}
-.att-incl .ai-lb{font-weight:var(--fw-label);font-size:15px;color:var(--text-sub);white-space:nowrap}
-.ai-tg{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:12px;background:#fff;border:1.5px solid #e5e9f2;font-weight:var(--fw-label);font-size:15px;color:var(--text);transition:.15s}
-.ai-tg .knob{position:relative;width:40px;height:22px;border-radius:11px;background:#cbd5e1;flex:none;transition:.2s}
-.ai-tg .knob::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
-.ai-tg.on{border-color:var(--success);background:#F0FBF2}
-.ai-tg.on .knob{background:var(--success)}
-.ai-tg.on .knob::after{left:21px}
+/* 지각·조퇴·결석 학생 포함 토글 — 감정 카드·뽑기 창 아래에 작게 */
+.incl-mini{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;flex:none;margin-top:8px;font-size:12px;color:var(--text-sub);font-weight:var(--fw-body)}
+.incl-mini button{display:inline-flex;align-items:center;gap:5px;padding:3px 6px 3px 9px;border-radius:99px;background:#fff;border:1.5px solid #e5e9f2;font-size:12px;font-weight:var(--fw-label);color:var(--text-sub);transition:.15s}
+.incl-mini button i{position:relative;width:24px;height:14px;border-radius:7px;background:#cbd5e1;transition:.2s}
+.incl-mini button i::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:.2s}
+.incl-mini button.on{border-color:var(--success);background:#F0FBF2;color:var(--text)}
+.incl-mini button.on i{background:var(--success)}
+.incl-mini button.on i::after{left:12px}
+/* 결석 사유 (선택) */
+.att-row{flex-wrap:wrap}
+.att-reason{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:2px}
+.att-reason span{font-size:14px;color:var(--text-sub);font-weight:var(--fw-label)}
+.att-row .att-reason button{min-width:0;padding:6px 14px;font-size:15px;border-radius:99px;border:1.5px solid #f3c4c4}
+.att-row .att-reason button.on{background:var(--danger);color:#fff;border-color:var(--danger)}
 
 /* ── 감정: 사람 몸에 감정 넣기 (전자칠판 전체 화면) ── */
 .student-card .em{position:relative;display:inline-block}
@@ -699,7 +747,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .emo-tok{position:relative;display:block;width:100%;aspect-ratio:1}
 .emo-tok img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 .emo-center{grid-area:center;display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0;border-radius:22px;padding:12px;background:radial-gradient(ellipse 90% 40% at 50% 108%,#d6edbd 0 55%,transparent 75%),linear-gradient(180deg,#e3f2fd 0%,#f1f8f1 60%,#e6f3d4 100%)}
-.emo-q{text-align:center;font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:var(--text);flex-shrink:0}
+.emo-q{word-break:keep-all;text-align:center;font-size:clamp(20px,1.6vw,28px);font-weight:var(--fw-title);color:var(--text);flex-shrink:0}
 .emo-fig-box{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
 .emo-fig-wrap{position:relative;height:100%;max-height:100%;aspect-ratio:427/735;max-width:100%}
 .emo-fig{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;transition:filter .2s}
@@ -719,10 +767,10 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .emo-ghost{position:fixed;left:0;top:0;z-index:1600;pointer-events:none;font-size:clamp(32px,3vw,58px);filter:drop-shadow(0 10px 14px rgba(80,60,40,.25))}
 .emo-ghost .emo-tok{width:100%;transform:scale(1.08)}
 .emo-side{grid-area:side;display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);min-height:0}
-.emo-guide{font-size:clamp(16px,1.2vw,22px);color:#4a3b2e;line-height:1.45;background:#F8FAFF;border-radius:18px;padding:clamp(8px,1vw,14px) clamp(12px,1.2vw,18px);text-align:center}
+.emo-guide{word-break:keep-all;font-size:clamp(16px,1.2vw,22px);color:#4a3b2e;line-height:1.45;background:#F8FAFF;border-radius:18px;padding:clamp(8px,1vw,14px) clamp(12px,1.2vw,18px);text-align:center}
 .emo-guide:empty{display:none}
 .emo-guide b{color:#e0702e}
-.emo-cloud{background:#fff3b8;border-radius:18px;padding:clamp(8px,1vw,12px) clamp(12px,1.2vw,18px);text-align:center;font-size:clamp(15px,1.1vw,20px);color:#5b4a3a;line-height:1.4;box-shadow:0 4px 12px rgba(230,190,60,.2)}
+.emo-cloud{word-break:keep-all;background:#fff3b8;border-radius:18px;padding:clamp(8px,1vw,12px) clamp(12px,1.2vw,18px);text-align:center;font-size:clamp(15px,1.1vw,20px);color:#5b4a3a;line-height:1.4;box-shadow:0 4px 12px rgba(230,190,60,.2)}
 .emo-cloud b{font-size:1.1em;color:#4a3b2e;white-space:nowrap}
 .emo-actions{display:flex;gap:10px}
 .emo-reset{padding:clamp(12px,1.4vh,18px);border-radius:99px;background:rgba(255,255,255,.75);border:2px solid #e5dccd;font-size:clamp(17px,1.3vw,23px);font-weight:var(--fw-label);color:#7a6858;flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -863,6 +911,30 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 .tt-period-row .lbl{font-weight:var(--fw-label);color:var(--primary);min-width:50px;font-size:14px}
 .tt-period-row input{flex:1}
 .copy-day-btn{padding:8px 14px;border-radius:8px;background:#FFF8E0;color:var(--secondary);font-weight:var(--fw-label);font-size:13px;margin-top:8px}
+/* 설정 → 시간표 → 과목 관리 */
+.subj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.subj-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fff;border:1.5px solid #dbe3f2;border-radius:12px}
+.subj-item.off{background:#f4f5f7;border-style:dashed}
+.subj-item.off .subj-nm{color:#9aa3b0;text-decoration:line-through}
+.subj-item.off .subj-ico{filter:grayscale(1);opacity:.5}
+.subj-item.picking{border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,182,255,.25)}
+.subj-ico{flex:none;width:40px;height:40px;border-radius:10px;background:#F0F4FF;font-size:22px;display:grid;place-items:center;transition:.15s}
+.subj-ico:hover{background:#dbeafe;transform:scale(1.06)}
+.subj-nm{flex:1;min-width:0;font-size:15px;font-weight:var(--fw-label);word-break:keep-all}
+.subj-act{flex:none;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:99px;background:#F0F4FF;font-size:13px;font-weight:var(--fw-label);color:var(--text-sub)}
+.subj-act[aria-pressed="true"]{background:#EAF8EF;color:#15803d}
+.subj-act.del{background:#FEECEC;color:#dc2626}
+.subj-picker{margin-top:10px;padding:12px;background:#F6F9FF;border:1.5px solid #c9d5ea;border-radius:14px}
+.sp-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;margin-bottom:10px}
+.sp-head input{width:92px;padding:6px 10px;border:2px solid #c9d5ea;border-radius:8px;font-size:15px;margin-left:auto;background:#fff}
+.sp-head button{padding:6px 12px;border-radius:8px;background:#fff;border:1.5px solid #dbe3f2;font-size:13px;font-weight:var(--fw-label)}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
+.sp-grid button{aspect-ratio:1;border-radius:10px;background:#fff;border:1.5px solid #e5e9f2;font-size:22px;transition:.12s}
+.sp-grid button:hover{transform:scale(1.1);border-color:var(--primary)}
+.sp-grid button.on{border-color:var(--primary);background:#dbeafe}
+.subj-add{display:flex;gap:8px;margin-top:12px}
+.subj-add input{flex:1;padding:10px 14px;background:#F6F9FF;border:2px solid #c9d5ea;border-radius:10px;font-size:15px}
+.subj-add button{padding:10px 16px;border-radius:10px;background:var(--primary);color:#fff;font-weight:var(--fw-label);font-size:14px;white-space:nowrap}
 .student-list-item{display:flex;gap:6px;align-items:center;padding:8px;background:#F8FAFF;border-radius:8px;margin-bottom:4px}
 .student-list-item .nm{flex:1;font-weight:var(--fw-body)}
 .student-list-item button{padding:6px 10px;border-radius:6px;background:#fff;font-size:13px;font-weight:var(--fw-label)}
@@ -1214,6 +1286,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
       <span id="date-display">날짜를 입력해주세요</span>
     </div>
     <div class="actions">
+      <button id="btn-suggest" class="suggest" title="새 기능을 제안해요" aria-label="기능 제안하기"><i class="ph-fill ph-lightbulb"></i><span>기능 제안</span></button>
       <button id="btn-mute" title="소리 끄기" aria-label="소리 켜기/끄기"><i class="ph-fill ph-speaker-high"></i></button>
       <button id="btn-save" class="primary" title="오늘 기록 저장" aria-label="오늘 기록 저장"><i class="ph-fill ph-floppy-disk"></i></button>
       <button id="btn-records" title="이전 기록 보기" aria-label="이전 기록 보기"><i class="ph-fill ph-folder-open"></i></button>
@@ -1238,7 +1311,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
     <div class="col">
       <div class="card touchable empty" id="card-meal" data-card="meal" tabindex="0" role="button" aria-label="오늘의 급식" style="flex:1.1;min-height:160px"></div>
       <div class="card touchable empty" id="card-notes" data-card="notes" tabindex="0" role="button" aria-label="유의사항" style="flex:1.1;min-height:160px"></div>
-      <div class="card empty" id="card-suggest" data-card="suggest" aria-label="기능 추가 예정" style="flex:1.1;min-height:160px"></div>
+      <div class="card" id="card-tools" data-card="tools" aria-label="수업 도구" style="flex:1.1;min-height:160px"></div>
       <div class="card touchable empty" id="card-book" data-card="book" tabindex="0" role="button" aria-label="북모닝 영상" style="flex:0;flex-basis:90px;min-height:90px;padding:10px"></div>
     </div>
   </main>
@@ -1351,7 +1424,13 @@ const SUBJECT_ICONS = {
   // 이전 표기(활동 포함) — 이미 배치된 시간표 호환
   '일상생활 활동':'🏠','창체(자율·자치 활동)':'🌱','창체(동아리 활동)':'🤝','창체(진로 활동)':'🧭'
 };
-const subjectIcon = n => SUBJECT_ICONS[n?.trim()] || '📖';
+// 학급별 과목 설정: 숨긴 기본 과목 · 직접 추가한 과목 · 고른 아이콘 (설정 → 시간표 → 과목 관리)
+// 학급에 추가 과목 목록이 아직 없으면 예전 공용 목록(mc_custom_subjects)을 이어받는다
+const subjectCfg = src => { const c = (src || App.settings || {}).subjectCfg || {};
+  return {hidden:[...(c.hidden||[])], custom:[...(c.custom || getCustomSubjects())], icons:{...(c.icons||{})}}; };
+const subjectIcon = (n, src) => { n = n?.trim(); return ((src || App.settings || {}).subjectCfg?.icons||{})[n] || SUBJECT_ICONS[n] || '📖'; };
+const SUBJECT_ICON_CHOICES = ['📚','📖','✏️','📝','🔢','➕','🔬','🧪','🌍','🗺️','💖','🙋','🧠','🎈','⚽','🏃','🏊','🎵','🎹','🎨','✂️','🔧','🧰','🧭',
+  '🌱','🤝','🎭','🏠','🍳','🧹','🧺','💻','🗣️','🎲','🧩','🚌','🌳','🌸','🌻','🍁','⛄','🧘','🎬','📷','🐶','🛒','💰','⭐'];
 // HTML/속성 안전 이스케이프 — 학생 이름·교과명 등 사용자 입력값을 innerHTML에 넣을 때 사용
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // 2022 개정 특수교육 기본 교육과정(교육부 고시 제2022-34호 [별첨 3]) 학교급별 교과(군)·창체·일상생활 활동
@@ -1384,14 +1463,9 @@ const MAX_TIMETABLE_PERIODS = 7;
 const DEFAULT_NEIS_KEY = (typeof window !== 'undefined' && window.__NEIS_KEY__) || '';
 const neisKey = () => (App.settings && App.settings.neisKey) || DEFAULT_NEIS_KEY;
 const getCustomSubjects = () => { try { return JSON.parse(localStorage.getItem('mc_custom_subjects')||'[]'); } catch(e){ return []; } };
-const addCustomSubject = (name) => {
-  const list = getCustomSubjects();
-  if (!list.includes(name) && !ALL_LEVEL_SUBJECTS.includes(name) && !LEGACY_SUBJECTS.includes(name)) {
-    list.push(name);
-    localStorage.setItem('mc_custom_subjects', JSON.stringify(list));
-  }
-};
 
+// 결석 사유 선택지 (출결 창에서 결석일 때만, 선택)
+const ABSENT_REASONS = ['질병','인정','기타','미인정'];
 const WEATHER = [
   {emoji:'☀️',label:'맑음',cls:'w-sunny'},{emoji:'⛅',label:'구름조금',cls:'w-cloud'},
   {emoji:'☁️',label:'흐림',cls:'w-cloud'},{emoji:'🌧️',label:'비',cls:'w-rain'},
@@ -2065,6 +2139,7 @@ const App = {
     document.getElementById('card-attendance').onclick = ()=> this.openAttendance();
     document.getElementById('card-timetable').onclick = ()=> this.openTimetable();
     document.getElementById('card-notes').onclick = ()=> this.openNotes();
+    document.getElementById('btn-suggest').onclick = ()=> this.openSuggest();
     document.getElementById('card-book').onclick = ()=> this.openVideoPlayer();
 
     // 첫 사용자 제스처 시 TTS/오디오 잠금 해제 (브라우저 정책)
@@ -2196,7 +2271,7 @@ const App = {
     this.renderDatePicker();                                     // 학급이 바뀌면 상단 날짜 칸도 그 학급 기준으로
     this.renderWeather(); this.renderDust(); this.renderAttendance();
     this.renderTimetable(); this.renderMeal(); this.renderEmotions();
-    this.renderHelper(); this.renderNotes(); this.renderSuggest(); this.renderBook(); this.renderDday(); this.updateProgress();
+    this.renderHelper(); this.renderNotes(); this.renderTools(); this.renderBook(); this.renderDday(); this.updateProgress();
   },
 
   // ── 날씨별 컨셉: 색·움직임·한마디·준비물 ──
@@ -2476,16 +2551,11 @@ const App = {
     const students = this.settings?.students || [];
     if (!students.length) return;
     const att = {...this.record.attendance};
+    const reasons = {...(this.record.attendanceReasons||{})};       // 결석 사유 (선택): {이름: '질병'|'인정'|'기타'|'미인정'}
     const render = ()=>{
-      const inc = this.attInclude();
-      const tg = (k, label)=>`<button class="ai-tg ${inc[k]?'on':''}" data-k="${k}" aria-pressed="${inc[k]}">${label}<span class="knob"></span></button>`;
       return `<div class="att-toolbar">
         <button id="att-allp">🟢 전원 출석</button>
         <button id="att-clear">↺ 초기화</button>
-      </div>
-      <div class="att-incl">
-        <span class="ai-lb">💖 감정에</span>${tg('emoLate','🟡 지각 포함')}${tg('emoAbsent','🔴 결석 포함')}
-        <span class="ai-lb">🎲 도우미에</span>${tg('helpLate','🟡 지각 포함')}${tg('helpAbsent','🔴 결석 포함')}
       </div>
       <div class="att-list">${students.map(n=>{
         const v=att[n]||'';
@@ -2495,6 +2565,7 @@ const App = {
           <button data-v="late" class="${v==='late'?'active l':''}">🟡 지각</button>
           <button data-v="early" class="${v==='early'?'active e':''}">🟠 조퇴</button>
           <button data-v="absent" class="${v==='absent'?'active a':''}">🔴 결석</button>
+          ${v==='absent' ? `<div class="att-reason"><span>사유 (선택)</span>${ABSENT_REASONS.map(r=>`<button data-r="${r}" class="${reasons[n]===r?'on':''}" aria-pressed="${reasons[n]===r}">${r}</button>`).join('')}</div>` : ''}
         </div>`;
       }).join('')}</div>
       <div class="popup-actions">
@@ -2512,25 +2583,25 @@ const App = {
       };
       const bind = ()=>{
         body.querySelectorAll('.att-row').forEach(row=>{
-          row.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+          row.querySelectorAll('button[data-r]').forEach(b=>b.onclick=()=>{   // 같은 사유를 다시 누르면 지움
+            if (reasons[row.dataset.n]===b.dataset.r) delete reasons[row.dataset.n]; else reasons[row.dataset.n] = b.dataset.r;
+            this.playSound('select'); refresh();
+          });
+          row.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{
             att[row.dataset.n] = b.dataset.v; this.playSound('check');
+            if (b.dataset.v!=='absent') delete reasons[row.dataset.n];
             const lbl = {present:'출석', late:'지각', early:'조퇴', absent:'결석'}[b.dataset.v] || '';
             this.speak(`${row.dataset.n} ${lbl}`);
             refresh();
           });
         });
-        body.querySelectorAll('.ai-tg').forEach(b=>b.onclick=()=>{
-          // 학급 설정으로 바로 저장 — 감정·도우미 카드에 즉시 반영
-          const inc = this.settings.attInclude = {...this.attInclude()};
-          inc[b.dataset.k] = !inc[b.dataset.k];
-          this.persistClasses(); this.playSound('select');
-          this.renderEmotions(); this.renderHelper(); refresh();
-        });
-        document.getElementById('att-allp').onclick=()=>{ students.forEach(n=>att[n]='present'); this.playSound('correct'); refresh(); };
-        document.getElementById('att-clear').onclick=()=>{ students.forEach(n=>delete att[n]); refresh(); };
+        document.getElementById('att-allp').onclick=()=>{ students.forEach(n=>{ att[n]='present'; delete reasons[n]; }); this.playSound('correct'); refresh(); };
+        document.getElementById('att-clear').onclick=()=>{ students.forEach(n=>{ delete att[n]; delete reasons[n]; }); refresh(); };
         document.getElementById('att-cancel').onclick=()=>this.closePopup();
         document.getElementById('att-save').onclick=()=>{
-          this.record.attendance = att; this.playSound('save');
+          this.record.attendance = att;
+          this.record.attendanceReasons = Object.fromEntries(Object.entries(reasons).filter(([n])=>att[n]==='absent'));
+          this.playSound('save');
           this.toast('출석 체크 완료!','success');
           this.closePopup(); this.renderAttendance(); this.renderEmotions(); this.renderHelper(); this.autoSaveDraft();
         };
@@ -2540,6 +2611,18 @@ const App = {
   },
 
   // ── Timetable ──
+  // 과목 추가(학급별): 기본 과목 이름이면 숨김만 풀고, 아니면 추가 과목으로 등록
+  addClassSubject(name, src) {
+    const tgt = src || this.settings, cfg = subjectCfg(tgt);
+    cfg.hidden = cfg.hidden.filter(x=>x!==name);
+    if (!this.levelSubjects(tgt).includes(name) && !cfg.custom.includes(name)) cfg.custom.push(name);
+    this.saveSubjectCfg(cfg, src);
+  },
+  saveSubjectCfg(cfg, src) {                                     // 설정 창에서는 초안(src)과 학급에 함께 반영 — 시간표 입력처럼 바로 저장
+    if (src) src.subjectCfg = cfg;
+    this.settings.subjectCfg = JSON.parse(JSON.stringify(cfg));
+    this.persistClasses();
+  },
   todayPeriods() {
     if (this.isWeekend) return [];
     try {
@@ -2605,10 +2688,10 @@ const App = {
     while (slots.length < MAX_TIMETABLE_PERIODS) slots.push('');
 
     const buildBank = ()=>{
-      const custom = getCustomSubjects();
+      const cfg = subjectCfg();                                   // 학급에서 숨긴 과목은 빼고, 추가한 과목은 더함
       // 예전에 배치해 둔 교과가 목록에서 사라지지 않도록, 지금 시간표에 들어있는 이름도 함께 노출
       const inUse = [...answer, ...slots].map(x=>(x||'').trim()).filter(Boolean);
-      return [...new Set([...this.levelSubjects(), ...custom, ...inUse])];
+      return [...new Set([...this.levelSubjects().filter(n=>!cfg.hidden.includes(n)), ...cfg.custom, ...inUse])];
     };
 
     const renderBody = ()=>{
@@ -2763,7 +2846,7 @@ const App = {
           const name = prompt('새 교과명을 입력하세요 (예: 한국사)')?.trim();
           if (!name) return;
           if (name.length > 10) { this.toast('10자 이내로 입력해 주세요','error'); return; }
-          addCustomSubject(name);
+          this.addClassSubject(name);
           this.playSound('save');
           this.toast(`"${name}" 추가됨 ✨`,'success');
           refresh();
@@ -2829,10 +2912,10 @@ const App = {
     const m = this.record.mealText;
     const mealChip = `<span class="v3-ico" style="background:#ffedd5;color:#ea580c"><i class="ph-fill ph-bowl-food"></i></span>`;
     if (m) {
-      const items = m.split('\n').filter(x=>x.trim());
+      const items = this.mealShown();
       c.className='card touchable filled';
       c.innerHTML = `<div class="v3-title">${mealChip}오늘의 급식<span class="v3-check"><i class="ph-bold ph-check"></i></span></div>
-        <div class="meal-summary">${items.map(esc).join(' · ')}</div>
+        <div class="meal-summary">${items.length ? items.map(esc).join(' · ') : '숨긴 메뉴만 있어요'}</div>
         ${(()=>{ const a=this.mealAlertNames(); return a.length?`<div class="meal-alert-line">⚠️ 알레르기 주의: ${a.map(esc).join(', ')}</div>`:''; })()}`;
     } else {
       c.className='card touchable empty';
@@ -2900,7 +2983,7 @@ const App = {
         this.record.mealNutri = nutri;
         this.record.mealLoadedAt = new Date().toISOString();
         this.playSound('complete');
-        this.speak(`오늘 급식 메뉴는, ${dishes.map(d=>d.name).join(', ')} 입니다.`);
+        this.speak(`오늘 급식 메뉴는, ${this.mealShown().join(', ')} 입니다.`);
         show(''); this.showMealDishes();
         this.renderMeal(); this.checkComplete(); this.autoSaveDraft();
       } else if (data?.RESULT?.CODE === 'INFO-200') {
@@ -2949,29 +3032,44 @@ const App = {
   // 메뉴 목록: 한 줄에 메뉴 하나(번호 · 그림 · 이름 · 알레르기 경고). 급식표 순서 그대로, 7개 이상이면 두 열
   mealView() { try { return localStorage.getItem('mc_meal_view') === 'text' ? 'text' : 'pic'; } catch(e){ return 'pic'; } },
   mealItems() { return (this.record.mealText||'').split('\n').filter(x=>x.trim()); },
+  // 숨긴 메뉴(학급별 이름 목록): 화면·음성·학습지에서 빠짐. 알레르기 경고는 숨겨도 그대로 알려 줌
+  mealHiddenSet() { return new Set(this.settings?.mealHidden || []); },
+  mealShown() { const h = this.mealHiddenSet(); return this.mealItems().map(x=>x.trim()).filter(n=>!h.has(n)); },
+  setDishHidden(name, on) {
+    const h = this.mealHiddenSet(); name = String(name).trim();
+    if (on) h.add(name); else h.delete(name);
+    this.settings.mealHidden = [...h];
+    this.persistClasses(); this.renderMeal();
+  },
   mealDishesHTML(still) {
-    const items = this.mealItems();
+    const all = this.mealItems(), hid = this.mealHiddenSet();
+    const list = all.map((it,i)=>({it,i})).filter(x=>!hid.has(x.it.trim()));   // i = 급식 기록에서의 원래 순서(이름 고치기용)
+    const hiddenNames = [...new Set(all.map(x=>x.trim()).filter(n=>hid.has(n)))];
     const imgs = this.mealImages();
     const view = this.mealView();
-    const row = (it, i)=>{
+    const row = ({it,i}, k)=>{
       const src = imgs[this.dishKey(it)]?.src;
       const alerts = this.dishAlerts(it);
-      return `<div class="ml-row ${alerts.length?'alert':''}" style="animation-delay:${i*0.06}s">
-        <span class="ml-num">${i+1}</span>
+      return `<div class="ml-row ${alerts.length?'alert':''}" style="animation-delay:${k*0.06}s">
+        <span class="ml-num">${k+1}</span>
         <span class="ml-img">${src?`<img src="${esc(src)}" alt="${esc(it)}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🍽️'}))">`:'<span>🍽️</span>'}
           <button class="ml-zoom" data-i="${i}" title="그림 바꾸기" aria-label="${esc(it)} 그림 바꾸기"><i class="ph-bold ph-arrows-clockwise"></i><span>바꾸기</span></button></span>
         <div class="ml-main">
           <div class="ml-name" data-i="${i}" tabindex="0" role="button" title="눌러서 이름 고치기">${esc(it)}</div>
           ${alerts.length ? `<div class="ml-warn">${alerts.map(a=>`<span class="md-alert" title="${esc(a.hits.map(c=>this.ALLERGENS[c]).join(', '))}">⚠️ ${esc(a.name)}<small>${esc(a.hits.map(c=>this.ALLERGENS[c]).join('·'))}</small></span>`).join('')}</div>` : ''}
         </div>
+        <button class="ml-hide" data-i="${i}" title="이 메뉴 숨기기" aria-label="${esc(it)} 숨기기"><i class="ph-bold ph-eye-slash"></i></button>
       </div>`;
     };
-    const two = items.length >= 3, half = Math.ceil(items.length/2);   // 3개부터 두 열 — 줄 수를 줄여 그림을 크게
-    const rows = two ? half : items.length;
-    const cols = two
-      ? `<div class="ml-col">${items.slice(0,half).map((it,i)=>row(it,i)).join('')}</div><div class="ml-divider" aria-hidden="true"></div><div class="ml-col">${items.slice(half).map((it,i)=>row(it,i+half)).join('')}</div>`
-      : `<div class="ml-col">${items.map(row).join('')}</div>`;
-    return `<div class="meal-list ${two?'two':''} ${view==='text'?'text':''} ${still?'still':''}" style="--rows:${Math.max(rows,1)}">${cols}</div>`;
+    const two = list.length >= 3, half = Math.ceil(list.length/2);   // 3개부터 두 열 — 줄 수를 줄여 그림을 크게
+    const rows = two ? half : list.length;
+    const cols = !list.length ? `<div class="card-hint">보이는 메뉴가 없어요. 아래 숨긴 메뉴를 눌러 다시 보이게 해요.</div>`
+      : two
+      ? `<div class="ml-col">${list.slice(0,half).map((x,k)=>row(x,k)).join('')}</div><div class="ml-divider" aria-hidden="true"></div><div class="ml-col">${list.slice(half).map((x,k)=>row(x,k+half)).join('')}</div>`
+      : `<div class="ml-col">${list.map(row).join('')}</div>`;
+    const bar = hiddenNames.length ? `<div class="ml-hidden"><span>🙈 숨긴 메뉴</span>${hiddenNames.map(n=>
+      `<button data-n="${esc(n)}" title="다시 보이기" aria-label="${esc(n)} 다시 보이기">${this.dishAlerts(n).length?'⚠️ ':''}${esc(n)} <i class="ph-bold ph-eye"></i></button>`).join('')}</div>` : '';
+    return `<div class="meal-list ${two?'two':''} ${view==='text'?'text':''} ${still?'still':''}" style="--rows:${Math.max(rows,1)}${bar?';--bar:44px':''}">${cols}</div>${bar}`;
   },
   showMealDishes(still) {
     const b = document.getElementById('mm-body'); if (!b) return;
@@ -3009,6 +3107,17 @@ const App = {
       };
       el.onclick = startEdit;
       el.onkeydown = e=>{ if ((e.key==='Enter'||e.key===' ') && e.target===el) { e.preventDefault(); startEdit(); } };
+    });
+    b.querySelectorAll('.ml-hide').forEach(btn=>btn.onclick=e=>{
+      e.stopPropagation();
+      const name = this.mealItems()[+btn.dataset.i];
+      if (!name) return;
+      this.setDishHidden(name, true); this.playSound('select');
+      this.toast(`'${name.trim()}' 메뉴를 숨겼어요. 다음에도 숨겨져요`,'success');
+      this.showMealDishes(true);
+    });
+    b.querySelectorAll('.ml-hidden button').forEach(btn=>btn.onclick=()=>{
+      this.setDishHidden(btn.dataset.n, false); this.playSound('select'); this.showMealDishes(true);
     });
     b.querySelectorAll('.ml-zoom').forEach(btn=>btn.onclick=e=>{
       e.stopPropagation();
@@ -3274,9 +3383,18 @@ const App = {
   wsTraceName(n) { return String(n).replace(/\(.*?\)|\[.*?\]|<.*?>/g,'').replace(/https?:\S+/g,'').replace(/[^\p{L}\p{N} ]/gu,'').trim().slice(0,10) || String(n).slice(0,10); },
   // 식판 칸 배정: 밥 → 큰 네모 칸, 국·찌개 → 둥근 칸, 나머지 → 반찬 칸
   wsKind(n) { return /밥|죽/.test(n) && !/밥버거|주먹밥/.test(n) ? 'rice' : /국|탕|찌개|스프|수프|전골/.test(n) && !/국수/.test(n) ? 'soup' : 'side'; },
+  // 따라쓰기 옵션(이 기기에 기억): 흐린 글씨(점선 글자) 켜기·끄기, 쓰기 칸 크기(mm)
+  WS_SIZES: [[13,'보통 1.3cm'],[15,'크게 1.5cm'],[20,'아주 크게 2cm']],
+  wsOpt() {
+    if (!this._wsOpt) {
+      let o = {}; try { o = JSON.parse(localStorage.getItem('mc_ws_opts')||'{}') || {}; } catch(e){}
+      this._wsOpt = {dot: o.dot !== false, size: this.WS_SIZES.some(([v])=>v===o.size) ? o.size : 15};
+    }
+    return this._wsOpt;
+  },
   openWorksheet() {
-    const items = (this.record.mealText||'').split('\n').map(x=>x.trim()).filter(Boolean);
-    if (!items.length) { this.toast('먼저 급식 메뉴를 불러오거나 입력해 주세요','error'); return; }
+    const items = this.mealShown();                               // 숨긴 메뉴는 학습지에서도 뺌
+    if (!items.length) { this.toast(this.mealItems().length ? '보이는 메뉴가 없어요. 숨긴 메뉴를 다시 보이게 해 주세요' : '먼저 급식 메뉴를 불러오거나 입력해 주세요','error'); return; }
     this._wsPdfBase = null;   // 급식 학습지 파일명을 쓰도록 (날씨 활동지가 바꿔 둔 값 되돌림)
     const sel = this._wsSel || (this._wsSel = {tray:true, cut:true, trace:true});
     const nsel = this._wsNSel || (this._wsNSel = {bike:true, even:true, signal:true, energy:true, ncut:true});
@@ -3310,8 +3428,16 @@ const App = {
           const tab = this._wsTab || 'basic';
           document.querySelectorAll('.ws-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===tab));
           const cb = (k,l,src)=>`<label class="ws-opt"><input type="checkbox" data-k="${k}" ${src[k]?'checked':''}> ${l}</label>`;
-          document.getElementById('ws-opts').innerHTML = (tab==='basic' ? this.WS_PARTS.map(([k,l])=>cb(k,l,sel)) : this.NUT_PARTS.map(([k,l])=>cb(k,l,nsel))).join('');
-          document.querySelectorAll('#ws-opts input').forEach(c=>c.onchange=()=>{ ((this._wsTab||'basic')==='nutri'?nsel:sel)[c.dataset.k]=c.checked; render(); });
+          const wo = this.wsOpt();
+          document.getElementById('ws-opts').innerHTML = (tab==='basic' ? this.WS_PARTS.map(([k,l])=>cb(k,l,sel)) : this.NUT_PARTS.map(([k,l])=>cb(k,l,nsel))).join('')
+            + (tab==='basic' ? `<label class="ws-opt"><input type="checkbox" data-o="dot" ${wo.dot?'checked':''}> 흐린 글씨(따라 쓰기)</label>
+              <label class="ws-opt">쓰기 칸 <select data-o="size" style="font:inherit;padding:2px 6px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff">${this.WS_SIZES.map(([v,l])=>`<option value="${v}" ${wo.size===v?'selected':''}>${l}</option>`).join('')}</select></label>` : '');
+          document.querySelectorAll('#ws-opts input[data-k]').forEach(c=>c.onchange=()=>{ ((this._wsTab||'basic')==='nutri'?nsel:sel)[c.dataset.k]=c.checked; render(); });
+          document.querySelectorAll('#ws-opts [data-o]').forEach(c=>c.onchange=()=>{
+            if (c.dataset.o==='dot') wo.dot = c.checked; else wo.size = +c.value;
+            try { localStorage.setItem('mc_ws_opts', JSON.stringify(wo)); } catch(e){}
+            render();
+          });
         };
         document.querySelectorAll('.ws-tabs button').forEach(b=>b.onclick=()=>{ this._wsTab = b.dataset.t; this.playSound('select'); drawOpts(); render(); });
         document.getElementById('ws-loading')?.remove();
@@ -3483,14 +3609,15 @@ const App = {
     const cells = (text, len, size, mode)=>`<div class="cells" style="--c:${size.toFixed(1)}mm">${Array.from({length:len},(_,i)=>{
       const ch = mode==='blank' ? '' : (text[i]||''); return `<span class="cell ${mode}">${ch===' '?'':E(ch)}</span>`; }).join('')}</div>`;
     const pages = [];
+    const S = this.wsOpt().size, dotMode = this.wsOpt().dot ? 'dot' : 'blank';   // 쓰기 칸 크기(mm) · 흐린 글씨를 끄면 그 줄은 빈칸
     if (mode === 'nutri') pages.push(...this.nutriPages(items, imgs, sel, ndata, {head, pic, E, cells}));
     else {
 
     // 1) 식판 + 따라쓰기: A4 위쪽 절반에 식판, 아래에 메뉴마다 검정 글자 → 점선 글자 → 빈칸.
-    //    칸은 크게(13mm) 유지하고, 1쪽에 다 안 들어가면 다음 쪽으로 이어서 씀
+    //    칸은 고른 크기로 유지하고, 1쪽에 다 안 들어가면 다음 쪽으로 이어서 씀
     if (sel.tray) {
       const tn = items.map(n=>this.wsTraceName(n));
-      const size = Math.min(13, 167/Math.max(...tn.map(t=>t.length), 1));   // 가장 긴 이름도 한 줄(176mm)에 들어가게
+      const size = Math.min(S, 167/Math.max(...tn.map(t=>t.length), 1));   // 가장 긴 이름도 한 줄(176mm)에 들어가게
       const blkH = 3*size + 7;                                       // 세 줄 + 줄 간격 + 블록 간격
       // 짧은 이름은 한 줄에 2개(반 칸 86mm), 긴 이름은 한 줄 전체 — 순서대로 줄을 채워 쪽을 나눔
       const wide = tn.map(t=>t.length*size + 9 > 86);
@@ -3499,7 +3626,7 @@ const App = {
         if (!wide[i] && last && last.length===1 && !wide[last[0]]) last.push(i); else rows.push([i]); });
       const firstRows = Math.max(1, Math.floor(116/blkH)), moreRows = Math.max(1, Math.floor(238/blkH));
       const blk = i=>`<div class="tblk" style="height:${blkH.toFixed(1)}mm${wide[i]?';grid-column:span 2':''}"><span class="tno">${i+1}</span>
-          <div class="trows">${cells(tn[i],tn[i].length,size,'bold')}${cells(tn[i],tn[i].length,size,'dot')}${cells('',tn[i].length,size,'blank')}</div></div>`;
+          <div class="trows">${cells(tn[i],tn[i].length,size,'bold')}${cells(tn[i],tn[i].length,size,dotMode)}${cells('',tn[i].length,size,'blank')}</div></div>`;
       const grid = rs=>`<div class="tgrid" style="grid-template-columns:1fr 1fr">${rs.map(r=>r.map(blk).join('') + (r.length===1&&!wide[r[0]]?'<div></div>':'')).join('')}</div>`;
       pages.push(`<section class="page">${head('오늘의 급식 식판','메뉴 그림을 식판에 붙이고, 메뉴 이름을 따라 써요.')}
         <div class="tray"><img src="${TRAY_IMG}" alt="식판"></div>
@@ -3507,7 +3634,7 @@ const App = {
         ${grid(rows.slice(0, firstRows))}
       </section>`);
       for (let r=firstRows; r<rows.length; r+=moreRows) {
-        pages.push(`<section class="page">${head('✏️ 오늘의 메뉴 따라쓰기 (이어서)','글자를 보고 점선을 따라 쓴 뒤, 빈칸에 메뉴 이름을 써 보세요.')}
+        pages.push(`<section class="page">${head('✏️ 오늘의 메뉴 따라쓰기 (이어서)', dotMode==='dot' ? '글자를 보고 점선을 따라 쓴 뒤, 빈칸에 메뉴 이름을 써 보세요.' : '글자를 보고 빈칸에 메뉴 이름을 써 보세요.')}
           ${grid(rows.slice(r, r+moreRows))}
         </section>`);
       }
@@ -3520,14 +3647,34 @@ const App = {
       </section>`);
     }
     // 3) 크게 따라쓰기: 검정 글자 → 점선 글자 → 빈칸
-    if (sel.trace) {
+    if (sel.trace && S > 13) {
+      // 큰 칸: 줄여 넣지 않고, 한 줄에 안 들어가는 이름은 두 줄로 나눠 씀 → 블록 높이를 재서 쪽을 나눔
+      const perLine = Math.floor(124/S);                              // 그림 옆 쓰기 줄 너비 약 124mm
+      const split = t=>{
+        if (t.length <= perLine) return [t];
+        const mid = t.length/2;
+        const sp = [...t].map((ch,i)=>ch===' '?i:-1).filter(i=>i>0 && i<=perLine && t.length-i-1<=perLine).sort((a,b)=>Math.abs(a-mid)-Math.abs(b-mid))[0];
+        if (sp != null) return [t.slice(0,sp), t.slice(sp+1)];
+        const h = Math.ceil(mid); return [t.slice(0,h).trim(), t.slice(h).trim()];
+      };
+      const blocks = items.map((n,i)=>{ const parts = split(this.wsTraceName(n)), lines = parts.length*3;
+        return {n, i, parts, h: Math.max(lines*S + (lines-1)*2.5, 48) + 8.7}; });
+      const pgs = [[]]; let used = 0;
+      blocks.forEach(b=>{ if (pgs[pgs.length-1].length && used + b.h > 246) { pgs.push([]); used = 0; } pgs[pgs.length-1].push(b); used += b.h + 5; });
+      pgs.forEach((chunk, pi)=>{
+        pages.push(`<section class="page">${head('✏️ 오늘의 메뉴 따라쓰기', `${dotMode==='dot'?'글자를 보고 점선을 따라 쓴 뒤, 빈칸에 메뉴 이름을 써 보세요.':'글자를 보고 빈칸에 메뉴 이름을 써 보세요.'}${pgs.length>1?` (${pi+1}/${pgs.length})`:''}`)}
+          ${chunk.map(b=>`<div class="blk"><div class="bimg"><span class="bno">${b.i+1}</span>${pic(b.n)}<div class="bname">${E(b.n)}</div></div>
+              <div class="brows">${['bold',dotMode,'blank'].map(m=>b.parts.map(pt=>cells(pt,pt.length,S,m)).join('')).join('')}</div></div>`).join('')}
+        </section>`);
+      });
+    } else if (sel.trace) {
       const per = items.length<=4 ? 4 : 5, total = Math.ceil(items.length/per), cmp = per===5;   // 5개 이상이면 한 쪽에 5개(조금 작게)
       for (let p=0; p<items.length; p+=per) {
         const chunk = items.slice(p, p+per);
-        pages.push(`<section class="page">${head('✏️ 오늘의 메뉴 따라쓰기', `글자를 보고 점선을 따라 쓴 뒤, 빈칸에 메뉴 이름을 써 보세요.${total>1?` (${p/per+1}/${total})`:''}`)}
+        pages.push(`<section class="page">${head('✏️ 오늘의 메뉴 따라쓰기', `${dotMode==='dot' ? '글자를 보고 점선을 따라 쓴 뒤, 빈칸에 메뉴 이름을 써 보세요.' : '글자를 보고 빈칸에 메뉴 이름을 써 보세요.'}${total>1?` (${p/per+1}/${total})`:''}`)}
           ${chunk.map((n,i)=>{ const t=this.wsTraceName(n); const size=Math.max(8, Math.min(cmp?11:13, 128/Math.max(t.length,1)));
             return `<div class="blk${cmp?' c':''}"><div class="bimg"><span class="bno">${p+i+1}</span>${pic(n)}<div class="bname">${E(n)}</div></div>
-              <div class="brows">${cells(t,t.length,size,'bold')}${cells(t,t.length,size,'dot')}${cells('',t.length,size,'blank')}</div></div>`; }).join('')}
+              <div class="brows">${cells(t,t.length,size,'bold')}${cells(t,t.length,size,dotMode)}${cells('',t.length,size,'blank')}</div></div>`; }).join('')}
         </section>`);
       }
     }
@@ -3932,17 +4079,32 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     }});
   },
 
-  // 지각·결석 학생을 감정·도우미에 포함할지 (학급별, 기본은 모두 제외)
+  // 지각·조퇴·결석 학생을 감정·도우미에 포함할지 (학급별, 기본: 조퇴만 포함)
   attInclude() {
-    return {emoLate:false, emoAbsent:false, helpLate:false, helpAbsent:false, ...(this.settings?.attInclude||{})};
+    return {emoLate:false, emoEarly:true, emoAbsent:false, helpLate:false, helpEarly:true, helpAbsent:false, ...(this.settings?.attInclude||{})};
+  },
+  // 각 기능(감정 카드·뽑기 창) 아래에 두는 작은 포함 토글
+  inclTogglesHTML(kind) {
+    const inc = this.attInclude();
+    return `<div class="incl-mini" role="group" aria-label="포함할 학생"><span>포함</span>${[['Late','지각'],['Early','조퇴'],['Absent','결석']].map(([k,l])=>
+      `<button type="button" class="${inc[kind+k]?'on':''}" data-k="${kind+k}" aria-pressed="${!!inc[kind+k]}">${l}<i></i></button>`).join('')}</div>`;
+  },
+  bindInclToggles(root, after) {
+    root.querySelectorAll('.incl-mini button').forEach(b=>b.onclick=e=>{
+      e.stopPropagation();
+      const inc = this.settings.attInclude = {...this.attInclude()};   // 학급 설정으로 바로 저장
+      inc[b.dataset.k] = !inc[b.dataset.k];
+      this.persistClasses(); this.playSound('select'); after();
+    });
   },
   isIncluded(name, kind) {                                       // kind: 'emo' | 'help'
     const v = (this.record?.attendance || {})[name], inc = this.attInclude();
     if (v==='late') return inc[kind+'Late'];
+    if (v==='early') return inc[kind+'Early'];
     if (v==='absent') return inc[kind+'Absent'];
     return true;
   },
-  // 감정·도우미 참여 학생 (지각·결석은 토글에 따라 포함)
+  // 감정·도우미 참여 학생 (지각·조퇴·결석은 토글에 따라 포함)
   eligibleStudents(kind='emo') {
     const students = this.settings?.students || [];
     return students.filter(n => this.isIncluded(n, kind));
@@ -3961,7 +4123,8 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     const eligible = this.eligibleStudents();
     if (!eligible.length) {
       c.className='card empty';
-      c.innerHTML = `<div class="v3-title">${emChip}우리반 감정</div><div class="card-hint">출석한 학생이 없어요 🙂</div>`;
+      c.innerHTML = `<div class="v3-title">${emChip}우리반 감정</div><div class="card-hint">참여할 학생이 없어요 🙂</div>${this.inclTogglesHTML('emo')}`;
+      this.bindInclToggles(c, ()=>{ this.renderEmotions(); this.updateProgress(); });
       return;
     }
     const em = this.record.emotions || (this.record.emotions = {});
@@ -3976,7 +4139,8 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
           <div class="em" role="img" aria-label="${v?(kinds.length?kinds.map(e=>e.l).join(', '):esc(v.label)):'미선택'}">${kinds.length?`<img class="em-img" src="${emoImg(kinds[0].k)}" alt="">`:(v?v.emoji:'❓')}${more}</div>
           <div class="nm">${esc(n)}</div>
         </div>`;
-      }).join('')}</div>`;
+      }).join('')}</div>${this.inclTogglesHTML('emo')}`;
+    this.bindInclToggles(c, ()=>{ this.renderEmotions(); this.updateProgress(); });
     c.querySelectorAll('.student-card').forEach(sc=>{
       sc.onclick = ()=> this.openEmotion(sc.dataset.name);
     });
@@ -4280,12 +4444,15 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     this.ensureAudio();
     const students = this.settings?.students || [];
     if (!students.length) return;
-    let pool = this.eligibleStudents('help');
-    if (!pool.length) pool = students.slice();
-    let count = Math.min(Math.max((this.record.lucky||[]).length || 1, 1), pool.length, 3);
+    let pool, maxCount, count = Math.max((this.record.lucky||[]).length || 1, 1);
+    const calcPool = ()=>{
+      pool = this.eligibleStudents('help');
+      if (!pool.length) pool = students.slice();
+      maxCount = Math.min(pool.length, 3); count = Math.min(count, maxCount);
+    };
+    calcPool();
     let winners = (this.record.lucky||[]).filter(Boolean);
     let spinning = false;
-    const maxCount = Math.min(pool.length, 3);
     const stars = Array.from({length:18},()=>`<i class="ls-star" style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*2).toFixed(2)}s"></i>`).join('');
     const stageInner = ()=> winners.length
       ? `<div class="ls-title">🎉 오늘의 행운의 주인공 🎉</div><div class="ls-winners">${winners.map(n=>`<div class="ls-winner"><span class="lw-crown">👑</span><span class="lw-nm">${esc(n)}</span></div>`).join('')}</div>`
@@ -4301,7 +4468,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
       <div class="popup-actions">
         <button class="btn-cancel" id="lucky-close">닫기</button>
         <button class="btn-save lk-roll" id="lucky-roll">🍀 ${winners.length?'다시 뽑기':'행운 뽑기'}</button>
-      </div>`;
+      </div>${this.inclTogglesHTML('help')}`;
     this.openPopup('🍀 행운의 주인공', render(), {onMount:()=>{
       const body = document.getElementById('popup-body');
       const refresh = ()=>{ body.innerHTML = render(); bind(); };
@@ -4351,6 +4518,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         body.querySelectorAll('.hc-btn').forEach(b=>b.onclick=()=>{ if(spinning) return; count=+b.dataset.c; refresh(); });
         document.getElementById('lucky-close').onclick=()=>this.closePopup();
         document.getElementById('lucky-roll').onclick=roll;
+        this.bindInclToggles(body, ()=>{ if (spinning) return; calcPool(); this.renderHelper(); refresh(); });
       };
       bind();
     }});
@@ -4359,14 +4527,15 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     this.ensureAudio();
     const students = this.settings?.students || [];
     if (!students.length) return;
-    let pool = this.eligibleStudents('help');                   // 지각·결석은 토글 설정에 따름
-    const inc = this.attInclude();
-    const exNote = [!inc.helpLate&&'지각', !inc.helpAbsent&&'결석'].filter(Boolean).join('·');
-    if (!pool.length) pool = students.slice();
-    let count = Math.min(Math.max((this.record.helpers||[]).length || 1, 1), pool.length);
+    let pool, maxCount, count = Math.max((this.record.helpers||[]).length || 1, 1);
+    const calcPool = ()=>{                                       // 지각·조퇴·결석은 창 아래 토글 설정에 따름
+      pool = this.eligibleStudents('help');
+      if (!pool.length) pool = students.slice();
+      maxCount = Math.min(pool.length, 6); count = Math.min(count, pool.length);
+    };
+    calcPool();
     let winners = (this.record.helpers||[]).filter(Boolean);
     let spinning = false;
-    const maxCount = Math.min(pool.length, 6);
 
     const stageHTML = ()=> winners.length
       ? winners.map(n=>`<div class="helper-winner big"><span class="hw-em">🌟</span><span class="hw-nm">${esc(n)}</span></div>`).join('')
@@ -4376,13 +4545,13 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         <div class="helper-count-label">몇 명 뽑을까요?</div>
         <div class="helper-count">${Array.from({length:maxCount},(_,i)=>i+1).map(n=>
           `<button class="hc-btn ${n===count?'active':''}" data-c="${n}">${n}명</button>`).join('')}</div>
-        <div class="helper-pool-note">후보 ${pool.length}명${exNote?` (${exNote} 제외)`:''}</div>
+        <div class="helper-pool-note">후보 ${pool.length}명</div>
       </div>
       <div class="helper-stage" id="helper-stage">${stageHTML()}</div>
       <div class="popup-actions">
         <button class="btn-cancel" id="helper-close">닫기</button>
         <button class="btn-save" id="helper-roll">🎲 ${winners.length?'다시 뽑기':'뽑기'}</button>
-      </div>`;
+      </div>${this.inclTogglesHTML('help')}`;
 
     this.openPopup('🎲 오늘의 도우미 뽑기', render(), {onMount:()=>{
       const body = document.getElementById('popup-body');
@@ -4425,24 +4594,122 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         body.querySelectorAll('.hc-btn').forEach(b=>b.onclick=()=>{ if(spinning) return; count=+b.dataset.c; refresh(); });
         document.getElementById('helper-close').onclick=()=>this.closePopup();
         document.getElementById('helper-roll').onclick=roll;
+        this.bindInclToggles(body, ()=>{ if (spinning) return; calcPool(); this.renderHelper(); refresh(); });
       };
       bind();
     }});
   },
 
-  // ── 기능 추가 예정 + 기능 제안 (개발자 메일로 전송) ──
-  SUGGEST_EMAIL: 'themaniwant19@gmail.com',
-  renderSuggest() {
-    const c = document.getElementById('card-suggest');
+  // ── 수업 도구 카드: 시계 · 타이머 · 스톱워치 중 학급에서 고른 것만 보여 줌  ──
+  TOOLS: [['clock','시계','ph-clock'],['timer','타이머','ph-timer'],['stopwatch','스톱워치','ph-hourglass-medium']],
+  _tm: {total:300, left:300, endAt:null, done:false},            // 타이머(초). endAt이 있으면 가는 중
+  _sw: {acc:0, startAt:null},                                    // 스톱워치(초)
+  toolsOn() { return {clock:true, timer:true, stopwatch:true, ...(this.settings?.tools||{})}; },
+  tmLeft() { const t = this._tm; return t.endAt ? Math.max(0, (t.endAt - Date.now())/1000) : t.left; },
+  swNow() { const w = this._sw; return w.acc + (w.startAt ? (Date.now() - w.startAt)/1000 : 0); },
+  fmtMS(sec) { sec = Math.max(0, Math.floor(sec)); return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`; },
+  renderTools() {
+    const c = document.getElementById('card-tools');
     if (!c) return;
-    const chip = `<span class="v3-ico" style="background:#e0f2fe;color:#0284c7"><i class="ph-fill ph-puzzle-piece"></i></span>`;
-    c.className = 'card empty';
-    c.innerHTML = `<div class="v3-title">${chip}기능 추가 예정</div>
-      <div class="sg-body">
-        <div class="sg-text">새로운 기능이 곧 들어와요 ✨</div>
-        <button class="sg-btn" id="sg-open">💡 기능 제안하기</button>
-      </div>`;
-    document.getElementById('sg-open').onclick = ()=> this.openSuggest();
+    const chip = `<span class="v3-ico" style="background:#e0f2fe;color:#0284c7"><i class="ph-fill ph-timer"></i></span>`;
+    const on = this.toolsOn(), list = this.TOOLS.filter(([k])=>on[k]);
+    c.className = 'card';
+    c.innerHTML = `<div class="v3-title">${chip}수업 도구
+        <span class="tl-side"><button id="tl-cfg" title="쓸 도구 고르기" aria-label="쓸 도구 고르기"><i class="ph-bold ph-sliders-horizontal"></i></button></span></div>
+      ${list.length ? `<div class="tl-row">${list.map(([k,l,ic])=>`<button class="tl-btn" data-t="${k}" aria-label="${l} 열기"><i class="ph-fill ${ic}"></i><b id="tl-${k}-v">--:--</b><span>${l}</span></button>`).join('')}</div>`
+        : `<div class="card-hint" style="font-size:15px">오른쪽 위 버튼으로 쓸 도구를 골라요</div>`}`;
+    c.querySelectorAll('.tl-btn').forEach(b=>b.onclick=()=>this.openTool(b.dataset.t));
+    document.getElementById('tl-cfg').onclick = ()=> this.openToolPicker();
+    if (!this._toolTimer) this._toolTimer = setInterval(()=>this.toolTick(), 200);
+    this.toolTick();
+  },
+  // 화면에 보이는 시각·남은 시간 갱신 (카드와 열려 있는 도구 창), 타이머가 끝나면 알림
+  toolTick() {
+    const t = this._tm, now = new Date();
+    if (t.endAt && Date.now() >= t.endAt) {
+      t.endAt = null; t.left = 0; t.done = true;
+      this.playSound('complete'); this.toast('⏰ 시간이 다 됐어요!','success'); this.speak('시간이 다 됐어요.');
+      if (this._toolDraw) this._toolDraw();
+    }
+    const set = (id, v)=>{ const el = document.getElementById(id); if (el && el.textContent !== v) el.textContent = v; };
+    const hm = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`, left = Math.ceil(this.tmLeft() - 0.001), sw = this.swNow();
+    set('tl-clock-v', hm); set('tl-timer-v', this.fmtMS(left)); set('tl-stopwatch-v', this.fmtMS(sw));
+    document.querySelector('#card-tools .tl-btn[data-t="timer"]')?.classList.toggle('run', !!t.endAt);
+    document.querySelector('#card-tools .tl-btn[data-t="stopwatch"]')?.classList.toggle('run', !!this._sw.startAt);
+    if (!document.getElementById('tp-stage')) return;
+    const h = now.getHours();
+    set('tp-clock-v', `${h<12?'오전':'오후'} ${h%12||12}:${String(now.getMinutes()).padStart(2,'0')}`);
+    set('tp-clock-s', String(now.getSeconds()).padStart(2,'0'));
+    const rot = (id, deg)=> document.getElementById(id)?.setAttribute('transform', `rotate(${deg} 100 100)`);
+    rot('tp-h', (h%12)*30 + now.getMinutes()*.5); rot('tp-m', now.getMinutes()*6 + now.getSeconds()*.1); rot('tp-s', now.getSeconds()*6);
+    set('tp-timer-v', this.fmtMS(left));
+    const pie = document.getElementById('tp-pie');
+    if (pie) pie.style.setProperty('--p', (t.total ? Math.min(100, this.tmLeft()/t.total*100) : 0).toFixed(2) + '%');
+    set('tp-sw-v', `${this.fmtMS(sw)}.${Math.floor(sw*10)%10}`);
+  },
+  openToolPicker() {
+    this.ensureAudio();
+    const on = this.toolsOn();
+    this.openPopup('🧰 쓸 도구 고르기', `<div class="hint" style="margin-bottom:12px">우리 반 화면에 보일 도구만 골라요.</div>
+      <div class="ws-opts">${this.TOOLS.map(([k,l,ic])=>`<label class="ws-opt"><input type="checkbox" data-k="${k}" ${on[k]?'checked':''}> <i class="ph-fill ${ic}"></i> ${l}</label>`).join('')}</div>
+      <div class="popup-actions"><button class="btn-save" id="tlp-ok">✅ 완료</button></div>`, {onMount:()=>{
+        document.querySelectorAll('#popup-body input[data-k]').forEach(c=>c.onchange=()=>{
+          this.settings.tools = {...this.toolsOn(), [c.dataset.k]: c.checked};
+          this.persistClasses(); this.playSound('select'); this.renderTools();
+        });
+        document.getElementById('tlp-ok').onclick = ()=> this.closePopup();
+      }});
+  },
+  openTool(kind) {
+    this.ensureAudio(); this.playSound('select');
+    const on = this.toolsOn(), list = this.TOOLS.filter(([k])=>on[k]);
+    let cur = list.some(([k])=>k===kind) ? kind : list[0]?.[0];
+    if (!cur) return;
+    const nums = Array.from({length:12},(_,i)=>{ const a=(i+1)*Math.PI/6; return `<text x="${(100+72*Math.sin(a)).toFixed(1)}" y="${(100-72*Math.cos(a)+7).toFixed(1)}">${i+1}</text>`; }).join('');
+    const stage = ()=>{
+      const t = this._tm;
+      if (cur==='clock') { const d = new Date();
+        return `<svg class="tp-analog" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="94" fill="#fff" stroke="#5BB6FF" stroke-width="6"/>${nums}
+            <line id="tp-h" x1="100" y1="108" x2="100" y2="54" stroke="#1f2937" stroke-width="7" stroke-linecap="round"/>
+            <line id="tp-m" x1="100" y1="110" x2="100" y2="32" stroke="#1f2937" stroke-width="4.5" stroke-linecap="round"/>
+            <line id="tp-s" x1="100" y1="114" x2="100" y2="26" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><circle cx="100" cy="100" r="5" fill="#ef4444"/></svg>
+          <div class="tp-side"><div class="tp-date">${d.getMonth()+1}월 ${d.getDate()}일 ${['일','월','화','수','목','금','토'][d.getDay()]}요일</div>
+            <div class="tp-big"><b id="tp-clock-v"></b><small id="tp-clock-s"></small></div></div>`; }
+      if (cur==='timer') return `<div class="tp-pie ${t.done?'done':''}" id="tp-pie"><div class="tp-pie-in"><b id="tp-timer-v"></b>${t.done?'<span>끝!</span>':''}</div></div>
+          <div class="tp-side">
+            <div class="tp-presets">${[1,3,5,10,15,30].map(m=>`<button data-m="${m}" class="${!t.endAt && t.total===m*60 && t.left===t.total?'on':''}">${m}분</button>`).join('')}</div>
+            <div class="tp-presets"><button data-add="-60">− 1분</button><button data-add="60">+ 1분</button></div>
+            <div class="tp-ctl"><button class="tp-go ${t.endAt?'stop':''}" id="tp-go">${t.endAt?'⏸ 멈춤':'▶ 시작'}</button><button id="tp-reset">↺ 처음으로</button></div></div>`;
+      return `<div class="tp-big sw"><b id="tp-sw-v"></b></div>
+          <div class="tp-side"><div class="tp-ctl"><button class="tp-go ${this._sw.startAt?'stop':''}" id="tp-go">${this._sw.startAt?'⏸ 멈춤':'▶ 시작'}</button><button id="tp-reset">↺ 처음으로</button></div></div>`;
+    };
+    const draw = ()=>{
+      const body = document.getElementById('popup-body');
+      body.innerHTML = `<div class="tp">${list.length>1 ? `<div class="mv-toggle tp-tabs" role="tablist">${list.map(([k,l,ic])=>`<button data-t="${k}" role="tab" class="${k===cur?'on':''}"><i class="ph-fill ${ic}"></i> ${l}</button>`).join('')}</div>` : ''}
+        <div class="tp-stage ${cur}" id="tp-stage">${stage()}</div></div>`;
+      body.querySelectorAll('.tp-tabs button').forEach(b=>b.onclick=()=>{ cur = b.dataset.t; this.playSound('select'); draw(); });
+      const t = this._tm, w = this._sw, go = document.getElementById('tp-go'), rs = document.getElementById('tp-reset');
+      if (cur==='timer') {
+        body.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ Object.assign(t, {total:+b.dataset.m*60, left:+b.dataset.m*60, endAt:null, done:false}); this.playSound('select'); draw(); });
+        body.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
+          const left = Math.min(99*60, Math.max(0, this.tmLeft() + +b.dataset.add));
+          if (t.endAt) t.endAt = Date.now() + left*1000; else t.left = left;
+          t.total = Math.max(left, Math.min(99*60, t.total + +b.dataset.add), 60); t.done = false;
+          this.playSound('select'); draw();
+        });
+        go.onclick = ()=>{
+          if (t.endAt) { t.left = this.tmLeft(); t.endAt = null; }
+          else { if (t.left <= 0) t.left = t.total; t.endAt = Date.now() + t.left*1000; t.done = false; }
+          this.playSound('check'); draw();
+        };
+        rs.onclick = ()=>{ Object.assign(t, {left:t.total, endAt:null, done:false}); this.playSound('select'); draw(); };
+      } else if (cur==='stopwatch') {
+        go.onclick = ()=>{ if (w.startAt) { w.acc = this.swNow(); w.startAt = null; } else w.startAt = Date.now(); this.playSound('check'); draw(); };
+        rs.onclick = ()=>{ w.acc = 0; w.startAt = null; this.playSound('select'); draw(); };
+      }
+      this.toolTick();
+    };
+    this.openPopup('⏱️ 수업 도구', '', {large:true, onMount:()=>{ this._toolDraw = draw; draw(); }, onClose:()=>{ this._toolDraw = null; }});
   },
   openSuggest() {
     this.ensureAudio();
@@ -4993,10 +5260,27 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     while(tt.length<7) tt.push('');
     html += sec('timetable', `<h3>📅 시간표 입력</h3>
       <div class="tt-day-tabs">${dayNames.map((d,i)=>`<button data-day="${i}" class="${this.settingsDay===i?'active':''}">${d}요일</button>`).join('')}</div>
-      ${tt.map((p,i)=>`<div class="tt-period-row"><span class="lbl">${i+1}교시</span><input class="tt-pinp" data-i="${i}" value="${esc(p||'')}" placeholder="비워두면 미표시"></div>`).join('')}
+      ${tt.map((p,i)=>`<div class="tt-period-row"><span class="lbl">${i+1}교시</span><input class="tt-pinp" data-i="${i}" value="${esc(p||'')}" placeholder="비워두면 미표시" list="subj-dl"></div>`).join('')}
       <div style="display:flex;gap:6px;margin-top:8px">
         ${dayNames.map((d,i)=>i!==this.settingsDay?`<button class="copy-day-btn" data-copy="${i}">${dayNames[this.settingsDay]}→${d}</button>`:'').join('')}
-      </div>`);
+      </div>
+      ${(()=>{ const cfg = subjectCfg(s), base = this.levelSubjects(s), pick = this._subjPick;
+        const item = (n, custom)=>{ const off = !custom && cfg.hidden.includes(n);
+          return `<div class="subj-item ${off?'off':''} ${pick===n?'picking':''}">
+            <button class="subj-ico" data-n="${esc(n)}" title="아이콘 바꾸기" aria-label="${esc(n)} 아이콘 바꾸기">${subjectIcon(n, s)}</button>
+            <span class="subj-nm">${esc(n)}</span>
+            ${custom ? `<button class="subj-act del" data-del="${esc(n)}" aria-label="${esc(n)} 삭제"><i class="ph-bold ph-trash"></i> 삭제</button>`
+                     : `<button class="subj-act" data-eye="${esc(n)}" aria-pressed="${!off}"><i class="ph-bold ph-eye${off?'-slash':''}"></i> ${off?'숨김':'보임'}</button>`}
+          </div>`; };
+        return `<datalist id="subj-dl">${[...base.filter(n=>!cfg.hidden.includes(n)), ...cfg.custom].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+        <h3 style="margin-top:26px">🧩 과목 관리 <small class="sec-sub">시간표 맞추기에 나오는 과목 카드를 우리 반에 맞게 꾸며요</small></h3>
+        <div class="hint" style="margin-bottom:10px">아이콘을 누르면 그림을 바꿀 수 있어요. 안 쓰는 과목은 숨기고, 필요한 과목은 아래에서 추가해요. 바꾸면 바로 저장돼요.</div>
+        <div class="subj-list">${base.map(n=>item(n,false)).join('')}${cfg.custom.filter(n=>!base.includes(n)).map(n=>item(n,true)).join('')}</div>
+        ${pick ? `<div class="subj-picker" id="subj-picker"><div class="sp-head"><b>${esc(pick)}</b> 아이콘 고르기
+            <input id="subj-emoji" maxlength="4" placeholder="직접 입력" aria-label="아이콘 직접 입력"><button id="subj-emoji-ok">적용</button>
+            <button id="subj-pick-reset">기본으로</button><button id="subj-pick-close" aria-label="닫기">✕</button></div>
+          <div class="sp-grid">${SUBJECT_ICON_CHOICES.map(e=>`<button data-e="${e}" class="${subjectIcon(pick,s)===e?'on':''}">${e}</button>`).join('')}</div></div>` : ''}
+        <div class="subj-add"><input id="subj-new" maxlength="10" placeholder="새 과목 이름 (10자 이내)" aria-label="새 과목 이름"><button id="subj-add-btn">➕ 과목 추가</button></div>`; })()}`);
 
     html += sec('book', `<h3>📹 영상 재생 · 기본 영상</h3>
       <div class="field"><label>기본 영상 URL</label><input id="f-book-url" value="${esc(s.bookUrl||'')}" placeholder="https://youtu.be/...">
@@ -5140,6 +5424,41 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         saveCurrent();
         this.settingsDay = +b.dataset.day; this.renderSettingsTabs();
       });
+      // 과목 관리: 숨기기·삭제·아이콘·추가 (바로 저장)
+      const cfgSave = fn=>{ const cfg = subjectCfg(s); fn(cfg); this.saveSubjectCfg(cfg, s); this.playSound('select'); this.renderSettingsTabs(); };
+      document.querySelectorAll('.subj-act[data-eye]').forEach(b=>b.onclick=()=>cfgSave(cfg=>{
+        const n = b.dataset.eye; cfg.hidden = cfg.hidden.includes(n) ? cfg.hidden.filter(x=>x!==n) : [...cfg.hidden, n]; }));
+      document.querySelectorAll('.subj-act[data-del]').forEach(b=>b.onclick=()=>{
+        const n = b.dataset.del;
+        if (!confirm(`'${n}' 과목을 삭제할까요?\n(이미 시간표에 넣은 날의 기록은 그대로 남아요)`)) return;
+        if (this._subjPick===n) this._subjPick = null;
+        cfgSave(cfg=>{ cfg.custom = cfg.custom.filter(x=>x!==n); delete cfg.icons[n]; });
+      });
+      document.querySelectorAll('.subj-ico').forEach(b=>b.onclick=()=>{
+        this._subjPick = this._subjPick===b.dataset.n ? null : b.dataset.n; this.playSound('select'); this.renderSettingsTabs();
+        document.getElementById('subj-picker')?.scrollIntoView({block:'nearest'});
+      });
+      const setIcon = e=>{ const n = this._subjPick; this._subjPick = null; cfgSave(cfg=>{ if (e) cfg.icons[n] = e; else delete cfg.icons[n]; }); };
+      document.querySelectorAll('#subj-picker .sp-grid button').forEach(b=>b.onclick=()=>setIcon(b.dataset.e));
+      const emo = document.getElementById('subj-emoji');
+      if (emo) {
+        const apply = ()=>{ const v = emo.value.trim(); if (v) setIcon(v); else emo.focus(); };
+        document.getElementById('subj-emoji-ok').onclick = apply;
+        emo.onkeydown = e=>{ if (e.key==='Enter' && !e.isComposing) { e.preventDefault(); apply(); } };
+        document.getElementById('subj-pick-reset').onclick = ()=> setIcon(null);
+        document.getElementById('subj-pick-close').onclick = ()=>{ this._subjPick = null; this.renderSettingsTabs(); };
+      }
+      const addSubj = ()=>{
+        const inp = document.getElementById('subj-new'), name = inp.value.trim();
+        if (!name) { inp.focus(); return; }
+        const cfg = subjectCfg(s);
+        if (cfg.custom.includes(name) || (this.levelSubjects(s).includes(name) && !cfg.hidden.includes(name))) { this.toast('이미 있는 과목이에요','error'); inp.select(); return; }
+        this.addClassSubject(name, s); this.playSound('save'); this.toast(`"${name}" 추가됨 ✨`,'success');
+        this._subjPick = name;                                     // 추가한 과목의 아이콘을 바로 고를 수 있게
+        this.renderSettingsTabs(); document.getElementById('subj-picker')?.scrollIntoView({block:'nearest'});
+      };
+      document.getElementById('subj-add-btn').onclick = addSubj;
+      document.getElementById('subj-new').onkeydown = e=>{ if (e.key==='Enter' && !e.isComposing) { e.preventDefault(); addSubj(); } };
       document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
         saveCurrent();
         const cur = [...document.querySelectorAll('.tt-pinp')].map(i=>i.value);
@@ -5249,7 +5568,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
         if (!its.length) return `${esc(n)}: ${v.emoji} ${esc(v.label)}`;
         return `${esc(n)}: ${its.map(it=>{ const e = EMOTIONS.find(x=>x.k===it.k); return `${e.e}${e.l}(${EMO_ZONES[it.zone]||''})`; }).join(' ')}`;
       }).join(' · ');
-      const att = Object.entries(r.attendance||{}).map(([n,v])=>`${esc(n)}: ${esc(v)}`).join(', ');
+      const att = Object.entries(r.attendance||{}).map(([n,v])=>`${esc(n)}: ${esc(v)}${v==='absent'&&r.attendanceReasons?.[n]?` (${esc(r.attendanceReasons[n])})`:''}`).join(', ');
       document.getElementById('record-detail').innerHTML = `<div class="record-detail">
         <h4>날씨</h4><div class="row">${r.weather?`${r.weather.emoji} ${r.weather.label}${r.weather.temp!=null?` ${Math.round(r.weather.temp)}°`:''}${(f=>f?` · ${f.label}`:'')(r.weather.temp!=null?feelFromTemp(r.weather.temp):FEEL.find(x=>x.k===r.weather.feel))}`:'-'}</div>
         <h4>미세먼지</h4><div class="row">${r.dust?`${r.dust.emoji} ${r.dust.label}`:'-'}</div>
@@ -5357,7 +5676,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
       let rec={}; try{rec=JSON.parse(localStorage.getItem(k))||{};}catch(x){}
       const att=rec.attendance||{};
       if(Object.keys(att).length===0) return;                    // 출석 체크 안 한 날은 수업일에서 제외
-      autoSchoolDays++; days.push({d:dd, att});
+      autoSchoolDays++; days.push({d:dd, att, why:rec.attendanceReasons||{}});
       students.forEach(n=>{ const v=att[n]; if(v==='late')per[n].late++; else if(v==='early')per[n].early++; else if(v==='absent')per[n].absent++; });
     });
     days.sort((a,b)=>a.d<b.d?-1:1);
@@ -5465,7 +5784,7 @@ h2 small{font-size:9.5pt;color:#6b7280;font-weight:500;margin-left:2mm}
     const cells=agg.days.map(x=>{
       const v=x.att[d.student]; const [cls,lb]=ST[v]||['ok','출석'];
       const y=+x.d.slice(0,4), m=+x.d.slice(4,6), dd=+x.d.slice(6,8);
-      return `<div class="sd-day ${cls}"><span class="dt">${m}/${dd}<small>(${WN[new Date(y,m-1,dd).getDay()]})</small></span><b>${lb}</b></div>`;
+      return `<div class="sd-day ${cls}"><span class="dt">${m}/${dd}<small>(${WN[new Date(y,m-1,dd).getDay()]})</small></span><b>${lb}${v==='absent'&&x.why?.[d.student]?` · ${esc(x.why[d.student])}`:''}</b></div>`;
     }).join('');
     const issues=agg.days.filter(x=>ST[x.att[d.student]]).length;
     return `<div class="sv-chips">${chips}</div>
