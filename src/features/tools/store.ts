@@ -5,7 +5,7 @@ import { create } from 'zustand';
 const MAX_SEC = 99 * 60;
 
 interface ToolsState {
-  /** 타이머(초). endAt 이 있으면 가는 중 */
+  /** 타이머(초). endAt 이 있으면 가는 중이고, 그때 left 는 출발할 때 남아 있던 시간 */
   timer: { total: number; left: number; endAt: number | null; done: boolean };
   /** 스톱워치(초). startAt 이 있으면 가는 중 */
   sw: { acc: number; startAt: number | null };
@@ -19,8 +19,18 @@ interface ToolsState {
   resetSw: () => void;
 }
 
-export const timerLeft = (t: ToolsState['timer'], now = Date.now()) => (t.endAt ? Math.max(0, (t.endAt - now) / 1000) : t.left);
-export const swElapsed = (w: ToolsState['sw'], now = Date.now()) => w.acc + (w.startAt ? (now - w.startAt) / 1000 : 0);
+// now 가 시작 시각보다 앞서면(화면이 조금 전에 읽어 둔 시각을 넘겨줄 때) 시작 시각으로 본다 — 시작하는 순간 숫자가 튀지 않게
+export const timerLeft = (t: ToolsState['timer'], now = Date.now()) => (t.endAt ? Math.min(t.left, Math.max(0, (t.endAt - now) / 1000)) : t.left);
+export const swElapsed = (w: ToolsState['sw'], now = Date.now()) => w.acc + (w.startAt ? Math.max(0, now - w.startAt) / 1000 : 0);
+/** 스톱워치 표시: "MM:SS" 와 0.1초 자리. 천분의 일 초로 맞춘 뒤 자르므로 2.3초가 2.2로 보이는 일이 없다 */
+export function fmtTenths(sec: number): { ms: string; tenth: number } {
+  const total = Math.max(0, Math.round(sec * 1000));
+  return { ms: fmtMS(total / 1000), tenth: Math.floor(total / 100) % 10 };
+}
+
+/** 타이머에 보여 줄 남은 초 (59.2초 남았으면 60 → "01:00") */
+export const timerShown = (t: ToolsState['timer'], now = Date.now()) => Math.ceil(timerLeft(t, now) - 0.001);
+
 /** 초 → "MM:SS" */
 export function fmtMS(sec: number): string {
   const s = Math.max(0, Math.floor(sec));
@@ -36,7 +46,7 @@ export const useTools = create<ToolsState>((set, get) => ({
     const t = get().timer;
     const left = Math.min(MAX_SEC, Math.max(0, timerLeft(t) + delta));
     const total = Math.max(left, Math.min(MAX_SEC, t.total + delta), 60);
-    set({ timer: t.endAt ? { total, left: t.left, endAt: Date.now() + left * 1000, done: false } : { total, left, endAt: null, done: false } });
+    set({ timer: { total, left, endAt: t.endAt ? Date.now() + left * 1000 : null, done: false } });
   },
   toggleTimer: () => {
     const t = get().timer;

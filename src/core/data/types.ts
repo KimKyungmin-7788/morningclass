@@ -39,7 +39,7 @@ export interface ClassRoom {
     emoMode?: 'drag' | 'tap';
     helperMode?: 'helper' | 'lucky';
     mealHidden?: string[];
-    tools?: Partial<Record<'clock' | 'timer' | 'stopwatch', boolean>>;
+    tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'board', boolean>>;
     video?: { url: string; title: string };
   };
 }

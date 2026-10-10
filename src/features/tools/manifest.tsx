@@ -7,9 +7,10 @@ import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { useCurrentClass, useData } from '@/core/data/store';
 import type { FeatureManifest } from '../types';
-import { fmtMS, swElapsed, timerLeft, useTools } from './store';
+import { fmtMS, fmtTenths, swElapsed, timerLeft, timerShown, useTools } from './store';
+import { BoardWindow } from '@/features/board/BoardWindow';
 
-// 수업 도구 카드: 시계 · 타이머 · 스톱워치 중 학급에서 고른 것만 보여 준다.
+// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 판서 중 학급에서 고른 것만 보여 준다.
 
 type ToolId = 'clock' | 'timer' | 'stopwatch';
 const TOOLS: { id: ToolId; label: string; icon: string }[] = [
@@ -29,7 +30,8 @@ function useNow(ms: number): number {
 function ToolsCard() {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
-  const on = { clock: true, timer: true, stopwatch: true, ...cls?.options.tools };
+  const on = { clock: true, timer: true, stopwatch: true, board: true, ...cls?.options.tools };
+  const [board, setBoard] = useState(false);
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
   const [picking, setPicking] = useState(false);
@@ -46,8 +48,9 @@ function ToolsCard() {
   const d = new Date(now);
   const value: Record<ToolId, string> = {
     clock: `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`,
-    timer: fmtMS(Math.ceil(timerLeft(timer, now) - 0.001)),
-    stopwatch: fmtMS(swElapsed(sw, now)),
+    // 남은 시간·잰 시간은 그리는 순간의 시각으로 계산한다 (조금 전에 읽어 둔 now 를 쓰면 시작하는 순간 숫자가 튄다)
+    timer: fmtMS(timerShown(timer)),
+    stopwatch: fmtMS(swElapsed(sw)),
   };
   const running: Record<ToolId, boolean> = { clock: false, timer: !!timer.endAt, stopwatch: !!sw.startAt };
 
@@ -67,8 +70,10 @@ function ToolsCard() {
               </button>
             ))}
           </div>
-        ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
+        ) : !on.board && <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
+        {on.board && <button className="tl-board" aria-label="판서 열기" onClick={() => { ensureAudio(); playSound('select'); setBoard(true); }}><i className="ph-fill ph-pencil-line" /> 판서</button>}
       </CardFrame>
+      {board && <BoardWindow onClose={() => setBoard(false)} />}
 
       {picking && cls && (
         <Popup title="🧰 쓸 도구 고르기" onClose={() => setPicking(false)}>
@@ -81,23 +86,30 @@ function ToolsCard() {
                 {' '}<i className={`ph-fill ${t.icon}`} /> {t.label}
               </label>
             ))}
+            <label className="ws-opt">
+              <input type="checkbox" checked={on.board}
+                onChange={(e) => { void saveClass({ ...cls, options: { ...cls.options, tools: { ...on, board: e.target.checked } } }); playSound('select'); }} />
+              {' '}<i className="ph-fill ph-pencil-line" /> 판서
+            </label>
           </div>
           <PopupActions><button className="btn-save" onClick={() => setPicking(false)}>✅ 완료</button></PopupActions>
         </Popup>
       )}
 
-      {open && list.length > 0 && <ToolWindow list={list} start={open} now={now} onClose={() => setOpen(null)} />}
+      {open && list.length > 0 && <ToolWindow list={list} start={open} onClose={() => setOpen(null)} />}
     </>
   );
 }
 
-function ToolWindow({ list, start, now, onClose }: { list: typeof TOOLS; start: ToolId; now: number; onClose: () => void }) {
+function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolId; onClose: () => void }) {
   const [cur, setCur] = useState<ToolId>(list.some((t) => t.id === start) ? start : list[0].id);
   const { timer, sw, preset, adjust, toggleTimer, resetTimer, toggleSw, resetSw } = useTools();
-  const d = new Date(now);
+  // 스톱워치가 가는 동안에는 0.1초 자리가 빠짐없이 바뀌도록 촘촘하게 다시 그린다
+  useNow(cur === 'stopwatch' && sw.startAt ? 33 : cur === 'timer' && timer.endAt ? 100 : 200);
+  const d = new Date();
   const h = d.getHours();
-  const left = timerLeft(timer, now);
-  const elapsed = swElapsed(sw, now);
+  const left = timerLeft(timer);
+  const elapsed = fmtTenths(swElapsed(sw));
   const nums = useMemo(() => Array.from({ length: 12 }, (_, i) => {
     const a = ((i + 1) * Math.PI) / 6;
     return <text key={i} x={(100 + 72 * Math.sin(a)).toFixed(1)} y={(100 - 72 * Math.cos(a) + 7).toFixed(1)}>{i + 1}</text>;
@@ -136,7 +148,7 @@ function ToolWindow({ list, start, now, onClose }: { list: typeof TOOLS; start: 
           {cur === 'timer' && (
             <>
               <div className={`tp-pie${timer.done ? ' done' : ''}`} style={{ '--p': `${(timer.total ? Math.min(100, (left / timer.total) * 100) : 0).toFixed(2)}%` } as CSSProperties}>
-                <div className="tp-pie-in"><b>{fmtMS(Math.ceil(left - 0.001))}</b>{timer.done && <span>끝!</span>}</div>
+                <div className="tp-pie-in"><b>{fmtMS(timerShown(timer))}</b>{timer.done && <span>끝!</span>}</div>
               </div>
               <div className="tp-side">
                 <div className="tp-presets">
@@ -154,7 +166,7 @@ function ToolWindow({ list, start, now, onClose }: { list: typeof TOOLS; start: 
           )}
           {cur === 'stopwatch' && (
             <>
-              <div className="tp-big sw"><b>{fmtMS(elapsed)}.{Math.floor(elapsed * 10) % 10}</b></div>
+              <div className="tp-big sw"><b>{elapsed.ms}.{elapsed.tenth}</b></div>
               <div className="tp-side">
                 <div className="tp-ctl">
                   <button className={`tp-go${sw.startAt ? ' stop' : ''}`} onClick={tap(toggleSw, 'check')}>{sw.startAt ? '⏸ 멈춤' : '▶ 시작'}</button>
