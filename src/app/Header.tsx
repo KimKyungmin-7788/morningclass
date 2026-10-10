@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { useCurrentClass } from '@/core/data/store';
 import { DataPanel } from './DataPanel';
+import { DateCard } from '@/features/date/DateCard';
 import { ensureAudio, playSound } from '@/core/sound';
 import { toast } from '@/core/ui/toast';
 
-// 상단 줄. 날짜·기록·설정·기능 제안은 해당 단계에서 실제 기능과 연결한다.
+// 상단 줄. 기록·설정·기능 제안은 해당 단계에서 실제 기능과 연결한다.
 export function Header() {
   const muted = usePrefs((s) => s.muted);
   const setPrefs = usePrefs((s) => s.set);
@@ -20,10 +21,7 @@ export function Header() {
       <div className="school" role="button" tabIndex={0} title="눌러서 학급 변경" onClick={() => setDataOpen(true)}>
         {cls?.schoolName || '학교명'} · {cls?.className || '학급명'}
       </div>
-      <div className="date-card" tabIndex={0} role="button" aria-label="날짜 선택" onClick={later('날짜')}>
-        <span className="ico"><i className="ph-duotone ph-calendar-blank" /></span>
-        <span>날짜를 입력해주세요</span>
-      </div>
+      <DateCard />
       <div className="actions">
         <button className="suggest" title="새 기능을 제안해요" aria-label="기능 제안하기" onClick={later('기능 제안')}>
           <i className="ph-fill ph-lightbulb" /><span>기능 제안</span>
