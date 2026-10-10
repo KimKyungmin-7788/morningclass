@@ -1,0 +1,5 @@
+/* v2 에서 새로 넣는 스타일. 기존 모양은 legacy.css 가 맡는다. */
+
+/* 창이 열려 있는 동안에는 백업 알림이 창 아래쪽 버튼을 가리지 않게 숨긴다 */
+body:has(.popup-overlay.active) .backup-reminder,
+body:has(.date-gate) .backup-reminder { display: none; }

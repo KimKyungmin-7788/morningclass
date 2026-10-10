@@ -53,7 +53,7 @@ async function relay(res, url) {
   } catch (e) { res.status(502).json({ error: 'fetch_failed' }); }
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const E = process.env;
   if ((req.query || {}).url) { await relay(res, String(req.query.url)); return; }
   const q = String((req.query || {}).q || '').trim().slice(0, 50);
@@ -76,4 +76,4 @@ module.exports = async (req, res) => {
     } catch (e) { /* 다음 제공자로 */ }
   }
   res.status(502).json({ error: 'fetch_failed' });
-};
+}

@@ -1,7 +1,7 @@
 // Vercel Serverless Function — NEIS 오픈API 프록시
 // 키(NEIS_KEY)는 Vercel 환경변수에만 저장되며 클라이언트로 전달되지 않는다.
 // 호출 예: /api/neis?endpoint=mealServiceDietInfo&ATPT_OFCDC_SC_CODE=...&SD_SCHUL_CODE=...&MLSV_YMD=...
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const KEY = process.env.NEIS_KEY;
   if (!KEY) {
     res.status(500).json({ error: 'NEIS_KEY_not_set' });
@@ -33,4 +33,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     res.status(502).json({ error: 'upstream_failed' });
   }
-};
+}
