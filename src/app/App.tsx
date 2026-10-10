@@ -10,6 +10,7 @@ import { Footer } from './Footer';
 import { SideSwitch } from './SideSwitch';
 import { BackupReminder } from '@/features/onboarding/Onboarding';
 import { Celebrate } from './Celebrate';
+import { LessonView } from '@/features/lesson/LessonView';
 
 // 화면 뼈대: 아침교실(상단 줄 · 대시보드 · 진행률) / 수업교실, 오른쪽 옆 탭으로 전환
 export function App() {
@@ -56,12 +57,7 @@ export function App() {
             <Footer />
           </div>
         ) : (
-          <div id="lesson-view">
-            <div className="lesson-hero">
-              <h2>수업교실</h2>
-              <p>8단계에서 옮겨요.</p>
-            </div>
-          </div>
+          <div id="lesson-view"><LessonView /></div>
         )}
         <SideSwitch />
       </div>
