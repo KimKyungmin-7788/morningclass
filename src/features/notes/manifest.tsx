@@ -22,7 +22,7 @@ function NotesCard() {
 
   return (
     <>
-      <CardFrame id="notes" label="유의사항" state={notes ? 'filled' : 'empty'} style={{ flex: 1.1, minHeight: 160 }}
+      <CardFrame id="notes" label="유의사항" state={notes ? 'filled' : 'empty'} style={{ flex: 1.1, minHeight: 110 }}
         onOpen={() => { ensureAudio(); setDraft(notes); }}>
         <CardTitle icon="ph-fill ph-megaphone" tint="#fce7f3" color="#db2777"
           extra={notes ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 유의사항</CardTitle>

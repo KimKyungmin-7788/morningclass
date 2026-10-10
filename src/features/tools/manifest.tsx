@@ -13,11 +13,16 @@ import { BoardWindow } from '@/features/board/BoardWindow';
 // 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 판서 중 학급에서 고른 것만 보여 준다.
 
 type ToolId = 'clock' | 'timer' | 'stopwatch';
+type CardTool = ToolId | 'board';
 const TOOLS: { id: ToolId; label: string; icon: string }[] = [
   { id: 'clock', label: '시계', icon: 'ph-clock' },
   { id: 'timer', label: '타이머', icon: 'ph-timer' },
   { id: 'stopwatch', label: '스톱워치', icon: 'ph-hourglass-medium' },
 ];
+/** 카드에 놓을 수 있는 도구 전체. 카드에는 아이콘으로 한 줄에 놓는다 */
+const CARD_TOOLS: { id: CardTool; label: string; icon: string }[] = [...TOOLS, { id: 'board', label: '판서', icon: 'ph-pencil-line' }];
+/** 카드 한 줄에 놓는 도구 수 — 이보다 많이 고를 수 없다 (도구가 더 늘어도 카드가 넘치지 않게) */
+const MAX_ON_CARD = 4;
 const DAY = ['일', '월', '화', '수', '목', '금', '토'];
 
 /** 화면을 주기적으로 다시 그리게 하는 현재 시각 */
@@ -35,7 +40,7 @@ function ToolsCard() {
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
   const [picking, setPicking] = useState(false);
-  const now = useNow(200);
+  const now = useNow(200);                                         // 카드의 시간 표시와 타이머 끝 알림을 위해 주기적으로 다시 그린다
   const timer = useTools((s) => s.timer);
   const sw = useTools((s) => s.sw);
   const finishIfDue = useTools((s) => s.finishIfDue);
@@ -45,52 +50,47 @@ function ToolsCard() {
     if (finishIfDue()) { playSound('complete'); toast('⏰ 시간이 다 됐어요!', 'success'); speak('시간이 다 됐어요.'); }
   }, [now, finishIfDue]);
 
-  const d = new Date(now);
-  const value: Record<ToolId, string> = {
-    clock: `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`,
-    // 남은 시간·잰 시간은 그리는 순간의 시각으로 계산한다 (조금 전에 읽어 둔 now 를 쓰면 시작하는 순간 숫자가 튄다)
-    timer: fmtMS(timerShown(timer)),
-    stopwatch: fmtMS(swElapsed(sw)),
+  const cardList = CARD_TOOLS.filter((t) => on[t.id]).slice(0, MAX_ON_CARD);
+  const picked = CARD_TOOLS.filter((t) => on[t.id]).length;
+  // 카드에는 아이콘만 둔다. 가는 중인 타이머·스톱워치만 아이콘 아래에 시간을 보여 준다 (그리는 순간의 시각으로 계산 — 시작하는 순간 숫자가 튀지 않게)
+  const live: Partial<Record<CardTool, string>> = {
+    ...(timer.endAt ? { timer: fmtMS(timerShown(timer)) } : {}),
+    ...(sw.startAt ? { stopwatch: fmtMS(swElapsed(sw)) } : {}),
   };
-  const running: Record<ToolId, boolean> = { clock: false, timer: !!timer.endAt, stopwatch: !!sw.startAt };
+  const setOn = (id: CardTool, value: boolean) => { if (cls) void saveClass({ ...cls, options: { ...cls.options, tools: { ...on, [id]: value } } }); };
 
   return (
     <>
-      <CardFrame id="tools" label="수업 도구" state="plain" style={{ flex: 1.1, minHeight: 160 }}>
+      {/* 아이콘 한 줄만 있으면 되므로 내용만큼만 높이를 쓴다 — 남는 높이는 급식·유의사항 카드가 쓴다 */}
+      <CardFrame id="tools" label="수업 도구" state="plain" style={{ flex: '0 0 auto' }}>
         <CardTitle icon="ph-fill ph-timer" tint="#e0f2fe" color="#0284c7"
           extra={<span className="tl-side"><button title="쓸 도구 고르기" aria-label="쓸 도구 고르기" onClick={() => { ensureAudio(); setPicking(true); }}><i className="ph-bold ph-sliders-horizontal" /></button></span>}>
           수업 도구
         </CardTitle>
-        {list.length ? (
-          <div className="tl-row">
-            {list.map((t) => (
-              <button key={t.id} className={`tl-btn${running[t.id] ? ' run' : ''}`} aria-label={`${t.label} 열기`}
-                onClick={() => { ensureAudio(); playSound('select'); setOpen(t.id); }}>
-                <i className={`ph-fill ${t.icon}`} /><b>{value[t.id]}</b><span>{t.label}</span>
+        {cardList.length ? (
+          <div className="tl-icons">
+            {cardList.map((t) => (
+              <button key={t.id} className={`tl-ico${live[t.id] ? ' run' : ''}`} title={t.label} aria-label={`${t.label} 열기`}
+                onClick={() => { ensureAudio(); playSound('select'); if (t.id === 'board') setBoard(true); else setOpen(t.id); }}>
+                <i className={`ph-fill ${t.icon}`} />{live[t.id] && <span>{live[t.id]}</span>}
               </button>
             ))}
           </div>
-        ) : !on.board && <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
-        {on.board && <button className="tl-board" aria-label="판서 열기" onClick={() => { ensureAudio(); playSound('select'); setBoard(true); }}><i className="ph-fill ph-pencil-line" /> 판서</button>}
+        ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
       </CardFrame>
       {board && <BoardWindow onClose={() => setBoard(false)} />}
 
       {picking && cls && (
         <Popup title="🧰 쓸 도구 고르기" onClose={() => setPicking(false)}>
-          <div className="hint" style={{ marginBottom: 12 }}>우리 반 화면에 보일 도구만 골라요.</div>
+          <div className="hint" style={{ marginBottom: 12 }}>우리 반 화면에 보일 도구를 골라요. 최대 {MAX_ON_CARD}개까지 놓을 수 있어요.</div>
           <div className="ws-opts">
-            {TOOLS.map((t) => (
-              <label key={t.id} className="ws-opt">
-                <input type="checkbox" checked={on[t.id]}
-                  onChange={(e) => { void saveClass({ ...cls, options: { ...cls.options, tools: { ...on, [t.id]: e.target.checked } } }); playSound('select'); }} />
+            {CARD_TOOLS.map((t) => (
+              <label key={t.id} className="ws-opt" style={!on[t.id] && picked >= MAX_ON_CARD ? { opacity: 0.5 } : undefined}>
+                <input type="checkbox" checked={on[t.id]} disabled={!on[t.id] && picked >= MAX_ON_CARD}
+                  onChange={(e) => { setOn(t.id, e.target.checked); playSound('select'); }} />
                 {' '}<i className={`ph-fill ${t.icon}`} /> {t.label}
               </label>
             ))}
-            <label className="ws-opt">
-              <input type="checkbox" checked={on.board}
-                onChange={(e) => { void saveClass({ ...cls, options: { ...cls.options, tools: { ...on, board: e.target.checked } } }); playSound('select'); }} />
-              {' '}<i className="ph-fill ph-pencil-line" /> 판서
-            </label>
           </div>
           <PopupActions><button className="btn-save" onClick={() => setPicking(false)}>✅ 완료</button></PopupActions>
         </Popup>

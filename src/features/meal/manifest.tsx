@@ -29,7 +29,7 @@ function MealCard() {
   const alerts = mealAlertNames(dishes, cls);
   return (
     <>
-      <CardFrame id="meal" label="오늘의 급식" state={dishes.length ? 'filled' : 'empty'} style={{ flex: 1.1, minHeight: 160 }}
+      <CardFrame id="meal" label="오늘의 급식" state={dishes.length ? 'filled' : 'empty'} style={{ flex: 1.1, minHeight: 110 }}
         onOpen={() => { ensureAudio(); playSound('select'); setView('meal'); }}>
         <CardTitle {...CHIP} extra={dishes.length ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 급식</CardTitle>
         {dishes.length ? (
