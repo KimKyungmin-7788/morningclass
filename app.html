@@ -2088,9 +2088,8 @@ const App = {
       localStorage.setItem(this.rkey(), JSON.stringify(this.record));
       if (!silent) this.toast('💾 저장 완료!','success');
     } catch(e){
-      this.cleanOldRecords();
-      try { localStorage.setItem(this.rkey(), JSON.stringify(this.record)); }
-      catch(e2){ this.toast('저장 공간이 부족해요. 백업을 받아주세요.','error'); }
+      // 저장 공간이 가득 차도 예전 기록을 자동으로 지우지 않는다 (출결 대시보드는 학년도 전체 기록을 씀)
+      this.toast('저장 공간이 부족해요. 설정 → 백업에서 백업을 받아 주세요.','error');
     }
   },
   cleanOldRecords() {
