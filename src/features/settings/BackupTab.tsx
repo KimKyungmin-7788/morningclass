@@ -74,7 +74,7 @@ export function BackupTab({ classId }: { classId: string }) {
         await wipeAll();
         location.reload();
       }}><span className="da-ico">🧹</span>이 컴퓨터의 아침교실 자료 모두 지우기 <span className="da-sub">(학년말·컴퓨터 반납 때)</span></button>
-      <a className="privacy-link" href="./privacy.html" target="_blank" rel="noopener noreferrer">개인정보 처리방침 보기</a>
+      <a className="privacy-link" href="/privacy" target="_blank" rel="noopener noreferrer">개인정보 처리방침 보기</a>
     </>
   );
 }

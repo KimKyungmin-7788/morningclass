@@ -27,9 +27,9 @@ if (supported()) {
 
 function koreanVoice(): SpeechSynthesisVoice | undefined {
   if (!voices.length) voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => v.lang === 'ko-KR')
-    ?? voices.find((v) => v.lang?.startsWith('ko'))
-    ?? voices.find((v) => /Korean|한국/i.test(v.name));
+  const ko = voices.filter((v) => v.lang === 'ko-KR' || v.lang?.startsWith('ko') || /Korean|한국/i.test(v.name));
+  // 기기에 들어 있는 음성을 먼저 쓴다 — 일부 브라우저의 온라인 음성은 읽을 글(학생 이름 포함)을 서버로 보낸다
+  return ko.find((v) => v.localService) ?? ko[0];
 }
 
 export function speak(raw: string, opts: SpeakOptions = {}): void {
