@@ -8,8 +8,9 @@ import { speak } from '@/core/tts';
 import { useCurrentClass, useData } from '@/core/data/store';
 import type { FeatureManifest } from '../types';
 import { fmtMS, swElapsed, timerLeft, useTools } from './store';
+import { BoardWindow } from '@/features/board/BoardWindow';
 
-// 수업 도구 카드: 시계 · 타이머 · 스톱워치 중 학급에서 고른 것만 보여 준다.
+// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 판서 중 학급에서 고른 것만 보여 준다.
 
 type ToolId = 'clock' | 'timer' | 'stopwatch';
 const TOOLS: { id: ToolId; label: string; icon: string }[] = [
@@ -29,7 +30,8 @@ function useNow(ms: number): number {
 function ToolsCard() {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
-  const on = { clock: true, timer: true, stopwatch: true, ...cls?.options.tools };
+  const on = { clock: true, timer: true, stopwatch: true, board: true, ...cls?.options.tools };
+  const [board, setBoard] = useState(false);
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
   const [picking, setPicking] = useState(false);
@@ -67,8 +69,10 @@ function ToolsCard() {
               </button>
             ))}
           </div>
-        ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
+        ) : !on.board && <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
+        {on.board && <button className="tl-board" aria-label="판서 열기" onClick={() => { ensureAudio(); playSound('select'); setBoard(true); }}><i className="ph-fill ph-pencil-line" /> 판서</button>}
       </CardFrame>
+      {board && <BoardWindow onClose={() => setBoard(false)} />}
 
       {picking && cls && (
         <Popup title="🧰 쓸 도구 고르기" onClose={() => setPicking(false)}>
@@ -81,6 +85,11 @@ function ToolsCard() {
                 {' '}<i className={`ph-fill ${t.icon}`} /> {t.label}
               </label>
             ))}
+            <label className="ws-opt">
+              <input type="checkbox" checked={on.board}
+                onChange={(e) => { void saveClass({ ...cls, options: { ...cls.options, tools: { ...on, board: e.target.checked } } }); playSound('select'); }} />
+              {' '}<i className="ph-fill ph-pencil-line" /> 판서
+            </label>
           </div>
           <PopupActions><button className="btn-save" onClick={() => setPicking(false)}>✅ 완료</button></PopupActions>
         </Popup>

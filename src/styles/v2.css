@@ -2,4 +2,42 @@
 
 /* 창이 열려 있는 동안에는 백업 알림이 창 아래쪽 버튼을 가리지 않게 숨긴다 */
 body:has(.popup-overlay.active) .backup-reminder,
-body:has(.date-gate) .backup-reminder { display: none; }
+body:has(.date-gate) .backup-reminder,
+body:has(.bd) .backup-reminder,
+body:has(#lesson-present) .backup-reminder { display: none; }
+
+/* ── 판서 (전체 화면 칠판) ── */
+.bd{position:fixed;inset:0;z-index:1500;display:flex;flex-direction:column;background:#eef2f7;animation:fadeIn .2s}
+.bd-bar{position:relative;flex:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:rgba(255,255,255,.92);box-shadow:0 2px 14px rgba(27,58,87,.12);z-index:2}
+.bd-group{display:flex;align-items:center;gap:6px;padding:5px;background:#F0F4FF;border-radius:16px}
+.bd-right{margin-left:auto;background:none;padding:0}
+.bd-tool{display:flex;align-items:center;gap:6px;height:48px;padding:0 14px;border-radius:12px;font-size:16px;font-weight:var(--fw-label);color:var(--text-sub);transition:.15s}
+.bd-tool i{font-size:22px}
+.bd-tool.on{background:#fff;color:var(--primary-dark);box-shadow:0 2px 8px rgba(91,182,255,.3)}
+.bd-color{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px #cbd5e1;transition:transform .12s}
+.bd-color.on{box-shadow:0 0 0 3.5px var(--primary);transform:scale(1.12)}
+.bd-size{width:46px;height:46px;border-radius:12px;display:grid;place-items:center}
+.bd-size i{display:block;border-radius:50%;background:#334155}
+.bd-size.on{background:#fff;box-shadow:0 2px 8px rgba(91,182,255,.3)}
+.bd-act{width:48px;height:48px;border-radius:14px;background:#fff;box-shadow:var(--card-shadow);font-size:22px;color:#64748b;display:grid;place-items:center;transition:.15s}
+.bd-act:hover:not(:disabled),.bd-act.on{color:var(--primary)}
+.bd-act:disabled{opacity:.4;cursor:not-allowed}
+.bd-act.bd-close{background:#F0F4FF;font-size:18px;font-weight:var(--fw-label)}
+.bd-act.bd-close:hover{background:var(--danger);color:#fff}
+.bd-menu{position:absolute;right:14px;top:calc(100% + 8px);z-index:3;width:min(320px,calc(100vw - 28px));background:#fff;border-radius:18px;padding:14px;box-shadow:var(--popup-shadow)}
+.bd-menu-h{font-size:14px;font-weight:var(--fw-label);color:var(--text-sub);margin:2px 0 8px}
+.bd-papers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.bd-papers button{padding:10px 0;border-radius:10px;background:#F0F4FF;font-size:14px;font-weight:var(--fw-label)}
+.bd-papers button.on{background:var(--primary);color:#fff}
+.bd-bgs{display:flex;gap:8px}
+.bd-bgs button{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 1.5px #cbd5e1}
+.bd-bgs button.on{box-shadow:0 0 0 3.5px var(--primary)}
+.bd-area{position:relative;flex:1;min-height:0;margin:10px;border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(27,58,87,.12);touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair}
+.bd-area.eraser{cursor:none}
+.bd-paper,.bd-ink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bd-hint{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-size:clamp(20px,2vw,32px);font-weight:var(--fw-label);color:#b6c0cf}
+@media (max-width:900px){.bd-tool span{display:none}.bd-color{width:32px;height:32px}}
+/* 수업 도구 카드의 판서 버튼 (다른 도구 아래에 한 줄) */
+.tl-board{flex:none;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:14px;background:#F3F0FF;border:2px solid #ddd6fe;color:#6d28d9;font-size:clamp(14px,1.05vw,17px);font-weight:var(--fw-label);transition:.15s}
+.tl-board:hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hover)}
+.tl-board i{font-size:20px}
