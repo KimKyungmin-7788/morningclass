@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION, type AppData, type ClassId, type ClassRoom, type DateKey, type DayRecord, type Timetable } from '@/core/data/types';
+import { SCHEMA_VERSION, type AppData, type ClassId, type ClassRoom, type DateKey, type DayRecord, type MealImage, type Timetable } from '@/core/data/types';
 
 // 저장 창구: 앱의 모든 자료는 여기(IndexedDB)를 거쳐 읽고 쓴다.
 // 기능 코드는 이 파일을 직접 쓰지 않고 core/data 의 저장소(store)·함수를 쓴다.
@@ -82,6 +82,14 @@ export const getRecordsOf = (classId: ClassId) =>
 export const getTimetablesOf = (classId: ClassId) =>
   tx(['timetables'], 'readonly', (t) => done(t.objectStore('timetables').getAll(IDBKeyRange.bound([classId], [classId, []])) as IDBRequest<Timetable[]>));
 export const putTimetable = (tt: Timetable) => tx(['timetables'], 'readwrite', (t) => { t.objectStore('timetables').put(tt); });
+
+// ── 급식 메뉴 그림 (메뉴 이름 열쇠) ──
+export const getMealImages = () => tx(['mealImages'], 'readonly', async (t) => {
+  const s = t.objectStore('mealImages');
+  const [keys, vals] = await Promise.all([done(s.getAllKeys()), done(s.getAll() as IDBRequest<MealImage[]>)]);
+  return Object.fromEntries(keys.map((k, i) => [String(k), vals[i]])) as Record<string, MealImage>;
+});
+export const putMealImage = (key: string, img: MealImage) => tx(['mealImages'], 'readwrite', (t) => { t.objectStore('mealImages').put(img, key); });
 
 // ── 전체 읽기·바꾸기 (백업, 가져오기, 기존 자료 변환) ──
 export function readAll(): Promise<AppData> {

@@ -4,6 +4,7 @@ import { usePrefs } from '@/core/prefs';
 import { resetKvCache } from './kv';
 import { useDay } from './day';
 import { resetTimetableCache } from './timetables';
+import { resetMealImageCache } from './mealImages';
 import { hasLegacyData, migrateLegacy, type LegacyDump, type MigrationReport } from './migrateLegacy';
 import { emptyClass, emptyData, newId, type AppData, type ClassId, type ClassRoom } from './types';
 
@@ -69,8 +70,8 @@ export const useData = create<DataState>((set, get) => ({
           const result = migrateLegacy(dump);
           await db.replaceAll(result.data);
           await db.kvSet('migratedAt', new Date().toISOString());
-          const { muted, appMode, lastBackup } = result.prefs;
-          usePrefs.getState().set({ ...(muted != null ? { muted } : {}), ...(appMode ? { appMode } : {}), ...(lastBackup ? { lastBackup } : {}) });
+          const { muted, appMode, lastBackup, mealView, wsOpts } = result.prefs;
+          usePrefs.getState().set({ ...(muted != null ? { muted } : {}), ...(appMode ? { appMode } : {}), ...(lastBackup ? { lastBackup } : {}), ...(mealView ? { mealView } : {}), ...(wsOpts ? { wsOpts } : {}) });
           migration = result.report;
         } else {
           await db.replaceAll(emptyData());
@@ -136,6 +137,7 @@ export const useData = create<DataState>((set, get) => ({
     await db.replaceAll(data);
     resetKvCache();
     resetTimetableCache();
+    resetMealImageCache();
     const currentClassId = data.classes.some((c) => c.id === data.currentClassId) ? data.currentClassId : data.classes[0].id;
     set({ classes: data.classes, currentClassId, migration: null });
     await useDay.getState().load(currentClassId);                // 같은 학급이어도 기록이 바뀌었으므로 다시 읽는다

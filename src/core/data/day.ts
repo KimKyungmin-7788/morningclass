@@ -57,6 +57,19 @@ export const useDay = create<DayState>((set, get) => ({
   },
 }));
 
+/**
+ * 특정 학급·날짜의 기록을 고친다. 지금 보고 있는 날이면 화면도 바뀌고, 아니면 저장소의 기록만 고친다.
+ * (급식처럼 응답을 기다리는 사이 학급·날짜가 바뀔 수 있는 작업에 쓴다)
+ */
+export async function patchRecord(classId: ClassId, date: DateKey, change: (rec: DayRecord) => void): Promise<void> {
+  const cur = useDay.getState();
+  if (cur.classId === classId && cur.record.date === date) { cur.update(change); return; }
+  const rec = { ...emptyRecord(classId, date), ...(await db.getRecord(classId, date)) };
+  change(rec);
+  rec.savedAt = new Date().toISOString();
+  await db.putRecord(rec);
+}
+
 /** 아침 준비 7가지가 끝났는지 (기존 updateProgress 와 같은 기준) */
 export function progressOf(rec: DayRecord, cls: ClassRoom | undefined, dateSet: boolean): boolean[] {
   const students = (cls?.students ?? []).filter((s) => !s.archived);
