@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import * as db from '@/core/storage/db';
 import { usePrefs } from '@/core/prefs';
+import { resetKvCache } from './kv';
+import { useDay } from './day';
 import { hasLegacyData, migrateLegacy, type LegacyDump, type MigrationReport } from './migrateLegacy';
 import { emptyClass, emptyData, newId, type AppData, type ClassId, type ClassRoom } from './types';
 
@@ -98,8 +100,10 @@ export const useData = create<DataState>((set, get) => ({
 
   replaceAll: async (data) => {
     await db.replaceAll(data);
+    resetKvCache();
     const currentClassId = data.classes.some((c) => c.id === data.currentClassId) ? data.currentClassId : data.classes[0].id;
     set({ classes: data.classes, currentClassId, migration: null });
+    await useDay.getState().load(currentClassId);                // 같은 학급이어도 기록이 바뀌었으므로 다시 읽는다
   },
 }));
 

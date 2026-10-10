@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardsOfColumn } from '@/features/registry';
+import { CARDS, cardsOfColumn } from '@/features/registry';
 
 // 1단계 연기 시험: 카드 등록 구조가 열·순서대로 카드를 돌려주는지
 describe('카드 등록', () => {
@@ -9,5 +9,9 @@ describe('카드 등록', () => {
       expect(orders).toEqual([...orders].sort((a, b) => a - b));
       expect(orders.length).toBeGreaterThan(0);
     }
+  });
+  it('카드 이름이 겹치지 않는다 (자리 표시 카드를 빼지 않고 기능을 옮기면 걸린다)', () => {
+    const ids = CARDS.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
