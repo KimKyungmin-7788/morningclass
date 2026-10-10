@@ -125,6 +125,18 @@ export function replaceAll(data: AppData): Promise<void> {
   });
 }
 
+/** 저장소를 통째로 지운다 */
+export async function destroy(): Promise<void> {
+  (await open()).close();
+  dbPromise = null;
+  await new Promise<void>((resolve, reject) => {
+    const req = indexedDB.deleteDatabase(DB_NAME);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+    req.onblocked = () => resolve();
+  });
+}
+
 /** 브라우저가 공간이 모자랄 때 이 사이트 자료를 임의로 지우지 않도록 요청한다 */
 export async function requestPersistence(): Promise<boolean> {
   try {

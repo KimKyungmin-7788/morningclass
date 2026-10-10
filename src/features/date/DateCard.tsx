@@ -7,14 +7,15 @@ import { DatePicker } from './DatePicker';
 
 // 상단 줄의 날짜 카드 + "오늘 날짜를 입력해요" 잠금 화면.
 // 학생이 있는 학급에서 오늘 날짜를 아직 입력하지 않았으면 잠금 화면이 대시보드를 가린다.
-export function DateCard() {
+/** hidden: 학급 선택·환영·설정 창이 떠 있는 동안에는 잠금 화면을 잠시 내린다 */
+export function DateCard({ hidden }: { hidden?: boolean }) {
   const date = useDay((s) => s.date);
   const dateSet = useDay((s) => s.dateSet);
   const cls = useCurrentClass();
   const [open, setOpen] = useState(false);
   const openPicker = () => { ensureAudio(); setOpen(true); };
   const need = !dateSet;
-  const gate = need && activeStudents(cls).length > 0 && !open;
+  const gate = need && activeStudents(cls).length > 0 && !open && !hidden;
 
   useEffect(() => {
     document.body.classList.toggle('need-date', need);

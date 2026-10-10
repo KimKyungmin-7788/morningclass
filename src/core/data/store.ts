@@ -3,6 +3,7 @@ import * as db from '@/core/storage/db';
 import { usePrefs } from '@/core/prefs';
 import { resetKvCache } from './kv';
 import { useDay } from './day';
+import { resetTimetableCache } from './timetables';
 import { hasLegacyData, migrateLegacy, type LegacyDump, type MigrationReport } from './migrateLegacy';
 import { emptyClass, emptyData, newId, type AppData, type ClassId, type ClassRoom } from './types';
 
@@ -23,7 +24,12 @@ interface DataState {
   setCurrentClass: (id: ClassId) => Promise<void>;
   /** 학급 하나를 고친다 (없으면 추가) */
   saveClass: (cls: ClassRoom) => Promise<void>;
-  addClass: () => Promise<ClassId>;
+  /** 새 학급을 만들어 그 학급으로 바꾼다 (학교 정보는 이어받음) */
+  addClass: (preset?: Partial<ClassRoom>) => Promise<ClassId>;
+  /** 학급과 그 학급의 기록·시간표·D-DAY 를 지운다 */
+  deleteClass: (id: ClassId) => Promise<void>;
+  /** 이 기기의 아침교실 자료를 모두 지운다 (되돌릴 수 없음) */
+  wipeAll: () => Promise<void>;
   /** 저장소 전체를 바꾼다 (백업 가져오기) */
   replaceAll: (data: AppData) => Promise<void>;
 }
@@ -63,8 +69,8 @@ export const useData = create<DataState>((set, get) => ({
           const result = migrateLegacy(dump);
           await db.replaceAll(result.data);
           await db.kvSet('migratedAt', new Date().toISOString());
-          const { muted, appMode } = result.prefs;
-          usePrefs.getState().set({ ...(muted != null ? { muted } : {}), ...(appMode ? { appMode } : {}) });
+          const { muted, appMode, lastBackup } = result.prefs;
+          usePrefs.getState().set({ ...(muted != null ? { muted } : {}), ...(appMode ? { appMode } : {}), ...(lastBackup ? { lastBackup } : {}) });
           migration = result.report;
         } else {
           await db.replaceAll(emptyData());
@@ -92,15 +98,44 @@ export const useData = create<DataState>((set, get) => ({
     await db.putClass(cls);
   },
 
-  addClass: async () => {
-    const cls = emptyClass(newId('c'));
+  addClass: async (preset) => {
+    // 같은 학교의 다른 반이 흔하므로 학교명·과정·급식 코드·영상은 이어받고 학급명·학생만 비운다
+    const { classes, currentClassId } = get();
+    const src = classes.find((c) => c.schoolName) ?? classes.find((c) => c.id === currentClassId);
+    const cls: ClassRoom = {
+      ...emptyClass(newId('c')),
+      ...(src ? { schoolName: src.schoolName, level: src.level, neis: { ...src.neis }, options: src.options.video ? { video: src.options.video } : {} } : {}),
+      ...preset,
+    };
     await get().saveClass(cls);
+    await get().setCurrentClass(cls.id);
     return cls.id;
+  },
+
+  deleteClass: async (id) => {
+    const rest = get().classes.filter((c) => c.id !== id);
+    if (!rest.length) return;                                    // 마지막 학급은 지우지 않는다
+    await db.deleteClassData(id);
+    set({ classes: rest });
+    resetKvCache();
+    resetTimetableCache();
+    if (get().currentClassId === id) await get().setCurrentClass(rest[0].id);
+  },
+
+  wipeAll: async () => {
+    await db.destroy();
+    try {
+      // 기존 앱이 남긴 자료도 함께 지운다 — 남겨 두면 다음에 열 때 다시 옮겨 온다
+      Object.keys(localStorage).filter((k) => k.startsWith('mc_') || k.startsWith('mc2_')).forEach((k) => localStorage.removeItem(k));
+    } catch {
+      /* 무시 */
+    }
   },
 
   replaceAll: async (data) => {
     await db.replaceAll(data);
     resetKvCache();
+    resetTimetableCache();
     const currentClassId = data.classes.some((c) => c.id === data.currentClassId) ? data.currentClassId : data.classes[0].id;
     set({ classes: data.classes, currentClassId, migration: null });
     await useDay.getState().load(currentClassId);                // 같은 학급이어도 기록이 바뀌었으므로 다시 읽는다

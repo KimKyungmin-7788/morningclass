@@ -8,10 +8,14 @@ export type AppMode = 'morning' | 'lesson';
 interface Prefs {
   muted: boolean;
   appMode: AppMode;
+  /** 마지막으로 백업 파일을 받은 때 */
+  lastBackup: string;
+  /** 백업 알림을 '나중에'로 미룬 날 (YYYYMMDD) */
+  backupSnooze: string;
 }
 
 const KEY = 'mc2_prefs';
-const DEFAULTS: Prefs = { muted: false, appMode: 'morning' };
+const DEFAULTS: Prefs = { muted: false, appMode: 'morning', lastBackup: '', backupSnooze: '' };
 
 function load(): Prefs {
   try {
@@ -29,9 +33,9 @@ export const usePrefs = create<PrefsState>((set, get) => ({
   ...load(),
   set: (patch) => {
     set(patch);
-    const { muted, appMode } = get();
+    const { muted, appMode, lastBackup, backupSnooze } = get();
     try {
-      localStorage.setItem(KEY, JSON.stringify({ muted, appMode }));
+      localStorage.setItem(KEY, JSON.stringify({ muted, appMode, lastBackup, backupSnooze }));
     } catch {
       /* 저장소를 못 쓰는 환경에서도 화면은 동작해야 한다 */
     }

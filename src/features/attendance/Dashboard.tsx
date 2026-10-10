@@ -19,7 +19,8 @@ const dayLabel = (key: string) => {
 };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 
-export function AttendanceDashboard({ onClose }: { onClose: () => void }) {
+/** embedded: 설정 창의 탭 안에 넣을 때 (창 틀 없이 내용만) */
+export function AttendanceDashboard({ onClose, embedded }: { onClose?: () => void; embedded?: boolean }) {
   const classes = useData((s) => s.classes);
   const base = useDay((s) => s.date);
   const [classId, setClassId] = useState(useData.getState().currentClassId);
@@ -109,8 +110,8 @@ export function AttendanceDashboard({ onClose }: { onClose: () => void }) {
       </table>
     );
 
-  return (
-    <Popup title="📊 출결 대시보드" large onClose={onClose}>
+  const body = (
+    <>
       <div className="dash-filter">
         <select aria-label="학년도" value={sy} onChange={(e) => preset(Number(e.target.value), month)}>{schoolYearsOf(records ?? [], sy).map((y) => <option key={y} value={y}>{y}</option>)}</select>
         <select aria-label="학급" value={classId} onChange={(e) => setClassId(e.target.value)}>{classes.map((c) => <option key={c.id} value={c.id}>{c.className || c.schoolName || '학급'}</option>)}</select>
@@ -145,8 +146,9 @@ export function AttendanceDashboard({ onClose }: { onClose: () => void }) {
         <button className="btn-test" style={{ margin: 0 }} onClick={saveExcel}><span>📊</span> 엑셀로 저장</button>
         <button className="btn-test" style={{ margin: 0, background: 'var(--primary)' }} onClick={print}><span>🖨</span> 인쇄</button>
       </div>
-    </Popup>
+    </>
   );
+  return embedded ? body : <Popup title="📊 출결 대시보드" large onClose={onClose ?? (() => {})}>{body}</Popup>;
 }
 
 /** 학생별 보기: 학생을 고르면 그 학생의 집계와 날짜별 출결 칸을 보여 준다 */
