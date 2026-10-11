@@ -193,13 +193,13 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete, onDecorate }: Ta
   );
 }
 
-/** 화면 꾸미기로 바로 들어가는 단추. 아침교실 화면에서 카드를 길게 눌러도 들어갈 수 있다(확인 문제를 맞혀야 한다). */
+/** '내 맘대로 배치'로 바로 들어가는 단추. 상단 줄의 단추나 카드를 길게 눌러도 들어갈 수 있다(그때는 확인 문제를 맞혀야 한다). */
 function LayoutStart({ onStart }: { onStart: () => void }) {
   return (
     <div className="field">
-      <label>화면 꾸미기</label>
-      <button className="btn-test" style={{ margin: 0 }} onClick={onStart}>🧩 지금 꾸미기</button>
-      <div className="hint">카드의 자리를 바꾸거나 빼고 넣을 수 있어요. 아침교실 화면에서 카드를 <b>길게 누르고</b> 곱셈 문제를 맞혀도 들어갈 수 있어요. 누르면 지금까지 고친 설정을 저장하고 화면 꾸미기로 넘어가요.</div>
+      <label>내 맘대로 배치</label>
+      <button className="btn-test" style={{ margin: 0 }} onClick={onStart}>🧩 지금 배치하기</button>
+      <div className="hint">카드를 원하는 자리로 옮기고, 빼거나 넣을 수 있어요. 화면 위쪽의 <b>내 맘대로 배치</b> 단추를 누르거나 카드를 <b>길게 눌러도</b> 돼요(곱셈 문제를 맞혀야 해요). 누르면 지금까지 고친 설정을 저장하고 배치 화면으로 넘어가요.</div>
     </div>
   );
 }

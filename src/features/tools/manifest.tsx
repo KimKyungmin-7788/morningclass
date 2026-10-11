@@ -8,13 +8,12 @@ import { ensureAudio, playSound } from '@/core/sound';
 import { useCurrentClass, useData } from '@/core/data/store';
 import type { FeatureManifest } from '../types';
 import { fmtMS, fmtTenths, swElapsed, timerLeft, timerShown, useTools } from './store';
-import { BoardWindow } from '@/features/board/BoardWindow';
 import { NoiseMeter } from './NoiseMeter';
 
-// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 소음 측정기 · 판서 중 학급에서 고른 것만 보여 준다.
+// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 소음 측정기 중 학급에서 고른 것만 보여 준다. (판서는 따로 카드가 있다 — features/board/manifest.tsx)
 
 type ToolId = 'clock' | 'timer' | 'stopwatch' | 'noise';
-type CardTool = ToolId | 'board';
+type CardTool = ToolId;
 const TOOLS: { id: ToolId; label: string; icon: string }[] = [
   { id: 'clock', label: '시계', icon: 'ph-clock' },
   { id: 'timer', label: '타이머', icon: 'ph-timer' },
@@ -22,7 +21,7 @@ const TOOLS: { id: ToolId; label: string; icon: string }[] = [
   { id: 'noise', label: '소음', icon: 'ph-ear' },
 ];
 /** 카드에 놓을 수 있는 도구 전체. 카드에는 아이콘으로 한 줄에 놓는다 */
-const CARD_TOOLS: { id: CardTool; label: string; icon: string }[] = [...TOOLS, { id: 'board', label: '판서', icon: 'ph-pencil-line' }];
+const CARD_TOOLS: { id: CardTool; label: string; icon: string }[] = TOOLS;
 /** 카드 한 줄에 놓는 도구 수 — 이보다 많이 고를 수 없다 (도구가 더 늘어도 카드가 넘치지 않게) */
 const MAX_ON_CARD = 4;
 /** 타이머가 이만큼 남으면 깜빡이기 시작한다 */
@@ -40,8 +39,7 @@ function ToolsCard() {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
   // 도구는 5가지지만 카드에는 4개만 놓는다 — 처음에는 소음 측정기를 뺀 4개가 놓여 있다
-  const on = { clock: true, timer: true, stopwatch: true, noise: false, board: true, ...cls?.options.tools };
-  const [board, setBoard] = useState(false);
+  const on = { clock: true, timer: true, stopwatch: true, noise: false, ...cls?.options.tools };
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
   const [picking, setPicking] = useState(false);
@@ -78,14 +76,13 @@ function ToolsCard() {
           <div className="tl-icons">
             {cardList.map((t) => (
               <button key={t.id} className={`tl-ico${live[t.id] ? ' run' : ''}`} title={t.label} aria-label={`${t.label} 열기`}
-                onClick={() => { ensureAudio(); playSound('select'); if (t.id === 'board') setBoard(true); else setOpen(t.id); }}>
+                onClick={() => { ensureAudio(); playSound('select'); setOpen(t.id); }}>
                 <i className={`ph-fill ${t.icon}`} />{live[t.id] && <span>{live[t.id]}</span>}
               </button>
             ))}
           </div>
         ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 {MAX_ON_CARD}개까지 골라요</div>}
       </CardFrame>
-      {board && <BoardWindow onClose={() => setBoard(false)} />}
       {hurry && createPortal(<div className="tl-hurry" aria-hidden="true" />, document.body)}
 
       {picking && cls && (

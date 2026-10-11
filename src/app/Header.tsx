@@ -11,7 +11,7 @@ import { useLayoutEdit } from '@/features/layout/store';
 
 type Open = null | 'settings' | 'records' | 'picker' | 'welcome' | 'suggest';
 
-// 상단 줄: 학교·학급(누르면 학급 선택), 날짜, 기능 제안·사용자화·소리·이전 기록·설정
+// 상단 줄: 학교·학급(누르면 학급 선택), 날짜, 기능 제안·내 맘대로 배치·소리·이전 기록·설정
 // 저장 단추는 없다 — 바뀔 때마다 바로 저장하고, 저장하지 못했을 때만 알림을 띄운다.
 export function Header() {
   const muted = usePrefs((s) => s.muted);
@@ -44,14 +44,14 @@ export function Header() {
           <button className="suggest" title="새 기능을 제안해요" aria-label="기능 제안하기" onClick={() => { ensureAudio(); setOpen('suggest'); }}>
             <i className="ph-fill ph-lightbulb" /><span>기능 제안</span>
           </button>
-          {/* 사용자화: 확인 문제를 맞히면 카드 배치를 바꾸는 수정 모드로 들어간다. 수정 중에는 완료 단추가 된다 */}
+          {/* 내 맘대로 배치: 확인 문제를 맞히면 카드 배치를 바꾸는 수정 모드로 들어간다. 수정 중에는 완료 단추가 된다 */}
           {customizing ? (
-            <button className="suggest customize on" title="화면 꾸미기를 마쳐요" aria-label="화면 꾸미기 완료" onClick={() => { useLayoutEdit.getState().setEditing(false); playSound('save'); }}>
+            <button className="suggest customize on" title="배치를 마쳐요" aria-label="내 맘대로 배치 완료" onClick={() => { useLayoutEdit.getState().setEditing(false); playSound('save'); }}>
               <i className="ph-bold ph-check" /><span>완료</span>
             </button>
           ) : (
-            <button className="suggest customize" title="카드의 자리를 바꾸거나 빼고 넣어요" aria-label="화면 사용자화" onClick={() => { ensureAudio(); playSound('select'); useLayoutEdit.getState().askGate(); }}>
-              <i className="ph-fill ph-squares-four" /><span>사용자화</span>
+            <button className="suggest customize" title="카드를 원하는 자리로 옮기고, 빼거나 넣을 수 있어요" aria-label="내 맘대로 배치" onClick={() => { ensureAudio(); playSound('select'); useLayoutEdit.getState().askGate(); }}>
+              <i className="ph-fill ph-squares-four" /><span>내 맘대로 배치</span>
             </button>
           )}
           <button title={muted ? '소리 켜기' : '소리 끄기'} aria-label="소리 켜기/끄기" aria-pressed={muted}

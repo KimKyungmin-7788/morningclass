@@ -20,7 +20,7 @@ export function LayoutGate() {
     else { playSound('wrong'); toast('답이 달라요. 다시 길게 눌러 주세요'); }
   };
   return (
-    <Popup title="🧩 화면 꾸미기" onClose={closeGate}>
+    <Popup title="🧩 내 맘대로 배치" onClose={closeGate}>
       <div className="lay-gate">
         <div className="lay-gate-hint">문제를 맞히면 카드의 자리를 바꿀 수 있어요</div>
         <div className="lay-gate-q" aria-live="polite">{gate.a} × {gate.b} = ?</div>
@@ -110,7 +110,7 @@ export function LayoutDrawer() {
   };
 
   return (
-    <div className={`lay-drawer${drawer.length ? '' : ' none'}`} data-lay-drawer role="region" aria-label="화면 꾸미기 보관함">
+    <div className={`lay-drawer${drawer.length ? '' : ' none'}`} data-lay-drawer role="region" aria-label="내 맘대로 배치 보관함">
       <div className="lay-basket" aria-hidden="true"><i className="ph-fill ph-basket" />{drawer.length > 0 && <b>{drawer.length}</b>}</div>
       <div className="lay-drawer-title">보관함</div>
       {more.left && <button type="button" className="lay-btn arrow" aria-label="앞쪽 카드 보기" onClick={() => slide(-1)}><i className="ph-bold ph-caret-left" /></button>}
