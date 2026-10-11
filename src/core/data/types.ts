@@ -19,6 +19,16 @@ export interface Student {
   archived?: true;
 }
 
+/** 1인 1역할의 역할 하나: 그림 · 이름 · 하는 일 · 맡은 학생들 */
+export interface RoleItem { id: string; icon: string; name: string; desc: string; students: StudentId[] }
+
+/** 칭찬판 설정: 판 모양 · 칸 수 · 칭찬 이유 · 보상 후보 · 1인 1역할 "했어요"에 스티커를 자동으로 줄지 */
+export interface PraiseConfig { shape: 'grape' | 'tree' | 'star'; size: number; reasons: string[]; rewards: string[]; autoRole: boolean }
+/** 학생의 칭찬판: 지금 판에 모은 개수와 지금까지 완성한 판 수 */
+export interface PraiseTally { now: number; boards: number }
+/** 칭찬 스티커 하나: 누가 · 무엇으로 · 언제 (role = 1인 1역할 "했어요"로 자동으로 받은 것) */
+export interface PraiseLog { id: string; s: StudentId; r: string; at: string; role?: string }
+
 export interface AttInclude {
   emoLate: boolean; emoEarly: boolean; emoAbsent: boolean;
   helpLate: boolean; helpEarly: boolean; helpAbsent: boolean;
@@ -43,6 +53,11 @@ export interface ClassRoom {
     mealHidden?: string[];
     tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'noise' | 'board', boolean>>;
     video?: { url: string; title: string };
+    /** 1인 1역할: 역할과 맡은 학생 (선생님이 바꿀 때까지 그대로 간다) */
+    roles?: RoleItem[];
+    /** 칭찬판 설정과 학생별 진행 (스티커 하나하나의 기록은 날마다 그날 기록에 남는다) */
+    praise?: Partial<PraiseConfig>;
+    praiseTally?: Record<StudentId, PraiseTally>;
     /** 대시보드 배치표: 칸 이름 → 카드 이름 (null = 빈 칸). 없으면 기본 배치 (features/layout/model.ts) */
     layout?: Record<string, string | null>;
   };
@@ -74,6 +89,11 @@ export interface DayRecord {
   helpers: { ids: StudentId[]; pickedAt: string | null };
   lucky: { ids: StudentId[]; pickedAt: string | null };
   meal: { dishes: Dish[]; nutri: Loose | null; loadedAt: string | null } | null;
+  /** 1인 1역할 "오늘 했어요": 역할 → 그날 한 학생들 */
+  roleDone?: Record<string, StudentId[]>;
+  /** 그날 준 칭찬 스티커와, 판을 완성해 받은 보상 */
+  praise?: PraiseLog[];
+  praiseRewards?: { s: StudentId; reward: string; at: string }[];
   /** 오늘의 낱말 '다같이 써보기'를 마쳤는지 (쓴 글씨는 저장하지 않는다) */
   wordDone?: true;
   /** 그날 완료 축하를 이미 봤는지 */

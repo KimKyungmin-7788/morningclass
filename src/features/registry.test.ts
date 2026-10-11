@@ -9,7 +9,7 @@ describe('카드 등록', () => {
   it('기본 배치에 적힌 카드가 모두 등록되어 있다', () => {
     for (const id of Object.values(DEFAULT_LAYOUT)) expect(cardById(id), String(id)).toBeDefined();
   });
-  it('기본 배치에서는 보관함이 비어 있다 (새 카드를 만들면 기본 배치에 넣을지 정한다)', () => {
-    expect(resolveLayout(undefined, CARD_IDS).drawer).toEqual([]);
+  it('기본 배치에 없는 카드는 보관함에서 시작한다 (새 카드를 만들면 기본 배치에 넣을지, 보관함에 둘지 여기에 적는다)', () => {
+    expect(resolveLayout(undefined, CARD_IDS).drawer.sort()).toEqual(['praise', 'roles']);
   });
 });

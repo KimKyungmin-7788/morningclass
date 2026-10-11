@@ -19,6 +19,19 @@ export function RecordsPanel({ onClose }: { onClose: () => void }) {
   const nameOf = (id: string) => cls?.students.find((s) => s.id === id)?.name ?? '(알 수 없는 학생)';
   const names = (ids: string[]) => ids.map(nameOf).join(', ');
 
+  /** 그날 역할을 한 학생 — 역할 이름은 지금 학급 설정에서 찾는다 (지운 역할은 '지운 역할'로) */
+  const roleLine = (rec: DayRecord) => Object.entries(rec.roleDone ?? {}).filter(([, ids]) => ids.length)
+    .map(([roleId, ids]) => { const role = cls?.options.roles?.find((x) => x.id === roleId); return `${role ? `${role.icon} ${role.name}` : '지운 역할'}: ${names(ids)}`; }).join(' · ');
+
+  /** 그날 받은 칭찬 스티커(학생별 개수와 이유)와 판을 완성해 받은 보상 */
+  const praiseLine = (rec: DayRecord) => {
+    const by = new Map<string, string[]>();
+    for (const p of rec.praise ?? []) by.set(p.s, [...(by.get(p.s) ?? []), p.r]);
+    const stickers = [...by].map(([id, reasons]) => `${nameOf(id)} ${reasons.length}개 (${[...new Set(reasons)].join(', ')})`);
+    const rewards = (rec.praiseRewards ?? []).map((x) => `🏆 ${nameOf(x.s)}: ${x.reward}`);
+    return [...stickers, ...rewards].join(' · ');
+  };
+
   const detail = (rec: DayRecord) => {
     const w = rec.weather as Wx; const d = rec.dust as Wx;
     const att = Object.entries(rec.attendance).map(([id, a]) => `${nameOf(id)}: ${STATUS_LABEL[a.status]}${a.reason ? ` (${a.reason})` : ''}`).join(', ');
@@ -32,6 +45,8 @@ export function RecordsPanel({ onClose }: { onClose: () => void }) {
         <h4>출석</h4><div className="row">{att || '-'}</div>
         <h4>오늘의 도우미</h4><div className="row">{names(rec.helpers.ids) || '-'}</div>
         {rec.lucky.ids.length > 0 && <><h4>행운의 주인공</h4><div className="row">👑 {names(rec.lucky.ids)}</div></>}
+        {roleLine(rec) && <><h4>1인 1역할 (한 친구)</h4><div className="row">{roleLine(rec)}</div></>}
+        {praiseLine(rec) && <><h4>칭찬 스티커</h4><div className="row">{praiseLine(rec)}</div></>}
         <h4>감정</h4><div className="row">{ems || '-'}</div>
         <h4>유의사항</h4><div className="row" style={{ whiteSpace: 'pre-wrap' }}>{rec.notes || '-'}</div>
         <h4>급식</h4><div className="row" style={{ whiteSpace: 'pre-wrap' }}>{rec.meal?.dishes.map((x) => x.name).join('\n') || '-'}</div>

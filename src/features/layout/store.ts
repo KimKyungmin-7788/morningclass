@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import { useCurrentClass, useData } from '@/core/data/store';
 import { CARD_IDS } from '@/features/registry';
-import { makeGate, resolveLayout, type Gate, type Layout, type Placement } from './model';
+import { makeGate, type Gate } from '@/core/gate';
+import { resolveLayout, type Layout, type Placement } from './model';
 
 // 화면 꾸미기(수정 모드) 상태와 배치표 저장. 배치표는 학급 설정에 들어가므로 백업에 함께 담긴다.
 
