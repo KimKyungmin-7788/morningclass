@@ -54,6 +54,15 @@ export function AttendanceCard({ size }: { size: SlotSize }) {
           </CardCompact>
         ) : <>
         <CardTitle {...icon} extra={allChecked ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 출석</CardTitle>
+        {size === 'large' && (
+          // 큰 칸: 학생마다 오늘 상태를 이름표로 보여 준다
+          <div className="att-big">
+            {students.map((s) => {
+              const st = saved[s.id]?.status;
+              return <div key={s.id} className={`ab-tag ${st ?? 'none'}`}><span className="ab-nm">{s.name}</span><span className="ab-st">{st ? STATUS_LABEL[st] : '?'}</span></div>;
+            })}
+          </div>
+        )}
         <div className="v3-stats">
           <div className="v3-stat p"><div className="n">{c.present}</div><div className="l">출석</div></div>
           <div className="v3-stat t"><div className="n">{c.late}</div><div className="l">지각</div></div>

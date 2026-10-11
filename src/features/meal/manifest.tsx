@@ -23,6 +23,7 @@ const CHIP = { icon: 'ph-fill ph-bowl-food', tint: '#ffedd5', color: '#ea580c' }
 type View = null | 'meal' | 'allergy' | 'sheet';
 
 function MealCard({ size }: CardProps) {
+  const images = useMealImages();
   const cls = useCurrentClass();
   const dishes = useDay((s) => s.record.meal?.dishes) ?? [];
   const [view, setView] = useState<View>(null);
@@ -38,7 +39,23 @@ function MealCard({ size }: CardProps) {
           </CardCompact>
         ) : <>
         <CardTitle {...CHIP} extra={dishes.length ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 급식</CardTitle>
-        {dishes.length ? (
+        {dishes.length && size === 'large' && shown.length ? (
+          // 큰 칸: 메뉴마다 그림(급식 창에서 찾아 둔 것)과 이름을 보여 준다
+          <>
+            <div className="meal-big">
+              {shown.map((d, i) => {
+                const src = images[dishKey(d.name)]?.src;
+                return (
+                  <div key={`${i}-${d.name}`} className={`mb-item${dishAlerts(d, cls).length ? ' alert' : ''}`}>
+                    <span className="mb-img">{src ? <img src={src} alt="" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : <span>🍽️</span>}</span>
+                    <span className="mb-name">{d.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {alerts.length > 0 && <div className="meal-alert-line">⚠️ 알레르기 주의: {alerts.join(', ')}</div>}
+          </>
+        ) : dishes.length ? (
           <>
             <div className="meal-summary">{shown.length ? shown.map((d) => d.name).join(' · ') : '숨긴 메뉴만 있어요'}</div>
             {alerts.length > 0 && <div className="meal-alert-line">⚠️ 알레르기 주의: {alerts.join(', ')}</div>}

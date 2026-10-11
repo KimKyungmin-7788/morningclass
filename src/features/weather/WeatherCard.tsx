@@ -49,6 +49,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
   const [checking, setChecking] = useState(false);
   const close = () => setStage({ at: 'closed' });
   const t = w ? wxTheme(w) : null;
+  const feelNow = wxFeel(w);
 
   // 날씨 장면은 잠깐 보여 주고 스스로 닫힌다
   useEffect(() => {
@@ -119,7 +120,18 @@ export function WeatherCard({ size }: { size: SlotSize }) {
         {w && t && <WeatherScene kind={t.k} />}
         <CardTitle {...TITLE}
           extra={w ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 날씨</CardTitle>
-        {w && t ? (
+        {w && t && size === 'large' ? (
+          // 큰 칸: 날씨 한마디와 옷차림 · 미세먼지 도움말까지 보여 준다
+          <div className="card-result wx-result wx-large">
+            <i className={`ph-fill ${t.ph} wx-ico`} /><div className="label">{w.label}</div><div className="wx-title">{t.title}</div>
+            <Temp w={w} cls="wx-temp" />
+            <div className="wx-say">{t.say}</div>
+            <div className="wx-tips">
+              {feelNow && <div className="wx-tip"><span role="img" aria-label={feelNow.label}>{feelNow.emoji}</span>{feelNow.say}</div>}
+              {dustNow && <div className={`wx-tip dust-${dustNow.level}`}><span role="img" aria-label={`미세먼지 ${dustNow.label}`}>{dustNow.emoji}</span>{dustNow.hint}</div>}
+            </div>
+          </div>
+        ) : w && t ? (
           <div className="card-result wx-result">
             <i className={`ph-fill ${t.ph} wx-ico`} /><div className="label">{w.label}</div><div className="wx-title">{t.title}</div>
             <Temp w={w} cls="wx-temp" />
