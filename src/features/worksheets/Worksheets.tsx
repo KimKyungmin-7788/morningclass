@@ -9,7 +9,9 @@ import { getMealImages } from '@/core/data/mealImages';
 import { schoolLevelOf } from '@/core/data/subjects';
 import { fetchMealRows, pickLunch } from '@/core/net/neis';
 import { dishKey, parseNutri, shownDishes, type Nutri } from '@/features/meal/model';
+import type { WordEntry } from '@/features/word/model';
 import { sheetBuilders } from './legacyBuilders';
+import { WORD_PARTS, buildWordSheetHTML } from './wordSheet';
 
 // 학습지(A4) 창: 고른 쪽을 미리 보고 인쇄하거나 PDF 로 저장한다.
 // 학습지의 내용(HTML)은 legacyBuilders 가 만들고, 여기서는 창·옵션·그림 준비·인쇄·PDF 를 맡는다.
@@ -134,6 +136,7 @@ const Checks = ({ parts, sel, onChange }: { parts: Parts; sel: Sel; onChange: (k
 let mealSel: Sel = { tray: true, cut: true, trace: true };
 let nutriSel: Sel = { bike: true, even: true, signal: true, energy: true, ncut: true };
 let mealTab: 'basic' | 'nutri' = 'basic';
+let wordSel: Sel = { trace: true, play: true, mine: true, cards: false, week: false };
 let weatherState = { sec: { weather: true, temp: true, clothes: true, predict: true, key: false } as Sel, lvl: 'easy' };
 
 /** 급식 학습지: 기본(식판+따라쓰기 · 붙임자료 · 크게 따라쓰기) / 영양(식품구성자전거 등) */
@@ -217,6 +220,31 @@ export function WeatherSheet({ onClose }: { onClose: () => void }) {
         {([['easy', '✏️ 따라쓰기'], ['mid', '📝 스스로 쓰기']] as const).map(([k, l]) => (
           <label key={k} className="ws-opt"><input type="radio" name="wsl" checked={st.lvl === k} onChange={() => { change({ ...st, lvl: k }); playSound('select'); }} /> {l}</label>
         ))}
+      </div>
+    </SheetFrame>
+  );
+}
+
+/** 오늘의 낱말 학습지: 따라 쓰기 · 낱말 놀이 · 그리고 써 보기 · 낱말 카드 · 이번 주 모아 쓰기 */
+export function WordSheet({ entry, week, onBack }: { entry: WordEntry; week: WordEntry[]; onBack: () => void }) {
+  const date = useDay((s) => s.date);
+  const wsOpts = usePrefs((s) => s.wsOpts);
+  const setPrefs = usePrefs((s) => s.set);
+  const [sel, setSel] = useState(wordSel);
+  const html = useMemo(() => buildWordSheetHTML({ entry, week, date, sel, size: wsOpts.size, dot: wsOpts.dot }), [entry, week, date, sel, wsOpts]);
+  return (
+    <SheetFrame title="📝 낱말 학습지 만들기" html={html} canExport={WORD_PARTS.some(([k]) => sel[k])} pdfName={`낱말학습지_${entry.word}`} backLabel="← 낱말로" onBack={onBack}>
+      <div className="ws-opts">
+        <Checks parts={WORD_PARTS} sel={sel} onChange={(k, v) => { wordSel = { ...sel, [k]: v }; setSel(wordSel); }} />
+      </div>
+      <div className="ws-opts">
+        <label className="ws-opt"><input type="checkbox" checked={wsOpts.dot} onChange={(e) => setPrefs({ wsOpts: { ...wsOpts, dot: e.target.checked } })} /> 흐린 글씨(따라 쓰기)</label>
+        <label className="ws-opt">쓰기 칸{' '}
+          <select value={wsOpts.size} style={{ font: 'inherit', padding: '2px 6px', borderRadius: 8, border: '1.5px solid #cbd5e1', background: '#fff' }}
+            onChange={(e) => setPrefs({ wsOpts: { ...wsOpts, size: Number(e.target.value) } })}>
+            {WS_SIZES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </label>
       </div>
     </SheetFrame>
   );

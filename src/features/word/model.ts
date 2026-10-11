@@ -85,6 +85,17 @@ export function wordOfDay(book: WordBook, date: Date): WordEntry | null {
   return pool[day % pool.length];
 }
 
+/** 그 날짜가 든 주의 월~금 낱말 (학습지의 낱말 카드 · 이번 주 모아 쓰기에 쓴다. 같은 낱말은 한 번만) */
+export function wordsOfWeek(book: WordBook, date: Date): WordEntry[] {
+  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
+  const out: WordEntry[] = [];
+  for (let i = 0; i < 5; i += 1) {
+    const w = wordOfDay(book, new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i));
+    if (w && !out.some((x) => x.word === w.word)) out.push(w);
+  }
+  return out;
+}
+
 // ── 한국어기초사전 응답(XML) 읽기 ──
 const text = (xml: string, tag: string) => {
   const m = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`).exec(xml);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fitText, writeColumns, writeGroups, BASE_WORDS, bestHit, emptyBook, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, wordPool } from './model';
+import { wordsOfWeek, fitText, writeColumns, writeGroups, BASE_WORDS, bestHit, emptyBook, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, wordPool } from './model';
 
 describe('오늘의 낱말', () => {
   it('주의 열쇠는 그 주 월요일이고, 일요일은 지난 주에 든다', () => {
@@ -86,5 +86,16 @@ describe('쓰기 화면', () => {
     expect(writeGroups([1, 2, 3])).toEqual([[1, 2, 3]]);
     expect(writeGroups(Array.from({ length: 14 }, (_, i) => i)).map((g) => g.length)).toEqual([12, 2]);
     expect([1, 2, 3, 4, 5, 6, 7, 12].map(writeColumns)).toEqual([1, 2, 3, 2, 3, 3, 4, 4]);
+  });
+});
+
+describe('이번 주 낱말', () => {
+  it('월~금의 낱말을 순서대로, 같은 낱말은 한 번만 모은다', () => {
+    const book = { ...emptyBook(), weeks: { '20261012': [{ word: '가을', meaning: '', sentence: '' }, null, { word: '가을', meaning: '', sentence: '' }, null, null] } };
+    const week = wordsOfWeek(book, new Date(2026, 9, 14));
+    expect(week[0].word).toBe('가을');
+    expect(week.filter((w) => w.word === '가을')).toHaveLength(1);
+    expect(week.length).toBeGreaterThanOrEqual(3);
+    expect(wordsOfWeek(book, new Date(2026, 9, 17))).toEqual(week);       // 토요일에 열어도 그 주
   });
 });

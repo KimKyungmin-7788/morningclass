@@ -8,7 +8,8 @@ import { useDay } from '@/core/data/day';
 import { presentStudents } from '@/core/data/eligible';
 import { useCurrentClass } from '@/core/data/store';
 import type { Student } from '@/core/data/types';
-import { WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, fitText, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
+import { WordSheet } from '@/features/worksheets/Worksheets';
+import { WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, fitText, wordsOfWeek, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
 
 // 오늘의 낱말 창: 낱말 · 뜻 · 문장을 크게 보여 주고, 읽기 · 쓰기 · 말하기 세 가지 활동을 한다.
 // 제목 줄의 "낱말 정하기"에서 단계, 이번 주 요일별 낱말, 추가한 낱말을 고친다.
@@ -379,15 +380,20 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
 export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; date: Date; onSave: (b: WordBook) => void; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>('read');
   const [setup, setSetup] = useState(false);
+  const [sheet, setSheet] = useState(false);
   const entry = wordOfDay(book, date);
   const fixed = !!book.weeks[weekKey(date)]?.[weekdayIndex(date)]?.word.trim();
 
   useEffect(() => { if (entry && !setup) say(`오늘의 낱말은, ${entry.word}`); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [entry?.word]);
 
+  if (sheet && entry) return <WordSheet entry={entry} week={wordsOfWeek(book, date)} onBack={() => setSheet(false)} />;
   if (setup) return <Popup title="✏️ 낱말 정하기" large onClose={onClose}><WordSetup book={book} date={date} onSave={onSave} onBack={() => setSetup(false)} /></Popup>;
   return (
     <Popup title="📗 오늘의 낱말" large onClose={onClose}
-      headerExtra={<button className="wd-setup-btn" onClick={() => setSetup(true)}><i className="ph-bold ph-pencil-simple-line" /> 낱말 정하기</button>}>
+      headerExtra={<>
+        {entry && <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 학습지</button>}
+        <button className="wd-setup-btn" onClick={() => setSetup(true)}><i className="ph-bold ph-pencil-simple-line" /> 낱말 정하기</button>
+      </>}>
       {!entry ? <div className="card-hint" style={{ padding: 40 }}>낱말이 없어요. "낱말 정하기"에서 낱말을 넣어 주세요.</div> : (
         <div className="wd">
           <div className="wd-main">
