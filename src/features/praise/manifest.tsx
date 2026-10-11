@@ -25,22 +25,46 @@ const UNLOCK_MS = 5 * 60 * 1000;
 let unlockedUntil = 0;
 const iconOf = (shape: PraiseConfig['shape']) => PRAISE_SHAPES.find((s) => s.id === shape)?.icon ?? '🍇';
 
-/** 포도알 그림: 빈자리 하나와 색이 다른 알 네 가지 (public/img/praise). 알마다 색을 섞어 송이가 단조롭지 않게 한다 */
-const GRAPE_EMPTY = '/img/praise/grape-empty.webp';
-const GRAPE_COLORS = [1, 2, 1, 3, 2, 1, 4, 1, 3, 2];
-const grapeSrc = (i: number) => `/img/praise/grape-sticker-${GRAPE_COLORS[i % GRAPE_COLORS.length]}.webp`;
-/** 큰 포도판에서 송이가 덩굴 틀 안에 꼭 맞는 알 크기 (틀 너비 = 100cqw 기준) */
-const grapeFit = (size: number) => { const rows = clusterRows(size); return `${Math.min(62 / rows[0], 66 / (rows.length * 0.86 + 0.14)).toFixed(2)}cqw`; };
+/** 줄별 칸 수를 가운데가 넓게 나눈다 (별 판: 별 모양 틀 안의 밤하늘에 맞춘 배치). 예: 10 → 3·4·3, 20 → 4·6·6·4 */
+function midRows(n: number): number[] {
+  const count = n <= 12 ? 3 : n <= 24 ? 4 : 5;
+  const weights = Array.from({ length: count }, (_, i) => 1 + 0.5 * Math.sin(((i + 0.5) / count) * Math.PI));
+  const total = weights.reduce((a, b) => a + b, 0);
+  const rows = weights.map((w) => Math.floor((w / total) * n));
+  // 남는 칸은 가운데 줄부터 위아래로 번갈아 더한다
+  const order = weights.map((_, i) => i).sort((x, y) => Math.abs(x - (count - 1) / 2) - Math.abs(y - (count - 1) / 2) || x - y);
+  for (let left = n - rows.reduce((a, b) => a + b, 0), k = 0; left > 0; left -= 1, k += 1) rows[order[k % count]] += 1;
+  return rows;
+}
+
+/**
+ * 받은 그림으로 그리는 판 (public/img/praise): 틀 그림 + 빈자리 하나 + 색이 다른 스티커 네 가지.
+ * rows = 줄별 칸 수, area = 틀 안에서 스티커가 놓이는 자리의 너비 · 높이(틀 너비 = 100), colors = 스티커 색을 섞는 순서
+ */
+const ART: Partial<Record<PraiseConfig['shape'], { rows: (n: number) => number[]; area: [number, number]; pitch: number; colors: number[] }>> = {
+  grape: { rows: clusterRows, area: [62, 66], pitch: 0.86, colors: [1, 2, 1, 3, 2, 1, 4, 1, 3, 2] },
+  star: { rows: midRows, area: [60, 49], pitch: 1, colors: [1, 2, 1, 3, 1, 4, 1, 2, 3, 1] },
+};
+/** 큰 판에서 스티커가 틀 안에 꼭 맞는 크기 (틀 너비 = 100cqw 기준) */
+function artFit(shape: PraiseConfig['shape'], size: number): string {
+  const art = ART[shape]!;
+  const rows = art.rows(size);
+  return `${Math.min(art.area[0] / Math.max(...rows), art.area[1] / (rows.length * art.pitch + (1 - art.pitch))).toFixed(2)}cqw`;
+}
 
 /** 판 하나: 모양에 맞춰 칸을 늘어놓고 모은 만큼 채운다 */
 function Board({ shape, size, now, d }: { shape: PraiseConfig['shape']; size: number; now: number; d?: string }) {
   const dot = (i: number) => <i key={i} className={i < now ? 'on' : ''} />;
-  if (shape === 'grape') {
+  const art = ART[shape];
+  if (art) {
     let k = 0;
-    const grape = (i: number) => <img key={i} className={i < now ? 'on' : ''} src={i < now ? grapeSrc(i) : GRAPE_EMPTY} alt="" draggable={false} />;
+    const piece = (i: number) => (
+      <img key={i} className={i < now ? 'on' : ''} alt="" draggable={false}
+        src={i < now ? `/img/praise/${shape}-sticker-${art.colors[i % art.colors.length]}.webp` : `/img/praise/${shape}-empty.webp`} />
+    );
     return (
-      <div className="pr-board grape" role="img" aria-label={`${size}칸 중 ${Math.min(now, size)}칸`} style={d ? ({ '--d': d } as React.CSSProperties) : undefined}>
-        {clusterRows(size).map((w, r) => <div key={r}>{Array.from({ length: w }, () => grape(k++))}</div>)}
+      <div className={`pr-board art ${shape}`} role="img" aria-label={`${size}칸 중 ${Math.min(now, size)}칸`} style={d ? ({ '--d': d } as React.CSSProperties) : undefined}>
+        {art.rows(size).map((w, r) => <div key={r}>{Array.from({ length: w }, () => piece(k++))}</div>)}
       </div>
     );
   }
@@ -329,12 +353,12 @@ function PraiseCard({ size }: CardProps) {
               const myRewards = rewardsFor(cfg, ownAll[shown.id]);
               return (
                 <div className={`pr-stage ${cfg.shape}${done ? ' full' : ''}`} role="tabpanel">
-                  {cfg.shape === 'grape' ? (
-                    // 포도: 덩굴 틀 그림 위에 송이를 올리고, 팻말에 학생 이름을 적는다
-                    <div className="pr-art">
-                      <img className="pr-art-bg" src="/img/praise/grape-bg.webp" alt="" draggable={false} />
+                  {ART[cfg.shape] ? (
+                    // 그림이 있는 모양(포도 · 별): 틀 그림 위에 스티커를 올리고, 팻말에 학생 이름을 적는다
+                    <div className={`pr-art ${cfg.shape}`}>
+                      <img className="pr-art-bg" src={`/img/praise/${cfg.shape}-bg.webp`} alt="" draggable={false} />
                       <div className="pr-art-sign">{shown.name}</div>
-                      <div className="pr-art-fill"><Board shape="grape" size={cfg.size} now={t.now} d={grapeFit(cfg.size)} /></div>
+                      <div className="pr-art-fill"><Board shape={cfg.shape} size={cfg.size} now={t.now} d={artFit(cfg.shape, cfg.size)} /></div>
                     </div>
                   ) : <div className={`pr-stage-board n${cfg.size}`}><Board shape={cfg.shape} size={cfg.size} now={t.now} /></div>}
                   <div className="pr-stage-side">

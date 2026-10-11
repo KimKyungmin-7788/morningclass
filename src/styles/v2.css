@@ -998,3 +998,16 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .pr-stage .pr-give>div:has(button:nth-child(4)){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .pr-stage .pr-give>div:has(button:nth-child(4)) button{height:auto;min-height:50px;padding:6px 12px;font-size:clamp(15px,1.2vw,20px);line-height:1.25;word-break:keep-all}
 .pr-stage .pr-give>div:has(button:nth-child(4)) button.own{flex-wrap:wrap;gap:4px}
+
+/* ── 칭찬 별: 받은 그림(별 · 빈자리 · 밤하늘 틀)으로 그린다. 그림 판의 공통 규칙은 .pr-board.art ── */
+.pr-board.art{gap:0}
+.pr-board.art>div{display:flex;gap:0}
+.pr-board.art img{display:block;width:var(--d);height:var(--d);user-select:none;-webkit-user-drag:none}
+.pr-board.star.art img{padding:calc(var(--d) * .03)}
+.pr-board.star.art img.on{filter:drop-shadow(0 calc(var(--d) * .03) calc(var(--d) * .06) rgba(30,27,75,.45))}
+.pr-art .pr-board.art img.on{animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
+.pr-art.star .pr-art-sign{left:25%;right:23%;top:11.5%;height:12%;color:#3730a3;transform:none}
+.pr-art.star .pr-art-fill{left:20%;right:20%;top:31%;bottom:20%}
+.pr-stage.star{background:linear-gradient(160deg,#eef2ff,#fff 60%)}
+/* 작은 별 판(카드 · 설정 미리보기)은 밤하늘이 없으므로 빈자리가 보이게 바탕을 살짝 준다 */
+.pr-tile .pr-board.star.art,.ps-pic .pr-board.star.art{padding:calc(var(--d) * .3);border-radius:calc(var(--d) * .8);background:linear-gradient(160deg,#4338ca,#6d28d9)}
