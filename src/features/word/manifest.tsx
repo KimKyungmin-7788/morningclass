@@ -36,7 +36,7 @@ function WordCard({ size }: CardProps) {
         {word ? (
           <div className="wd-face">
             {size === 'large' && pick.topic && <em className="wd-chip">{pick.topic}</em>}
-            <b className={word.word.length > 4 ? 'long' : ''}>{word.word}</b><span>{word.meaning}</span>{size === 'large' && word.sentence && <q className="wd-sentence">{word.sentence}</q>}
+            <b className={word.word.length > 4 ? 'long' : ''} style={{ '--n': word.word.length } as React.CSSProperties}>{word.word}</b><span>{word.meaning}</span>{size === 'large' && word.sentence && <q className="wd-sentence">{word.sentence}</q>}
           </div>
         ) : <div className="card-hint">터치해서 어휘를 정해요 👆</div>}
         </>}

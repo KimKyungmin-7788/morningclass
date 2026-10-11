@@ -187,7 +187,7 @@ function ReadPractice({ entry }: { entry: WordEntry }) {
   return (
     <div className="wd-read">
       <p>글자를 하나씩 눌러 짚으며 읽어요</p>
-      <div className={`wd-syls${letters.length > 4 ? ' long' : ''}`}>
+      <div className={`wd-syls${letters.length > 4 ? ' long' : ''}`} style={{ '--n': letters.length } as React.CSSProperties}>
         {letters.map((ch, i) => <button key={i} className={i === at ? 'on' : ''} aria-label={`${ch} 듣기`} onClick={() => { setAt(i); say(ch); }}>{ch}</button>)}
       </div>
       {entry.sentence && (
@@ -519,7 +519,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
               <div className={`wd-tag ${pick.from}`}>{pickLabel(pick)}</div>
               <LevelToggle level={book.level} onChange={(level) => { playSound('select'); onSave({ ...book, level }); }} />
             </div>
-            <button className={`wd-word${entry.word.length > 4 ? ' long' : ''}`} onClick={() => say(entry.word)} aria-label={`${entry.word} 듣기`}>{entry.word}<i className="ph-fill ph-speaker-high" /></button>
+            <button className={`wd-word${entry.word.length > 4 ? ' long' : ''}`} style={{ '--n': entry.word.length } as React.CSSProperties} onClick={() => say(entry.word)} aria-label={`${entry.word} 듣기`}>{entry.word}<i className="ph-fill ph-speaker-high" /></button>
             <button className="wd-line" onClick={() => say(entry.meaning)}><span>뜻</span>{entry.meaning || '뜻을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
             <button className="wd-line" onClick={() => say(entry.sentence)}><span>문장</span>{entry.sentence || '문장을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
           </div>
