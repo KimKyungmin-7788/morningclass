@@ -6,9 +6,10 @@ import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { useDay } from '@/core/data/day';
-import { FEEL, WEATHER, judgeWeather, wxFeel, wxTheme, type WeatherKind, type WeatherValue } from './model';
+import { DUST, FEEL, WEATHER, judgeWeather, wxFeel, wxTheme, type WeatherKind, type WeatherValue } from './model';
 import { geoErrorText, geoWeather } from './geo';
 import { WeatherScene } from './WeatherScene';
+import { DustChip } from './DustCard';
 import { WeatherSheet } from '@/features/worksheets/Worksheets';
 
 // 오늘의 날씨: 직접 고르기 → (선택) GPS 로 정답 확인. 고르면 날씨 장면을 크게 보여 준다.
@@ -39,6 +40,7 @@ export function WeatherCard() {
   const [stage, setStage] = useState<Stage>({ at: 'closed' });
   const [pick, setPick] = useState<number | null>(null);
   const [feel, setFeel] = useState<string | null>(null);
+  const [dust, setDust] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
   const close = () => setStage({ at: 'closed' });
   const t = w ? wxTheme(w) : null;
@@ -50,12 +52,15 @@ export function WeatherCard() {
     return () => clearTimeout(timer);
   }, [stage]);
 
-  const open = () => { ensureAudio(); setPick(null); setFeel(null); setStage({ at: 'pick' }); };
+  const open = () => { ensureAudio(); setPick(null); setFeel(null); setDust(null); setStage({ at: 'pick' }); };
+  /** 날씨 창에서 미세먼지도 골랐으면 함께 기록한다 (고르지 않았으면 그대로 둔다) */
+  const saveDust = () => { if (dust != null) update((r) => { r.dust = { ...DUST[dust] }; }); };
 
   const save = () => {
     if (pick == null) { toast('날씨를 먼저 골라요', 'error'); return; }
     const value: WeatherValue = { ...WEATHER[pick], ...(feel ? { feel } : {}) };
     update((r) => { r.weather = { ...value }; });
+    saveDust();
     playSound('select');
     const th = wxTheme(value);
     const f = wxFeel(value);
@@ -74,6 +79,7 @@ export function WeatherCard() {
       const { wOk, fOk, allOk } = judgeWeather(guess.label, feel, ans);
       ans.guess = { label: guess.label, feel, wOk, fOk };
       update((r) => { r.weather = { ...ans }; });
+      saveDust();
       playSound(allOk ? 'correct' : 'wrong');
       const af = wxFeel(ans);
       // 맞음·틀림 평가 없이 정답 날씨만 읽어 준다
@@ -106,6 +112,7 @@ export function WeatherCard() {
             <Temp w={w} cls="wx-temp" />
           </div>
         ) : <div className="card-hint">터치해서 날씨를 선택해요 👆</div>}
+        <DustChip />
       </CardFrame>
 
       {stage.at === 'pick' && (
@@ -128,6 +135,17 @@ export function WeatherCard() {
                 <button key={x.label} className={`choice-item${pick === i ? ' on' : ''}`} aria-pressed={pick === i}
                   onClick={() => { setPick(i); playSound('select'); speak(x.label); }}>
                   <span className="em" role="img" aria-label={x.label}>{x.emoji}</span><span className="lb">{x.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="wxp-sec dust">
+            <div className="wxp-h dust"><i className="ph-fill ph-wind" />미세먼지 <small>(고르지 않아도 돼요 · 카드의 미세먼지 줄에서 GPS로도 불러와요)</small></div>
+            <div className="feel-row dust-row">
+              {DUST.map((x, i) => (
+                <button key={x.label} className={`feel-chip dust-${x.level}${dust === i ? ' on' : ''}`} aria-pressed={dust === i}
+                  onClick={() => { if (dust === i) setDust(null); else { setDust(i); playSound('select'); speak(`미세먼지 ${x.label}`); } }}>
+                  <span className="em">{x.emoji}</span>{x.label}<span className="rg">{x.hint}</span>
                 </button>
               ))}
             </div>

@@ -23,6 +23,8 @@ interface BoardUi {
   bgOpen: boolean;
   /** 학생별 칸 나누기 */
   splitOpen: boolean;
+  /** 그림 불러오기 (파일에서 · 아침교실에서) */
+  imageOpen: boolean;
   /** 모두 지우기 확인 창 */
   confirmClear: boolean;
   /** 쓰기 시작하면 옵션 카드를 닫는다 */
@@ -93,7 +95,7 @@ let loading = false;
 
 export const useBoard = create<BoardState>((set, get) => {
   const snap = (): Snapshot => ({ strokes: get().strokes, images: get().images });
-  const closed = { optionOpen: false, bgOpen: false, splitOpen: false };
+  const closed = { optionOpen: false, bgOpen: false, splitOpen: false, imageOpen: false };
   /** 보기 설정을 이 기기에 기억한다 */
   const keep = () => {
     const s = get();
@@ -154,7 +156,7 @@ export const useBoard = create<BoardState>((set, get) => {
     setUi: (patch) => { set((s) => ({ ui: { ...s.ui, ...patch } })); if ('panelOpen' in patch || 'autoClose' in patch) keep(); },
     touchCanvas: (writing) => set((s) => {
       const optionOpen = s.ui.optionOpen && !(writing && s.ui.autoClose);
-      return s.ui.bgOpen || s.ui.splitOpen || optionOpen !== s.ui.optionOpen ? { ui: { ...s.ui, bgOpen: false, splitOpen: false, optionOpen } } : {};
+      return s.ui.bgOpen || s.ui.splitOpen || s.ui.imageOpen || optionOpen !== s.ui.optionOpen ? { ui: { ...s.ui, bgOpen: false, splitOpen: false, imageOpen: false, optionOpen } } : {};
     }),
   };
 });

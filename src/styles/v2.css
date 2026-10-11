@@ -246,3 +246,98 @@ body:has(#lesson-present) .backup-reminder { display: none; }
 @media (max-aspect-ratio: 1/1){.tp-noise{max-width:80%!important;height:auto!important;width:min(70%,420px)}.tp-noise-side{width:100%}}
 @media (prefers-reduced-motion: reduce){.tp-noise.loud{animation:none}}
 .helper-setup[hidden]{display:none}
+
+/* ── 판서: 그림 불러오기 카드 (파일 · 아침교실에서 가져오기) ── */
+.bd-imgcard{top:0;width:272px;gap:14px}
+.bd-imgcard .bd-label{line-height:1.5}
+.bd-pick{display:flex;align-items:center;gap:10px;width:100%;height:48px;padding:0 12px;border-radius:12px;border:1.5px solid var(--bd-line);background:#fff;font-size:15px;font-weight:600;color:var(--bd-on);text-align:left}
+.bd-pick:hover:not(:disabled){background:#F2F2F2;border-color:var(--bd-line2)}
+.bd-pick:disabled{color:var(--bd-mute);cursor:default}
+.bd-pick i{font-style:normal;font-size:20px;line-height:1}
+.bd-pick span{flex:1}
+.bd-pick em{font-style:normal;font-size:11px;font-weight:600;color:var(--bd-mute)}
+
+/* ── 날씨 카드 안의 미세먼지 한 줄 ── */
+.dust-wrap{position:relative;z-index:2;margin-top:auto;padding-top:8px}
+.dust-chip{display:flex;align-items:center;gap:6px;width:100%;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.82);border:1.5px dashed #d8b4fe;font-size:clamp(13px,.95vw,16px);font-weight:var(--fw-label);color:var(--text-sub);transition:.15s}
+.dust-chip:hover{border-color:#9333ea}
+.dust-chip i{color:#9333ea;font-size:1.2em}
+.dust-chip b{margin-left:auto;font-weight:var(--fw-title);color:var(--text);white-space:nowrap}
+.dust-chip b.none{font-weight:var(--fw-label);color:var(--text-sub)}
+.dust-chip b em{font-style:normal}
+.dust-chip.on{border-style:solid;border-color:#e9d5ff}
+.dust-chip.dust-2{border-color:#fdba74;background:#fff7ed}
+.dust-chip.dust-3{border-color:#fca5a5;background:#fef2f2}
+
+/* ── 오늘의 낱말 ── */
+.wd-face{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:0}
+.wd-face b{font-size:clamp(30px,3vw,54px);font-weight:var(--fw-display);color:#15803d;line-height:1.1;word-break:keep-all}
+.wd-face b.long{font-size:clamp(22px,2.1vw,38px)}
+.wd-face span{font-size:clamp(13px,1vw,17px);color:var(--text-sub);line-height:1.35;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wd-setup-btn{display:inline-flex;align-items:center;gap:6px;margin-right:10px;padding:8px 14px;border-radius:12px;background:#F0F4FF;font-size:15px;font-weight:var(--fw-label);color:var(--text-sub)}
+.wd-setup-btn:hover{background:var(--primary);color:#fff}
+.wd{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:22px;height:min(calc(90vh - 150px),600px)}
+.wd-main{display:flex;flex-direction:column;justify-content:center;gap:14px;min-width:0}
+.wd-tag{align-self:flex-start;padding:5px 12px;border-radius:99px;background:#dcfce7;font-size:14px;font-weight:var(--fw-label);color:#15803d}
+.wd-word{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px 10px;border-radius:22px;background:linear-gradient(160deg,#f0fdf4,#dcfce7);border:3px solid #86efac;font-size:clamp(64px,8.5vw,140px);font-weight:var(--fw-display);color:#166534;line-height:1.05;word-break:keep-all}
+.wd-word.long{font-size:clamp(44px,5.6vw,92px)}
+.wd-word i{font-size:.28em;color:#22c55e}
+.wd-line{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#F8FAFF;font-size:clamp(20px,2vw,30px);font-weight:var(--fw-title);text-align:left;line-height:1.35;word-break:keep-all}
+.wd-line span{flex:none;padding:4px 12px;border-radius:99px;background:#5BB6FF;color:#fff;font-size:.6em}
+.wd-line i{margin-left:auto;flex:none;color:#94a3b8;font-size:.9em}
+.wd-work{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.wd-tabs{align-self:center;flex:none}
+.wd-tabs button{display:inline-flex;align-items:center;gap:6px;font-size:17px;padding:9px 18px}
+.wd-read{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.wd-read p{text-align:center;font-size:18px;color:var(--text-sub)}
+.wd-read button,.wd-step button{padding:16px;border-radius:16px;background:#F0F4FF;font-size:clamp(18px,1.7vw,24px);font-weight:var(--fw-title);transition:.15s}
+.wd-read button:hover,.wd-step button:hover:not(:disabled){background:var(--primary);color:#fff}
+.wd-read button.all{background:linear-gradient(135deg,#34d399,#10b981);color:#fff}
+.wd-target{align-self:center;flex:none}
+.wd-trace{position:relative;flex:1;min-height:0;border-radius:18px;background:#fff;border:3px dashed #cbd5e1;overflow:hidden}
+.wd-ghost{position:absolute;inset:0;display:grid;place-items:center;padding:12px;text-align:center;font-size:clamp(70px,9.5vw,170px);font-weight:var(--fw-display);color:#e2e8f0;line-height:1.15;word-break:keep-all;pointer-events:none;user-select:none}
+.wd-ghost.long{font-size:clamp(34px,4.2vw,70px)}
+.wd-trace canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.wd-clear{position:absolute;right:10px;bottom:10px;padding:8px 14px;border-radius:99px;background:#F0F4FF;font-size:15px;font-weight:var(--fw-label);color:var(--text-sub)}
+.wd-speak{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px}
+.wd-step{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px 12px;padding:16px;border-radius:18px;background:#F8FAFF}
+.wd-step>span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#5BB6FF;color:#fff;font-weight:var(--fw-title)}
+.wd-step>b{font-size:clamp(18px,1.6vw,24px)}
+.wd-step>div{grid-column:1/-1;display:flex;gap:10px}
+.wd-step button{flex:1;background:#fff;border:2px solid #dbe3f0}
+.wd-step button:disabled{opacity:.45;cursor:not-allowed}
+.wd-step button.rec{background:#ef4444;border-color:#ef4444;color:#fff;animation:tpHurry 1s ease-in-out infinite}
+.wd-note{text-align:center;font-size:14px;color:#94a3b8}
+.wd-setup{display:flex;flex-direction:column;gap:18px}
+.wd-sec{display:flex;flex-direction:column;gap:8px}
+.wd-sec h3{font-size:18px;font-weight:var(--fw-title)}
+.wd-sec h3 small{margin-left:8px;font-size:13px;font-weight:var(--fw-body);color:var(--text-sub)}
+.wd-sec .mv-toggle{align-self:flex-start}
+.wd-row{display:grid;grid-template-columns:34px minmax(90px,.7fr) minmax(0,1.3fr) minmax(0,1.6fr) auto auto;gap:6px;align-items:center}
+.wd-row .day{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#e0f2fe;font-weight:var(--fw-title);color:#0369a1}
+.wd-row input{min-width:0;padding:10px 12px;border-radius:10px;border:2px solid #E5E7EB;font-size:16px}
+.wd-row input.w{font-weight:var(--fw-title)}
+.wd-row input:focus{outline:none;border-color:var(--primary)}
+.wd-row button{padding:10px 12px;border-radius:10px;background:#F0F4FF;font-size:14px;font-weight:var(--fw-label);white-space:nowrap}
+.wd-row button.del{background:#FFE5E5;color:var(--danger)}
+.wd-add{align-self:flex-start;padding:10px 16px;border-radius:12px;border:2px dashed #cbd5e1;font-size:15px;font-weight:var(--fw-label);color:var(--text-sub)}
+.wd-credit{font-size:12px;color:#94a3b8;text-align:right}
+@media (max-width:820px){.wd{grid-template-columns:1fr;height:auto}.wd-trace{min-height:240px}.wd-row{grid-template-columns:34px 1fr auto auto}.wd-row input:not(.w){grid-column:2/-1}}
+
+/* 날씨 고르기 창의 미세먼지 칸 */
+.wxp-sec.dust{background:#FAF5FF;border:2px dashed #e9d5ff}
+.wxp-h.dust{color:#7e22ce}
+.feel-row.dust-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.feel-chip.dust-0{background:#dcfce7;color:#15803d}.feel-chip.dust-1{background:#e0f2fe;color:#0369a1}
+.feel-chip.dust-2{background:#ffedd5;color:#c2410c}.feel-chip.dust-3{background:#fee2e2;color:#b91c1c}
+
+/* 낱말 따라 쓰기: 학습지와 같은 점선 글씨(엘점선체) */
+@font-face{font-family:'LDotted';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211548@font-209/font-209/%E1%84%8B%E1%85%A6%E1%86%AF%E1%84%8C%E1%85%A5%E1%86%B7%E1%84%89%E1%85%A5%E1%86%AB%E1%84%8E%E1%85%A6.woff2') format('woff2');font-weight:400;font-display:swap}
+.wd-ghost{font-family:'LDotted','Paperozi',sans-serif;font-weight:400;color:#64748b}
+/* 날씨 고르기 창: 기온 · 날씨 · 미세먼지가 한 화면에 들어오도록 날씨 6가지를 한 줄에 놓는다 (좁은 화면은 세 칸씩 두 줄) */
+@media (min-width:700px){
+  .wxp-sec .choice-grid.cols-3{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+  .wxp-sec .choice-grid.cols-3 .choice-item{padding:10px 4px}
+  .wxp-sec .choice-grid.cols-3 .choice-item .em{font-size:clamp(34px,3.4vw,46px)}
+  .wxp-sec .choice-grid.cols-3 .choice-item .lb{font-size:clamp(14px,1.3vw,17px)}
+}

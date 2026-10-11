@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { Popup } from '@/core/ui/Popup';
 import { GpsIcon } from '@/core/ui/GpsIcon';
 import { toast } from '@/core/ui/toast';
@@ -9,8 +8,8 @@ import { useDay } from '@/core/data/day';
 import { DUST, type DustLevel } from './model';
 import { geoDust, geoErrorText } from './geo';
 
-// 오늘의 미세먼지: 직접 고르거나 GPS 로 불러온다.
-export function DustCard() {
+// 오늘의 미세먼지: 직접 고르거나 GPS 로 불러온다. 날씨 카드 아래쪽에 한 줄로 들어간다 (누르면 미세먼지 창이 열린다).
+export function DustChip() {
   const d = useDay((s) => s.record.dust) as DustLevel | null;
   const update = useDay((s) => s.update);
   const [open, setOpen] = useState(false);
@@ -37,16 +36,12 @@ export function DustCard() {
   };
 
   return (
-    <>
-      <CardFrame id="dust" label="미세먼지 선택" state={d ? 'filled' : 'empty'} onOpen={() => { ensureAudio(); setOpen(true); }}>
-        <CardTitle icon="ph-fill ph-wind" tint="#f3e8ff" color="#9333ea"
-          extra={d ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 미세먼지</CardTitle>
-        {d ? (
-          <div className="card-result">
-            <div className="emoji" role="img" aria-label={d.label}>{d.emoji}</div><div className="label">{d.label}</div><div className="v3-pill">{d.hint}</div>
-          </div>
-        ) : <div className="card-hint">터치해서 미세먼지를 확인해요 👆</div>}
-      </CardFrame>
+    // 날씨 카드 안에 있으므로, 여기서 누른 것이 카드까지 올라가 날씨 창이 열리지 않게 막는다 (창 안의 누르기도 마찬가지)
+    <div className="dust-wrap" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      <button className={`dust-chip${d ? ` on dust-${d.level}` : ''}`} aria-label="미세먼지 선택" onClick={() => { ensureAudio(); setOpen(true); }}>
+        <i className="ph-fill ph-wind" /><span>미세먼지</span>
+        {d ? <b><em role="img" aria-label={d.label}>{d.emoji}</em> {d.label}</b> : <b className="none">눌러서 확인 👆</b>}
+      </button>
       {open && (
         <Popup title="오늘 미세먼지는 어때요?" onClose={() => setOpen(false)}>
           <div className="choice-grid cols-4">
@@ -62,6 +57,6 @@ export function DustCard() {
           </button>
         </Popup>
       )}
-    </>
+    </div>
   );
 }

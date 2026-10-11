@@ -5,7 +5,7 @@ import { toast } from '@/core/ui/toast';
 import { BoardPanel } from './BoardPanel';
 import { useColumns } from './columns';
 import { Icon } from './icons';
-import { boardToPng, downloadBlob, fileToBoardImage } from './image';
+import { boardToPng, downloadBlob, fileToBoardImage, sheetToBoardImage } from './image';
 import { INK_COLORS, SIZES, columnOf, columnRange, dashArray, eraseAlong, eraserRadius, imageAt, imageBox, inkPressure, isUniformLine, linePath, newStrokeId, resizeImage, rotateImage, smoothPoints, strokeOpacity, strokePath, toImageLocal, type BoardImage, type InkTool, type Stroke } from './model';
 import { getPaper } from './papers';
 import { useBoard } from './store';
@@ -358,7 +358,13 @@ export function BoardWindow({ onClose }: { onClose: () => void }) {
         );
       })()}
 
-      <BoardPanel onAddImage={() => fileRef.current?.click()} />
+      <BoardPanel onAddImage={() => fileRef.current?.click()}
+        onAddSheet={(sheet) => {
+          const st = useBoard.getState();
+          const area = areaRef.current!;
+          st.addImage(sheetToBoardImage(sheet, { w: area.clientWidth, h: area.clientHeight }, st.viewport));
+          toast(`${sheet.title}을(를) 붙였어요. 펜으로 바꾸면 그 위에 쓸 수 있어요`);
+        }} />
       <div className="bd-box bd-actions bd-top-right">
         {b.clip && <button className="bd-btn" title="붙여넣기" aria-label="복사한 그림 붙여넣기" onClick={b.pasteImage}><Icon id="paste" /></button>}
         <button className="bd-btn" title="그림 파일로 저장" aria-label="판서를 그림 파일로 저장" onClick={() => void savePicture()}><Icon id="download" /></button>

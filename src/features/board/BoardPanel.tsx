@@ -1,5 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { playSound } from '@/core/sound';
+import { useDay } from '@/core/data/day';
+import { useKv } from '@/core/data/kv';
+import { useCurrentClass } from '@/core/data/store';
+import { subjectIcon } from '@/core/data/subjects';
+import { periodsOn, useTimetables } from '@/core/data/timetables';
+import { ddayDiff, ddayLabel, ddaySorted, fmtDdayDate, type DdayItem } from '@/features/dday/model';
+import { shownDishes } from '@/features/meal/model';
+import { wxFeel, type DustLevel, type WeatherValue } from '@/features/weather/model';
+import { ddaySheet, mealSheet, notesSheet, sheetEmpty, timetableSheet, weatherSheet, type Sheet } from './morning';
 import { useColumns } from './columns';
 import { Icon } from './icons';
 import { DASH_IDS, INK_COLORS, MAX_COLUMNS, SIZES, SIZE_IDS, type InkTool } from './model';
@@ -96,6 +105,45 @@ function SplitCard() {
   );
 }
 
+/** 오늘 아침교실에 적힌 것 — 판서에 붙일 수 있는 다섯 가지 */
+function useMorningSheets(): Sheet[] {
+  const cls = useCurrentClass();
+  const date = useDay((s) => s.date);
+  const record = useDay((s) => s.record);
+  const { byDay } = useTimetables(cls?.id ?? '');
+  const [ddays] = useKv<DdayItem[]>(`ddays:${cls?.id ?? ''}`, []);
+  const weather = record.weather as WeatherValue | null;
+  return [
+    weatherSheet(weather, wxFeel(weather), record.dust as DustLevel | null),
+    timetableSheet(record.timetable.arranged, periodsOn(date, byDay), record.timetable.notes, (s) => subjectIcon(s, cls)),
+    notesSheet(record.notes ?? ''),
+    mealSheet(shownDishes(record.meal?.dishes ?? [], cls?.options.mealHidden).map((d) => d.name)),
+    ddaySheet(ddaySorted(ddays, date).map((d) => ({ name: d.name, label: ddayLabel(ddayDiff(d.date, date)), date: fmtDdayDate(d.date) }))),
+  ];
+}
+
+/** 그림 불러오기 — 파일에서 고르거나, 아침교실에 적은 것을 칠판에 붙일 종이로 가져온다 */
+function ImageCard({ onFile, onSheet }: { onFile: () => void; onSheet: (sheet: Sheet) => void }) {
+  const sheets = useMorningSheets();
+  return (
+    <div className="bd-box bd-card bd-imgcard" role="dialog" aria-label="그림 불러오기">
+      <div className="bd-opt-row">
+        <div className="bd-label">그림 파일</div>
+        <button className="bd-pick" onClick={onFile}><Icon id="image" size={22} /><span>파일에서 불러오기</span></button>
+      </div>
+      <div className="bd-opt-row">
+        <div className="bd-label">아침교실에서 가져오기 — 칠판에 붙여 그 위에 쓸 수 있어요</div>
+        {sheets.map((sh) => (
+          <button key={sh.id} className="bd-pick" disabled={sheetEmpty(sh)} onClick={() => { onSheet(sh); playSound('select'); }}>
+            <i>{sh.icon}</i><span>{sh.title}</span>{sheetEmpty(sh) && <em>내용 없음</em>}
+          </button>
+        ))}
+      </div>
+      <button className="bd-card-close" onClick={() => useBoard.getState().setUi({ imageOpen: false })}>닫기</button>
+    </div>
+  );
+}
+
 function OptionCard({ toolId, splitOn }: { toolId: InkTool; splitOn: boolean }) {
   const values = useBoard((s) => s.values[toolId]);
   const autoClose = useBoard((s) => s.ui.autoClose);
@@ -144,7 +192,7 @@ function OptionCard({ toolId, splitOn }: { toolId: InkTool; splitOn: boolean }) 
   );
 }
 
-export function BoardPanel({ onAddImage }: { onAddImage: () => void }) {
+export function BoardPanel({ onAddImage, onAddSheet }: { onAddImage: () => void; onAddSheet: (sheet: Sheet) => void }) {
   const toolId = useBoard((s) => s.tool);
   const values = useBoard((s) => s.values);
   const ui = useBoard((s) => s.ui);
@@ -175,22 +223,23 @@ export function BoardPanel({ onAddImage }: { onAddImage: () => void }) {
             </button>
           ))}
           <div className="bd-sep" />
-          <button className={`bd-btn${ui.bgOpen ? ' on' : ''}`} title="배경" aria-label="배경" aria-pressed={ui.bgOpen} onClick={() => b.setUi({ bgOpen: !ui.bgOpen, optionOpen: false, splitOpen: false })}><Icon id="background" size={26} /></button>
+          <button className={`bd-btn${ui.bgOpen ? ' on' : ''}`} title="배경" aria-label="배경" aria-pressed={ui.bgOpen} onClick={() => b.setUi({ bgOpen: !ui.bgOpen, optionOpen: false, splitOpen: false, imageOpen: false })}><Icon id="background" size={26} /></button>
           {/* 도구 상자 위쪽에 맞춰 펼친다 — 단추 옆에서 펼치면 낮은 화면에서 아래가 잘린다 */}
           {ui.bgOpen && <BackgroundCard />}
-          <button className="bd-btn" title="그림 불러오기" aria-label="그림 불러오기" onClick={() => { b.setUi({ optionOpen: false, bgOpen: false, splitOpen: false }); onAddImage(); }}><Icon id="image" size={26} /></button>
-          <button className={`bd-btn${ui.splitOpen ? ' on' : ''}${splitOn ? ' live' : ''}`} title="학생별 칸 나누기" aria-label="학생별 칸 나누기" aria-pressed={ui.splitOpen} onClick={() => b.setUi({ splitOpen: !ui.splitOpen, optionOpen: false, bgOpen: false })}><Icon id="split" size={26} /></button>
+          <button className={`bd-btn${ui.imageOpen ? ' on' : ''}`} title="그림 불러오기" aria-label="그림 불러오기" aria-pressed={ui.imageOpen} onClick={() => b.setUi({ imageOpen: !ui.imageOpen, optionOpen: false, bgOpen: false, splitOpen: false })}><Icon id="image" size={26} /></button>
+          {ui.imageOpen && <ImageCard onFile={() => { b.setUi({ imageOpen: false }); onAddImage(); }} onSheet={(sheet) => { b.setUi({ imageOpen: false }); onAddSheet(sheet); }} />}
+          <button className={`bd-btn${ui.splitOpen ? ' on' : ''}${splitOn ? ' live' : ''}`} title="학생별 칸 나누기" aria-label="학생별 칸 나누기" aria-pressed={ui.splitOpen} onClick={() => b.setUi({ splitOpen: !ui.splitOpen, optionOpen: false, bgOpen: false, imageOpen: false })}><Icon id="split" size={26} /></button>
           {ui.splitOpen && <SplitCard />}
         </div>
 
         {/* 로고 색 = 지금 잉크 색. 옵션이 없는 도구(선택 · 손)일 때는 회색 */}
         <div className="bd-rel">
           <button className={`bd-box bd-logo${ui.optionOpen && inkTool ? ' on' : ''}`} aria-label="로고 — 옵션 열기" aria-expanded={ui.optionOpen && !!inkTool} disabled={!inkTool}
-            style={{ color: inkTool && !splitOn ? values[inkTool].color : inkTool ? '#1A1A1A' : undefined }} onClick={() => b.setUi({ optionOpen: !ui.optionOpen, bgOpen: false, splitOpen: false })}>me!</button>
+            style={{ color: inkTool && !splitOn ? values[inkTool].color : inkTool ? '#1A1A1A' : undefined }} onClick={() => b.setUi({ optionOpen: !ui.optionOpen, bgOpen: false, splitOpen: false, imageOpen: false })}>me!</button>
           {ui.optionOpen && inkTool && <OptionCard toolId={inkTool} splitOn={splitOn} />}
         </div>
 
-        <button className="bd-box bd-fold" aria-label="도구 영역 닫기" onClick={() => b.setUi({ panelOpen: false, optionOpen: false, bgOpen: false, splitOpen: false })}><Icon id="chevron-left" size={18} /></button>
+        <button className="bd-box bd-fold" aria-label="도구 영역 닫기" onClick={() => b.setUi({ panelOpen: false, optionOpen: false, bgOpen: false, splitOpen: false, imageOpen: false })}><Icon id="chevron-left" size={18} /></button>
       </div>
     </>
   );
