@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact } from '@/core/ui/slot';
 import { ensureAudio, playSound } from '@/core/sound';
-import { toast } from '@/core/ui/toast';
 import { useDay } from '@/core/data/day';
 import { useKv } from '@/core/data/kv';
 import { useCurrentClass } from '@/core/data/store';
 import type { CardProps, FeatureManifest } from '../types';
-import { emptyBook, levelOf, pickOfDay, type WordBook, type WordLevel } from './model';
-import { LevelToggle, WordWindow, pickLabel } from './WordWindow';
+import { emptyBook, normalizeBook, pickOfDay, type WordBook, type WordLevel } from './model';
+import { LevelToggle, WordWindow } from './WordWindow';
 
 // 오늘의 어휘: 날마다 낱말 하나를 뜻 · 문장과 함께 보고, 읽고 · 쓰고 · 말해 본다.
 // 카드에서 바로 단계(가 · 나 · 다)를 바꿀 수 있다.
@@ -19,7 +18,7 @@ function WordCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const date = useDay((s) => s.date);
   const [saved, setBook] = useKv<WordBook>(`words:${cls?.id ?? ''}`, emptyBook());
-  const book = { ...emptyBook(), ...saved };
+  const book = normalizeBook(saved);
   const [open, setOpen] = useState(false);
   const pick = pickOfDay(book, date);
   const word = pick?.entry;
@@ -27,8 +26,6 @@ function WordCard({ size }: CardProps) {
   const setLevel = (level: WordLevel) => {
     ensureAudio(); playSound('select');
     setBook({ ...book, level });
-    // 단계를 바꿔도 낱말이 그대로인 날에는 까닭을 알려 준다
-    if (pick && (pick.from === 'set' || pick.from === 'custom')) toast(`${levelOf(level).label} 단계로 바꿨어요. 오늘은 ${pickLabel(pick)}가 나와요`);
   };
 
   return (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { wordsOfWeek, fitText, writeColumns, writeGroups, BASE_WORDS, EVENTS, TOPICS, VOCAB_STATS, WORD_LEVELS, bestHit, emptyBook, eventWords, findVocab, parseDictExamples, parseDictSearch, pickOfDay, seasonalEvents, sourceLine, weekKey, weekdayIndex, wordOfDay, wordSpan } from './model';
+import { wordsOfWeek, fitText, writeColumns, writeGroups, BASE_WORDS, EVENTS, TOPICS, VOCAB_STATS, WORD_LEVELS, bestHit, emptyBook, normalizeBook, eventWords, findVocab, parseDictExamples, parseDictSearch, pickOfDay, seasonalEvents, sourceLine, weekKey, weekdayIndex, wordOfDay, wordSpan } from './model';
 
 describe('오늘의 어휘', () => {
   it('주의 열쇠는 그 주 월요일이고, 일요일은 지난 주에 든다', () => {
@@ -53,18 +53,32 @@ describe('오늘의 어휘', () => {
 
   it('선생님이 그 주 요일에 정한 어휘가 가장 먼저 나오고, 추가한 어휘는 금요일마다 차례로 나온다', () => {
     const mine = { word: '소풍', meaning: '밖에 나가 노는 일', sentence: '내일 소풍을 가요.' };
-    const book = { ...emptyBook(), weeks: { 20261019: [null, mine, { word: ' ', meaning: '', sentence: '' }] }, custom: [mine, { word: '', meaning: '', sentence: '' }, { word: '급식', meaning: '', sentence: '' }] };
+    const book = emptyBook();
+    book.weeks.easy = { 20261019: [null, mine, { word: ' ', meaning: '', sentence: '' }] };
+    book.custom.easy = [mine, { word: '', meaning: '', sentence: '' }, { word: '급식', meaning: '', sentence: '' }];
     expect(pickOfDay(book, new Date(2026, 9, 20))).toEqual({ entry: mine, from: 'set' });     // 화요일에 정해 둠
     expect(pickOfDay(book, new Date(2026, 9, 19))!.from).toBe('theme');                       // 월요일은 비어 있다
     expect(pickOfDay(book, new Date(2026, 9, 21))!.from).toBe('theme');                       // 낱말이 빈 칸은 정하지 않은 것으로 본다
     const fridays = [23, 30].map((d) => pickOfDay(book, new Date(2026, 9, d))!);
     expect(fridays.map((p) => p.from)).toEqual(['custom', 'custom']);
     expect(fridays.map((p) => p.entry.word).sort()).toEqual(['급식', '소풍']);                 // 빈 낱말은 빼고 차례로
+    // 정해 둔 어휘 · 추가한 어휘는 단계마다 따로다
+    expect([20, 23].map((d) => pickOfDay({ ...book, level: 'mid' }, new Date(2026, 9, d))!.from)).toEqual(['theme', 'theme']);
+  });
+
+  it('예전에 단계 구분 없이 저장한 어휘는 그때 고른 단계의 것으로 옮긴다', () => {
+    const mine = { word: '소풍', meaning: '', sentence: '' };
+    const old = normalizeBook({ level: 'mid', weeks: { 20261019: [mine] }, custom: [mine] });
+    expect(old.weeks).toEqual({ easy: {}, mid: { 20261019: [mine] }, hard: {} });
+    expect(old.custom).toEqual({ easy: [], mid: [mine], hard: [] });
+    expect(normalizeBook(old)).toEqual(old);
+    expect(normalizeBook(undefined)).toEqual(emptyBook());
+    expect(normalizeBook({ level: 'x', weeks: { hard: { 20261019: [mine] } } }).weeks.hard).toEqual({ 20261019: [mine] });
   });
 
   it('어휘마다 근거를 밝힌다', () => {
     const find = (word: string, level: 'easy' | 'mid' | 'hard') => BASE_WORDS[level].find((w) => w.word === word)!;
-    expect(sourceLine(find('눈', 'easy'))).toBe('국립국어원 1등급(4~6세 · 학교 가기 전) 어휘');
+    expect(sourceLine(find('눈', 'easy'))).toBe('국립국어원 1등급(4~6세) 어휘');
     expect(sourceLine(find('촉감', 'easy'))).toContain('3등급');                              // 원래 등급보다 일찍 넣은 어휘
     expect(sourceLine(find('촉감', 'easy'))).toContain('일찍');
     expect(sourceLine(find('감상', 'mid'))).toContain('사전과 견주어');                        // 원본 정보가 어긋나 보이는 어휘
@@ -144,7 +158,8 @@ describe('쓰기 화면', () => {
 
 describe('이번 주 낱말', () => {
   it('월~금의 낱말을 순서대로, 같은 낱말은 한 번만 모은다', () => {
-    const book = { ...emptyBook(), weeks: { '20261012': [{ word: '가을', meaning: '', sentence: '' }, null, { word: '가을', meaning: '', sentence: '' }, null, null] } };
+    const book = emptyBook();
+    book.weeks.easy = { '20261012': [{ word: '가을', meaning: '', sentence: '' }, null, { word: '가을', meaning: '', sentence: '' }, null, null] };
     const week = wordsOfWeek(book, new Date(2026, 9, 14));
     expect(week[0].word).toBe('가을');
     expect(week.filter((w) => w.word === '가을')).toHaveLength(1);

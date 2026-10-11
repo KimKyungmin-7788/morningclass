@@ -8,7 +8,7 @@ import { VOCAB_EVENTS, VOCAB_TOPICS, VOCAB_WORDS, type VocabBand } from './vocab
 /** 저장되는 값은 그대로 두고(easy · mid · hard) 화면에는 가 · 나 · 다로 보여 준다 */
 export type WordLevel = 'easy' | 'mid' | 'hard';
 export const WORD_LEVELS: { id: WordLevel; label: string; desc: string; bands: VocabBand[] }[] = [
-  { id: 'easy', label: '가', desc: '학교 가기 전', bands: ['preschool'] },
+  { id: 'easy', label: '가', desc: '6~7세', bands: ['preschool'] },
   { id: 'mid', label: '나', desc: '초등 1~2학년', bands: ['grade12'] },
   { id: 'hard', label: '다', desc: '초등 3~4학년', bands: ['grade34'] },
 ];
@@ -25,15 +25,31 @@ export interface VocabEntry extends WordEntry {
   review: boolean;
 }
 
-/** 학급별로 저장하는 어휘 설정 */
+/** 학급별로 저장하는 어휘 설정. 정해 둔 어휘와 추가한 어휘는 단계마다 따로 둔다 */
 export interface WordBook {
   level: WordLevel;
-  /** 주(그 주 월요일 'YYYYMMDD')마다 월~금에 정해 둔 어휘. 빈 칸은 기본 목록에서 나온다 */
-  weeks: Record<string, (WordEntry | null)[]>;
-  /** 선생님이 추가한 어휘 — 금요일마다 차례로 나온다 */
-  custom: WordEntry[];
+  /** 단계별로, 주(그 주 월요일 'YYYYMMDD')마다 월~금에 정해 둔 어휘. 빈 칸은 기본 목록에서 나온다 */
+  weeks: Record<WordLevel, Record<string, (WordEntry | null)[]>>;
+  /** 단계별로 선생님이 추가한 어휘 — 금요일마다 차례로 나온다 */
+  custom: Record<WordLevel, WordEntry[]>;
 }
-export const emptyBook = (): WordBook => ({ level: 'easy', weeks: {}, custom: [] });
+export const emptyBook = (): WordBook => ({ level: 'easy', weeks: { easy: {}, mid: {}, hard: {} }, custom: { easy: [], mid: [], hard: [] } });
+/**
+ * 저장된 설정을 지금 모양으로 맞춘다. 예전에는 정해 둔 어휘 · 추가한 어휘가 단계 구분 없이 하나였다 —
+ * 그때 것은 저장할 때 고른 단계의 것으로 옮긴다.
+ */
+export function normalizeBook(saved: unknown): WordBook {
+  const book = emptyBook();
+  const s = (saved ?? {}) as { level?: WordLevel; weeks?: Record<string, unknown>; custom?: unknown };
+  if (WORD_LEVELS.some((l) => l.id === s.level)) book.level = s.level!;
+  for (const [k, v] of Object.entries(s.weeks ?? {})) {
+    if (k in book.weeks) Object.assign(book.weeks[k as WordLevel], v);
+    else if (Array.isArray(v)) book.weeks[book.level][k] = v as (WordEntry | null)[];
+  }
+  if (Array.isArray(s.custom)) book.custom[book.level] = s.custom as WordEntry[];
+  else for (const l of WORD_LEVELS) { const list = (s.custom as Record<string, unknown> | undefined)?.[l.id]; if (Array.isArray(list)) book.custom[l.id] = list as WordEntry[]; }
+  return book;
+}
 
 // ── 기본 목록 (vocabData: 단계별 어휘 학습 콘텐츠 1,200개) ──
 const ALL: VocabEntry[] = VOCAB_WORDS.map(([word, meaning, sentence, t, grade, review]) => ({ word, meaning, sentence, topic: VOCAB_TOPICS[t][1], band: VOCAB_TOPICS[t][0], grade, review: review === 1 }));
@@ -120,17 +136,17 @@ export interface WordPick {
 
 /**
  * 그날의 어휘와 나온 까닭 (같은 날에는 언제 열어도 같은 어휘).
- *  1. 선생님이 그 주 그 요일에 정해 둔 어휘
+ *  1. 선생님이 그 단계의 그 주 그 요일에 정해 둔 어휘
  *  2. 금요일은 선생님이 추가한 어휘가 있으면 그 가운데 하나
  *  3. 이번 주 주제의 어휘 (월~금 차례로, 주말에는 금요일 것)
  */
 export function pickOfDay(book: WordBook, date: Date): WordPick | null {
   const day = weekdayIndex(date);
-  const set = book.weeks[weekKey(date)]?.[day];
+  const set = book.weeks[book.level]?.[weekKey(date)]?.[day];
   if (set?.word.trim()) return { entry: set, from: 'set' };
   const week = weekNo(date);
   const at = day < 0 ? WEEK - 1 : day;
-  const custom = book.custom.filter((w) => w.word.trim());
+  const custom = (book.custom[book.level] ?? []).filter((w) => w.word.trim());
   if (custom.length && at === WEEK - 1) return { entry: custom[week % custom.length], from: 'custom' };
   const bundles = BUNDLES[book.level];
   const bundle = bundles[week % bundles.length];
@@ -167,7 +183,7 @@ export const VOCAB_SOURCE = {
   url: 'https://www.korean.go.kr/front/reportData/reportDataView.do?report_seq=1160',
 };
 /** 국립국어원이 밝힌 등급별 나이 · 학년 */
-const GRADES = ['', '1등급(4~6세 · 학교 가기 전)', '2등급(7~8세 · 초등 1~2학년)', '3등급(9~10세 · 초등 3~4학년)', '4등급(11~12세 · 초등 5~6학년)'];
+const GRADES = ['', '1등급(4~6세)', '2등급(7~8세 · 초등 1~2학년)', '3등급(9~10세 · 초등 3~4학년)', '4등급(11~12세 · 초등 5~6학년)'];
 const BAND_GRADE: Record<VocabBand, number> = { preschool: 1, grade12: 2, grade34: 3, grade56: 4 };
 /** 이 어휘의 근거 한 줄 */
 export function sourceLine(w: VocabEntry): string {

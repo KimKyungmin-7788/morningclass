@@ -9,7 +9,7 @@ import { presentStudents } from '@/core/data/eligible';
 import { useCurrentClass } from '@/core/data/store';
 import type { Student } from '@/core/data/types';
 import { WordSheet } from '@/features/worksheets/Worksheets';
-import { EVENTS, TOPICS, VOCAB_SOURCE, VOCAB_STATS, WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, eventWords, findVocab, fitText, levelOf, pickOfDay, seasonalEvents, sourceLine, wordSpan, wordsOfWeek, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, type WordBook, type WordEntry, type WordLevel, type WordPick } from './model';
+import { EVENTS, TOPICS, emptyBook, VOCAB_SOURCE, VOCAB_STATS, WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, eventWords, findVocab, fitText, levelOf, pickOfDay, seasonalEvents, sourceLine, wordSpan, wordsOfWeek, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, type WordBook, type WordEntry, type WordLevel, type WordPick } from './model';
 
 // 오늘의 어휘 창: 낱말 · 뜻 · 문장을 크게 보여 주고, 읽기 · 쓰기 · 말하기 세 가지 활동을 한다. 창 아래에는 어휘의 출처와 근거를 밝힌다.
 // 제목 줄의 "어휘 정하기"에서 단계, 이번 주 요일별 어휘, 추가한 어휘를 고친다.
@@ -320,7 +320,7 @@ function SourceFoot({ entry }: { entry?: WordEntry }) {
         <summary>근거 자세히 보기</summary>
         <ul>
           <li><b>단계</b> {WORD_LEVELS.map((l) => `${l.label} = ${l.desc} ${TOPICS[l.id].length * 20}개`).join(' · ')}. 주제 {VOCAB_STATS.topics}개에 20개씩, 모두 {VOCAB_STATS.total.toLocaleString()}개예요.</li>
-          <li><b>고른 방법</b> 국립국어원 목록의 1~4등급(학교 가기 전~초등 6학년) 23,000개와 하나씩 견주었어요. {VOCAB_STATS.listed.toLocaleString()}개는 그 목록에 있는 어휘이고, {VOCAB_STATS.added}개는 목록에 없어 주제에 맞춰 더한 어휘예요.</li>
+          <li><b>고른 방법</b> 국립국어원 목록의 1~4등급(4세~초등 6학년) 23,000개와 하나씩 견주었어요. {VOCAB_STATS.listed.toLocaleString()}개는 그 목록에 있는 어휘이고, {VOCAB_STATS.added}개는 목록에 없어 주제에 맞춰 더한 어휘예요.</li>
           <li><b>알아 둘 점</b> 등급은 국립국어원이 나이 · 학년에 따라 나눈 것이고, 학년마다 꼭 외워야 하는 어휘 목록은 아니에요. 단계는 학생에게 맞춰 골라 주세요.</li>
           <li><b>뜻과 문장</b> 아직 선생님 감수와 학생 검증을 거치지 않은 초안이에요. 어색한 곳은 "어휘 정하기"에서 고쳐 쓸 수 있어요.</li>
           <li><b>시기에 맞춘 어휘</b> "어휘 정하기"의 목록에서 계절 · 국경일 · 기념일 · 학교 행사에 어울리는 어휘를 권해요. 국경일 · 기념일 날짜는 행정안전부, 설날 · 추석 날짜는 우주항공청 월력요항을 따랐고, 어느 날에 어느 어휘를 잇는지는 편집에서 정한 제안이에요.</li>
@@ -421,38 +421,46 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
   const keys = mondays.map(weekKey);
   const [at, setAt] = useState(weekdayIndex(date) < 0 ? 1 : 0);   // 주말에 열면 다음 주부터 보여 준다 (미리 정해 두는 때이므로)
   const [level, setLevel] = useState(book.level);
-  const [weeks, setWeeks] = useState<Record<string, WordEntry[]>>(() => Object.fromEntries(keys.map((k) => [k, DAYS.map((_, i) => book.weeks[k]?.[i] ?? blank())])));
-  const [custom, setCustom] = useState<WordEntry[]>(() => book.custom.map((w) => ({ ...w })));
+  // 정해 둔 어휘 · 추가한 어휘는 단계마다 따로 — 위에서 고른 단계의 것을 고친다
+  const [allWeeks, setAllWeeks] = useState(() => Object.fromEntries(WORD_LEVELS.map((l) => [l.id, Object.fromEntries(keys.map((k) => [k, DAYS.map((_, i) => book.weeks[l.id]?.[k]?.[i] ?? blank())]))])) as Record<WordLevel, Record<string, WordEntry[]>>);
+  const [allCustom, setAllCustom] = useState(() => Object.fromEntries(WORD_LEVELS.map((l) => [l.id, (book.custom[l.id] ?? []).map((w) => ({ ...w }))])) as Record<WordLevel, WordEntry[]>);
+  const weeks = allWeeks[level];
+  const custom = allCustom[level];
+  const setCustom = (list: WordEntry[]) => setAllCustom({ ...allCustom, [level]: list });
   const [listAt, setListAt] = useState(-1);   // 목록에서 고르는 중인 요일
   const [listEvent, setListEvent] = useState('');   // 목록을 열 때 먼저 보여 줄 시기
   const key = keys[at];
   const week = weeks[key];
   const clean = (w: WordEntry): WordEntry => ({ word: w.word.trim(), meaning: w.meaning.trim(), sentence: w.sentence.trim() });
-  const setDay = (i: number, v: WordEntry) => setWeeks({ ...weeks, [key]: week.map((x, j) => (j === i ? v : x)) });
+  const setDay = (i: number, v: WordEntry) => setAllWeeks({ ...allWeeks, [level]: { ...weeks, [key]: week.map((x, j) => (j === i ? v : x)) } });
   /** 비워 둔 요일에 저절로 나올 어휘 (지금 고른 단계 · 추가한 어휘 기준) */
-  const auto = (i: number) => pickOfDay({ level, weeks: {}, custom }, new Date(mondays[at].getFullYear(), mondays[at].getMonth(), mondays[at].getDate() + i));
+  const auto = (i: number) => pickOfDay({ ...emptyBook(), level, custom: allCustom }, new Date(mondays[at].getFullYear(), mondays[at].getMonth(), mondays[at].getDate() + i));
   const theme = auto(0)?.topic;
   const near = seasonalEvents(mondays[at]).filter((e) => eventWords(e, level).length);
   const save = () => {
-    const next = { ...book.weeks };
-    for (const k of keys) {
-      const filled = weeks[k].map((w) => (w.word.trim() ? clean(w) : null));
-      if (filled.some(Boolean)) next[k] = filled; else delete next[k];
+    const next = emptyBook();
+    for (const l of WORD_LEVELS) {
+      next.weeks[l.id] = { ...book.weeks[l.id] };
+      for (const k of keys) {
+        const filled = allWeeks[l.id][k].map((w) => (w.word.trim() ? clean(w) : null));
+        if (filled.some(Boolean)) next.weeks[l.id][k] = filled; else delete next.weeks[l.id][k];
+      }
+      next.custom[l.id] = allCustom[l.id].filter((w) => w.word.trim()).map(clean);
     }
-    onSave({ level, weeks: next, custom: custom.filter((w) => w.word.trim()).map(clean) });
+    onSave({ ...next, level });
     playSound('save'); toast('어휘를 저장했어요', 'success');
     onBack();
   };
   return (
     <div className="wd-setup">
       <div className="wd-sec">
-        <h3>단계 <small>정해 두지 않은 날에는 이 단계의 어휘가 주마다 한 주제씩 나와요</small></h3>
+        <h3>단계 <small>아래의 정하는 어휘와 추가한 어휘는 단계마다 따로예요. 정해 두지 않은 날에는 이 단계의 어휘가 주마다 한 주제씩 나와요</small></h3>
         <div className="wd-level-pick">
-          {WORD_LEVELS.map((l) => <button key={l.id} className={l.id === level ? 'on' : ''} aria-pressed={l.id === level} onClick={() => setLevel(l.id)}><b>{l.label}</b><span>{l.desc}</span><small>{TOPICS[l.id].length * 20}개</small></button>)}
+          {WORD_LEVELS.map((l) => <button key={l.id} className={l.id === level ? 'on' : ''} aria-pressed={l.id === level} onClick={() => { setLevel(l.id); setListAt(-1); }}><b>{l.label}</b><span>{l.desc}</span></button>)}
         </div>
       </div>
       <div className="wd-sec">
-        <h3>주마다 정하는 어휘 <small>비워 둔 요일은 흐리게 적힌 어휘가 저절로 나와요{theme ? ` (이 주의 주제: ${theme})` : ''}</small></h3>
+        <h3>{levelOf(level).label} 단계 · 주마다 정하는 어휘 <small>비워 둔 요일은 흐리게 적힌 어휘가 저절로 나와요{theme ? ` (이 주의 주제: ${theme})` : ''}</small></h3>
         <div className="mv-toggle">
           {keys.map((k, i) => <button key={k} className={i === at ? 'on' : ''} aria-pressed={i === at} onClick={() => { setAt(i); setListAt(-1); }}>{i === 0 ? '이번 주' : '다음 주'} ({Number(k.slice(4, 6))}월 {Number(k.slice(6))}일~)</button>)}
         </div>
@@ -465,7 +473,7 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
         {week.map((w, i) => {
           const pick = auto(i);
           return (
-            <div key={`${key}-${i}`} className="wd-day">
+            <div key={`${level}-${key}-${i}`} className="wd-day">
               <WordRow label={DAYS[i]} value={w} hint={pick?.entry.word} onChange={(v) => setDay(i, v)} onList={() => { setListEvent(''); setListAt(listAt === i ? -1 : i); }} />
               {listAt === i && <WordPicker key={listEvent} level={level} event={listEvent} date={mondays[at]} custom={custom} onPick={(v) => { setDay(i, v); setListAt(-1); playSound('select'); }} onClose={() => setListAt(-1)} />}
             </div>
@@ -473,8 +481,8 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
         })}
       </div>
       <div className="wd-sec">
-        <h3>추가한 어휘 <small>기본 목록에 없는 어휘 — 금요일마다 하나씩 차례로 나와요</small></h3>
-        {custom.map((w, i) => <WordRow key={i} label="＋" value={w} onChange={(v) => setCustom(custom.map((x, j) => (j === i ? v : x)))} onRemove={() => setCustom(custom.filter((_, j) => j !== i))} />)}
+        <h3>{levelOf(level).label} 단계 · 추가한 어휘 <small>기본 목록에 없는 어휘 — 금요일마다 하나씩 차례로 나와요</small></h3>
+        {custom.map((w, i) => <WordRow key={`${level}-${i}`} label="＋" value={w} onChange={(v) => setCustom(custom.map((x, j) => (j === i ? v : x)))} onRemove={() => setCustom(custom.filter((_, j) => j !== i))} />)}
         <button className="wd-add" onClick={() => setCustom([...custom, blank()])}>＋ 어휘 추가</button>
       </div>
       <SourceFoot />
@@ -509,7 +517,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
           <div className="wd-main">
             <div className="wd-head">
               <div className={`wd-tag ${pick.from}`}>{pickLabel(pick)}</div>
-              <LevelToggle level={book.level} onChange={(level) => { playSound('select'); onSave({ ...book, level }); if (pick.from === 'set' || pick.from === 'custom') toast(`${levelOf(level).label} 단계로 바꿨어요. 오늘은 ${pickLabel(pick)}가 나와요`); }} />
+              <LevelToggle level={book.level} onChange={(level) => { playSound('select'); onSave({ ...book, level }); }} />
             </div>
             <button className={`wd-word${entry.word.length > 4 ? ' long' : ''}`} onClick={() => say(entry.word)} aria-label={`${entry.word} 듣기`}>{entry.word}<i className="ph-fill ph-speaker-high" /></button>
             <button className="wd-line" onClick={() => say(entry.meaning)}><span>뜻</span>{entry.meaning || '뜻을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
