@@ -57,7 +57,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 export async function drawCertificate(d: CertData): Promise<HTMLCanvasElement> {
   const t = THEME[d.shape];
   try { await Promise.all([document.fonts.load(`700 80px ${FONT}`), document.fonts.load(`400 40px ${FONT}`)]); } catch { /* 글꼴이 없어도 기본 글꼴로 그린다 */ }
-  const stickers = d.shape === 'tree' ? [] : (await Promise.all([1, 2, 3, 4].map((n) => loadImage(`/img/praise/${d.shape}-sticker-${n}.webp`)))).filter((x): x is HTMLImageElement => !!x);
+  const stickers = (await Promise.all([1, 2, 3, 4].map((n) => loadImage(`/img/praise/${d.shape}-sticker-${n}.webp`)))).filter((x): x is HTMLImageElement => !!x);
 
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
@@ -71,7 +71,7 @@ export async function drawCertificate(d: CertData): Promise<HTMLCanvasElement> {
   ctx.strokeStyle = gold; ctx.lineWidth = 22; roundRect(ctx, 34, 34, W - 68, H - 68, 36); ctx.stroke();
   ctx.strokeStyle = t.edge; ctx.lineWidth = 3; roundRect(ctx, 62, 62, W - 124, H - 124, 22); ctx.stroke();
 
-  // 네 귀퉁이 꾸밈: 받은 스티커 그림 (나무는 그림이 없어 이모지)
+  // 네 귀퉁이 꾸밈: 받은 스티커 그림 (그림을 못 불러오면 이모지)
   const corners: [number, number][] = [[128, 128], [W - 128, 128], [128, H - 128], [W - 128, H - 128]];
   corners.forEach(([x, y], i) => {
     if (stickers.length) { const img = stickers[i % stickers.length]; ctx.drawImage(img, x - 52, y - 52, 104, 104); }

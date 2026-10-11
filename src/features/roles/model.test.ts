@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RoleItem } from '@/core/data/types';
-import { cleanRoles, roleProgress, roleViews, rotateRoles, toggleDone, toggleMember, withoutRole } from './model';
+import { cleanRoles, dealRoles, roleProgress, roleViews, rotateRoles, toggleDone, toggleMember, withoutRole } from './model';
 
 const students = [{ id: 's1', name: '가' }, { id: 's2', name: '나' }, { id: 's3', name: '다' }, { id: 's4', name: '라', archived: true as const }];
 const roles: RoleItem[] = [
@@ -49,5 +49,13 @@ describe('1인 1역할', () => {
     const cleaned = cleanRoles([...roles, { id: 'r4', icon: '⭐', name: '  ', desc: '', students: ['s1'] }, { id: 'r5', icon: '⭐', name: ' 책 정리 ', desc: ' 책을 꽂아요 ', students: ['s1', 's1', 'gone'] }], ['s1', 's2', 's3']);
     expect(cleaned.map((r) => r.id)).toEqual(['r1', 'r2', 'r3', 'r5']);
     expect(cleaned[3]).toMatchObject({ name: '책 정리', desc: '책을 꽂아요', students: ['s1'] });
+  });
+  it('골고루 나누면 빈 역할도, 역할 없는 학생도 없다', () => {
+    const many = dealRoles(roles, ['s1', 's2', 's3', 's4', 's5']);            // 학생이 더 많다
+    expect(many.map((r) => r.students)).toEqual([['s1', 's4'], ['s2', 's5'], ['s3']]);
+    const few = dealRoles(roles, ['s1', 's2']);                                // 역할이 더 많다
+    expect(few.map((r) => r.students)).toEqual([['s1'], ['s2'], ['s1']]);
+    expect(dealRoles([], ['s1'])).toEqual([]);
+    expect(dealRoles(roles, [])).toBe(roles);
   });
 });

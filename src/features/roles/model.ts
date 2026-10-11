@@ -74,6 +74,17 @@ export function rotateRoles(roles: RoleItem[]): RoleItem[] {
   return roles.map((r, i) => ({ ...r, students: roles[(i + roles.length - 1) % roles.length].students }));
 }
 
+/**
+ * 골고루 나눈다 (맡은 친구를 모두 비우고 처음부터): 명단 순서대로 역할에 한 명씩.
+ * 학생이 더 많으면 첫 역할부터 한 명씩 더 맡고, 역할이 더 많으면 학생이 돌아가며 하나씩 더 맡는다 — 빈 역할도, 역할 없는 학생도 없다.
+ */
+export function dealRoles(roles: RoleItem[], studentIds: StudentId[]): RoleItem[] {
+  if (!roles.length || !studentIds.length) return roles;
+  const out = roles.map((r) => ({ ...r, students: [] as StudentId[] }));
+  for (let i = 0; i < Math.max(roles.length, studentIds.length); i += 1) out[i % roles.length].students.push(studentIds[i % studentIds.length]);
+  return out;
+}
+
 /** 아직 역할이 없는 학생 */
 export function withoutRole<S extends { id: StudentId; archived?: true }>(roles: RoleItem[], students: S[]): S[] {
   const taken = new Set(roles.flatMap((r) => r.students));

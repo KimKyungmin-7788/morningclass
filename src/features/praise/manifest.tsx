@@ -27,7 +27,7 @@ const UNLOCK_MS = 5 * 60 * 1000;
 let unlockedUntil = 0;
 const iconOf = (shape: PraiseConfig['shape']) => PRAISE_SHAPES.find((s) => s.id === shape)?.icon ?? '🍇';
 
-/** 줄별 칸 수를 가운데가 넓게 나눈다 (별 판: 별 모양 틀 안의 밤하늘에 맞춘 배치). 예: 10 → 3·4·3, 20 → 4·6·6·4 */
+/** 줄별 칸 수를 가운데가 넓게 나눈다 (별 판: 별 모양 틀 안의 밤하늘, 나무 판: 둥근 나무 머리에 맞춘 배치). 예: 10 → 3·4·3, 20 → 4·6·6·4 */
 function midRows(n: number): number[] {
   const count = n <= 12 ? 3 : n <= 24 ? 4 : 5;
   const weights = Array.from({ length: count }, (_, i) => 1 + 0.5 * Math.sin(((i + 0.5) / count) * Math.PI));
@@ -46,6 +46,8 @@ function midRows(n: number): number[] {
 const ART: Partial<Record<PraiseConfig['shape'], { rows: (n: number) => number[]; area: [number, number]; pitch: number; colors: number[] }>> = {
   grape: { rows: clusterRows, area: [62, 66], pitch: 0.86, colors: [1, 2, 1, 3, 2, 1, 4, 1, 3, 2] },
   star: { rows: midRows, area: [60, 49], pitch: 1, colors: [1, 2, 1, 3, 1, 4, 1, 2, 3, 1] },
+  // 나무: 잎(연두 · 초록)을 주로, 사이사이 꽃과 사과
+  tree: { rows: midRows, area: [64, 35], pitch: 0.92, colors: [1, 2, 1, 3, 2, 1, 4, 1, 2, 3] },
 };
 /** 큰 판에서 스티커가 틀 안에 꼭 맞는 크기 (틀 너비 = 100cqw 기준) */
 function artFit(shape: PraiseConfig['shape'], size: number): string {
@@ -73,7 +75,6 @@ function Board({ shape, size, now, d }: { shape: PraiseConfig['shape']; size: nu
   return (
     <div className={`pr-board ${shape}`} role="img" aria-label={`${size}칸 중 ${Math.min(now, size)}칸`}>
       <div className="pr-dots">{Array.from({ length: size }, (_, i) => dot(i))}</div>
-      {shape === 'tree' && <span className="pr-trunk" aria-hidden="true" />}
     </div>
   );
 }
@@ -371,7 +372,7 @@ function PraiseCard({ size }: CardProps) {
               return (
                 <div className={`pr-stage ${cfg.shape}${done ? ' full' : ''}`} role="tabpanel">
                   {ART[cfg.shape] ? (
-                    // 그림이 있는 모양(포도 · 별): 틀 그림 위에 스티커를 올리고, 팻말에 학생 이름을 적는다
+                    // 그림이 있는 모양(포도 · 나무 · 별): 틀 그림 위에 스티커를 올리고, 팻말에 학생 이름을 적는다
                     <div className={`pr-art ${cfg.shape}`}>
                       <img className="pr-art-bg" src={`/img/praise/${cfg.shape}-bg.webp`} alt="" draggable={false} />
                       <div className="pr-art-sign">{shown.name}</div>
