@@ -199,5 +199,5 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
   );
 }
 
-const manifest: FeatureManifest = { id: 'timetable', cards: [{ id: 'timetable', col: 1, order: 1, Component: TimetableCard }] };
+const manifest: FeatureManifest = { id: 'timetable', cards: [{ id: 'timetable', Component: TimetableCard }] };
 export default manifest;

@@ -43,6 +43,8 @@ export interface ClassRoom {
     mealHidden?: string[];
     tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'noise' | 'board', boolean>>;
     video?: { url: string; title: string };
+    /** 대시보드 배치표: 칸 이름 → 카드 이름 (null = 빈 칸). 없으면 기본 배치 (features/layout/model.ts) */
+    layout?: Record<string, string | null>;
   };
 }
 

@@ -104,7 +104,7 @@ function VideoCard() {
   const id = extractVideoId(video.url);
   return (
     <>
-      <CardFrame id="book" label="영상 재생" state="filled" style={{ flex: '0 0 90px', minHeight: 90, padding: 10 }}
+      <CardFrame id="book" label="영상 재생" state="filled" style={{ padding: 10 }}
         onOpen={() => { ensureAudio(); playSound('select'); setOpen(true); }}>
         <div className="book-shortcut">
           {id
@@ -122,5 +122,5 @@ function VideoCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'video', cards: [{ id: 'book', col: 3, order: 4, Component: VideoCard }] };
+const manifest: FeatureManifest = { id: 'video', cards: [{ id: 'book', Component: VideoCard }] };
 export default manifest;

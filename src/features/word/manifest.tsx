@@ -31,5 +31,5 @@ function WordCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'word', cards: [{ id: 'word', col: 0, order: 2, Component: WordCard }] };
+const manifest: FeatureManifest = { id: 'word', cards: [{ id: 'word', Component: WordCard }] };
 export default manifest;

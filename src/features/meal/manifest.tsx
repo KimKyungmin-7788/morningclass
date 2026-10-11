@@ -29,7 +29,7 @@ function MealCard() {
   const alerts = mealAlertNames(dishes, cls);
   return (
     <>
-      <CardFrame id="meal" label="오늘의 급식" state={dishes.length ? 'filled' : 'empty'} style={{ flex: 1.1, minHeight: 110 }}
+      <CardFrame id="meal" label="오늘의 급식" state={dishes.length ? 'filled' : 'empty'}
         onOpen={() => { ensureAudio(); playSound('select'); setView('meal'); }}>
         <CardTitle {...CHIP} extra={dishes.length ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 급식</CardTitle>
         {dishes.length ? (
@@ -334,5 +334,5 @@ function AllergyWindow({ cls, onBack }: { cls: ClassRoom; onBack: () => void }) 
   );
 }
 
-const manifest: FeatureManifest = { id: 'meal', cards: [{ id: 'meal', col: 3, order: 1, Component: MealCard }] };
+const manifest: FeatureManifest = { id: 'meal', cards: [{ id: 'meal', Component: MealCard }] };
 export default manifest;

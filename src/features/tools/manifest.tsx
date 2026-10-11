@@ -69,7 +69,7 @@ function ToolsCard() {
   return (
     <>
       {/* 아이콘 한 줄만 있으면 되므로 내용만큼만 높이를 쓴다 — 남는 높이는 급식·유의사항 카드가 쓴다 */}
-      <CardFrame id="tools" label="수업 도구" state="plain" style={{ flex: '0 0 auto' }}>
+      <CardFrame id="tools" label="수업 도구" state="plain">
         <CardTitle icon="ph-fill ph-wrench" tint="#e5e7eb" color="#374151"
           extra={<span className="tl-side"><button title={`쓸 도구 고르기 (${MAX_ON_CARD}개까지)`} aria-label="쓸 도구 고르기" onClick={() => { ensureAudio(); setPicking(true); }}><i className="ph-bold ph-sliders-horizontal" /></button></span>}>
           수업 도구
@@ -193,5 +193,5 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
   );
 }
 
-const manifest: FeatureManifest = { id: 'tools', cards: [{ id: 'tools', col: 3, order: 3, Component: ToolsCard }] };
+const manifest: FeatureManifest = { id: 'tools', cards: [{ id: 'tools', Component: ToolsCard }] };
 export default manifest;

@@ -41,18 +41,17 @@ function HelperCard() {
     ? <div className="v3-title"><span className="v3-ico lk-ico"><i className="ph-fill ph-clover" /></span>{title}{toggle}</div>
     : <CardTitle icon="ph-duotone ph-dice-five" tint="#ede9fe" color="#7c3aed" extra={toggle}>{title}</CardTitle>;
   const stars = lucky && <><span className="lk-star s1">✦</span><span className="lk-star s2">✧</span><span className="lk-star s3">✦</span></>;
-  const style = { flex: '0 0 auto', minHeight: 170 };
 
   if (!students.length) {
     return (
-      <CardFrame id="helper" label="오늘의 도우미 뽑기" className={lucky ? 'lucky-card' : ''} style={{ ...style, cursor: 'default' }}>
+      <CardFrame id="helper" label="오늘의 도우미 뽑기" className={lucky ? 'lucky-card' : ''} style={{ cursor: 'default' }}>
         {chip}<div className="card-hint" style={{ fontSize: 15 }}>⚙️ 설정에서 학생을 등록해 주세요</div>
       </CardFrame>
     );
   }
   return (
     <>
-      <CardFrame id="helper" label="오늘의 도우미 뽑기" state={picked.length ? 'filled' : 'empty'} className={lucky ? 'lucky-card' : ''} style={style}
+      <CardFrame id="helper" label="오늘의 도우미 뽑기" state={picked.length ? 'filled' : 'empty'} className={lucky ? 'lucky-card' : ''}
         onOpen={() => { ensureAudio(); setOpen(true); }}>
         {chip}
         {picked.length ? (
@@ -193,5 +192,5 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
   );
 }
 
-const manifest: FeatureManifest = { id: 'helper', cards: [{ id: 'helper', col: 2, order: 2, Component: HelperCard }] };
+const manifest: FeatureManifest = { id: 'helper', cards: [{ id: 'helper', Component: HelperCard }] };
 export default manifest;

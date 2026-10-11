@@ -47,7 +47,7 @@ function DdayCard() {
 
   return (
     <>
-      <CardFrame id="dday" label="디데이" state={list.length ? 'filled' : 'empty'} style={{ flex: '0 0 auto', minHeight: 170 }}
+      <CardFrame id="dday" label="디데이" state={list.length ? 'filled' : 'empty'}
         onOpen={() => { ensureAudio(); playSound('select'); setOpen(true); }}>
         <CardTitle icon="ph-fill ph-flag-banner" tint="#e0e7ff" color="#4f46e5">D-DAY</CardTitle>
         {list.length
@@ -74,5 +74,5 @@ function DdayCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', col: 1, order: 2, Component: DdayCard }] };
+const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', Component: DdayCard }] };
 export default manifest;
