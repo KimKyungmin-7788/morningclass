@@ -11,6 +11,8 @@ import { recordsOf } from '@/core/data/backupActions';
 import { fetchMealRows, pickLunch, searchSchools, type SchoolRow } from '@/core/net/neis';
 import type { ClassRoom } from '@/core/data/types';
 import { AttendanceDashboard } from '@/features/attendance/Dashboard';
+import { usePrefs } from '@/core/prefs';
+import { useLayoutEdit } from '@/features/layout/store';
 import { TimetableTab } from './TimetableTab';
 import { BackupTab } from './BackupTab';
 
@@ -79,6 +81,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
               {tab === 'info' && (
                 <InfoTab draft={draft} patch={patch} switcher={switcher('학급 선택 · 전환 (여러 학급 동시 저장)', '학급을 추가하면 학생·시간표·출결 기록이 학급별로 따로 저장돼요.')}
                   canDelete={classes.length > 1}
+                  onDecorate={() => { void commit().then(() => { playSound('select'); usePrefs.getState().set({ appMode: 'morning' }); useLayoutEdit.getState().setEditing(true); close(); }); }}
                   onDelete={async () => {
                     if (!confirm(`'${draft.className || '이 학급'}'의 학생·시간표·모든 출결 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
                     await deleteClass(cls.id);
@@ -105,7 +108,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
 
 interface TabProps { draft: ClassRoom; patch: (p: Partial<ClassRoom>) => void }
 
-function InfoTab({ draft, patch, switcher, canDelete, onDelete }: TabProps & { switcher: React.ReactNode; canDelete: boolean; onDelete: () => void }) {
+function InfoTab({ draft, patch, switcher, canDelete, onDelete, onDecorate }: TabProps & { switcher: React.ReactNode; canDelete: boolean; onDelete: () => void; onDecorate: () => void }) {
   const today = useDay((s) => s.date);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SchoolRow[] | 'loading' | 'none' | 'error' | null>(null);
@@ -179,7 +182,7 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete }: TabProps & { s
         <button className="btn-test" onClick={() => void testMeal()}>🧪 급식 연동 테스트</button>
         {test && <div className="test-result">{test}</div>}
       </div>
-      <LayoutLock classId={draft.id} />
+      <LayoutStart onStart={onDecorate} />
       {canDelete && (
         <div className="field" style={{ marginTop: 18, borderTop: '1px solid #eef0f5', paddingTop: 16 }}>
           <button className="btn-test" style={{ background: 'var(--danger)', width: '100%', margin: 0 }} onClick={onDelete}>🗑️ 현재 학급 삭제</button>
@@ -190,22 +193,13 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete }: TabProps & { s
   );
 }
 
-/** 화면 꾸미기 잠금. 누르는 즉시 저장된다 (학생이 실수로 배치를 바꾸지 않게 기본은 꺼짐). */
-function LayoutLock({ classId }: { classId: string }) {
-  const stored = useData((s) => s.classes.find((c) => c.id === classId));
-  const saveClass = useData((s) => s.saveClass);
-  if (!stored) return null;
-  const on = stored.options.layoutEdit === true;
+/** 화면 꾸미기로 바로 들어가는 단추. 아침교실 화면에서 카드를 길게 눌러도 들어갈 수 있다(확인 문제를 맞혀야 한다). */
+function LayoutStart({ onStart }: { onStart: () => void }) {
   return (
     <div className="field">
       <label>화면 꾸미기</label>
-      <div className="level-switcher">
-        <button className={`class-chip${on ? ' active' : ''}`} aria-pressed={on}
-          onClick={() => { void saveClass({ ...stored, options: { ...stored.options, layoutEdit: !on } }); playSound('select'); }}>
-          {on ? '🔓 화면 꾸미기 허용 켜짐' : '🔒 화면 꾸미기 허용 꺼짐'}
-        </button>
-      </div>
-      <div className="hint">켜 두면 아침교실 화면에서 카드를 <b>길게 눌러</b> 자리를 바꾸거나 빼고 넣을 수 있어요. 다 꾸민 뒤에는 꺼 두면 실수로 바뀌지 않아요. 누르면 바로 반영돼요.</div>
+      <button className="btn-test" style={{ margin: 0 }} onClick={onStart}>🧩 지금 꾸미기</button>
+      <div className="hint">카드의 자리를 바꾸거나 빼고 넣을 수 있어요. 아침교실 화면에서 카드를 <b>길게 누르고</b> 곱셈 문제를 맞혀도 들어갈 수 있어요. 누르면 지금까지 고친 설정을 저장하고 화면 꾸미기로 넘어가요.</div>
     </div>
   );
 }

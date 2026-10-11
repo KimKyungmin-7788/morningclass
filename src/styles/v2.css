@@ -260,7 +260,6 @@ body:has(#lesson-present) .backup-reminder { display: none; }
 /* ── 날씨 카드 안의 미세먼지 한 줄 ── */
 .dust-wrap{position:relative;z-index:2;margin-top:auto;padding-top:8px}
 .dust-chip{display:flex;align-items:center;gap:6px;width:100%;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.82);border:1.5px dashed #d8b4fe;font-size:clamp(13px,.95vw,16px);font-weight:var(--fw-label);color:var(--text-sub);transition:.15s}
-.dust-chip:hover{border-color:#9333ea}
 .dust-chip i{color:#9333ea;font-size:1.2em}
 .dust-chip b{margin-left:auto;font-weight:var(--fw-title);color:var(--text);white-space:nowrap}
 .dust-chip b.none{font-weight:var(--fw-label);color:var(--text-sub)}
@@ -382,10 +381,10 @@ body:has(#lesson-present) .backup-reminder { display: none; }
 }
 .slot{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;border-radius:32px}
 .slot.empty{min-height:72px;border:2px dashed rgba(148,163,184,.38);background:rgba(255,255,255,.14)}
-main.lay-can .slot{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+main .slot{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 
 main.lay-editing .slot{touch-action:none;cursor:grab}
-main.lay-editing .slot>.card{pointer-events:none;outline:2px dashed rgba(91,182,255,.75);outline-offset:-2px}
+main.lay-editing .slot>.card{pointer-events:none}
 main.lay-editing .slot.empty{border-color:var(--primary);background:rgba(91,182,255,.08)}
 main.lay-editing .slot.empty::after{content:'+';position:absolute;inset:0;display:grid;place-items:center;font-size:32px;font-weight:700;color:var(--primary);opacity:.6}
 main.lay-editing .slot.lay-dragging>.card{opacity:.3}
@@ -553,3 +552,72 @@ main.lay-editing .slot.lay-over>.card{transform:scale(.97)}
 .slot[data-size=large] .lucky-winner{padding:.5em 1.1em;border-radius:22px;font-size:clamp(26px,2.6vw,50px)}
 .slot[data-size=large] .lucky-winner .lw-nm{font-size:1em}
 .slot[data-size=large] #card-helper .card-hint{font-size:clamp(18px,1.6vw,28px)!important}
+
+/* ── 화면 꾸미기 다듬기: 확인 문제 줄, 보관함 타일, 놓을 자리 안내 ── */
+.lay-gate{display:flex;flex-direction:column;align-items:center;gap:18px;padding:8px 0 4px}
+.lay-gate-hint{color:var(--text-sub);font-size:var(--fs-body)}
+.lay-gate-q{font-family:'Paperozi','Noto Sans KR',sans-serif;font-size:clamp(48px,5vw,84px);font-weight:var(--fw-display);color:var(--text);white-space:nowrap;padding:0 6px}
+.lay-gate-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:100%}
+.lay-btn.num{min-width:0;height:clamp(64px,8vh,96px);border-radius:20px;font-size:clamp(28px,2.6vw,44px);font-weight:var(--fw-display);border-color:var(--primary);color:var(--primary-dark)}
+.lay-btn.num:hover{background:var(--primary);color:#fff}
+.lay-btn.arrow{width:44px;padding:0;display:grid;place-items:center;font-size:20px}
+.lay-drawer{min-height:84px;min-width:0;animation:layRise .25s ease}
+#morning-view{grid-template-columns:minmax(0,1fr)}
+.lay-drawer-title b{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:99px;background:var(--primary);color:#fff;font-size:14px}
+.lay-chips{scrollbar-width:none;padding:4px 2px;touch-action:none;cursor:grab}
+.lay-chips.grabbing{cursor:grabbing}
+.lay-chips::-webkit-scrollbar{display:none}
+.lay-chip{height:60px;padding:0 20px 0 10px;border-radius:20px;font-size:clamp(16px,1.2vw,21px);gap:10px;transition:transform .15s,box-shadow .15s}
+.lay-chip:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(160,175,200,.45)}
+.lay-chip .v3-ico{width:40px;height:40px;font-size:21px}
+.lay-chip.lay-ghost{height:60px!important}
+/* 끌고 있는 것을 놓으면 어떻게 되는지 그 자리에 알려 준다 */
+.slot.lay-over::after,.lay-drawer.lay-over::after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;padding:8px 18px;border-radius:99px;background:var(--primary-dark);color:#fff;font-size:clamp(15px,1.2vw,20px);font-weight:var(--fw-title);white-space:nowrap;box-shadow:0 6px 16px rgba(15,23,42,.25);pointer-events:none;opacity:1}
+main.lay-editing .slot.lay-over:not(.empty)::after{content:'↔ 바꾸기';top:14px;transform:translateX(-50%)}
+main.lay-editing .slot.empty.lay-over::after{content:'여기에 놓기';inset:auto;left:50%;top:14px;transform:translateX(-50%);display:block;font-size:clamp(15px,1.2vw,20px);font-weight:var(--fw-title);color:#fff;opacity:1}
+.lay-drawer.lay-over::after{content:'보관함에 넣기'}
+.lay-drawer.lay-over>*{opacity:.35}
+/* 카드가 새 자리에 놓일 때 톡 하고 나타난다 */
+main.lay-editing .slot{transition:box-shadow .15s,background .15s}
+/* 수정 모드: 카드가 살짝 흔들린다 (큰 카드일수록 조금만). 흔들리는 동안에는 흐림 효과를 꺼서 전자칠판에서도 가볍게 돈다 */
+main.lay-editing .slot>.card{--jig:.7deg;animation:layPop .28s cubic-bezier(.34,1.56,.64,1),layJiggle .27s ease-in-out .28s infinite alternate;backdrop-filter:none;-webkit-backdrop-filter:none;transform-origin:50% 50%;will-change:transform}
+main.lay-editing .slot>.card:not(.wxc):not(.lucky-card){background-color:rgba(255,255,255,.8)}
+main.lay-editing .slot[data-size=large]>.card{--jig:.3deg}
+main.lay-editing .slot[data-size=small][data-w=wide]>.card{--jig:.45deg}
+main.lay-editing .slot[data-size=tiny]>.card{--jig:.9deg}
+main.lay-editing .slot:nth-child(2n)>.card{animation-duration:.28s,.31s;animation-direction:normal,alternate-reverse}
+main.lay-editing .col:nth-child(2n) .slot>.card{animation-delay:0s,.2s}
+main.lay-editing .slot.lay-over{z-index:3}
+main.lay-editing .slot>.card.lay-preview{animation:none;transition:transform .22s cubic-bezier(.2,.8,.2,1);opacity:.92;box-shadow:0 14px 34px rgba(15,23,42,.22)}
+main.lay-editing .slot.lay-dragging>.card{animation:none}
+@keyframes layJiggle{from{transform:rotate(calc(var(--jig) * -1))}to{transform:rotate(var(--jig))}}
+@keyframes layPop{from{transform:scale(.9);opacity:.4}to{transform:none;opacity:1}}
+@keyframes layRise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){main.lay-editing .slot>.card,.lay-drawer{animation:none}}
+
+/* ── 사용자화 단추(상단 줄)와 바구니 모양 보관함 ── */
+header .actions button.suggest.customize{color:#3730a3;background:#eef2ff;border-color:#c7d2fe}
+header .actions button.suggest.customize i{color:#6366f1}
+header .actions button.suggest.customize:hover{color:#3730a3;background:#e0e7ff}
+header .actions button.suggest.customize.on{color:#fff;background:var(--success);border-color:var(--success)}
+header .actions button.suggest.customize.on i{color:#fff}
+header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
+/* 바구니: 따뜻한 바구니색 바탕에 짜임 무늬와 테두리 바느질 선, 왼쪽에 바구니 그림 */
+.lay-drawer{gap:10px;padding:10px 12px 10px 14px;border:3px solid #e2a15a;border-radius:20px 20px 30px 30px;background:repeating-linear-gradient(90deg,rgba(180,110,40,.07) 0 14px,transparent 14px 28px),linear-gradient(180deg,#fff3dc,#ffe2b8);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),inset 0 8px 14px -8px rgba(146,84,24,.35),0 6px 18px -8px rgba(146,84,24,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
+.lay-drawer::before{content:'';position:absolute;inset:6px;border:2px dashed rgba(180,110,40,.45);border-radius:14px 14px 22px 22px;pointer-events:none}
+.lay-drawer>*{position:relative}
+.lay-basket{flex:none;position:relative;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid #e2a15a;color:#c2701c;font-size:34px;box-shadow:0 3px 8px rgba(146,84,24,.25)}
+.lay-basket b{position:absolute;top:-6px;right:-6px;min-width:24px;height:24px;padding:0 6px;border-radius:99px;display:grid;place-items:center;background:#ef4444;color:#fff;font-size:14px;font-weight:var(--fw-title);border:2px solid #fff}
+.lay-drawer-title{color:#92400e;font-size:clamp(17px,1.3vw,22px)}
+.lay-drawer-hint{display:flex;align-items:center;gap:8px;color:#92400e;font-size:clamp(15px,1.1vw,19px)}
+.lay-drawer-hint i{font-size:1.4em;color:#c2701c;animation:layBob 1s ease-in-out infinite alternate}
+.lay-drawer .lay-chip{border-color:#f1c592;box-shadow:0 3px 0 #e2a15a,0 6px 12px rgba(146,84,24,.18);cursor:grab}
+.lay-drawer .lay-btn:not(.done){border-color:#f1c592;color:#92400e}
+/* 카드를 끌고 바구니 위에 오면: 바구니가 열리듯 밝아지고 바구니 그림이 통통 뛴다 */
+.lay-drawer.lay-over{border-style:solid;background:linear-gradient(180deg,#fffaf0,#ffd9a0);box-shadow:inset 0 0 0 3px #fff,0 0 0 5px rgba(226,161,90,.45),0 10px 24px -8px rgba(146,84,24,.5)}
+.lay-drawer.lay-over>*{opacity:1}
+.lay-drawer.lay-over>.lay-chips,.lay-drawer.lay-over>.lay-btn{opacity:.3}
+.lay-drawer.lay-over .lay-basket{animation:layBob .35s ease-in-out infinite alternate;background:#fff7e6}
+.lay-drawer.lay-over::after{content:'바구니에 넣기';background:#b45309}
+@keyframes layBob{from{transform:translateY(-3px)}to{transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){.lay-drawer-hint i,.lay-drawer.lay-over .lay-basket{animation:none}}

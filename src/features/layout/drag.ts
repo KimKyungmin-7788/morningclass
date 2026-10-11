@@ -16,6 +16,8 @@ interface DragOptions {
 }
 
 const MOVE = 6;
+/** 끄는 동안 그림자의 가장 긴 변(px) */
+const GHOST_MAX = 240;
 
 function targetAt(x: number, y: number): { el: HTMLElement; target: DropTarget } | null {
   const hit = document.elementFromPoint(x, y);
@@ -29,11 +31,24 @@ export function startDrag({ start, source, origin = source, onDrop, onTap }: Dra
   const rect = source.getBoundingClientRect();
   let ghost: HTMLElement | null = null;
   let over: HTMLElement | null = null;
+  /** 칸에서 칸으로 끌 때: 놓으면 자리를 바꿀 카드가 미리 원래 칸 쪽으로 옮겨져 보인다 */
+  let moved: HTMLElement | null = null;
+  const preview = (el: HTMLElement | null) => {
+    if (moved) { moved.style.transform = ''; moved.classList.remove('lay-preview'); moved = null; }
+    const card = el?.dataset.slot && origin.dataset.slot ? el.querySelector<HTMLElement>(':scope > .card') : null;
+    if (!card) return;
+    const from = el!.getBoundingClientRect(); const to = origin.getBoundingClientRect();
+    const scale = Math.min(1, to.width / from.width, to.height / from.height);
+    card.classList.add('lay-preview');
+    card.style.transform = `translate(${to.left + to.width / 2 - (from.left + from.width / 2)}px, ${to.top + to.height / 2 - (from.top + from.height / 2)}px) scale(${scale})`;
+    moved = card;
+  };
   const setOver = (el: HTMLElement | null) => {
     if (over === el) return;
     over?.classList.remove('lay-over');
     over = el;
     over?.classList.add('lay-over');
+    preview(el);
   };
   const finish = () => {
     window.removeEventListener('pointermove', onMove);
@@ -52,6 +67,10 @@ export function startDrag({ start, source, origin = source, onDrop, onTap }: Dra
       ghost.removeAttribute('id');
       ghost.style.width = `${rect.width}px`;
       ghost.style.height = `${rect.height}px`;
+      // 큰 카드는 손에 잡힌 자리를 중심으로 줄여서 든다 (놓을 자리와 바구니를 가리지 않게)
+      const shrink = Math.min(1.03, GHOST_MAX / rect.width, GHOST_MAX / rect.height);
+      ghost.style.transformOrigin = `${start.clientX - rect.left}px ${start.clientY - rect.top}px`;
+      ghost.style.transform = `scale(${shrink}) rotate(1.5deg)`;
       document.body.appendChild(ghost);
       origin.classList.add('lay-dragging');
     }

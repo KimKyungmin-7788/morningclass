@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useCurrentClass } from '@/core/data/store';
 import { ensureAudio, playSound } from '@/core/sound';
 import { SlotContext } from '@/core/ui/slot';
 import { cardById } from '@/features/registry';
@@ -13,17 +12,19 @@ const HOLD_MS = 550;
 const HOLD_SLOP = 10;
 
 // 대시보드 4열. 칸의 자리와 크기는 고정이고, 어느 카드가 어느 칸에 놓일지는 학급의 배치표가 정한다.
-// 설정에서 '화면 꾸미기 허용'을 켜면 카드를 길게 눌러 수정 모드로 들어간다 (자리 바꾸기 · 빼기 · 넣기).
+// 카드를 길게 누르면 확인 문제(곱셈)가 나오고, 맞히면 수정 모드로 들어간다 (자리 바꾸기 · 빼기 · 넣기).
+// 수정 모드는 아이폰 홈 화면 편집을 따른다: 카드가 흔들리고, − 로 빼고, 끌면 자리가 바뀌고, 완료나 빈 곳을 누르면 끝난다.
 export function Dashboard() {
-  const allowed = useCurrentClass()?.options.layoutEdit === true;
   const { slots } = usePlacement();
   const editing = useLayoutEdit((s) => s.editing);
   const setEditing = useLayoutEdit((s) => s.setEditing);
+  const askGate = useLayoutEdit((s) => s.askGate);
+  /** 길게 누르는 중 (터치에서 따라 나오는 메뉴를 막는다) */
+  const holding = useRef(false);
   /** 길게 누른 손을 뗄 때 따라오는 누르기(click)를 한 번 삼킨다 */
   const swallow = useRef(false);
 
-  // 잠그거나 화면을 떠나면 수정 모드도 끝낸다
-  useEffect(() => { if (!allowed) setEditing(false); }, [allowed, setEditing]);
+  // 화면을 떠나면 수정 모드도 끝낸다
   useEffect(() => () => setEditing(false), [setEditing]);
   useEffect(() => {
     if (!editing) return;
@@ -40,6 +41,7 @@ export function Dashboard() {
     startDrag({
       start, source: cardEl, origin: slotEl,
       onDrop: (t) => {
+        swallow.current = true;                                   // 끌다 놓은 자리에서 따라오는 누르기로 수정 모드가 끝나지 않게
         if (!t) return;
         const now = currentPlacement().slots;
         const next = 'slot' in t ? swapSlots(now, from, t.slot) : clearSlot(now, from);
@@ -50,15 +52,17 @@ export function Dashboard() {
 
   const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
     swallow.current = false;
-    if (e.button || !(editing || allowed)) return;
+    if (e.button) return;
     const target = e.target as Element;
     const slotEl = target.closest<HTMLElement>('[data-slot]');
     if (!slotEl || target.closest('.lay-x')) return;
     const start = { clientX: e.clientX, clientY: e.clientY };
     if (editing) { dragFrom(slotEl, start); return; }
 
-    // 평소: 움직이지 않고 길게 누르면 수정 모드로 들어가고, 누른 카드를 그대로 끌 수 있다
+    // 평소: 움직이지 않고 길게 누르면 확인 문제를 낸다
+    holding.current = true;
     const stop = () => {
+      holding.current = false;
       clearTimeout(timer);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', stop);
@@ -72,8 +76,7 @@ export function Dashboard() {
       swallow.current = true;
       ensureAudio();
       playSound('select');
-      setEditing(true);
-      dragFrom(slotEl, start);
+      askGate();
     }, HOLD_MS);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', stop);
@@ -91,11 +94,18 @@ export function Dashboard() {
 
   return (
     <main
-      className={[editing ? 'lay-editing' : '', allowed ? 'lay-can' : ''].filter(Boolean).join(' ') || undefined}
+      className={editing ? 'lay-editing' : undefined}
       onPointerDownCapture={onPointerDown}
-      onClickCapture={(e) => { if (editing || swallow.current) { swallow.current = false; guard(e); } }}
+      onClickCapture={(e) => {
+        const swallowed = swallow.current;
+        swallow.current = false;
+        if (!editing && !swallowed) return;
+        guard(e);
+        // 수정 모드에서 카드가 없는 빈 곳을 누르면 끝낸다 (아이폰 홈 화면처럼)
+        if (editing && !swallowed && !(e.target as Element).closest('[data-slot]')) { setEditing(false); playSound('save'); }
+      }}
       onKeyDownCapture={(e) => { if (editing && (e.key === 'Enter' || e.key === ' ')) guard(e); }}
-      onContextMenu={(e) => { if (editing || allowed) e.preventDefault(); }}
+      onContextMenu={(e) => { if (editing || holding.current || swallow.current) e.preventDefault(); }}
     >
       {COLUMNS.map((col) => (
         <div className="col" key={col}>

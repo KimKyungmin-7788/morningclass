@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LAYOUT, SLOTS, clearSlot, firstEmptySlot, isDefaultLayout, placeCard, resolveLayout, swapSlots } from './model';
+import { DEFAULT_LAYOUT, SLOTS, clearSlot, firstEmptySlot, isDefaultLayout, makeGate, placeCard, resolveLayout, swapSlots } from './model';
 
 const CARDS = Object.values(DEFAULT_LAYOUT) as string[];
 
@@ -92,5 +92,22 @@ describe('배치 바꾸기', () => {
     const next = placeCard(base, 'b1', 'weather');
     expect(next.b1).toBe('weather');
     expect(next.a1).toBe('timetable');
+  });
+});
+
+describe('확인 문제', () => {
+  it('2~9 끼리의 곱셈이고, 보기 네 개에 정답이 한 번만 들어 있다', () => {
+    let seed = 7;
+    const rand = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    for (let i = 0; i < 300; i += 1) {
+      const g = makeGate(rand);
+      expect(g.a).toBeGreaterThanOrEqual(2); expect(g.a).toBeLessThanOrEqual(9);
+      expect(g.b).toBeGreaterThanOrEqual(2); expect(g.b).toBeLessThanOrEqual(9);
+      expect(g.answer).toBe(g.a * g.b);
+      expect(g.choices).toHaveLength(4);
+      expect(new Set(g.choices).size).toBe(4);
+      expect(g.choices.filter((n) => n === g.answer)).toHaveLength(1);
+      expect(g.choices.every((n) => n > 0)).toBe(true);
+    }
   });
 });

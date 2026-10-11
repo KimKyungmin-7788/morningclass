@@ -166,7 +166,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
             </div>
           </div>
           <div className="wxp-sec dust">
-            <div className="wxp-h dust"><i className="ph-fill ph-wind" />미세먼지 <small>(고르지 않아도 돼요 · 카드의 미세먼지 줄에서 GPS로도 불러와요)</small></div>
+            <div className="wxp-h dust"><i className="ph-fill ph-wind" />미세먼지 <small>(고르지 않아도 돼요 · GPS로 확인하면 함께 불러와요)</small></div>
             <div className="feel-row dust-row">
               {DUST.map((x, i) => (
                 <button key={x.label} className={`feel-chip dust-${x.level}${dust === i ? ' on' : ''}`} aria-pressed={dust === i}
