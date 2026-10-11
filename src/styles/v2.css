@@ -621,3 +621,46 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .lay-drawer.lay-over::after{content:'바구니에 넣기';background:#b45309}
 @keyframes layBob{from{transform:translateY(-3px)}to{transform:translateY(4px)}}
 @media (prefers-reduced-motion: reduce){.lay-drawer-hint i,.lay-drawer.lay-over .lay-basket{animation:none}}
+
+/* ── 오늘의 낱말: 읽기 · 쓰기 · 말하기를 색으로 구분 ── */
+.wd-modes{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wd-mode{--c:#2563eb;--bg:#eff6ff;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:10px;padding:10px 12px;border-radius:18px 18px 6px 6px;background:var(--bg);border:3px solid transparent;border-bottom:none;text-align:left;color:var(--c);opacity:.72;transition:.15s}
+.wd-mode.write{--c:#ea580c;--bg:#fff7ed}
+.wd-mode.speak{--c:#db2777;--bg:#fdf2f8}
+.wd-mode .ico{grid-row:1/3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff;font-size:25px;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+.wd-mode b{font-family:'Paperozi','Noto Sans KR',sans-serif;font-size:clamp(19px,1.7vw,26px);font-weight:var(--fw-display);line-height:1.1}
+.wd-mode small{font-size:clamp(12px,.95vw,15px);font-weight:var(--fw-label);opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wd-mode:hover{opacity:1}
+.wd-mode.on{opacity:1;background:var(--c);color:#fff;border-color:var(--c);box-shadow:0 -4px 14px -6px var(--c)}
+.wd-mode.on .ico{color:var(--c)}
+.wd-pane{--c:#2563eb;--bg:#eff6ff;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;margin-top:-12px;padding:14px;border-radius:0 0 20px 20px;border:3px solid var(--c);border-top-width:5px;background:var(--bg)}
+.wd-pane.write{--c:#ea580c;--bg:#fff7ed}
+.wd-pane.speak{--c:#db2777;--bg:#fdf2f8}
+/* 읽기: 글자 타일 + 문장 속 낱말 */
+.wd-read{gap:14px;align-items:center}
+.wd-read p{font-size:clamp(16px,1.3vw,20px)}
+.wd-syls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.wd-read .wd-syls button{min-width:1.5em;padding:.12em .22em;border-radius:20px;background:#fff;border:3px solid #bfdbfe;font-family:'Paperozi','Noto Sans KR',sans-serif;font-size:clamp(52px,6vw,104px);font-weight:var(--fw-display);line-height:1.1;color:#1e3a8a;box-shadow:0 4px 0 #bfdbfe}
+.wd-read .wd-syls.long button{font-size:clamp(34px,3.8vw,64px);border-radius:16px}
+.wd-read .wd-syls button:hover{background:#dbeafe;color:#1e3a8a}
+.wd-read .wd-syls button.on{background:#2563eb;border-color:#2563eb;color:#fff;box-shadow:0 4px 0 #1e40af;transform:translateY(-3px)}
+.wd-read-sent{padding:10px 18px;border-radius:16px;background:#fff;font-size:clamp(20px,1.9vw,30px);font-weight:var(--fw-title);line-height:1.5;text-align:center;word-break:keep-all}
+.wd-read-sent mark{padding:0 .15em;border-radius:8px;background:#fde68a;color:inherit}
+.wd-read button.all{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#2563eb}
+.wd-read button.all:hover{background:#1d4ed8}
+.wd-pane .wd-target{align-self:center}
+.wd-pane .wd-trace{border-color:#fdba74}
+.wd-pane .wd-step{background:#fff}
+.wd-pane .wd-step>span{background:#db2777}
+/* 말하기: 녹음 중 표시 (깜빡이는 점 · 남은 시간 · 목소리 크기 막대 · 줄어드는 시간 줄) */
+.wd-rec{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:#fef2f2;border:2px solid #fca5a5}
+.wd-rec-top{display:flex;align-items:center;gap:8px;font-size:clamp(17px,1.4vw,22px);font-weight:var(--fw-title);color:#b91c1c}
+.wd-rec-top .dot{width:14px;height:14px;border-radius:50%;background:#ef4444;animation:wdBlink .9s ease-in-out infinite}
+.wd-rec-top b{margin-left:auto;font-variant-numeric:tabular-nums;font-size:1.25em}
+.wd-meter{display:flex;align-items:center;justify-content:center;gap:4px;height:clamp(56px,9vh,96px)}
+.wd-meter i{flex:1;max-width:14px;height:8%;border-radius:99px;background:linear-gradient(180deg,#fb7185,#ef4444);transition:height .08s linear}
+.wd-rec-bar{height:8px;border-radius:99px;background:#fecaca;overflow:hidden}
+.wd-rec-bar i{display:block;height:100%;border-radius:99px;background:#ef4444;transform-origin:left;animation:wdShrink linear forwards}
+@keyframes wdBlink{50%{opacity:.25}}
+@keyframes wdShrink{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){.wd-rec-top .dot{animation:none}}

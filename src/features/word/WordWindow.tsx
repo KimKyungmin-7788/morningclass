@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
-import { playSound } from '@/core/sound';
+import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { WORD_LEVELS, bestHit, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
 
@@ -9,9 +9,14 @@ import { WORD_LEVELS, bestHit, parseDictExamples, parseDictSearch, weekKey, week
 // 제목 줄의 "낱말 정하기"에서 단계, 이번 주 요일별 낱말, 추가한 낱말을 고친다.
 
 type Tab = 'read' | 'write' | 'speak';
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'read', label: '읽기', icon: 'ph-fill ph-eye' }, { id: 'write', label: '쓰기', icon: 'ph-fill ph-pencil-simple' }, { id: 'speak', label: '말하기', icon: 'ph-fill ph-microphone' },
+/** 세 가지 활동 — 색과 아이콘으로 구분한다 (읽기 파랑 · 쓰기 주황 · 말하기 분홍) */
+const TABS: { id: Tab; label: string; desc: string; icon: string }[] = [
+  { id: 'read', label: '읽기', desc: '글자를 짚으며 읽어요', icon: 'ph-fill ph-book-open-text' },
+  { id: 'write', label: '쓰기', desc: '손으로 따라 써요', icon: 'ph-fill ph-pencil-simple' },
+  { id: 'speak', label: '말하기', desc: '말하고 녹음해 들어요', icon: 'ph-fill ph-microphone' },
 ];
+/** 녹음은 이 시간(ms)에서 스스로 멈춘다 */
+const REC_MAX = 15000;
 /** 또박또박 천천히 읽어 준다 */
 const say = (text: string) => speak(text, { rate: 0.8 });
 
@@ -48,10 +53,67 @@ function TraceBoard({ text }: { text: string }) {
   );
 }
 
+// ── 읽기: 낱말을 글자 하나씩 짚어 읽고, 문장 속에서 낱말을 찾아본다 ──
+function ReadPractice({ entry }: { entry: WordEntry }) {
+  const [at, setAt] = useState(-1);
+  const letters = [...entry.word.replace(/\s/g, '')];
+  const cut = entry.sentence.indexOf(entry.word);
+  useEffect(() => setAt(-1), [entry.word]);
+  return (
+    <div className="wd-read">
+      <p>글자를 하나씩 눌러 짚으며 읽어요</p>
+      <div className={`wd-syls${letters.length > 4 ? ' long' : ''}`}>
+        {letters.map((ch, i) => <button key={i} className={i === at ? 'on' : ''} aria-label={`${ch} 듣기`} onClick={() => { setAt(i); say(ch); }}>{ch}</button>)}
+      </div>
+      {entry.sentence && (
+        <div className="wd-read-sent">
+          {cut < 0 ? entry.sentence : <>{entry.sentence.slice(0, cut)}<mark>{entry.word}</mark>{entry.sentence.slice(cut + entry.word.length)}</>}
+        </div>
+      )}
+      <button className="all" onClick={() => { setAt(-1); say(`${entry.word}. ${entry.meaning}. ${entry.sentence}`); }}><i className="ph-fill ph-play" /> 모두 이어서 듣기</button>
+      <div className="wd-note">왼쪽의 낱말 · 뜻 · 문장을 누르면 하나씩 읽어 줘요.</div>
+    </div>
+  );
+}
+
+/** 녹음 중 표시: 목소리 크기에 따라 움직이는 막대와 남은 시간 (소리는 크기만 재고 어디에도 보내지 않는다) */
+function RecMeter({ stream }: { stream: MediaStream }) {
+  const bars = useRef<HTMLDivElement>(null);
+  const [left, setLeft] = useState(REC_MAX / 1000);
+  useEffect(() => {
+    const began = Date.now();
+    const tick = setInterval(() => setLeft(Math.max(0, Math.ceil((REC_MAX - (Date.now() - began)) / 1000))), 200);
+    const audio = ensureAudio();
+    if (!audio) return () => clearInterval(tick);
+    const source = audio.createMediaStreamSource(stream);
+    const analyser = audio.createAnalyser();
+    analyser.fftSize = 64;
+    source.connect(analyser);                                       // 스피커로는 잇지 않는다 (울림 방지)
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    let raf = 0;
+    const draw = () => {
+      analyser.getByteFrequencyData(data);
+      const els = bars.current?.children;
+      if (els) for (let i = 0; i < els.length; i += 1) (els[i] as HTMLElement).style.height = `${Math.max(8, Math.min(100, (data[i + 1] / 255) * 130))}%`;
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { clearInterval(tick); cancelAnimationFrame(raf); source.disconnect(); };
+  }, [stream]);
+  return (
+    <div className="wd-rec" role="status" aria-label={`녹음 중, ${left}초 남음`}>
+      <div className="wd-rec-top"><span className="dot" />녹음 중<b>{left}초</b></div>
+      <div className="wd-meter" ref={bars} aria-hidden="true">{Array.from({ length: 20 }, (_, i) => <i key={i} />)}</div>
+      <div className="wd-rec-bar"><i style={{ animationDuration: `${REC_MAX}ms` }} /></div>
+    </div>
+  );
+}
+
 // ── 말하기: 듣고 따라 말하기 + 내 목소리를 녹음해서 들어 보기 (녹음은 이 창에서만 쓰고 저장하지 않는다) ──
 function SpeakPractice({ entry }: { entry: WordEntry }) {
   const [rec, setRec] = useState<'idle' | 'on' | 'denied' | 'unsupported'>('idle');
   const [url, setUrl] = useState('');
+  const [live, setLive] = useState<MediaStream | null>(null);   // 녹음 중인 마이크 (크기 막대를 그리는 데 쓴다)
   const stopRef = useRef<(() => void) | null>(null);
   const urlRef = useRef('');
   useEffect(() => () => { stopRef.current?.(); if (urlRef.current) URL.revokeObjectURL(urlRef.current); }, []);   // 창을 닫으면 마이크를 끄고 녹음도 버린다
@@ -68,11 +130,13 @@ function SpeakPractice({ entry }: { entry: WordEntry }) {
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       urlRef.current = URL.createObjectURL(new Blob(chunks, { type: recorder.mimeType }));
       setUrl(urlRef.current);
+      setLive(null);
       setRec('idle');
     };
-    const timer = setTimeout(() => stopRef.current?.(), 15000);    // 너무 길어지지 않게 15초에서 멈춘다
+    const timer = setTimeout(() => stopRef.current?.(), REC_MAX);   // 너무 길어지지 않게 15초에서 멈춘다
     stopRef.current = () => { clearTimeout(timer); stopRef.current = null; if (recorder.state !== 'inactive') recorder.stop(); };
     recorder.start();
+    setLive(stream);
     setRec('on');
     playSound('check');
   };
@@ -85,8 +149,9 @@ function SpeakPractice({ entry }: { entry: WordEntry }) {
       </div>
       <div className="wd-step">
         <span>2</span><b>내 목소리를 녹음해요</b>
+        {rec === 'on' && live && <RecMeter stream={live} />}
         <div>
-          <button className={rec === 'on' ? 'rec' : ''} onClick={() => { if (rec === 'on') stopRef.current?.(); else void start(); }}>{rec === 'on' ? '⏹ 그만' : '🎤 녹음'}</button>
+          <button className={rec === 'on' ? 'rec' : ''} onClick={() => { if (rec === 'on') stopRef.current?.(); else void start(); }}>{rec === 'on' ? '⏹ 그만하기' : url ? '🎤 다시 녹음' : '🎤 녹음 시작'}</button>
           <button disabled={!url || rec === 'on'} onClick={() => { void new Audio(url).play(); }}>▶ 내 목소리 듣기</button>
         </div>
       </div>
@@ -209,18 +274,15 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
             <button className="wd-line" onClick={() => say(entry.sentence)}><span>문장</span>{entry.sentence || '문장을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
           </div>
           <div className="wd-work">
-            <div className="mv-toggle wd-tabs" role="tablist">
-              {TABS.map((t) => <button key={t.id} role="tab" aria-selected={t.id === tab} className={t.id === tab ? 'on' : ''} onClick={() => { setTab(t.id); playSound('select'); }}><i className={t.icon} /> {t.label}</button>)}
+            <div className="wd-modes" role="tablist" aria-label="활동 고르기">
+              {TABS.map((t) => (
+                <button key={t.id} role="tab" aria-selected={t.id === tab} className={`wd-mode ${t.id}${t.id === tab ? ' on' : ''}`} onClick={() => { setTab(t.id); playSound('select'); }}>
+                  <span className="ico"><i className={t.icon} /></span><b>{t.label}</b><small>{t.desc}</small>
+                </button>
+              ))}
             </div>
-            {tab === 'read' && (
-              <div className="wd-read">
-                <p>글자를 손가락으로 짚으며 함께 읽어요.</p>
-                <button onClick={() => say(entry.word)}>🔊 낱말 듣기</button>
-                <button onClick={() => say(entry.meaning)}>🔊 뜻 듣기</button>
-                <button onClick={() => say(entry.sentence)}>🔊 문장 듣기</button>
-                <button className="all" onClick={() => say(`${entry.word}. ${entry.meaning}. ${entry.sentence}`)}>▶ 모두 이어서 듣기</button>
-              </div>
-            )}
+            <div className={`wd-pane ${tab}`} role="tabpanel">
+            {tab === 'read' && <ReadPractice entry={entry} />}
             {tab === 'write' && (
               <>
                 <div className="mv-toggle wd-target">
@@ -231,6 +293,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
               </>
             )}
             {tab === 'speak' && <SpeakPractice entry={entry} />}
+            </div>
           </div>
         </div>
       )}
