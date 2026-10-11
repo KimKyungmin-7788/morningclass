@@ -30,3 +30,10 @@ export const hasAnswer = (answer: string[]) => answer.some(Boolean);
 export const isCorrect = (slots: string[], answer: string[]) => hasAnswer(answer) && answer.every((a, i) => !a || slots[i] === a);
 /** 모든 칸이 정답과 똑같은가 (완료 버튼에 "완벽해요" 표시) */
 export const isPerfect = (slots: string[], answer: string[]) => hasAnswer(answer) && slots.every((s, i) => !!s && s === answer[i]);
+
+/** 카드에 보여 줄 진행 상태: 아직 / 작성 중 / 작성 완료 (정답 시간표가 없는 날은 하나라도 놓으면 완료) */
+export type ArrangeStatus = 'none' | 'doing' | 'done';
+export function arrangeStatus(arranged: string[] | null | undefined, correct: boolean, answer: string[]): ArrangeStatus {
+  if (!arranged?.some(Boolean)) return 'none';
+  return !hasAnswer(answer) || correct ? 'done' : 'doing';
+}

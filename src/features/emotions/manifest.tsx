@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact } from '@/core/ui/slot';
 import { Popup } from '@/core/ui/Popup';
 import { InclToggles } from '@/core/ui/InclToggles';
 import { toast } from '@/core/ui/toast';
@@ -10,7 +11,7 @@ import { useDay } from '@/core/data/day';
 import { eligibleStudents } from '@/core/data/eligible';
 import { EMOTIONS, EMO_ZONES, emotionOf } from '@/core/data/emotions';
 import type { EmotionEntry, EmotionItem, EmotionKind, Student } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 import { EMO_MAX, EMO_PERSON, compact, emoImg, emoPose, heartPos, inHeart, makeMain, placeAt, roughInside, type Inside, type Pt } from './model';
 
 // 우리반 감정: 학생마다 "마음 일기" 창에서 사람 몸에 감정 친구를 넣는다. 첫 감정(가운데 동그라미)이 주인공이 된다.
@@ -18,43 +19,78 @@ import { EMO_MAX, EMO_PERSON, compact, emoImg, emoPose, heartPos, inHeart, makeM
 const TITLE = { icon: 'ph-fill ph-smiley', tint: '#fce7f3', color: '#db2777' };
 const Blob = ({ k }: { k: EmotionKind }) => <span className="emo-tok"><img src={emoImg(k)} alt="" draggable={false} /></span>;
 
-function EmotionsCard() {
+function EmotionsCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const record = useDay((s) => s.record);
   const [target, setTarget] = useState<Student | null>(null);
+  const [picking, setPicking] = useState(false);                 // 큰 칸이 아닐 때: 카드를 누르면 학생을 고르는 창이 열린다
   const eligible = eligibleStudents(cls, record, 'emo');
+  const big = size === 'large';
+  const compact = isCompact(size);
 
-  if (!activeStudents(cls).length) {
-    return <CardFrame id="emotions" label="우리반 감정 현황"><CardTitle {...TITLE}>우리반 감정</CardTitle><div className="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div></CardFrame>;
-  }
-  if (!eligible.length) {
-    return <CardFrame id="emotions" label="우리반 감정 현황"><CardTitle {...TITLE}>우리반 감정</CardTitle><div className="card-hint">참여할 학생이 없어요 🙂</div><InclToggles kind="emo" /></CardFrame>;
-  }
-  const allDone = eligible.every((s) => record.emotions[s.id]);
+  const blank = (hint: string, short: string, toggles: boolean) => (
+    <CardFrame id="emotions" label="우리반 감정 현황">
+      {compact ? <CardCompact {...TITLE} title="우리반 감정">{short}</CardCompact>
+        : <><CardTitle {...TITLE}>우리반 감정</CardTitle><div className="card-hint">{hint}</div>{toggles && big && <InclToggles kind="emo" />}</>}
+    </CardFrame>
+  );
+  if (!activeStudents(cls).length) return blank('⚙️ 설정에서 학생을 등록해 주세요', '학생을 등록해 주세요', false);
+  if (!eligible.length) return blank('참여할 학생이 없어요 🙂', '참여할 학생이 없어요', true);
+
+  const done = eligible.filter((s) => record.emotions[s.id]).length;
+  const allDone = done === eligible.length;
+  const status = allDone ? '모두 완성!' : `${done}/${eligible.length}명 참여`;
+  const face = (s: Student) => {
+    const v: EmotionEntry | undefined = record.emotions[s.id];
+    const kinds = [...new Set((v?.items ?? []).map((it) => it.k))];
+    const label = !v ? '미선택' : kinds.length ? kinds.map((k) => emotionOf(k)?.l).join(', ') : v.legacy?.label ?? '';
+    return { v, kinds, label };
+  };
+  const grid = (
+    <div className="students-grid">
+      {eligible.map((s) => {
+        const { v, kinds, label } = face(s);
+        const open = () => { ensureAudio(); setPicking(false); setTarget(s); };
+        return (
+          <div key={s.id} className={`student-card${v ? ' filled' : ''}`} tabIndex={0} role="button" aria-label={`${s.name} 감정 선택`}
+            onClick={open} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }}>
+            <div className="em" role="img" aria-label={label}>
+              {kinds.length ? <img className="em-img" src={emoImg(kinds[0])} alt="" /> : v ? v.legacy?.emoji : '❓'}
+              {kinds.length > 1 && <span className="em-more">+{kinds.length - 1}</span>}
+            </div>
+            <div className="nm">{s.name}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
   return (
     <>
-      <CardFrame id="emotions" label="우리반 감정 현황" state={allDone ? 'filled' : 'empty'}>
-        <CardTitle {...TITLE} extra={allDone ? <span className="v3-badge"><i className="ph-bold ph-check" />모두 완료</span> : undefined}>우리반 감정</CardTitle>
-        <div className="students-grid">
-          {eligible.map((s) => {
-            const v: EmotionEntry | undefined = record.emotions[s.id];
-            const kinds = [...new Set((v?.items ?? []).map((it) => it.k))];
-            const label = !v ? '미선택' : kinds.length ? kinds.map((k) => emotionOf(k)?.l).join(', ') : v.legacy?.label ?? '';
-            const open = () => { ensureAudio(); setTarget(s); };
-            return (
-              <div key={s.id} className={`student-card${v ? ' filled' : ''}`} tabIndex={0} role="button" aria-label={`${s.name} 감정 선택`}
-                onClick={open} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }}>
-                <div className="em" role="img" aria-label={label}>
-                  {kinds.length ? <img className="em-img" src={emoImg(kinds[0])} alt="" /> : v ? v.legacy?.emoji : '❓'}
-                  {kinds.length > 1 && <span className="em-more">+{kinds.length - 1}</span>}
-                </div>
-                <div className="nm">{s.name}</div>
-              </div>
-            );
-          })}
-        </div>
-        <InclToggles kind="emo" />
+      <CardFrame id="emotions" label="우리반 감정 현황" state={allDone ? 'filled' : 'empty'}
+        onOpen={big ? undefined : () => { ensureAudio(); setPicking(true); }}>
+        {compact ? (
+          <CardCompact {...TITLE} title="우리반 감정" done={allDone}>{status}</CardCompact>
+        ) : big ? <>
+          <CardTitle {...TITLE} extra={allDone ? <span className="v3-badge"><i className="ph-bold ph-check" />모두 완료</span> : undefined}>우리반 감정</CardTitle>
+          {grid}
+          <InclToggles kind="emo" />
+        </> : <>
+          <CardTitle {...TITLE} extra={allDone ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>우리반 감정</CardTitle>
+          <div className="emo-mini">
+            {eligible.map((s) => {
+              const { v, kinds, label } = face(s);
+              return <span key={s.id} className={`emo-face${v ? ' filled' : ''}`} role="img" aria-label={`${s.name} ${label}`}>{kinds.length ? <img src={emoImg(kinds[0])} alt="" /> : v ? v.legacy?.emoji : '❓'}</span>;
+            })}
+          </div>
+          <div className="v3-sub">{status}</div>
+        </>}
       </CardFrame>
+      {picking && (
+        <Popup title="💖 우리반 감정 — 누구의 마음을 볼까요?" onClose={() => setPicking(false)}>
+          <div className="emo-pick">{grid}</div>
+          <InclToggles kind="emo" />
+        </Popup>
+      )}
       {target && <DiaryWindow student={target} onClose={() => setTarget(null)} />}
     </>
   );

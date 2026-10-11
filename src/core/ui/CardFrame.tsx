@@ -55,3 +55,20 @@ export function CardTitle({ icon, tint, color, children, extra }: {
     </div>
   );
 }
+
+/**
+ * 작은 칸에서의 카드 모습: 아이콘 + 제목 + 상태 한 줄.
+ * 아주 작은 칸은 가로 한 줄로, 작은 칸은 제목 줄 아래 가운데에 상태를 크게 보여 준다 (모양은 칸 크기에 따라 CSS 가 정한다).
+ */
+export function CardCompact({ icon, tint, color, title, done, children }: {
+  icon: string; tint: string; color: string; title: ReactNode; done?: boolean; children: ReactNode;
+}) {
+  return (
+    <div className={`cc${done ? ' done' : ''}`}>
+      <span className="v3-ico" style={{ background: tint, color }}><i className={icon} /></span>
+      <div className="cc-title">{title}</div>
+      {done && <span className="v3-check"><i className="ph-bold ph-check" /></span>}
+      <div className="cc-status">{children}</div>
+    </div>
+  );
+}

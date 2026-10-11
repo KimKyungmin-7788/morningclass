@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact, type SlotSize } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -16,7 +17,7 @@ const BUTTONS: { v: AttendanceStatus; cls: string; label: string }[] = [
   { v: 'early', cls: 'e', label: '🟠 조퇴' }, { v: 'absent', cls: 'a', label: '🔴 결석' },
 ];
 
-export function AttendanceCard() {
+export function AttendanceCard({ size }: { size: SlotSize }) {
   const cls = useCurrentClass();
   const students = activeStudents(cls);
   const saved = useDay((s) => s.record.attendance);
@@ -28,8 +29,10 @@ export function AttendanceCard() {
   if (!students.length) {
     return (
       <CardFrame id="attendance" label="출석 체크" className="v3">
-        <CardTitle {...icon}>오늘의 출석</CardTitle>
-        <div className="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>
+        {isCompact(size) ? <CardCompact {...icon} title="오늘의 출석">학생을 등록해 주세요</CardCompact> : <>
+          <CardTitle {...icon}>오늘의 출석</CardTitle>
+          <div className="card-hint">⚙️ 설정에서 학생을 등록해 주세요</div>
+        </>}
       </CardFrame>
     );
   }
@@ -45,6 +48,11 @@ export function AttendanceCard() {
     <>
       <CardFrame id="attendance" label="출석 체크" state={allChecked ? 'filled' : 'empty'} className="v3"
         onOpen={() => { ensureAudio(); setDraft({ ...saved }); }}>
+        {isCompact(size) ? (
+          <CardCompact {...icon} title="오늘의 출석" done={allChecked}>
+            {allChecked ? `출석 ${c.present} · 지각 ${c.late} · 결석 ${c.absent}` : `${students.length - c.unchecked}/${students.length}명 확인`}
+          </CardCompact>
+        ) : <>
         <CardTitle {...icon} extra={allChecked ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 출석</CardTitle>
         <div className="v3-stats">
           <div className="v3-stat p"><div className="n">{c.present}</div><div className="l">출석</div></div>
@@ -52,6 +60,7 @@ export function AttendanceCard() {
           <div className="v3-stat a"><div className="n">{c.absent}</div><div className="l">결석</div></div>
         </div>
         <div className="v3-sub">전체 {students.length}명 · 미체크 {c.unchecked}명</div>
+        </>}
       </CardFrame>
       {draft && (
         <Popup title={<><img className="popup-title-img" src="/img/attendance.png" alt="" />오늘의 출석</>} onClose={() => setDraft(null)}>

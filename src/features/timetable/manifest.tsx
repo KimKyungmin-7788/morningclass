@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -9,14 +10,16 @@ import { useDay } from '@/core/data/day';
 import { subjectBank, subjectIcon, withSubject } from '@/core/data/subjects';
 import { MAX_PERIODS, periodsOn, useTimetables } from '@/core/data/timetables';
 import type { ClassRoom } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
-import { hasAnswer, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
+import type { CardProps, FeatureManifest } from '../types';
+import { arrangeStatus, hasAnswer, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
 
 // 오늘의 시간표: 과목 카드를 교시 칸에 끌어 놓아 맞춘다. 선생님이 설정에 넣은 시간표가 정답이 된다(없으면 자유 배치).
 
 const TITLE = { icon: 'ph-fill ph-calendar-check', tint: '#e0e7ff', color: '#4f46e5' };
 
-function TimetableCard() {
+const STATUS_TEXT = { none: '아직', doing: '작성 중', done: '작성 완료!' } as const;
+
+function TimetableCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const date = useDay((s) => s.date);
   const tt = useDay((s) => s.record.timetable);
@@ -28,10 +31,19 @@ function TimetableCard() {
   const periods = periodsOn(date, byDay);
   const arranged = !!tt.arranged?.some(Boolean);
   const openPopup = () => { ensureAudio(); setOpen(true); };
+  const status = arrangeStatus(tt.arranged, tt.correct, periods);
 
   return (
     <>
       <CardFrame id="timetable" label="시간표 맞추기" state={arranged ? 'filled' : 'empty'} onOpen={openPopup}>
+        {isCompact(size) ? (
+          <CardCompact {...TITLE} title="오늘의 시간표" done={status === 'done'}>{STATUS_TEXT[status]}</CardCompact>
+        ) : size === 'medium' ? <>
+          <CardTitle {...TITLE} extra={status === 'done' ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 시간표</CardTitle>
+          {arranged
+            ? <div className="tt-mini">{tt.arranged!.map((s, i) => s && <span key={i} className="tt-chip"><b>{i + 1}</b>{s}</span>)}</div>
+            : <div className="card-hint">터치해서 시간표를 맞춰봐요 👆</div>}
+        </> : <>
         <CardTitle {...TITLE} extra={arranged ? <span className="v3-badge"><i className="ph-bold ph-check" />완성</span> : undefined}>오늘의 시간표</CardTitle>
         {arranged ? (
           <div className="tt-preview">
@@ -51,6 +63,7 @@ function TimetableCard() {
           </>
         ) : weekend ? <div className="card-hint">🎈 오늘은 쉬는 날이에요!<br />터치하면 시간표를 직접 배치할 수 있어요</div>   // 쉬는 날에도 열 수 있다 (보충 수업 · 미리 해 보기)
           : <div className="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>}
+        </>}
       </CardFrame>
       {open && cls && <ArrangeWindow cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} />}
       {noteAt != null && (

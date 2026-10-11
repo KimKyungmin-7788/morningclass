@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { Popup } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -7,7 +7,7 @@ import { useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import { useKv } from '@/core/data/kv';
 import { newId } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 import { ddayDiff, ddayLabel, ddaySorted, fmtDdayDate, type DdayItem } from './model';
 
 // D-DAY: 학급별 목록. 날짜와 무관하게 항상 보이고, 지울 때까지 남는다.
@@ -24,7 +24,9 @@ function Row({ it, base, onDelete }: { it: DdayItem; base: Date; onDelete?: () =
   );
 }
 
-function DdayCard() {
+const TITLE = { icon: 'ph-fill ph-flag-banner', tint: '#e0e7ff', color: '#4f46e5' };
+
+function DdayCard({ size }: CardProps) {
   const classId = useData((s) => s.currentClassId);
   const base = useDay((s) => s.date);
   const [items, setItems] = useKv<DdayItem[]>(`ddays:${classId}`, []);
@@ -49,10 +51,14 @@ function DdayCard() {
     <>
       <CardFrame id="dday" label="디데이" state={list.length ? 'filled' : 'empty'}
         onOpen={() => { ensureAudio(); playSound('select'); setOpen(true); }}>
-        <CardTitle icon="ph-fill ph-flag-banner" tint="#e0e7ff" color="#4f46e5">D-DAY</CardTitle>
+        {size === 'tiny' ? (
+          <CardCompact {...TITLE} title="D-DAY">{list.length ? `${ddayLabel(ddayDiff(list[0].date, base))} ${list[0].name}` : '아직 없어요'}</CardCompact>
+        ) : <>
+        <CardTitle {...TITLE}>D-DAY</CardTitle>
         {list.length
           ? <div className="dday-list">{list.map((it) => <Row key={it.id} it={it} base={base} />)}</div>
           : <div className="card-hint" style={{ fontSize: 15 }}>터치해서 기념일·시험 D-DAY를 추가해요 👆</div>}
+        </>}
       </CardFrame>
       {open && (
         <Popup title="🚩 D-DAY 관리" onClose={() => setOpen(false)}>
@@ -74,5 +80,5 @@ function DdayCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', title: 'D-DAY', icon: 'ph-fill ph-flag-banner', tint: '#e0e7ff', color: '#4f46e5', Component: DdayCard }] };
+const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', title: 'D-DAY', ...TITLE, Component: DdayCard }] };
 export default manifest;

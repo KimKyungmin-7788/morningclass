@@ -6,7 +6,7 @@ import { ensureAudio, playSound } from '@/core/sound';
 import { useCurrentClass } from '@/core/data/store';
 import { useKv } from '@/core/data/kv';
 import type { VideoItem } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 import { MAX_VIDEOS, extractVideoId, fmtVideoTime, needsTitle, recordVideo } from './model';
 
 // 영상 재생: 떠 있는 재생 창 + 재생 이력. 쿠키를 남기지 않는 주소(youtube-nocookie)로 재생한다.
@@ -97,7 +97,7 @@ function VideoWindow({ start, onClose }: { start: string; onClose: () => void })
   );
 }
 
-function VideoCard() {
+function VideoCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const [open, setOpen] = useState(false);
   const video = cls?.options.video?.url ? cls.options.video : DEFAULT_VIDEO;
@@ -108,7 +108,7 @@ function VideoCard() {
         onOpen={() => { ensureAudio(); playSound('select'); setOpen(true); }}>
         <div className="book-shortcut">
           {id
-            ? <div className="book-mini" style={{ backgroundImage: `url('https://img.youtube.com/vi/${id}/default.jpg')` }} />
+            ? <div className="book-mini" style={{ backgroundImage: `url('https://img.youtube.com/vi/${id}/${size === 'tiny' ? 'default' : 'hqdefault'}.jpg')` }} />
             : <div className="book-mini"><i className="ph-fill ph-play-circle" /></div>}
           <div className="book-info">
             <div className="book-label"><i className="ph-fill ph-play-circle" /> 영상 재생</div>

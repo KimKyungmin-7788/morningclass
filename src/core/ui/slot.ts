@@ -8,3 +8,6 @@ export type SlotSize = 'tiny' | 'small' | 'medium' | 'large';
 /** 카드가 놓인 칸의 크기. 대시보드 밖에서 그리면 null. */
 export const SlotContext = createContext<SlotSize | null>(null);
 export const useSlotSize = () => useContext(SlotContext);
+
+/** 작은 칸(아주 작은 · 작은)에서는 카드가 제목과 상태 한 줄만 보여 준다 */
+export const isCompact = (size: SlotSize) => size === 'tiny' || size === 'small';

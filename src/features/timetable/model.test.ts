@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { emptyClass } from '@/core/data/types';
 import { guessLevel, levelSubjects, subjectBank, subjectIcon, withSubject } from '@/core/data/subjects';
 import { periodsOn } from '@/core/data/timetables';
-import { isCorrect, isPerfect, move, pad7, trimEnd } from './model';
+import { arrangeStatus, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
 
 describe('시간표 맞추기', () => {
   it('카드 옮기기: 보관함 → 칸, 칸 ↔ 칸, 칸 → 보관함', () => {
@@ -56,5 +56,20 @@ describe('과목 설정', () => {
     expect(c.subjects).toMatchObject({ hidden: [], custom: [] });
     c = withSubject(withSubject(c, '한국사'), '한국사');
     expect(c.subjects.custom).toEqual(['한국사']);
+  });
+});
+
+describe('카드에 보여 줄 진행 상태', () => {
+  const answer = ['국어', '수학', '', '', '', '', ''];
+  it('아무것도 놓지 않았으면 아직', () => {
+    expect(arrangeStatus(null, false, answer)).toBe('none');
+    expect(arrangeStatus(['', ''], false, answer)).toBe('none');
+  });
+  it('놓았지만 정답과 다르면 작성 중, 맞으면 작성 완료', () => {
+    expect(arrangeStatus(['국어'], false, answer)).toBe('doing');
+    expect(arrangeStatus(['국어', '수학'], true, answer)).toBe('done');
+  });
+  it('정답 시간표가 없는 날은 하나라도 놓으면 작성 완료', () => {
+    expect(arrangeStatus(['체육'], false, [])).toBe('done');
   });
 });

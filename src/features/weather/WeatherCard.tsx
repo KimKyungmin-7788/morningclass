@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact, type SlotSize } from '@/core/ui/slot';
 import { Popup } from '@/core/ui/Popup';
 import { GpsIcon } from '@/core/ui/GpsIcon';
 import { toast } from '@/core/ui/toast';
@@ -34,7 +35,11 @@ function Temp({ w, cls }: { w: WeatherValue; cls: string }) {
   );
 }
 
-export function WeatherCard() {
+const TITLE = { icon: 'ph-fill ph-sun-horizon', tint: '#fef3c7', color: '#d97706' };
+
+export function WeatherCard({ size }: { size: SlotSize }) {
+  const compact = isCompact(size);
+  const dustNow = useDay((s) => s.record.dust) as DustLevel | null;
   const w = useDay((s) => s.record.weather) as WeatherValue | null;
   const update = useDay((s) => s.update);
   const [stage, setStage] = useState<Stage>({ at: 'closed' });
@@ -105,9 +110,14 @@ export function WeatherCard() {
 
   return (
     <>
-      <CardFrame id="weather" label="날씨 선택" state={w ? 'filled' : 'empty'} className={`v3${w && t ? ` wxc wxc-${t.k}` : ''}`} onOpen={open}>
+      <CardFrame id="weather" label="날씨 선택" state={w ? 'filled' : 'empty'} className={`v3${!compact && w && t ? ` wxc wxc-${t.k}` : ''}`} onOpen={open}>
+        {compact ? (
+          <CardCompact {...TITLE} title="오늘의 날씨" done={!!w}>
+            {w ? `${w.label}${w.temp != null ? ` ${Math.round(w.temp)}°` : ''}${dustNow ? ` · 미세먼지 ${dustNow.label}` : ''}` : '날씨를 골라요'}
+          </CardCompact>
+        ) : <>
         {w && t && <WeatherScene kind={t.k} />}
-        <CardTitle icon="ph-fill ph-sun-horizon" tint="#fef3c7" color="#d97706"
+        <CardTitle {...TITLE}
           extra={w ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 날씨</CardTitle>
         {w && t ? (
           <div className="card-result wx-result">
@@ -116,6 +126,7 @@ export function WeatherCard() {
           </div>
         ) : <div className="card-hint">터치해서 날씨를 선택해요 👆</div>}
         <DustChip />
+        </>}
       </CardFrame>
 
       {stage.at === 'pick' && (

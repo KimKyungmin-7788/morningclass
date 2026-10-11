@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { useDay } from '@/core/data/day';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 
 // 오늘의 유의사항: 선생님이 적어 두는 그날의 전달 사항
-function NotesCard() {
+const TITLE = { icon: 'ph-fill ph-megaphone', tint: '#fce7f3', color: '#db2777' };
+
+function NotesCard({ size }: CardProps) {
   const notes = useDay((s) => s.record.notes);
   const update = useDay((s) => s.update);
   const [draft, setDraft] = useState<string | null>(null);   // null = 창이 닫혀 있음
@@ -24,9 +27,11 @@ function NotesCard() {
     <>
       <CardFrame id="notes" label="유의사항" state={notes ? 'filled' : 'empty'}
         onOpen={() => { ensureAudio(); setDraft(notes); }}>
-        <CardTitle icon="ph-fill ph-megaphone" tint="#fce7f3" color="#db2777"
+        {isCompact(size) ? <CardCompact {...TITLE} title="오늘의 유의사항" done={!!notes}>{notes || '아직 없어요'}</CardCompact> : <>
+        <CardTitle {...TITLE}
           extra={notes ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 유의사항</CardTitle>
         {notes ? <div className="notes-display">{notes}</div> : <div className="card-hint">✏️ 터치해서 선생님이 입력해요</div>}
+        </>}
       </CardFrame>
       {draft !== null && (
         <Popup title="📢 오늘의 유의사항" onClose={() => setDraft(null)}>
@@ -41,5 +46,5 @@ function NotesCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'notes', cards: [{ id: 'notes', title: '오늘의 유의사항', icon: 'ph-fill ph-megaphone', tint: '#fce7f3', color: '#db2777', Component: NotesCard }] };
+const manifest: FeatureManifest = { id: 'notes', cards: [{ id: 'notes', title: '오늘의 유의사항', ...TITLE, Component: NotesCard }] };
 export default manifest;

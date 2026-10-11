@@ -406,3 +406,89 @@ main.lay-editing .slot.lay-over>.card{transform:scale(.97)}
 .lay-btn{flex:none;height:48px;padding:0 16px;border-radius:14px;background:#fff;border:2px solid #dbe3ee;font-size:16px;font-weight:var(--fw-label);color:var(--text);white-space:nowrap}
 .lay-btn.done{background:var(--primary);border-color:var(--primary);color:#fff}
 @media print{.lay-drawer,.lay-x{display:none!important}.slot.empty{display:none}}
+
+/* ── 어느 칸에서도 깨지지 않게 ──
+   열 너비는 내용에 밀리지 않게 잠근다. 칸에는 크기(data-size)와 열 너비(data-w: narrow=바깥 열, wide=가운데 열)가 붙어 있다. */
+@media screen{#morning-view>main{grid-template-columns:minmax(0,.7fr) minmax(0,1.4fr) minmax(0,1.4fr) minmax(0,.7fr)}}
+.slot>.card{min-width:0}
+#morning-view .slot[data-size=tiny]>.card{padding:10px 12px}
+
+/* 작은 칸의 카드: 아이콘 + 제목 + 상태 한 줄 (CardCompact) */
+.cc{flex:1;min-width:0;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:9px}
+.cc>.v3-ico{grid-area:1/1}.cc>.cc-title{grid-area:1/2}.cc>.v3-check{grid-area:1/3}
+.cc-title{font-family:'Paperozi','Noto Sans KR',sans-serif;font-weight:var(--fw-title);color:#4a5568;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-status{font-weight:var(--fw-title);color:var(--text);overflow:hidden;word-break:keep-all}
+/* 아주 작은 칸: 아이콘 옆에 제목(작게) · 상태(크게) 두 줄 */
+.slot[data-size=tiny] .cc{grid-template-rows:auto auto;align-content:center;row-gap:1px}
+.slot[data-size=tiny] .cc>.v3-ico{grid-row:1/3;width:40px;height:40px;font-size:21px}
+.slot[data-size=tiny] .cc>.v3-check{grid-row:1/3;width:22px;height:22px;font-size:11px}
+.slot[data-size=tiny] .cc-title{font-size:13px;color:var(--text-sub)}
+.slot[data-size=tiny] .cc-status{grid-area:2/2;font-size:clamp(15px,1.05vw,19px);white-space:nowrap;text-overflow:ellipsis}
+/* 작은 칸: 제목 줄 + 가운데 큰 상태 */
+.slot[data-size=small] .cc{grid-template-rows:auto minmax(0,1fr)}
+.slot[data-size=small] .cc-title{font-size:clamp(18px,1.15vw,23px);line-height:1.2}
+.slot[data-size=small] .cc-status{grid-area:2/1/3/-1;align-self:center;text-align:center;font-size:clamp(19px,1.5vw,30px);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.slot[data-size=small][data-w=wide] .cc-status{font-size:clamp(24px,2.1vw,40px)}
+.cc.done .cc-status{color:#15803d}
+#card-helper.lucky-card .cc-title{color:#e9d5ff}
+#card-helper.lucky-card .cc-status{color:#fef9c3}
+
+/* 시간표 · 보통 칸: 교시 번호 + 과목 이름을 작은 조각으로 */
+.tt-mini{flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:4px;align-content:center}
+.tt-chip{display:flex;align-items:center;gap:4px;min-width:0;padding:3px 6px 3px 3px;border-radius:99px;background:#f8faff;border:1.5px solid #e0e7ff;font-size:clamp(12px,.9vw,16px);font-weight:var(--fw-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-chip b{flex:none;width:1.5em;height:1.5em;border-radius:50%;display:grid;place-items:center;background:var(--acc-sky);color:#fff;font-size:.85em}
+
+/* 감정 · 보통 칸: 얼굴만 모아 보여 주고, 누르면 학생을 고르는 창 */
+.emo-mini{flex:1;min-height:0;overflow:hidden;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:5px}
+.emo-face{width:clamp(30px,2.5vw,46px);height:clamp(30px,2.5vw,46px);border-radius:50%;display:grid;place-items:center;background:#f8faff;border:2px dashed #c7d5ee;font-size:clamp(15px,1.2vw,22px);line-height:1}
+.emo-face.filled{border:2px solid var(--success);background:#fff}
+.emo-face img{width:72%;height:72%;object-fit:contain}
+.emo-pick .students-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));overflow:visible}
+
+/* D-DAY · 도우미: 좁은 열에서는 줄이고, 넘치면 감춘다 */
+.slot[data-w=narrow] .dday-row{gap:6px;padding:7px 8px}
+.slot[data-w=narrow] .dday-badge{min-width:0;padding:3px 8px;font-size:14px}
+.slot[data-w=narrow] .dday-name{font-size:15px}
+.slot[data-w=narrow] .dday-date{display:none}
+.slot .helper-winners{min-height:0;overflow:hidden;flex-direction:row;flex-wrap:wrap;align-content:center}
+.slot[data-w=narrow] #card-helper .v3-title{flex-wrap:wrap}
+.slot[data-w=narrow] .helper-winner,.slot[data-w=narrow] .lucky-winner{padding:5px 10px;gap:6px}
+
+/* 수업 도구: 단추가 칸을 채운다. 아주 작은 칸은 단추만, 보통 · 큰 칸은 두 줄로 */
+.slot .tl-icons{flex:1 1 auto;min-height:0}
+.slot .tl-ico{height:auto;min-height:0}
+.slot[data-size=tiny] #card-tools .v3-title{display:none}
+.slot[data-size=tiny] .tl-icons{margin-top:0}
+.slot[data-size=medium] .tl-icons,.slot[data-size=large] .tl-icons{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr)}
+.slot[data-size=large] .tl-ico i,.slot[data-size=small][data-w=wide] .tl-ico i{font-size:clamp(36px,3.4vw,64px)}
+.slot[data-size=large] .tl-ico.run i,.slot[data-size=small][data-w=wide] .tl-ico.run i{font-size:clamp(28px,2.6vw,48px)}
+.slot[data-size=large] .tl-ico span,.slot[data-size=small][data-w=wide] .tl-ico span{font-size:clamp(14px,1.2vw,22px)}
+
+/* 영상: 칸이 커지면 미리보기 그림을 키운다 */
+.slot .book-shortcut{min-width:0;min-height:0}
+.slot[data-size=small][data-w=wide] .book-mini{width:auto;height:100%;aspect-ratio:4/3}
+.slot[data-size=small][data-w=wide] .book-title-mini{font-size:clamp(17px,1.4vw,24px)}
+.slot[data-size=medium] .book-shortcut,.slot[data-size=large] .book-shortcut{flex-direction:column;align-items:stretch;text-align:center}
+.slot[data-size=medium] .book-mini,.slot[data-size=large] .book-mini{width:100%;height:auto;flex:1;min-height:0}
+.slot[data-size=medium] .book-info,.slot[data-size=large] .book-info{flex:none}
+.slot[data-size=medium] .book-arrow,.slot[data-size=large] .book-arrow{display:none}
+.slot[data-size=large] .book-title-mini{font-size:clamp(18px,1.6vw,28px)}
+@media (max-width:1400px){.slot[data-w=narrow] .book-arrow{display:none}.slot[data-w=narrow][data-size=tiny] .book-mini{width:44px;height:44px}}
+
+/* 그 밖의 카드: 내용이 칸보다 크면 넘치지 않고 잘린다 */
+.slot .tt-preview,.slot .v3-stats,.slot .card-hint,.slot .wd-face,.slot .notes-display,.slot .dday-list{min-height:0}
+.slot .tt-preview{overflow:hidden}
+
+/* 좁은 열(바깥 열)에서의 손질 */
+.slot[data-w=narrow] .dday-list{overflow:hidden}
+.slot[data-w=narrow] .dday-row{flex-direction:column;align-items:flex-start;gap:3px}
+.slot[data-w=narrow] .dday-name{flex:none;max-width:100%}
+.slot[data-w=narrow] .helper-winners{gap:4px}
+.slot[data-w=narrow] .helper-winner,.slot[data-w=narrow] .lucky-winner{font-size:15px;padding:3px 9px;border-radius:12px}
+.slot[data-w=narrow] .lucky-winner .lw-nm{font-size:15px}
+.slot[data-w=narrow] #card-helper .hm-toggle{margin-left:0;font-size:11px}
+.slot[data-w=narrow][data-size=tiny] .cc>.v3-check{display:none}
+.slot[data-w=narrow][data-size=tiny] .cc>.v3-ico{width:34px;height:34px;font-size:18px}
+.slot[data-w=narrow][data-size=small] .cc-title{font-size:clamp(15px,1.15vw,23px)}
+@media (max-width:1200px){.slot[data-w=narrow][data-size=small] #card-tools .v3-title{font-size:15px;white-space:nowrap;gap:6px}}
+@media (max-width:1400px){.slot[data-w=narrow][data-size=small] .cc>.v3-check{display:none}}

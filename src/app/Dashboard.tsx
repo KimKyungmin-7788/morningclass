@@ -102,7 +102,7 @@ export function Dashboard() {
           {SLOTS.filter((s) => s.col === col).map((slot) => {
             const card = cardById(slots[slot.id]);
             return (
-              <div key={slot.id} className={`slot${card ? '' : ' empty'}`} data-slot={slot.id} data-size={slot.size}
+              <div key={slot.id} className={`slot${card ? '' : ' empty'}`} data-slot={slot.id} data-size={slot.size} data-w={slot.col === 0 || slot.col === 3 ? 'narrow' : 'wide'}
                 style={{ flex: slot.flex, ...(slot.minHeight ? { minHeight: slot.minHeight } : {}) }}>
                 {card && (
                   <SlotContext value={slot.size}>

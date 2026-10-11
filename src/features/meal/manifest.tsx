@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -11,7 +12,7 @@ import { dateKeyOf, patchRecord, useDay } from '@/core/data/day';
 import { setMealImage, useMealImages } from '@/core/data/mealImages';
 import { fetchMealRows, pickLunch } from '@/core/net/neis';
 import type { ClassRoom, Dish } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 import { ALLERGENS, dishAlerts, dishKey, mealAlertNames, parseMealRow, renameDish, shownDishes, simplifyDishQueries } from './model';
 import { autoMealImages, searchImages, shrinkImage, type ImageHit } from './images';
 import { MealSheets } from '@/features/worksheets/Worksheets';
@@ -21,7 +22,7 @@ import { MealSheets } from '@/features/worksheets/Worksheets';
 const CHIP = { icon: 'ph-fill ph-bowl-food', tint: '#ffedd5', color: '#ea580c' };
 type View = null | 'meal' | 'allergy' | 'sheet';
 
-function MealCard() {
+function MealCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const dishes = useDay((s) => s.record.meal?.dishes) ?? [];
   const [view, setView] = useState<View>(null);
@@ -31,6 +32,11 @@ function MealCard() {
     <>
       <CardFrame id="meal" label="오늘의 급식" state={dishes.length ? 'filled' : 'empty'}
         onOpen={() => { ensureAudio(); playSound('select'); setView('meal'); }}>
+        {isCompact(size) ? (
+          <CardCompact {...CHIP} title="오늘의 급식" done={!!dishes.length}>
+            {dishes.length ? `${alerts.length ? '⚠️ ' : ''}${shown.length ? shown.map((d) => d.name).join(' · ') : '숨긴 메뉴만 있어요'}` : '급식을 알아봐요'}
+          </CardCompact>
+        ) : <>
         <CardTitle {...CHIP} extra={dishes.length ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 급식</CardTitle>
         {dishes.length ? (
           <>
@@ -38,6 +44,7 @@ function MealCard() {
             {alerts.length > 0 && <div className="meal-alert-line">⚠️ 알레르기 주의: {alerts.join(', ')}</div>}
           </>
         ) : <div className="card-hint">🍱 터치해서 오늘 급식을 알아봐요</div>}
+        </>}
       </CardFrame>
       {view === 'meal' && cls && <MealWindow cls={cls} onClose={() => setView(null)} onAllergy={() => setView('allergy')} onSheet={() => setView('sheet')} />}
       {view === 'sheet' && <MealSheets onBack={() => setView('meal')} />}

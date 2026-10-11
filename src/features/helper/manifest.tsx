@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
+import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { InclToggles } from '@/core/ui/InclToggles';
 import { toast } from '@/core/ui/toast';
@@ -9,7 +9,7 @@ import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import { attIncludeOf, eligibleStudents, isIncluded } from '@/core/data/eligible';
 import type { Student } from '@/core/data/types';
-import type { FeatureManifest } from '../types';
+import type { CardProps, FeatureManifest } from '../types';
 import { DrawStage } from './DrawStages';
 import { DRAW_STYLES, drawStyleOf, shuffle } from './model';
 
@@ -17,7 +17,7 @@ import { DRAW_STYLES, drawStyleOf, shuffle } from './model';
 
 type Mode = 'helper' | 'lucky';
 
-function HelperCard() {
+function HelperCard({ size }: CardProps) {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
   const record = useDay((s) => s.record);
@@ -53,6 +53,11 @@ function HelperCard() {
     <>
       <CardFrame id="helper" label="오늘의 도우미 뽑기" state={picked.length ? 'filled' : 'empty'} className={lucky ? 'lucky-card' : ''}
         onOpen={() => { ensureAudio(); setOpen(true); }}>
+        {size === 'tiny' ? (
+          <CardCompact {...(lucky ? { icon: 'ph-fill ph-clover', tint: '#fde047', color: '#4c1d95' } : { icon: 'ph-duotone ph-dice-five', tint: '#ede9fe', color: '#7c3aed' })} title={title} done={!!picked.length}>
+            {picked.length ? picked.map((s) => s.name).join(' · ') : '아직 안 뽑았어요'}
+          </CardCompact>
+        ) : <>
         {chip}
         {picked.length ? (
           <div className="helper-winners">
@@ -61,6 +66,7 @@ function HelperCard() {
               : <div key={s.id} className="helper-winner"><span className="hw-em"><i className="ph-fill ph-star" /></span><span className="hw-nm">{s.name}</span></div>))}
           </div>
         ) : <div className="card-hint" style={{ fontSize: 16 }}>{lucky ? '✨ 터치해서 행운의 주인공을 뽑아요' : '🎯 터치해서 오늘의 도우미를 뽑아요'}</div>}
+        </>}
         {stars}
       </CardFrame>
       {open && <DrawWindow mode={mode} onClose={() => setOpen(false)} />}
