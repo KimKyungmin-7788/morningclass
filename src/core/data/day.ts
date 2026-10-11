@@ -70,10 +70,16 @@ export async function patchRecord(classId: ClassId, date: DateKey, change: (rec:
   await db.putRecord(rec);
 }
 
-/** 아침 준비 7가지가 끝났는지 (기존 updateProgress 와 같은 기준) */
-export function progressOf(rec: DayRecord, cls: ClassRoom | undefined, dateSet: boolean): boolean[] {
+/** 아침 준비 항목이 어느 카드에서 하는 일인지 (날짜는 상단 줄에 있어 늘 센다. 미세먼지는 날씨 카드 안에 있다) */
+const TASK_CARDS: (string | null)[] = [null, 'weather', 'weather', 'attendance', 'timetable', 'emotions', 'meal'];
+
+/**
+ * 아침 준비 항목이 끝났는지 (날짜 · 날씨 · 미세먼지 · 출석 · 시간표 · 감정 · 급식).
+ * placed(화면에 놓인 카드 이름)를 주면 놓인 카드의 항목만 센다 — 보관함에 넣은 카드는 준비할 일이 아니다.
+ */
+export function progressOf(rec: DayRecord, cls: ClassRoom | undefined, dateSet: boolean, placed?: Iterable<string | null>): boolean[] {
   const students = (cls?.students ?? []).filter((s) => !s.archived);
-  return [
+  const all = [
     dateSet,
     !!rec.weather,
     !!rec.dust,
@@ -82,4 +88,7 @@ export function progressOf(rec: DayRecord, cls: ClassRoom | undefined, dateSet: 
     students.length > 0 && students.every((s) => rec.emotions[s.id]),
     !!rec.meal?.dishes.length,
   ];
+  if (!placed) return all;
+  const on = new Set(placed);
+  return all.filter((_, i) => TASK_CARDS[i] === null || on.has(TASK_CARDS[i]));
 }

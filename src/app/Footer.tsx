@@ -1,12 +1,14 @@
 import { useCurrentClass } from '@/core/data/store';
 import { progressOf, useDay } from '@/core/data/day';
+import { usePlacement } from '@/features/layout/store';
 
-// 하단 진행률: 아침 준비 7가지 중 몇 가지를 했는지
+// 하단 진행률: 화면에 놓인 카드의 아침 준비 중 몇 가지를 했는지 (모두 놓여 있으면 7가지)
 export function Footer() {
   const cls = useCurrentClass();
   const record = useDay((s) => s.record);
   const dateSet = useDay((s) => s.dateSet);
-  const tasks = progressOf(record, cls, dateSet);
+  const { slots } = usePlacement();
+  const tasks = progressOf(record, cls, dateSet, Object.values(slots));
   const done = tasks.filter(Boolean).length;
   const all = done === tasks.length;
   return (

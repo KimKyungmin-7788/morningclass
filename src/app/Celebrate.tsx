@@ -5,6 +5,7 @@ import { speak } from '@/core/tts';
 import { toast } from '@/core/ui/toast';
 import { useCurrentClass } from '@/core/data/store';
 import { progressOf, useDay } from '@/core/data/day';
+import { useLayoutEdit, usePlacement } from '@/features/layout/store';
 
 // 아침 준비 7가지를 모두 마치면 하루에 한 번 축하한다: 메시지 + 딩동댕동 + 폭죽 + 음성
 
@@ -52,7 +53,10 @@ export function Celebrate() {
   const dateSet = useDay((s) => s.dateSet);
   const update = useDay((s) => s.update);
   const [show, setShow] = useState(false);
-  const allDone = progressOf(record, cls, dateSet).every(Boolean);
+  const { slots } = usePlacement();
+  const editing = useLayoutEdit((s) => s.editing);
+  // 화면을 꾸미는 중에는 축하하지 않는다 (카드를 빼서 남은 준비가 모두 끝난 것처럼 보일 수 있다)
+  const allDone = !editing && progressOf(record, cls, dateSet, Object.values(slots)).every(Boolean);
 
   useEffect(() => {
     if (!allDone || record.celebrated) return;
