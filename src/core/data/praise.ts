@@ -1,6 +1,6 @@
 import { useDay } from './day';
 import { useData } from './store';
-import { newId, type ClassRoom, type PraiseConfig, type PraiseLog, type PraiseTally, type StudentId } from './types';
+import { newId, type ClassRoom, type PraiseConfig, type PraiseLog, type PraiseOwn, type PraiseTally, type StudentId } from './types';
 
 // 칭찬판 규칙과 스티커 주기. 1인 1역할도 "했어요"에 스티커를 줄 수 있어서 core 에 둔다.
 // 판은 학생마다 따로 채운다. 설정과 학생별 진행은 학급 설정에, 스티커 하나하나(누가 · 무엇으로 · 언제)는 그날 기록에 남는다.
@@ -20,7 +20,40 @@ export const PRAISE_DEFAULT: PraiseConfig = {
 export const REASON_MAX = 3;
 export const REWARD_MAX = 4;
 
+/** 학생별 맞춤은 이만큼까지 (공통 것에 더해지므로 적게 둔다) */
+export const OWN_REASON_MAX = 2;
+export const OWN_REWARD_MAX = 2;
+
 export const praiseConfigOf = (cls: ClassRoom | undefined): PraiseConfig => ({ ...PRAISE_DEFAULT, ...cls?.options.praise });
+
+/** 고를 수 있는 것 하나: 글과, 그 학생에게만 있는 맞춤인지 */
+export interface PraiseChoice { text: string; own: boolean }
+
+/** 공통 목록에 그 학생의 맞춤을 더한다 (맞춤이 앞에 온다. 빈 것과 겹치는 것은 뺀다) */
+function merge(common: string[], own: string[] | undefined): PraiseChoice[] {
+  const seen = new Set<string>();
+  const out: PraiseChoice[] = [];
+  for (const [list, isOwn] of [[own ?? [], true], [common, false]] as const) {
+    for (const raw of list) { const text = raw.trim(); if (text && !seen.has(text)) { seen.add(text); out.push({ text, own: isOwn }); } }
+  }
+  return out;
+}
+/** 그 학생에게 줄 수 있는 칭찬 이유: 맞춤 + 공통 */
+export const reasonsFor = (cfg: PraiseConfig, own: Partial<PraiseOwn> | undefined): PraiseChoice[] => merge(cfg.reasons, own?.reasons);
+/** 그 학생이 고를 수 있는 보상: 맞춤 + 공통 */
+export const rewardsFor = (cfg: PraiseConfig, own: Partial<PraiseOwn> | undefined): PraiseChoice[] => merge(cfg.rewards, own?.rewards);
+
+/** 저장하기 전에 맞춤을 다듬는다: 빈 칸을 빼고, 아무것도 없는 학생과 명단에 없는 학생은 지운다 */
+export function cleanOwn(own: Record<StudentId, Partial<PraiseOwn>> | undefined, studentIds: StudentId[]): Record<StudentId, PraiseOwn> {
+  const ok = new Set(studentIds);
+  const out: Record<StudentId, PraiseOwn> = {};
+  for (const [id, v] of Object.entries(own ?? {})) {
+    const reasons = [...new Set((v.reasons ?? []).map((x) => x.trim()).filter(Boolean))].slice(0, OWN_REASON_MAX);
+    const rewards = [...new Set((v.rewards ?? []).map((x) => x.trim()).filter(Boolean))].slice(0, OWN_REWARD_MAX);
+    if (ok.has(id) && (reasons.length || rewards.length)) out[id] = { reasons, rewards };
+  }
+  return out;
+}
 
 type Tally = Record<StudentId, PraiseTally>;
 const of = (tally: Tally | undefined, s: StudentId): PraiseTally => tally?.[s] ?? { now: 0, boards: 0 };

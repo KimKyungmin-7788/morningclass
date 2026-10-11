@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addSticker, claimBoard, clusterRows, isFull, praiseConfigOf, removeSticker, tallyOf } from './praise';
+import { PRAISE_DEFAULT, addSticker, claimBoard, cleanOwn, clusterRows, isFull, praiseConfigOf, reasonsFor, removeSticker, rewardsFor, tallyOf } from './praise';
 import { emptyClass } from './types';
 
 describe('칭찬판', () => {
@@ -33,5 +33,24 @@ describe('칭찬판', () => {
     expect(praiseConfigOf(undefined).size).toBe(20);
     const cls = { ...emptyClass('c1'), options: { praise: { size: 10, autoRole: true } } };
     expect(praiseConfigOf(cls)).toMatchObject({ size: 10, autoRole: true, shape: 'grape' });
+  });
+});
+
+describe('학생별 맞춤 칭찬 · 보상', () => {
+  const cfg = { ...PRAISE_DEFAULT, reasons: ['바르게 앉기', '친구 돕기'], rewards: ['자유 시간 10분'] };
+  it('맞춤이 없으면 공통 것만 나온다', () => {
+    expect(reasonsFor(cfg, undefined)).toEqual([{ text: '바르게 앉기', own: false }, { text: '친구 돕기', own: false }]);
+    expect(rewardsFor(cfg, {})).toEqual([{ text: '자유 시간 10분', own: false }]);
+  });
+  it('맞춤은 공통 것 앞에 더해지고, 그 학생의 것으로 표시된다', () => {
+    expect(reasonsFor(cfg, { reasons: ['눈 맞추고 인사하기'] }).map((x) => `${x.own ? '*' : ''}${x.text}`)).toEqual(['*눈 맞추고 인사하기', '바르게 앉기', '친구 돕기']);
+    expect(rewardsFor(cfg, { rewards: ['태블릿 5분'] }).map((x) => x.text)).toEqual(['태블릿 5분', '자유 시간 10분']);
+  });
+  it('빈 칸과 공통과 겹치는 것은 한 번만 나온다', () => {
+    expect(reasonsFor(cfg, { reasons: [' ', '친구 돕기'] }).map((x) => x.text)).toEqual(['친구 돕기', '바르게 앉기']);
+  });
+  it('저장 전에 빈 칸 · 빈 학생 · 명단에 없는 학생을 지운다', () => {
+    const cleaned = cleanOwn({ s1: { reasons: [' 도움 요청하기 ', ''], rewards: [] }, s2: { reasons: [''], rewards: [' '] }, gone: { reasons: ['x'] } }, ['s1', 's2']);
+    expect(cleaned).toEqual({ s1: { reasons: ['도움 요청하기'], rewards: [] } });
   });
 });

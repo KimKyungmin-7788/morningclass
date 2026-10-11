@@ -24,6 +24,8 @@ export interface RoleItem { id: string; icon: string; name: string; desc: string
 
 /** 칭찬판 설정: 판 모양 · 칸 수 · 칭찬 이유 · 보상 후보 · 1인 1역할 "했어요"에 스티커를 자동으로 줄지 */
 export interface PraiseConfig { shape: 'grape' | 'tree' | 'star'; size: number; reasons: string[]; rewards: string[]; autoRole: boolean }
+/** 한 학생에게만 더해 주는 칭찬 이유와 보상 (개별화) — 공통으로 정한 것에 더해 그 학생에게만 보인다 */
+export interface PraiseOwn { reasons: string[]; rewards: string[] }
 /** 학생의 칭찬판: 지금 판에 모은 개수와 지금까지 완성한 판 수 */
 export interface PraiseTally { now: number; boards: number }
 /** 칭찬 스티커 하나: 누가 · 무엇으로 · 언제 (role = 1인 1역할 "했어요"로 자동으로 받은 것) */
@@ -58,6 +60,8 @@ export interface ClassRoom {
     /** 칭찬판 설정과 학생별 진행 (스티커 하나하나의 기록은 날마다 그날 기록에 남는다) */
     praise?: Partial<PraiseConfig>;
     praiseTally?: Record<StudentId, PraiseTally>;
+    /** 학생별 맞춤 칭찬 이유 · 보상 */
+    praiseOwn?: Record<StudentId, Partial<PraiseOwn>>;
     /** 대시보드 배치표: 칸 이름 → 카드 이름 (null = 빈 칸). 없으면 기본 배치 (features/layout/model.ts) */
     layout?: Record<string, string | null>;
   };

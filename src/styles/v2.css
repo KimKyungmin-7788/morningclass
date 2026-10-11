@@ -927,3 +927,74 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .ps-switch small{font-size:13px;color:var(--text-sub);line-height:1.35;word-break:keep-all}
 .ps-summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;border-radius:14px;background:#fff;border:2px dashed #d8b4fe;font-size:14px;color:var(--text-sub)}
 .ps-summary b{font-size:16px;color:#6b21a8}
+
+/* 칭찬판 · 보통 칸에 학생이 많을 때: 두 열, 칸 바탕이 진행 막대 (8명까지 보인다) */
+.pr-mini.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:3px 4px;align-content:center;justify-content:stretch}
+.pr-mini.two>div{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0;max-height:26px;padding:0 6px;border-radius:99px;background:linear-gradient(90deg,#e9d5ff var(--p,0%),#faf5ff var(--p,0%));font-size:clamp(11px,.85vw,15px);line-height:1.5}
+.pr-mini.two span{min-width:0}
+.pr-mini.two em{flex:none}
+
+/* ── 칭찬판 설정: 공통 / 학생별 맞춤 두 쪽 ── */
+.ps-tabs{flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ps-tabs button{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;background:#fff;border:3px solid #e5e7eb;text-align:left;transition:.15s}
+.ps-tabs button>i{flex:none;font-size:28px;color:#7e22ce}
+.ps-tabs button.own>i{color:#0d9488}
+.ps-tabs span{display:flex;flex-direction:column;min-width:0}
+.ps-tabs b{display:flex;align-items:center;gap:6px;font-size:clamp(17px,1.4vw,22px);font-weight:var(--fw-title)}
+.ps-tabs b em{font-style:normal;padding:1px 9px;border-radius:99px;background:#0d9488;color:#fff;font-size:.65em}
+.ps-tabs small{font-size:13px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps-tabs button.on{border-color:#7e22ce;background:#faf5ff;box-shadow:0 0 0 4px rgba(126,34,206,.15)}
+.ps-tabs button.own.on{border-color:#0d9488;background:#f0fdfa;box-shadow:0 0 0 4px rgba(13,148,136,.15)}
+.ps-next{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:#f0fdfa;border:2px dashed #5eead4;text-align:left}
+.ps-next>i:first-child{font-size:26px;color:#0d9488}
+.ps-next>i:last-child{margin-left:auto;color:#0d9488}
+.ps-next span{display:flex;flex-direction:column;min-width:0}
+.ps-next b{font-size:16px;font-weight:var(--fw-title);color:#115e59}
+.ps-next small{font-size:13px;color:var(--text-sub);line-height:1.35;word-break:keep-all}
+.ps-next:hover{border-style:solid}
+.ps-own{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:2px 4px 2px 2px}
+.ps-own .ps-cols{flex:none;overflow:visible;padding:0}
+.ps-own-how{padding:10px 14px;border-radius:14px;background:#f0fdfa;font-size:15px;line-height:1.5;color:#134e4a;word-break:keep-all}
+.ps-who{display:flex;flex-wrap:wrap;gap:6px}
+.ps-who button{display:inline-flex;align-items:center;gap:6px;height:46px;padding:0 16px;border-radius:99px;background:#fff;border:2px solid #dbe3ee;font-size:clamp(16px,1.25vw,20px);font-weight:var(--fw-title)}
+.ps-who button em{font-style:normal;padding:1px 8px;border-radius:99px;background:#ccfbf1;color:#0f766e;font-size:.65em;font-weight:var(--fw-label)}
+.ps-who button.has{border-color:#5eead4}
+.ps-who button.on{background:#0d9488;border-color:#0d9488;color:#fff}
+.ps-who button.on em{background:#fff}
+.ps-own .ps-step{background:#f0fdfa;border-color:#99f6e4}
+.ps-own .ps-step>header>span{background:#0d9488}
+.ps-own .ps-item{border-color:#99f6e4}
+.ps-own .ps-item:focus-within{border-color:#0d9488}
+.ps-own .ps-item b{color:#0d9488}
+.ps-own .ps-ideas button{border-color:#5eead4;color:#115e59}
+.ps-own .ps-ideas button:hover{background:#ccfbf1}
+.ps-own .ps-ideas button.write{border-color:#0d9488;background:#0d9488;color:#fff}
+.ps-see{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:20px;background:#fff;border:2px solid #e5e7eb}
+.ps-see h3{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:var(--fw-title)}
+.ps-see p{margin-top:4px;font-size:13px;font-weight:var(--fw-label);color:var(--text-sub)}
+.ps-see>div{display:flex;flex-wrap:wrap;gap:6px}
+.ps-see span{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:#f3e8ff;font-size:15px;font-weight:var(--fw-label);color:#6b21a8}
+.ps-see span.own{background:#ccfbf1;color:#0f766e}
+.ps-see span em,.pr-give>div button em,.pr-reward button em{font-style:normal;padding:1px 7px;border-radius:99px;background:#0d9488;color:#fff;font-size:.68em;font-weight:var(--fw-label)}
+.ps-see>button{align-self:flex-start;margin-top:8px;height:38px;padding:0 12px;border-radius:10px;background:#fff;border:2px solid #e5e7eb;font-size:14px;font-weight:var(--fw-label);color:var(--text-sub)}
+/* 칭찬판 창: 그 학생의 맞춤은 청록색으로 구분한다 */
+.pr-give>div button.own{background:#0d9488;box-shadow:0 4px 0 #115e59;display:flex;align-items:center;gap:8px}
+.pr-give>div button.own em{margin-left:auto;background:#fff;color:#0f766e}
+.pr-reward button.own{background:#0d9488;display:flex;align-items:center;justify-content:center;gap:8px}
+.pr-reward button.own em{background:#fff;color:#0f766e}
+.pr-tailor{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:4px 12px;border-radius:99px;background:#f0fdfa;border:2px dashed #5eead4;font-size:14px;font-weight:var(--fw-label);color:#0f766e;text-align:left}
+.pr-tailor:hover{border-style:solid}
+@media (max-width:700px){.ps-tabs small{display:none}}
+
+/* 다듬기: 맞춤 정하기 단추는 이름 옆에, 요약은 한 줄로 */
+.pr-stage-name{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.pr-stage-name .pr-tailor{font-family:'Noto Sans KR',sans-serif;align-self:center}
+.pr-tailor.has{border-style:solid;background:#ccfbf1}
+.ps-summary{flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+.ps-summary span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ps-summary b,.ps-summary span:last-child{flex:none}
+.ps-own .ps-step:first-child{background:#fff}
+/* 칭찬 이유가 넷 이상이면(공통 + 맞춤) 두 열로 줄여 한 화면에 다 보이게 한다 */
+.pr-stage .pr-give>div:has(button:nth-child(4)){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pr-stage .pr-give>div:has(button:nth-child(4)) button{height:auto;min-height:50px;padding:6px 12px;font-size:clamp(15px,1.2vw,20px);line-height:1.25;word-break:keep-all}
+.pr-stage .pr-give>div:has(button:nth-child(4)) button.own{flex-wrap:wrap;gap:4px}
