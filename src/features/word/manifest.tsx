@@ -27,7 +27,7 @@ function WordCard({ size }: CardProps) {
         {isCompact(size) ? <CardCompact {...TITLE} title="오늘의 낱말" done={!!word}>{word ? word.word : '낱말을 정해요'}</CardCompact> : <>
         <CardTitle {...TITLE}>오늘의 낱말</CardTitle>
         {word ? (
-          <div className="wd-face"><b className={word.word.length > 4 ? 'long' : ''}>{word.word}</b><span>{word.meaning}</span></div>
+          <div className="wd-face"><b className={word.word.length > 4 ? 'long' : ''}>{word.word}</b><span>{word.meaning}</span>{size === 'large' && word.sentence && <q className="wd-sentence">{word.sentence}</q>}</div>
         ) : <div className="card-hint">터치해서 낱말을 정해요 👆</div>}
         </>}
       </CardFrame>

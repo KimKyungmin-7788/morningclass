@@ -36,6 +36,7 @@ function DdayCard({ size }: CardProps) {
   const [date, setDate] = useState(`${base.getFullYear()}-${pad(base.getMonth() + 1)}-${pad(base.getDate())}`);
   const nameRef = useRef<HTMLInputElement>(null);
   const list = ddaySorted(items, base);
+  const heroDiff = list.length ? ddayDiff(list[0].date, base) : 0;
 
   const add = () => {
     if (!name.trim()) { toast('이름을 입력해 주세요', 'error'); return; }
@@ -55,7 +56,17 @@ function DdayCard({ size }: CardProps) {
           <CardCompact {...TITLE} title="D-DAY">{list.length ? `${ddayLabel(ddayDiff(list[0].date, base))} ${list[0].name}` : '아직 없어요'}</CardCompact>
         ) : <>
         <CardTitle {...TITLE}>D-DAY</CardTitle>
-        {list.length
+        {list.length && size === 'large' ? (
+          // 큰 칸: 가장 가까운 날을 크게, 나머지는 아래 목록으로
+          <>
+            <div className="dday-hero">
+              <span className={`dday-badge ${heroDiff === 0 ? 'today' : heroDiff < 0 ? 'past' : ''}`}>{ddayLabel(heroDiff)}</span>
+              <span className="dday-name">{list[0].name}</span>
+              <span className="dday-date">{fmtDdayDate(list[0].date)}</span>
+            </div>
+            {list.length > 1 && <div className="dday-list">{list.slice(1).map((it) => <Row key={it.id} it={it} base={base} />)}</div>}
+          </>
+        ) : list.length
           ? <div className="dday-list">{list.map((it) => <Row key={it.id} it={it} base={base} />)}</div>
           : <div className="card-hint" style={{ fontSize: 15 }}>터치해서 기념일·시험 D-DAY를 추가해요 👆</div>}
         </>}
