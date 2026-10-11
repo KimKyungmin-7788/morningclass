@@ -1011,3 +1011,8 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .pr-stage.star{background:linear-gradient(160deg,#eef2ff,#fff 60%)}
 /* 작은 별 판(카드 · 설정 미리보기)은 밤하늘이 없으므로 빈자리가 보이게 바탕을 살짝 준다 */
 .pr-tile .pr-board.star.art,.ps-pic .pr-board.star.art{padding:calc(var(--d) * .3);border-radius:calc(var(--d) * .8);background:linear-gradient(160deg,#4338ca,#6d28d9)}
+
+/* ── 칭찬 인증서 창 ── */
+.pc{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:0}
+.pc-img{display:block;max-width:100%;max-height:calc(90vh - 270px);aspect-ratio:1600/1131;border-radius:12px;box-shadow:0 10px 30px -10px rgba(15,23,42,.35);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1)}
+.pc-note{font-size:13px;color:var(--text-sub);text-align:center;line-height:1.4;word-break:keep-all}

@@ -77,6 +77,13 @@ export function clusterRows(n: number): number[] {
   return rows;
 }
 
+/** 인증서에 적을 "칭찬받은 일": 그 학생이 since 뒤로 받은 스티커를 이유별로 세어 많은 순으로 */
+export function reasonCounts(logs: PraiseLog[], studentId: StudentId, since = ''): { text: string; count: number }[] {
+  const by = new Map<string, number>();
+  for (const p of logs) if (p.s === studentId && p.at > since) by.set(p.r, (by.get(p.r) ?? 0) + 1);
+  return [...by].map(([text, count]) => ({ text, count })).sort((a, b) => b.count - a.count);
+}
+
 // ── 주기 · 되돌리기 (학급 설정과 그날 기록을 함께 고친다) ──
 const currentClass = () => { const { classes, currentClassId } = useData.getState(); return classes.find((c) => c.id === currentClassId); };
 const saveTally = (next: Tally) => { const cls = currentClass(); if (cls) void useData.getState().saveClass({ ...cls, options: { ...cls.options, praiseTally: next } }); };

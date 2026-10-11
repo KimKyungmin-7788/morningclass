@@ -10,10 +10,12 @@ import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import {
   OWN_REASON_MAX, OWN_REWARD_MAX, PRAISE_SHAPES, PRAISE_SIZES, REASON_MAX, REWARD_MAX,
-  claimReward, cleanOwn, clusterRows, givePraise, isFull, praiseConfigOf, reasonsFor, rewardsFor, tallyOf, undoPraise,
+  claimReward, cleanOwn, clusterRows, givePraise, isFull, praiseConfigOf, reasonCounts, reasonsFor, rewardsFor, tallyOf, undoPraise,
 } from '@/core/data/praise';
 import type { PraiseConfig, PraiseLog, PraiseOwn, Student } from '@/core/data/types';
+import { recordsOf } from '@/core/data/backupActions';
 import type { CardProps, FeatureManifest } from '../types';
+import { certFileName, downloadCanvas, drawCertificate, printImage, type CertData } from './certificate';
 
 // 칭찬판: 학생마다 자기 판(포도 · 나무 · 별)을 칭찬 스티커로 채우고, 다 채우면 보상을 고른다.
 // 스티커는 선생님만 준다 — 주기 전에 곱셈 문제로 확인하고, 한 번 맞히면 잠시 동안은 다시 묻지 않는다.
@@ -252,6 +254,8 @@ function PraiseCard({ size }: CardProps) {
   const [last, setLast] = useState<PraiseLog | null>(null);
   /** 설정을 열 때 바로 보여 줄 학생 (칭찬판에서 '맞춤 설정'으로 들어온 경우) */
   const [focus, setFocus] = useState<string | null>(null);
+  /** 방금 발급한 칭찬 인증서 (저장하지 않고 이 창에서만 보여 준다) */
+  const [cert, setCert] = useState<{ data: CertData; cv: HTMLCanvasElement; url: string } | null>(null);
   const students = activeStudents(cls);
   const cfg = praiseConfigOf(cls);
   const tally = cls?.options.praiseTally;
@@ -277,12 +281,25 @@ function PraiseCard({ size }: CardProps) {
     playSound('sparkle');
     speak(`${s.name}, ${reason}! 칭찬해요!`);
   });
+  /** 보상을 고르면: 이번 판에서 칭찬받은 일을 모아 인증서를 만들고, 새 판을 시작한다 */
   const claim = (s: Student, reward: string) => asTeacher(() => {
-    claimReward(s.id, reward);
-    setLast(null);
-    playSound('complete');
-    speak(`${s.name}, 칭찬판을 다 채웠어요! 축하해요!`);
-    toast(`${s.name} — ${reward} 🎉`, 'success');
+    void (async () => {
+      const now = new Date();
+      // 지난번 보상 뒤로 받은 스티커가 이번 판의 것 (기록을 읽지 못하면 칭찬받은 일 없이 만든다)
+      const records = cls ? await recordsOf(cls.id).catch(() => []) : [];
+      const since = records.flatMap((r) => r.praiseRewards ?? []).filter((x) => x.s === s.id).map((x) => x.at).sort().pop() ?? '';
+      const data: CertData = {
+        name: s.name, board: PRAISE_SHAPES.find((x) => x.id === cfg.shape)?.label ?? '칭찬판', size: cfg.size, shape: cfg.shape,
+        nth: tallyOf(tally, s.id).boards + 1, reasons: reasonCounts(records.flatMap((r) => r.praise ?? []), s.id, since), reward, date: now,
+        school: cls?.schoolName ?? '', className: cls?.className ?? '',
+      };
+      claimReward(s.id, reward);
+      setLast(null);
+      playSound('complete');
+      speak(`${s.name}, 칭찬판을 다 채웠어요! 축하해요!`);
+      try { const cv = await drawCertificate(data); setCert({ data, cv, url: cv.toDataURL('image/png') }); }
+      catch { toast(`${s.name} — ${reward} 🎉`, 'success'); }
+    })();
   });
   const save = (next: PraiseConfig, nextOwn: OwnMap) => {
     const now = useData.getState().classes.find((c) => c.id === cls?.id);
@@ -396,6 +413,20 @@ function PraiseCard({ size }: CardProps) {
               );
             })()}
           </div>
+        </Popup>
+      )}
+      {cert && (
+        <Popup title="🏅 칭찬 인증서" large onClose={() => setCert(null)}>
+          <div className="pc">
+            <img className="pc-img" src={cert.url} alt={`${cert.data.name} 칭찬 인증서 — 보상: ${cert.data.reward}`} />
+            <div className="pc-note">인증서는 저장되지 않아요. 필요하면 지금 인쇄하거나 그림으로 받아 두세요. 그림 파일에는 학생 이름이 들어 있어요.</div>
+          </div>
+          <PopupActions>
+            <button className="btn-tool" onClick={() => { printImage(cert.url); playSound('select'); }}>🖨️ 인쇄</button>
+            <button className="btn-tool" onClick={() => { void downloadCanvas(cert.cv, certFileName(cert.data)).then(() => toast('그림 파일로 받았어요', 'success'), () => toast('그림으로 만들지 못했어요', 'error')); playSound('select'); }}>⬇️ 이미지 저장</button>
+            <span className="pa-divider" aria-hidden="true" />
+            <button className="btn-save" onClick={() => setCert(null)}>✓ 닫기</button>
+          </PopupActions>
         </Popup>
       )}
       {view === 'setup' && (

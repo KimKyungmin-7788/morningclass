@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PRAISE_DEFAULT, addSticker, claimBoard, cleanOwn, clusterRows, isFull, praiseConfigOf, reasonsFor, removeSticker, rewardsFor, tallyOf } from './praise';
+import { PRAISE_DEFAULT, addSticker, claimBoard, cleanOwn, clusterRows, isFull, praiseConfigOf, reasonCounts, reasonsFor, removeSticker, rewardsFor, tallyOf } from './praise';
 import { emptyClass } from './types';
 
 describe('칭찬판', () => {
@@ -52,5 +52,17 @@ describe('학생별 맞춤 칭찬 · 보상', () => {
   it('저장 전에 빈 칸 · 빈 학생 · 명단에 없는 학생을 지운다', () => {
     const cleaned = cleanOwn({ s1: { reasons: [' 도움 요청하기 ', ''], rewards: [] }, s2: { reasons: [''], rewards: [' '] }, gone: { reasons: ['x'] } }, ['s1', 's2']);
     expect(cleaned).toEqual({ s1: { reasons: ['도움 요청하기'], rewards: [] } });
+  });
+});
+
+describe('인증서에 적을 칭찬받은 일', () => {
+  const log = (s: string, r: string, at: string) => ({ id: at + r, s, r, at });
+  const logs = [log('s1', '바르게 앉기', '2026-10-01'), log('s1', '친구 돕기', '2026-10-02'), log('s1', '바르게 앉기', '2026-10-03'), log('s2', '친구 돕기', '2026-10-03'), log('s1', '친구 돕기', '2026-10-05'), log('s1', '바르게 앉기', '2026-10-06')];
+  it('그 학생의 것만 이유별로 세어 많은 순으로', () => {
+    expect(reasonCounts(logs, 's1')).toEqual([{ text: '바르게 앉기', count: 3 }, { text: '친구 돕기', count: 2 }]);
+  });
+  it('지난번 보상 뒤의 것만 센다', () => {
+    expect(reasonCounts(logs, 's1', '2026-10-03')).toEqual([{ text: '친구 돕기', count: 1 }, { text: '바르게 앉기', count: 1 }]);
+    expect(reasonCounts(logs, 's3')).toEqual([]);
   });
 });
