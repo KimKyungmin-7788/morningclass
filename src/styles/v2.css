@@ -1006,8 +1006,8 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .pr-board.star.art img{padding:calc(var(--d) * .03)}
 .pr-board.star.art img.on{filter:drop-shadow(0 calc(var(--d) * .03) calc(var(--d) * .06) rgba(30,27,75,.45))}
 .pr-art .pr-board.art img.on{animation:bounceIn .4s cubic-bezier(.34,1.56,.64,1)}
-.pr-art.star .pr-art-sign{left:25%;right:23%;top:11.5%;height:12%;color:#3730a3;transform:none}
-.pr-art.star .pr-art-fill{left:20%;right:20%;top:31%;bottom:20%}
+.pr-art.star .pr-art-sign{left:22%;right:20%;top:10.5%;height:13%;color:#3730a3;transform:none}
+.pr-art.star .pr-art-fill{left:20%;right:20%;top:31%;bottom:21%}
 .pr-stage.star{background:linear-gradient(160deg,#eef2ff,#fff 60%)}
 /* 작은 별 판(카드 · 설정 미리보기)은 밤하늘이 없으므로 빈자리가 보이게 바탕을 살짝 준다 */
 .pr-tile .pr-board.star.art,.ps-pic .pr-board.star.art{padding:calc(var(--d) * .3);border-radius:calc(var(--d) * .8);background:linear-gradient(160deg,#4338ca,#6d28d9)}
@@ -1016,3 +1016,19 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .pc{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:0}
 .pc-img{display:block;max-width:100%;max-height:calc(90vh - 270px);aspect-ratio:1600/1131;border-radius:12px;box-shadow:0 10px 30px -10px rgba(15,23,42,.35);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1)}
 .pc-note{font-size:13px;color:var(--text-sub);text-align:center;line-height:1.4;word-break:keep-all}
+
+/* ── 하단 줄: 왼쪽 절반은 바구니에 담긴 카드 이름, 오른쪽 절반은 진행률 ── */
+footer .dock{flex:0 0 calc(50% - 7px);min-width:0;display:flex;align-items:center;gap:8px;padding-right:14px;border-right:2px solid rgba(0,0,0,.07)}
+footer .dock>i{flex:none;font-size:22px;color:#c2701c}
+footer .dock>div{flex:1;min-width:0;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+footer .dock>div::-webkit-scrollbar{display:none}
+footer .dock button{flex:none;padding:4px 10px;border-radius:99px;font-size:var(--fs-body);font-weight:var(--fw-label);color:var(--text);transition:.15s}
+footer .dock button:hover{background:#fff;color:var(--primary-dark)}
+footer .dock button+button{position:relative;margin-left:10px}
+footer .dock button+button::before{content:'·';position:absolute;left:-8px;color:#cbd5e1;pointer-events:none}
+footer .dock~.progress-wrap{flex:1 1 0}
+footer:has(.dock) .status{flex:none}
+@media print{footer .dock{display:none!important}}
+/* 바구니 카드를 창으로 열었을 때: 큰 칸 크기의 자리 하나 */
+.dock-slot{height:min(calc(90vh - 190px),600px);-webkit-user-select:auto;user-select:auto}
+.dock-slot>.card{flex:1;box-shadow:none;border:2px solid #eef0f5;background:#fff}
