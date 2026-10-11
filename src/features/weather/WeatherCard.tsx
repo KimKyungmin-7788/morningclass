@@ -6,8 +6,8 @@ import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { useDay } from '@/core/data/day';
-import { DUST, FEEL, WEATHER, judgeWeather, wxFeel, wxTheme, type WeatherKind, type WeatherValue } from './model';
-import { geoErrorText, geoWeather } from './geo';
+import { DUST, FEEL, WEATHER, judgeWeather, wxFeel, wxTheme, type DustLevel, type WeatherKind, type WeatherValue } from './model';
+import { geoDust, geoErrorText, geoWeather } from './geo';
 import { WeatherScene } from './WeatherScene';
 import { DustChip } from './DustCard';
 import { WeatherSheet } from '@/features/worksheets/Worksheets';
@@ -18,7 +18,7 @@ type Stage =
   | { at: 'closed' }
   | { at: 'pick' }
   | { at: 'reveal'; w: WeatherValue }
-  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null }
+  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null; dustAns: DustLevel | null; guessDust: DustLevel | null }
   | { at: 'sheet' };
 
 /** 날씨와 구분되도록 온도계 아이콘을 단 기온 패널 */
@@ -74,17 +74,20 @@ export function WeatherCard() {
     ensureAudio();
     setChecking(true);
     try {
-      const ans = await geoWeather();
+      // 날씨와 함께 미세먼지 정답도 불러온다 (미세먼지만 못 불러오면 날씨만 확인한다)
+      const [ans, dustRes] = await Promise.all([geoWeather(), geoDust().catch(() => null)]);
+      const dustAns = dustRes?.d ?? null;
+      const guessDust = dust != null ? DUST[dust] : null;
       const guess = WEATHER[pick];
       const { wOk, fOk, allOk } = judgeWeather(guess.label, feel, ans);
       ans.guess = { label: guess.label, feel, wOk, fOk };
       update((r) => { r.weather = { ...ans }; });
-      saveDust();
-      playSound(allOk ? 'correct' : 'wrong');
+      if (dustAns) update((r) => { r.dust = { ...dustAns }; }); else saveDust();   // 정답을 불러왔으면 정답을, 아니면 고른 것을 기록한다
+      playSound(allOk && (!guessDust || !dustAns || guessDust.level === dustAns.level) ? 'correct' : 'wrong');
       const af = wxFeel(ans);
       // 맞음·틀림 평가 없이 정답 날씨만 읽어 준다
-      speak(`오늘 날씨는 ${ans.label}${ans.temp != null ? `, ${Math.round(ans.temp)}도` : ''}${af ? `, ${af.label}` : ''} 입니다.`);
-      setStage({ at: 'result', ans, guess, guessFeel: feel });
+      speak(`오늘 날씨는 ${ans.label}${ans.temp != null ? `, ${Math.round(ans.temp)}도` : ''}${af ? `, ${af.label}` : ''} 입니다.${dustAns ? ` 미세먼지는 ${dustAns.label} 입니다.` : ''}`);
+      setStage({ at: 'result', ans, guess, guessFeel: feel, dustAns, guessDust });
     } catch (e) {
       toast(geoErrorText(e, '아래 버튼으로 저장해요'), 'error');
     } finally {
@@ -174,7 +177,8 @@ export function WeatherCard() {
       })()}
 
       {stage.at === 'result' && (() => {
-        const { ans, guess, guessFeel } = stage;
+        const { ans, guess, guessFeel, dustAns, guessDust } = stage;
+        const dOk = guessDust && dustAns ? guessDust.level === dustAns.level : null;   // 미세먼지는 고르고, 정답도 불러왔을 때만 맞춰 본다
         const th = wxTheme(ans);
         const gf = FEEL.find((f) => f.k === guessFeel) ?? null;
         const { wOk, fOk, allOk } = judgeWeather(guess.label, guessFeel, ans);
@@ -186,16 +190,24 @@ export function WeatherCard() {
                 <i className="ph-fill ph-notepad" style={{ fontSize: 24 }} />날씨 활동지
               </button>
             )}>
-            <div className={`wxres-head ${allOk ? 'ok' : 'no'}`}>{allOk ? '🎉 모두 맞았어요!' : '🤔 정답을 확인해요'}</div>
-            <div className="wxres-grid">
+            <div className={`wxres-head ${allOk && dOk !== false ? 'ok' : 'no'}`}>{allOk && dOk !== false ? '🎉 모두 맞았어요!' : '🤔 정답을 확인해요'}</div>
+            <div className="wxres-grid three">
               {resultCard('ph-cloud-sun', '날씨', guess, wOk)}
               {resultCard('ph-thermometer-simple', '기온', gf, gf ? fOk : null)}
+              {resultCard('ph-wind', '미세먼지', guessDust, dOk)}
             </div>
             <div className="wxres-ans">정답</div>
             <div className={`wx-reveal sm wxc-${th.k}`}>
               <WeatherScene kind={th.k} big />
-              <div className="wxr-inner">
-                <i className={`ph-fill ${th.ph} wxr-ico`} /><div className="wxr-label">{ans.label}</div><Temp w={ans} cls="wxr-temp" />
+              {/* 왼쪽에 날씨 그림과 이름, 오른쪽에 기온과 미세먼지를 위아래로 */}
+              <div className="wxr-inner wxr-split">
+                <div className="wxr-sky"><i className={`ph-fill ${th.ph} wxr-ico`} /><div className="wxr-label">{ans.label}</div></div>
+                <div className="wxr-facts">
+                  <Temp w={ans} cls="wxr-temp" />
+                  {dustAns
+                    ? <div className={`wxr-dust dust-${dustAns.level}`}><i className="ph-fill ph-wind wxt-ico" aria-hidden="true" /><span>미세먼지</span><b><em role="img" aria-label={dustAns.label}>{dustAns.emoji}</em> {dustAns.label}</b><small>{dustAns.hint}</small></div>
+                    : <div className="wxr-dust none"><i className="ph-fill ph-wind wxt-ico" aria-hidden="true" /><span>미세먼지</span><small>불러오지 못했어요</small></div>}
+                </div>
               </div>
             </div>
             <button className="auto-fetch-btn" style={{ margin: '12px 0 0' }} onClick={close}>확인</button>
