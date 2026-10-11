@@ -1068,7 +1068,7 @@ header .date-card .ico{color:var(--acc-coral);display:inline-flex;align-items:ce
 @media print{.video-window{display:none!important}}
 
 /* sr-only */
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.sr-only{position:absolute;top:0;left:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* welcome */
 .welcome{text-align:center;padding:30px}

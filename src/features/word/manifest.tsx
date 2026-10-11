@@ -31,5 +31,5 @@ function WordCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'word', cards: [{ id: 'word', Component: WordCard }] };
+const manifest: FeatureManifest = { id: 'word', cards: [{ id: 'word', title: '오늘의 낱말', icon: 'ph-fill ph-book-open-text', tint: '#dcfce7', color: '#16a34a', Component: WordCard }] };
 export default manifest;

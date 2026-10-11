@@ -7,6 +7,11 @@ import type { SlotSize } from '@/core/ui/slot';
 export interface CardDef {
   /** 카드 고유 이름 (예: 'weather') */
   id: string;
+  /** 보관함에 보이는 이름과 아이콘 (카드 제목 줄과 같게) */
+  title: string;
+  icon: string;
+  tint: string;
+  color: string;
   /** 카드 내용. <CardFrame> 으로 감싸서 그린다. 놓인 칸의 크기를 받아 모습을 바꾼다. */
   Component: ComponentType<CardProps>;
 }

@@ -267,5 +267,5 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
   );
 }
 
-const manifest: FeatureManifest = { id: 'emotions', cards: [{ id: 'emotions', Component: EmotionsCard }] };
+const manifest: FeatureManifest = { id: 'emotions', cards: [{ id: 'emotions', title: '우리반 감정', ...TITLE, Component: EmotionsCard }] };
 export default manifest;

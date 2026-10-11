@@ -74,5 +74,5 @@ function DdayCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', Component: DdayCard }] };
+const manifest: FeatureManifest = { id: 'dday', cards: [{ id: 'dday', title: 'D-DAY', icon: 'ph-fill ph-flag-banner', tint: '#e0e7ff', color: '#4f46e5', Component: DdayCard }] };
 export default manifest;

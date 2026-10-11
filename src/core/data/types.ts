@@ -45,6 +45,8 @@ export interface ClassRoom {
     video?: { url: string; title: string };
     /** 대시보드 배치표: 칸 이름 → 카드 이름 (null = 빈 칸). 없으면 기본 배치 (features/layout/model.ts) */
     layout?: Record<string, string | null>;
+    /** 화면 꾸미기 허용: 켜져 있을 때만 카드를 길게 눌러 배치를 바꿀 수 있다 (기본 꺼짐) */
+    layoutEdit?: boolean;
   };
 }
 

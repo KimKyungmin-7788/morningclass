@@ -8,7 +8,7 @@ export interface SlotDef {
   id: string;
   col: 0 | 1 | 2 | 3;
   size: SlotSize;
-  /** 열 안에서 차지하는 높이 */
+  /** 열 안에서 차지하는 높이 (어느 카드가 들어와도 같다) */
   flex: number | string;
   minHeight?: number;
 }
@@ -19,12 +19,12 @@ export const SLOTS: SlotDef[] = [
   { id: 'a2', col: 0, size: 'medium', flex: 1 },
   { id: 'a3', col: 0, size: 'medium', flex: 1 },
   { id: 'b1', col: 1, size: 'large', flex: 1 },
-  { id: 'b2', col: 1, size: 'small', flex: '0 0 auto', minHeight: 170 },
+  { id: 'b2', col: 1, size: 'small', flex: '0 0 170px' },
   { id: 'c1', col: 2, size: 'large', flex: 1 },
-  { id: 'c2', col: 2, size: 'small', flex: '0 0 auto', minHeight: 170 },
+  { id: 'c2', col: 2, size: 'small', flex: '0 0 170px' },
   { id: 'd1', col: 3, size: 'medium', flex: 1.1, minHeight: 110 },
   { id: 'd2', col: 3, size: 'medium', flex: 1.1, minHeight: 110 },
-  { id: 'd3', col: 3, size: 'small', flex: '0 0 auto' },
+  { id: 'd3', col: 3, size: 'small', flex: '0 0 var(--slot-strip-h)' },
   { id: 'd4', col: 3, size: 'tiny', flex: '0 0 90px', minHeight: 90 },
 ];
 
@@ -67,6 +67,16 @@ export function resolveLayout(saved: unknown, cardIds: string[]): Placement {
     }
   }
   return { slots, drawer: cardIds.filter((c) => !placed.has(c)) };
+}
+
+/** 위에서부터 첫 빈 칸 (없으면 null) */
+export function firstEmptySlot(layout: Layout): string | null {
+  return SLOTS.find((s) => layout[s.id] === null)?.id ?? null;
+}
+
+/** 기본 배치 그대로인지 */
+export function isDefaultLayout(layout: Layout): boolean {
+  return SLOTS.every((s) => layout[s.id] === (DEFAULT_LAYOUT[s.id] ?? null));
 }
 
 const isSlot = (layout: Layout, id: string) => Object.prototype.hasOwnProperty.call(layout, id);

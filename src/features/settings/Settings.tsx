@@ -179,6 +179,7 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete }: TabProps & { s
         <button className="btn-test" onClick={() => void testMeal()}>🧪 급식 연동 테스트</button>
         {test && <div className="test-result">{test}</div>}
       </div>
+      <LayoutLock classId={draft.id} />
       {canDelete && (
         <div className="field" style={{ marginTop: 18, borderTop: '1px solid #eef0f5', paddingTop: 16 }}>
           <button className="btn-test" style={{ background: 'var(--danger)', width: '100%', margin: 0 }} onClick={onDelete}>🗑️ 현재 학급 삭제</button>
@@ -186,6 +187,26 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete }: TabProps & { s
         </div>
       )}
     </>
+  );
+}
+
+/** 화면 꾸미기 잠금. 누르는 즉시 저장된다 (학생이 실수로 배치를 바꾸지 않게 기본은 꺼짐). */
+function LayoutLock({ classId }: { classId: string }) {
+  const stored = useData((s) => s.classes.find((c) => c.id === classId));
+  const saveClass = useData((s) => s.saveClass);
+  if (!stored) return null;
+  const on = stored.options.layoutEdit === true;
+  return (
+    <div className="field">
+      <label>화면 꾸미기</label>
+      <div className="level-switcher">
+        <button className={`class-chip${on ? ' active' : ''}`} aria-pressed={on}
+          onClick={() => { void saveClass({ ...stored, options: { ...stored.options, layoutEdit: !on } }); playSound('select'); }}>
+          {on ? '🔓 화면 꾸미기 허용 켜짐' : '🔒 화면 꾸미기 허용 꺼짐'}
+        </button>
+      </div>
+      <div className="hint">켜 두면 아침교실 화면에서 카드를 <b>길게 눌러</b> 자리를 바꾸거나 빼고 넣을 수 있어요. 다 꾸민 뒤에는 꺼 두면 실수로 바뀌지 않아요. 누르면 바로 반영돼요.</div>
+    </div>
   );
 }
 

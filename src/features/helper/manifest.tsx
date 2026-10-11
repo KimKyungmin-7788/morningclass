@@ -192,5 +192,5 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
   );
 }
 
-const manifest: FeatureManifest = { id: 'helper', cards: [{ id: 'helper', Component: HelperCard }] };
+const manifest: FeatureManifest = { id: 'helper', cards: [{ id: 'helper', title: '오늘의 도우미', icon: 'ph-duotone ph-dice-five', tint: '#ede9fe', color: '#7c3aed', Component: HelperCard }] };
 export default manifest;

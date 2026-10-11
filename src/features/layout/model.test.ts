@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LAYOUT, SLOTS, clearSlot, placeCard, resolveLayout, swapSlots } from './model';
+import { DEFAULT_LAYOUT, SLOTS, clearSlot, firstEmptySlot, isDefaultLayout, placeCard, resolveLayout, swapSlots } from './model';
 
 const CARDS = Object.values(DEFAULT_LAYOUT) as string[];
 
@@ -78,6 +78,15 @@ describe('배치 바꾸기', () => {
     const next = placeCard(clearSlot(base, 'd4'), 'a1', 'book');
     expect(next.a1).toBe('book');
     expect(resolveLayout(next, CARDS).drawer).toEqual(['weather']);
+  });
+  it('첫 빈 칸을 위에서부터 찾는다', () => {
+    expect(firstEmptySlot(base)).toBeNull();
+    expect(firstEmptySlot(clearSlot(clearSlot(base, 'd1'), 'b2'))).toBe('b2');
+  });
+  it('기본 배치인지 안다', () => {
+    expect(isDefaultLayout(base)).toBe(true);
+    expect(isDefaultLayout(swapSlots(base, 'a1', 'a2'))).toBe(false);
+    expect(isDefaultLayout(swapSlots(swapSlots(base, 'a1', 'a2'), 'a1', 'a2'))).toBe(true);
   });
   it('이미 놓인 카드를 다른 칸에 넣으면 두 칸이 맞바뀐다', () => {
     const next = placeCard(base, 'b1', 'weather');

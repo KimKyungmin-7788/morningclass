@@ -334,5 +334,5 @@ function AllergyWindow({ cls, onBack }: { cls: ClassRoom; onBack: () => void }) 
   );
 }
 
-const manifest: FeatureManifest = { id: 'meal', cards: [{ id: 'meal', Component: MealCard }] };
+const manifest: FeatureManifest = { id: 'meal', cards: [{ id: 'meal', title: '오늘의 급식', ...CHIP, Component: MealCard }] };
 export default manifest;

@@ -122,5 +122,5 @@ function VideoCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'video', cards: [{ id: 'book', Component: VideoCard }] };
+const manifest: FeatureManifest = { id: 'video', cards: [{ id: 'book', title: '영상 재생', icon: 'ph-fill ph-play-circle', tint: '#fee2e2', color: '#dc2626', Component: VideoCard }] };
 export default manifest;

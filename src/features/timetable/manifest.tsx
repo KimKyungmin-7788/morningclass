@@ -199,5 +199,5 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
   );
 }
 
-const manifest: FeatureManifest = { id: 'timetable', cards: [{ id: 'timetable', Component: TimetableCard }] };
+const manifest: FeatureManifest = { id: 'timetable', cards: [{ id: 'timetable', title: '오늘의 시간표', ...TITLE, Component: TimetableCard }] };
 export default manifest;

@@ -11,10 +11,13 @@ import { SideSwitch } from './SideSwitch';
 import { BackupReminder } from '@/features/onboarding/Onboarding';
 import { Celebrate } from './Celebrate';
 import { LessonView } from '@/features/lesson/LessonView';
+import { LayoutDrawer } from '@/features/layout/Drawer';
+import { useLayoutEdit } from '@/features/layout/store';
 
 // 화면 뼈대: 아침교실(상단 줄 · 대시보드 · 진행률) / 수업교실, 오른쪽 옆 탭으로 전환
 export function App() {
   const appMode = usePrefs((s) => s.appMode);
+  const layoutEditing = useLayoutEdit((s) => s.editing);
   const boot = useData((s) => s.boot);
   const bootError = useData((s) => s.bootError);
   const migration = useData((s) => s.migration);
@@ -54,7 +57,7 @@ export function App() {
           <div id="morning-view">
             <Header />
             <Dashboard />
-            <Footer />
+            {layoutEditing ? <LayoutDrawer /> : <Footer />}
           </div>
         ) : (
           <div id="lesson-view"><LessonView /></div>

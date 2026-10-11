@@ -373,3 +373,36 @@ body:has(#lesson-present) .backup-reminder { display: none; }
 #card-weather .dust-wrap{flex:none;margin-top:0;padding-top:6px}
 #card-weather .dust-chip{padding:5px 10px}
 #card-weather .card-hint{flex:1 1 auto;min-height:0}
+
+/* ── 대시보드 칸 · 화면 꾸미기 ──
+   칸(.slot)이 자리와 높이를 정하고 카드는 칸을 채운다. 빈 칸은 평소에도 흐린 점선으로 보인다. */
+:root{--slot-strip-h:calc(86px + clamp(46px,3.8vw,62px))}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) and (max-height: 800px) {
+  :root{--slot-strip-h:calc(70px + clamp(46px,3.8vw,62px))}
+}
+.slot{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;border-radius:32px}
+.slot.empty{min-height:72px;border:2px dashed rgba(148,163,184,.38);background:rgba(255,255,255,.14)}
+main.lay-can .slot{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+
+main.lay-editing .slot{touch-action:none;cursor:grab}
+main.lay-editing .slot>.card{pointer-events:none;outline:2px dashed rgba(91,182,255,.75);outline-offset:-2px}
+main.lay-editing .slot.empty{border-color:var(--primary);background:rgba(91,182,255,.08)}
+main.lay-editing .slot.empty::after{content:'+';position:absolute;inset:0;display:grid;place-items:center;font-size:32px;font-weight:700;color:var(--primary);opacity:.6}
+main.lay-editing .slot.lay-dragging>.card{opacity:.3}
+main.lay-editing .slot.lay-over{box-shadow:0 0 0 4px var(--primary);background:rgba(91,182,255,.16)}
+main.lay-editing .slot.lay-over>.card{transform:scale(.97)}
+.lay-x{position:absolute;top:-13px;left:-13px;z-index:5;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#475569;color:#fff;font-size:20px;border:3px solid #fff;box-shadow:0 4px 12px rgba(15,23,42,.3);cursor:pointer;touch-action:manipulation}
+.lay-x:hover{background:var(--danger)}
+.lay-ghost{position:fixed!important;z-index:9999;margin:0!important;flex:none!important;pointer-events:none;opacity:.94;transform:scale(1.03) rotate(1.5deg);box-shadow:0 18px 40px rgba(15,23,42,.3)!important;transition:none!important;animation:none!important}
+
+.lay-drawer{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;gap:12px;min-height:68px;padding:8px 12px 8px 18px;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px dashed var(--primary);border-radius:var(--radius);-webkit-user-select:none;user-select:none}
+.lay-drawer.lay-over{background:#e0f2fe;border-style:solid}
+.lay-drawer-title{display:flex;align-items:center;gap:6px;font-weight:var(--fw-title);font-size:var(--fs-body);color:var(--primary-dark);white-space:nowrap}
+.lay-drawer-hint{color:var(--text-sub);font-size:15px;line-height:1.4}
+.lay-chips{flex:1;min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;padding:2px}
+.lay-chip{flex:none;display:flex;align-items:center;gap:7px;height:48px;padding:0 16px 0 8px;border-radius:99px;background:#fff;border:2px solid #dbe3ee;font-size:16px;font-weight:var(--fw-label);color:var(--text);white-space:nowrap;touch-action:none;cursor:grab;box-shadow:0 2px 8px rgba(160,175,200,.3)}
+.lay-chip.lay-ghost{width:auto!important;height:48px!important}
+.lay-chip.lay-dragging{opacity:.35}
+.lay-btn{flex:none;height:48px;padding:0 16px;border-radius:14px;background:#fff;border:2px solid #dbe3ee;font-size:16px;font-weight:var(--fw-label);color:var(--text);white-space:nowrap}
+.lay-btn.done{background:var(--primary);border-color:var(--primary);color:#fff}
+@media print{.lay-drawer,.lay-x{display:none!important}.slot.empty{display:none}}

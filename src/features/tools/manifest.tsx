@@ -193,5 +193,5 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
   );
 }
 
-const manifest: FeatureManifest = { id: 'tools', cards: [{ id: 'tools', Component: ToolsCard }] };
+const manifest: FeatureManifest = { id: 'tools', cards: [{ id: 'tools', title: '수업 도구', icon: 'ph-fill ph-wrench', tint: '#e5e7eb', color: '#374151', Component: ToolsCard }] };
 export default manifest;

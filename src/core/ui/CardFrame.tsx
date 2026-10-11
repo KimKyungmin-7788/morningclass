@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { useSlot } from './slot';
+import { useSlotSize } from './slot';
 
 // 대시보드 카드의 겉모양. 상태(비어 있음/채워짐)와 누르기 동작만 맡고, 내용은 기능이 채운다.
 // 높이는 카드가 놓인 칸(slot)이 정한다.
@@ -15,15 +15,15 @@ interface CardFrameProps {
 }
 
 export function CardFrame({ id, label, state = 'empty', onOpen, className = '', style, children }: CardFrameProps) {
-  const slot = useSlot();
+  const size = useSlotSize();
   const cls = ['card', onOpen ? 'touchable' : '', state === 'plain' ? '' : state, className].filter(Boolean).join(' ');
   return (
     <div
       className={cls}
       id={`card-${id}`}
       aria-label={label}
-      data-size={slot?.size}
-      style={slot ? { ...slot.style, ...style } : style}
+      data-size={size ?? undefined}
+      style={style}
       {...(onOpen
         ? {
             role: 'button',

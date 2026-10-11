@@ -41,5 +41,5 @@ function NotesCard() {
   );
 }
 
-const manifest: FeatureManifest = { id: 'notes', cards: [{ id: 'notes', Component: NotesCard }] };
+const manifest: FeatureManifest = { id: 'notes', cards: [{ id: 'notes', title: '오늘의 유의사항', icon: 'ph-fill ph-megaphone', tint: '#fce7f3', color: '#db2777', Component: NotesCard }] };
 export default manifest;
