@@ -11,6 +11,7 @@ import { hiddenSubjects, moveSubject, subjectBank, subjectIcon, withSubject, wit
 import { MAX_PERIODS, periodsOn, useTimetables } from '@/core/data/timetables';
 import type { ClassRoom } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
+import { TimetableSheet } from '@/features/worksheets/Worksheets';
 import { arrangeStatus, hasAnswer, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
 
 // 오늘의 시간표: 과목 카드를 교시 칸에 끌어 놓아 맞춘다. 선생님이 설정에 넣은 시간표가 정답이 된다(없으면 자유 배치).
@@ -26,6 +27,7 @@ function TimetableCard({ size }: CardProps) {
   const update = useDay((s) => s.update);
   const { byDay } = useTimetables(cls?.id ?? '');
   const [open, setOpen] = useState(false);
+  const [sheet, setSheet] = useState(false);
   const [noteAt, setNoteAt] = useState<number | null>(null);
   const weekend = date.getDay() === 0 || date.getDay() === 6;
   const periods = periodsOn(date, byDay);
@@ -65,7 +67,8 @@ function TimetableCard({ size }: CardProps) {
           : <div className="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>}
         </>}
       </CardFrame>
-      {open && cls && <ArrangeWindow cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} />}
+      {open && cls && !sheet && <ArrangeWindow cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} onSheet={() => setSheet(true)} />}
+      {open && sheet && <TimetableSheet onBack={() => setSheet(false)} />}
       {noteAt != null && (
         <NoteWindow subject={tt.arranged?.[noteAt] || `${noteAt + 1}교시`} initial={tt.notes[noteAt] ?? ''} onClose={() => setNoteAt(null)}
           onSave={(text) => { update((r) => { if (text) r.timetable.notes[noteAt] = text; else delete r.timetable.notes[noteAt]; }); setNoteAt(null); }} />
@@ -90,7 +93,7 @@ function NoteWindow({ subject, initial, onClose, onSave }: { subject: string; in
 
 interface Drag { name: string; from: number | null }
 
-function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: string[]; onClose: () => void }) {
+function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answer: string[]; onClose: () => void; onSheet: () => void }) {
   const saved = useDay((s) => s.record.timetable.arranged);
   const update = useDay((s) => s.update);
   const saveClass = useData((s) => s.saveClass);
@@ -246,7 +249,8 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
   };
 
   return (
-    <Popup title="오늘의 시간표를 맞춰봐요! 📅" large onClose={onClose}>
+    <Popup title="오늘의 시간표를 맞춰봐요! 📅" large onClose={onClose}
+      headerExtra={<button className="wd-setup-btn" onClick={() => { playSound('select'); onSheet(); }}><i className="ph-bold ph-printer" /> 활동지</button>}>
       <div ref={bodyRef}>
         <div className="tt-popup">
           <div className="tt-slots">

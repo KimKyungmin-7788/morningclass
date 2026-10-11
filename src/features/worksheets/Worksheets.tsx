@@ -6,11 +6,15 @@ import { usePrefs } from '@/core/prefs';
 import { useCurrentClass } from '@/core/data/store';
 import { dateKeyOf, useDay } from '@/core/data/day';
 import { getMealImages } from '@/core/data/mealImages';
-import { schoolLevelOf } from '@/core/data/subjects';
+import { EMOTIONS } from '@/core/data/emotions';
+import { schoolLevelOf, subjectBank, subjectIcon } from '@/core/data/subjects';
+import { periodsOn, useTimetables } from '@/core/data/timetables';
 import { fetchMealRows, pickLunch } from '@/core/net/neis';
 import { dishKey, parseNutri, shownDishes, type Nutri } from '@/features/meal/model';
 import type { WordEntry } from '@/features/word/model';
 import { sheetBuilders } from './legacyBuilders';
+import { EMO_PARTS, buildEmotionSheetHTML } from './emotionSheet';
+import { TT_PARTS, buildTimetableSheetHTML } from './timetableSheet';
 import { WORD_PARTS, buildWordSheetHTML } from './wordSheet';
 
 // 학습지(A4) 창: 고른 쪽을 미리 보고 인쇄하거나 PDF 로 저장한다.
@@ -137,6 +141,8 @@ let mealSel: Sel = { tray: true, cut: true, trace: true };
 let nutriSel: Sel = { bike: true, even: true, signal: true, energy: true, ncut: true };
 let mealTab: 'basic' | 'nutri' = 'basic';
 let wordSel: Sel = { trace: true, play: true, mine: true, cards: false, week: false };
+let ttSel: Sel = { write: true, cut: false, quiz: true, check: true, week: false };
+let emoSel: Sel = { today: true, words: false, when: true, care: false, cards: false };
 let weatherState = { sec: { weather: true, temp: true, clothes: true, predict: true, key: false } as Sel, lvl: 'easy' };
 
 /** 급식 학습지: 기본(식판+따라쓰기 · 붙임자료 · 크게 따라쓰기) / 영양(식품구성자전거 등) */
@@ -245,6 +251,52 @@ export function WordSheet({ entry, week, onBack }: { entry: WordEntry; week: Wor
             {WS_SIZES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         </label>
+      </div>
+    </SheetFrame>
+  );
+}
+
+/** 흐린 글씨(따라 쓰기) 켜기 · 끄기 — 다른 학습지와 같은 설정을 쓴다 */
+function DotOption() {
+  const wsOpts = usePrefs((s) => s.wsOpts);
+  const setPrefs = usePrefs((s) => s.set);
+  return <label className="ws-opt"><input type="checkbox" checked={wsOpts.dot} onChange={(e) => setPrefs({ wsOpts: { ...wsOpts, dot: e.target.checked } })} /> 흐린 글씨(따라 쓰기)</label>;
+}
+
+/** 시간표 활동지: 시간표 쓰기 · 오려 붙이기 · 시간표 읽기 · 하루 체크표 · 이번 주 시간표 */
+export function TimetableSheet({ onBack }: { onBack: () => void }) {
+  const cls = useCurrentClass();
+  const date = useDay((s) => s.date);
+  const arranged = useDay((s) => s.record.timetable.arranged);
+  const dot = usePrefs((s) => s.wsOpts.dot);
+  const { byDay } = useTimetables(cls?.id ?? '');
+  const [sel, setSel] = useState(ttSel);
+  const html = useMemo(() => {
+    const set = periodsOn(date, byDay);
+    const periods = set.length ? set : (arranged ?? []);   // 정해 둔 시간표가 없는 날은 학생이 맞춘 시간표로
+    return buildTimetableSheetHTML({ periods, week: byDay ? [0, 1, 2, 3, 4].map((d) => byDay[d]) : null, bank: subjectBank(cls, periods.filter(Boolean)), icon: (n) => subjectIcon(n, cls), date, sel, dot });
+  }, [cls, date, byDay, arranged, sel, dot]);
+  return (
+    <SheetFrame title="📝 시간표 활동지 만들기" html={html} canExport={TT_PARTS.some(([k]) => sel[k])} pdfName="시간표활동지" backLabel="← 시간표로" onBack={onBack}>
+      <div className="ws-opts">
+        <Checks parts={TT_PARTS} sel={sel} onChange={(k, v) => { ttSel = { ...sel, [k]: v }; setSel(ttSel); }} />
+        <DotOption />
+      </div>
+    </SheetFrame>
+  );
+}
+
+/** 감정 활동지: 오늘 내 마음 · 감정 낱말 · 이럴 땐 어떤 마음? · 마음 돌보기 · 감정 카드 (학생 정보는 싣지 않는다) */
+export function EmotionSheet({ onBack }: { onBack: () => void }) {
+  const date = useDay((s) => s.date);
+  const dot = usePrefs((s) => s.wsOpts.dot);
+  const [sel, setSel] = useState(emoSel);
+  const html = useMemo(() => buildEmotionSheetHTML({ emotions: EMOTIONS, date, sel, dot }), [date, sel, dot]);
+  return (
+    <SheetFrame title="📝 감정 활동지 만들기" html={html} canExport={EMO_PARTS.some(([k]) => sel[k])} pdfName="감정활동지" backLabel="← 닫기" onBack={onBack}>
+      <div className="ws-opts">
+        <Checks parts={EMO_PARTS} sel={sel} onChange={(k, v) => { emoSel = { ...sel, [k]: v }; setSel(emoSel); }} />
+        <DotOption />
       </div>
     </SheetFrame>
   );

@@ -12,6 +12,7 @@ import { eligibleStudents } from '@/core/data/eligible';
 import { EMOTIONS, EMO_ZONES, emotionOf } from '@/core/data/emotions';
 import type { EmotionEntry, EmotionItem, EmotionKind, Student } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
+import { EmotionSheet } from '@/features/worksheets/Worksheets';
 import { EMO_MAX, EMO_PERSON, compact, emoImg, emoPose, heartPos, inHeart, makeMain, placeAt, roughInside, type Inside, type Pt } from './model';
 
 // 우리반 감정: 학생마다 "마음 일기" 창에서 사람 몸에 감정 친구를 넣는다. 첫 감정(가운데 동그라미)이 주인공이 된다.
@@ -24,6 +25,7 @@ function EmotionsCard({ size }: CardProps) {
   const record = useDay((s) => s.record);
   const [target, setTarget] = useState<Student | null>(null);
   const [picking, setPicking] = useState(false);                 // 큰 칸이 아닐 때: 카드를 누르면 학생을 고르는 창이 열린다
+  const [sheet, setSheet] = useState(false);                     // 감정 활동지 창
   const eligible = eligibleStudents(cls, record, 'emo');
   const big = size === 'large';
   const compact = isCompact(size);
@@ -71,7 +73,12 @@ function EmotionsCard({ size }: CardProps) {
         {compact ? (
           <CardCompact {...TITLE} title="우리반 감정" done={allDone}>{status}</CardCompact>
         ) : big ? <>
-          <CardTitle {...TITLE} extra={allDone ? <span className="v3-badge"><i className="ph-bold ph-check" />모두 완료</span> : undefined}>우리반 감정</CardTitle>
+          <CardTitle {...TITLE} extra={(
+            <span className="tl-side">
+              {allDone && <span className="v3-badge"><i className="ph-bold ph-check" />모두 완료</span>}
+              <button title="감정 활동지" aria-label="감정 활동지 만들기" onClick={() => { ensureAudio(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /></button>
+            </span>
+          )}>우리반 감정</CardTitle>
           {grid}
           <InclToggles kind="emo" />
         </> : <>
@@ -86,12 +93,14 @@ function EmotionsCard({ size }: CardProps) {
         </>}
       </CardFrame>
       {picking && (
-        <Popup title="💖 우리반 감정 — 누구의 마음을 볼까요?" onClose={() => setPicking(false)}>
+        <Popup title="💖 우리반 감정 — 누구의 마음을 볼까요?" onClose={() => setPicking(false)}
+          headerExtra={<button className="wd-setup-btn" onClick={() => { playSound('select'); setPicking(false); setSheet(true); }}><i className="ph-bold ph-printer" /> 활동지</button>}>
           <div className="emo-pick">{grid}</div>
           <InclToggles kind="emo" />
         </Popup>
       )}
       {target && <DiaryWindow student={target} onClose={() => setTarget(null)} />}
+      {sheet && <EmotionSheet onBack={() => setSheet(false)} />}
     </>
   );
 }
