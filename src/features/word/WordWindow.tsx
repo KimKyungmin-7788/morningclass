@@ -9,10 +9,10 @@ import { presentStudents } from '@/core/data/eligible';
 import { useCurrentClass } from '@/core/data/store';
 import type { Student } from '@/core/data/types';
 import { WordSheet } from '@/features/worksheets/Worksheets';
-import { WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, fitText, wordsOfWeek, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
+import { EVENTS, TOPICS, VOCAB_SOURCE, VOCAB_STATS, WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, eventWords, findVocab, fitText, levelOf, pickOfDay, seasonalEvents, sourceLine, wordSpan, wordsOfWeek, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, type WordBook, type WordEntry, type WordLevel, type WordPick } from './model';
 
-// 오늘의 낱말 창: 낱말 · 뜻 · 문장을 크게 보여 주고, 읽기 · 쓰기 · 말하기 세 가지 활동을 한다.
-// 제목 줄의 "낱말 정하기"에서 단계, 이번 주 요일별 낱말, 추가한 낱말을 고친다.
+// 오늘의 어휘 창: 낱말 · 뜻 · 문장을 크게 보여 주고, 읽기 · 쓰기 · 말하기 세 가지 활동을 한다. 창 아래에는 어휘의 출처와 근거를 밝힌다.
+// 제목 줄의 "어휘 정하기"에서 단계, 이번 주 요일별 어휘, 추가한 어휘를 고친다.
 
 type Tab = 'read' | 'write' | 'speak';
 /** 세 가지 활동 — 색과 아이콘으로 구분한다 (읽기 파랑 · 쓰기 주황 · 말하기 분홍) */
@@ -79,7 +79,7 @@ interface Stage {
   text: string;
   /** 칸을 나눠 쓸 학생. 비어 있으면 혼자 크게 쓴다 */
   writers: Student[];
-  /** 다같이 써보기: 종료하면 오늘 낱말 쓰기를 마친 것으로 기록한다 */
+  /** 다같이 써보기: 종료하면 오늘 어휘 쓰기를 마친 것으로 기록한다 */
   all?: boolean;
 }
 
@@ -89,7 +89,7 @@ function WriteStage({ stage, onClose, onFinish }: { stage: Stage; onClose: () =>
   const [page, setPage] = useState(0);
   const [wipe, setWipe] = useState(0);
   const group = groups[Math.min(page, groups.length - 1)];
-  // Esc 는 이 화면만 닫는다 (뒤의 낱말 창은 그대로)
+  // Esc 는 이 화면만 닫는다 (뒤의 어휘 창은 그대로)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onClose(); } };
     window.addEventListener('keydown', onKey, true);
@@ -182,7 +182,7 @@ function WritePractice({ entry }: { entry: WordEntry }) {
 function ReadPractice({ entry }: { entry: WordEntry }) {
   const [at, setAt] = useState(-1);
   const letters = [...entry.word.replace(/\s/g, '')];
-  const cut = entry.sentence.indexOf(entry.word);
+  const span = wordSpan(entry.word, entry.sentence);   // 문장 속에서 낱말이 쓰인 자리 (모양이 바뀐 말도 찾는다)
   useEffect(() => setAt(-1), [entry.word]);
   return (
     <div className="wd-read">
@@ -192,7 +192,7 @@ function ReadPractice({ entry }: { entry: WordEntry }) {
       </div>
       {entry.sentence && (
         <div className="wd-read-sent">
-          {cut < 0 ? entry.sentence : <>{entry.sentence.slice(0, cut)}<mark>{entry.word}</mark>{entry.sentence.slice(cut + entry.word.length)}</>}
+          {!span ? entry.sentence : <>{entry.sentence.slice(0, span[0])}<mark>{entry.sentence.slice(span[0], span[1])}</mark>{entry.sentence.slice(span[1])}</>}
         </div>
       )}
       <button className="all" onClick={() => { setAt(-1); say(`${entry.word}. ${entry.meaning}. ${entry.sentence}`); }}><i className="ph-fill ph-play" /> 모두 이어서 듣기</button>
@@ -289,11 +289,93 @@ function SpeakPractice({ entry }: { entry: WordEntry }) {
   );
 }
 
-// ── 낱말 정하기 (선생님) ──
+// ── 단계 고르기 · 출처 (카드와 창이 함께 쓴다) ──
+/** 가 · 나 · 다 단계 고르기 */
+export function LevelToggle({ level, onChange, className = '' }: { level: WordLevel; onChange: (l: WordLevel) => void; className?: string }) {
+  return (
+    <div className={`wd-levels ${className}`} role="group" aria-label="어휘 단계 고르기">
+      {WORD_LEVELS.map((l) => (
+        <button key={l.id} className={l.id === level ? 'on' : ''} aria-pressed={l.id === level} title={`${l.label} 단계 · ${l.desc}`} aria-label={`${l.label} 단계 (${l.desc})`}
+          onClick={(e) => { e.stopPropagation(); if (l.id !== level) onChange(l.id); }}>{l.label}</button>
+      ))}
+    </div>
+  );
+}
+
+/** 그날의 어휘가 어디서 나왔는지 한마디 */
+export const pickLabel = (pick: WordPick) => (
+  pick.from === 'set' ? '선생님이 정한 어휘'
+    : pick.from === 'custom' ? '선생님이 추가한 어휘'
+    : `이번 주 주제 · ${pick.topic}`
+);
+
+/** 창 아래에 밝히는 출처와 근거. entry 를 주면 그 어휘의 근거도 한 줄 보여 준다 */
+function SourceFoot({ entry }: { entry?: WordEntry }) {
+  const found = entry ? findVocab(entry) : null;
+  return (
+    <div className="wd-src">
+      <p><b>출처</b><span><a href={VOCAB_SOURCE.url} target="_blank" rel="noreferrer">{VOCAB_SOURCE.title}</a> ({VOCAB_SOURCE.note})에서 가려 뽑고, 뜻과 문장은 쉬운 말로 다듬었어요.</span></p>
+      {entry && <p><b>이 어휘</b><span>{found ? sourceLine(found) : '선생님이 직접 넣은 어휘예요 (기본 목록에 없는 어휘)'}</span></p>}
+      <details>
+        <summary>근거 자세히 보기</summary>
+        <ul>
+          <li><b>단계</b> {WORD_LEVELS.map((l) => `${l.label} = ${l.desc} ${TOPICS[l.id].length * 20}개`).join(' · ')}. 주제 {VOCAB_STATS.topics}개에 20개씩, 모두 {VOCAB_STATS.total.toLocaleString()}개예요.</li>
+          <li><b>고른 방법</b> 국립국어원 목록의 1~4등급(학교 가기 전~초등 6학년) 23,000개와 하나씩 견주었어요. {VOCAB_STATS.listed.toLocaleString()}개는 그 목록에 있는 어휘이고, {VOCAB_STATS.added}개는 목록에 없어 주제에 맞춰 더한 어휘예요.</li>
+          <li><b>알아 둘 점</b> 등급은 국립국어원이 나이 · 학년에 따라 나눈 것이고, 학년마다 꼭 외워야 하는 어휘 목록은 아니에요. 단계는 학생에게 맞춰 골라 주세요.</li>
+          <li><b>뜻과 문장</b> 아직 선생님 감수와 학생 검증을 거치지 않은 초안이에요. 어색한 곳은 "어휘 정하기"에서 고쳐 쓸 수 있어요.</li>
+          <li><b>시기에 맞춘 어휘</b> "어휘 정하기"의 목록에서 계절 · 국경일 · 기념일 · 학교 행사에 어울리는 어휘를 권해요. 국경일 · 기념일 날짜는 행정안전부, 설날 · 추석 날짜는 우주항공청 월력요항을 따랐고, 어느 날에 어느 어휘를 잇는지는 편집에서 정한 제안이에요.</li>
+        </ul>
+      </details>
+    </div>
+  );
+}
+
+// ── 어휘 정하기 (선생님) ──
 const blank = (): WordEntry => ({ word: '', meaning: '', sentence: '' });
 const DAYS = ['월', '화', '수', '목', '금'];
 
-function WordRow({ label, value, onChange, onRemove }: { label: string; value: WordEntry; onChange: (v: WordEntry) => void; onRemove?: () => void }) {
+/** 기본 목록에서 어휘 고르기: 단계 · 주제 · 시기로 좁혀 보고, 누르면 그 칸에 낱말 · 뜻 · 문장이 들어간다 */
+function WordPicker({ level: first, event: firstEvent, date, custom, onPick, onClose }: { level: WordLevel; event: string; date: Date; custom: WordEntry[]; onPick: (w: WordEntry) => void; onClose: () => void }) {
+  const [level, setLevel] = useState(first);
+  const [topic, setTopic] = useState('');
+  const [event, setEvent] = useState(firstEvent);
+  const [q, setQ] = useState('');
+  const near = seasonalEvents(date).filter((e) => eventWords(e, level).length);
+  const ev = EVENTS.find((e) => e.id === event);
+  const mine = topic === '__mine';
+  const base: WordEntry[] = mine ? custom.filter((w) => w.word.trim()) : ev ? eventWords(ev, level) : TOPICS[level].flatMap((t) => t.words);
+  const list = base.filter((w) => (mine || !topic || ('topic' in w && w.topic === topic)) && (!q.trim() || w.word.includes(q.trim())));
+  return (
+    <div className="wd-picker">
+      <div className="wd-picker-top">
+        <LevelToggle level={level} onChange={(l) => { setLevel(l); setTopic(''); }} />
+        <select aria-label="주제" value={topic} onChange={(e) => setTopic(e.target.value)}>
+          <option value="">주제 모두</option>
+          {TOPICS[level].map((t) => <option key={`${t.band}-${t.name}`} value={t.name}>{t.name}</option>)}
+          {custom.some((w) => w.word.trim()) && <option value="__mine">내가 추가한 어휘</option>}
+        </select>
+        <select aria-label="시기 · 행사" value={event} onChange={(e) => setEvent(e.target.value)}>
+          <option value="">시기 · 행사 모두</option>
+          {EVENTS.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+        </select>
+        <input aria-label="낱말 찾기" placeholder="낱말 찾기" value={q} onChange={(e) => setQ(e.target.value)} />
+        <button className="x" aria-label="목록 닫기" onClick={onClose}>✕</button>
+      </div>
+      {near.length > 0 && (
+        <div className="wd-picker-near">
+          <span>이 무렵에 좋아요</span>
+          {near.map((e) => <button key={e.id} className={e.id === event ? 'on' : ''} aria-pressed={e.id === event} onClick={() => { setEvent(e.id === event ? '' : e.id); setTopic(''); }}>{e.name}</button>)}
+        </div>
+      )}
+      <div className="wd-picker-list">
+        {list.map((w, i) => <button key={`${w.word}-${i}`} title={w.sentence} onClick={() => onPick({ word: w.word, meaning: w.meaning, sentence: w.sentence })}><b>{w.word}</b><small>{w.meaning}</small></button>)}
+        {!list.length && <p>알맞은 어휘가 없어요. 주제나 시기를 바꿔 보세요.</p>}
+      </div>
+    </div>
+  );
+}
+
+function WordRow({ label, value, hint, onChange, onList, onRemove }: { label: string; value: WordEntry; hint?: string; onChange: (v: WordEntry) => void; onList?: () => void; onRemove?: () => void }) {
   const [busy, setBusy] = useState(false);
   /** 한국어기초사전에서 뜻과 예문을 찾아 채운다 (검색하는 낱말만 보낸다) */
   const fill = async () => {
@@ -322,24 +404,35 @@ function WordRow({ label, value, onChange, onRemove }: { label: string; value: W
   return (
     <div className="wd-row">
       <span className="day">{label}</span>
-      <input className="w" placeholder="낱말" maxLength={20} value={value.word} onChange={set('word')} />
+      <input className="w" placeholder={hint ? `${hint} (자동)` : '낱말'} maxLength={20} value={value.word} onChange={set('word')} />
       <input placeholder="뜻" maxLength={80} value={value.meaning} onChange={set('meaning')} />
       <input placeholder="낱말이 들어간 문장" maxLength={80} value={value.sentence} onChange={set('sentence')} />
-      <button title="사전에서 뜻과 문장 가져오기" disabled={busy} onClick={() => void fill()}>{busy ? '…' : '📖 사전'}</button>
-      {onRemove && <button className="del" title="지우기" aria-label="낱말 지우기" onClick={onRemove}>✕</button>}
+      <div className="acts">
+        {onList && <button title="기본 목록에서 고르기" onClick={onList}>📚 목록</button>}
+        <button title="사전에서 뜻과 문장 가져오기" disabled={busy} onClick={() => void fill()}>{busy ? '…' : '📖 사전'}</button>
+        <button className="del" title="지우기" aria-label="어휘 지우기" disabled={!onRemove && !value.word.trim() && !value.meaning.trim() && !value.sentence.trim()} onClick={onRemove ?? (() => onChange(blank()))}>✕</button>
+      </div>
     </div>
   );
 }
 
 function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date; onSave: (b: WordBook) => void; onBack: () => void }) {
-  const keys = [weekKey(date), weekKey(new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7))];   // 이번 주 · 다음 주
+  const mondays = [0, 7].map((n) => { const d = new Date(date.getFullYear(), date.getMonth(), date.getDate() + n); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; });   // 이번 주 · 다음 주
+  const keys = mondays.map(weekKey);
   const [at, setAt] = useState(weekdayIndex(date) < 0 ? 1 : 0);   // 주말에 열면 다음 주부터 보여 준다 (미리 정해 두는 때이므로)
   const [level, setLevel] = useState(book.level);
   const [weeks, setWeeks] = useState<Record<string, WordEntry[]>>(() => Object.fromEntries(keys.map((k) => [k, DAYS.map((_, i) => book.weeks[k]?.[i] ?? blank())])));
   const [custom, setCustom] = useState<WordEntry[]>(() => book.custom.map((w) => ({ ...w })));
+  const [listAt, setListAt] = useState(-1);   // 목록에서 고르는 중인 요일
+  const [listEvent, setListEvent] = useState('');   // 목록을 열 때 먼저 보여 줄 시기
   const key = keys[at];
   const week = weeks[key];
   const clean = (w: WordEntry): WordEntry => ({ word: w.word.trim(), meaning: w.meaning.trim(), sentence: w.sentence.trim() });
+  const setDay = (i: number, v: WordEntry) => setWeeks({ ...weeks, [key]: week.map((x, j) => (j === i ? v : x)) });
+  /** 비워 둔 요일에 저절로 나올 어휘 (지금 고른 단계 · 추가한 어휘 기준) */
+  const auto = (i: number) => pickOfDay({ level, weeks: {}, custom }, new Date(mondays[at].getFullYear(), mondays[at].getMonth(), mondays[at].getDate() + i));
+  const theme = auto(0)?.topic;
+  const near = seasonalEvents(mondays[at]).filter((e) => eventWords(e, level).length);
   const save = () => {
     const next = { ...book.weeks };
     for (const k of keys) {
@@ -347,28 +440,45 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
       if (filled.some(Boolean)) next[k] = filled; else delete next[k];
     }
     onSave({ level, weeks: next, custom: custom.filter((w) => w.word.trim()).map(clean) });
-    playSound('save'); toast('낱말을 저장했어요', 'success');
+    playSound('save'); toast('어휘를 저장했어요', 'success');
     onBack();
   };
   return (
     <div className="wd-setup">
       <div className="wd-sec">
-        <h3>단계 <small>정해 두지 않은 날에는 이 단계의 기본 낱말이 차례로 나와요</small></h3>
-        <div className="mv-toggle">{WORD_LEVELS.map((l) => <button key={l.id} className={l.id === level ? 'on' : ''} aria-pressed={l.id === level} onClick={() => setLevel(l.id)}>{l.label}</button>)}</div>
-      </div>
-      <div className="wd-sec">
-        <h3>주마다 정하는 낱말 <small>비워 둔 요일은 기본 낱말이 나와요</small></h3>
-        <div className="mv-toggle">
-          {keys.map((k, i) => <button key={k} className={i === at ? 'on' : ''} aria-pressed={i === at} onClick={() => setAt(i)}>{i === 0 ? '이번 주' : '다음 주'} ({Number(k.slice(4, 6))}월 {Number(k.slice(6))}일~)</button>)}
+        <h3>단계 <small>정해 두지 않은 날에는 이 단계의 어휘가 주마다 한 주제씩 나와요</small></h3>
+        <div className="wd-level-pick">
+          {WORD_LEVELS.map((l) => <button key={l.id} className={l.id === level ? 'on' : ''} aria-pressed={l.id === level} onClick={() => setLevel(l.id)}><b>{l.label}</b><span>{l.desc}</span><small>{TOPICS[l.id].length * 20}개</small></button>)}
         </div>
-        {week.map((w, i) => <WordRow key={`${key}-${i}`} label={DAYS[i]} value={w} onChange={(v) => setWeeks({ ...weeks, [key]: week.map((x, j) => (j === i ? v : x)) })} />)}
       </div>
       <div className="wd-sec">
-        <h3>추가한 낱말 <small>기본 목록에 없는 낱말 — 기본 낱말과 함께 차례로 나와요</small></h3>
-        {custom.map((w, i) => <WordRow key={i} label="＋" value={w} onChange={(v) => setCustom(custom.map((x, j) => (j === i ? v : x)))} onRemove={() => setCustom(custom.filter((_, j) => j !== i))} />)}
-        <button className="wd-add" onClick={() => setCustom([...custom, blank()])}>＋ 낱말 추가</button>
+        <h3>주마다 정하는 어휘 <small>비워 둔 요일은 흐리게 적힌 어휘가 저절로 나와요{theme ? ` (이 주의 주제: ${theme})` : ''}</small></h3>
+        <div className="mv-toggle">
+          {keys.map((k, i) => <button key={k} className={i === at ? 'on' : ''} aria-pressed={i === at} onClick={() => { setAt(i); setListAt(-1); }}>{i === 0 ? '이번 주' : '다음 주'} ({Number(k.slice(4, 6))}월 {Number(k.slice(6))}일~)</button>)}
+        </div>
+        {near.length > 0 && (
+          <div className="wd-picker-near">
+            <span>🗓 이 무렵에 좋은 어휘</span>
+            {near.map((e) => <button key={e.id} title={`${e.name}에 어울리는 어휘를 목록에서 골라요`} onClick={() => { const empty = week.findIndex((w) => !w.word.trim()); setListEvent(e.id); setListAt(empty < 0 ? 0 : empty); }}>{e.name}</button>)}
+          </div>
+        )}
+        {week.map((w, i) => {
+          const pick = auto(i);
+          return (
+            <div key={`${key}-${i}`} className="wd-day">
+              <WordRow label={DAYS[i]} value={w} hint={pick?.entry.word} onChange={(v) => setDay(i, v)} onList={() => { setListEvent(''); setListAt(listAt === i ? -1 : i); }} />
+              {listAt === i && <WordPicker key={listEvent} level={level} event={listEvent} date={mondays[at]} custom={custom} onPick={(v) => { setDay(i, v); setListAt(-1); playSound('select'); }} onClose={() => setListAt(-1)} />}
+            </div>
+          );
+        })}
       </div>
-      <div className="wd-credit">뜻과 문장 가져오기: 국립국어원 한국어기초사전</div>
+      <div className="wd-sec">
+        <h3>추가한 어휘 <small>기본 목록에 없는 어휘 — 금요일마다 하나씩 차례로 나와요</small></h3>
+        {custom.map((w, i) => <WordRow key={i} label="＋" value={w} onChange={(v) => setCustom(custom.map((x, j) => (j === i ? v : x)))} onRemove={() => setCustom(custom.filter((_, j) => j !== i))} />)}
+        <button className="wd-add" onClick={() => setCustom([...custom, blank()])}>＋ 어휘 추가</button>
+      </div>
+      <SourceFoot />
+      <div className="wd-credit">📖 사전 단추의 뜻과 문장: 국립국어원 한국어기초사전</div>
       <PopupActions>
         <button className="btn-cancel" onClick={onBack}>취소</button>
         <button className="btn-save" onClick={save}>💾 저장</button>
@@ -381,23 +491,26 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
   const [tab, setTab] = useState<Tab>('read');
   const [setup, setSetup] = useState(false);
   const [sheet, setSheet] = useState(false);
-  const entry = wordOfDay(book, date);
-  const fixed = !!book.weeks[weekKey(date)]?.[weekdayIndex(date)]?.word.trim();
+  const pick = pickOfDay(book, date);
+  const entry = pick?.entry ?? null;
 
-  useEffect(() => { if (entry && !setup) say(`오늘의 낱말은, ${entry.word}`); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [entry?.word]);
+  useEffect(() => { if (entry && !setup) say(`오늘의 어휘는, ${entry.word}`); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [entry?.word]);
 
   if (sheet && entry) return <WordSheet entry={entry} week={wordsOfWeek(book, date)} onBack={() => setSheet(false)} />;
-  if (setup) return <Popup title="✏️ 낱말 정하기" large onClose={onClose}><WordSetup book={book} date={date} onSave={onSave} onBack={() => setSetup(false)} /></Popup>;
+  if (setup) return <Popup title="✏️ 어휘 정하기" large onClose={onClose}><WordSetup book={book} date={date} onSave={onSave} onBack={() => setSetup(false)} /></Popup>;
   return (
-    <Popup title="📗 오늘의 낱말" large onClose={onClose}
+    <Popup title="📗 오늘의 어휘" large onClose={onClose}
       headerExtra={<>
         {entry && <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 학습지</button>}
-        <button className="wd-setup-btn" onClick={() => setSetup(true)}><i className="ph-bold ph-pencil-simple-line" /> 낱말 정하기</button>
+        <button className="wd-setup-btn" onClick={() => setSetup(true)}><i className="ph-bold ph-pencil-simple-line" /> 어휘 정하기</button>
       </>}>
-      {!entry ? <div className="card-hint" style={{ padding: 40 }}>낱말이 없어요. "낱말 정하기"에서 낱말을 넣어 주세요.</div> : (
+      {!pick || !entry ? <div className="card-hint" style={{ padding: 40 }}>어휘가 없어요. "어휘 정하기"에서 어휘를 넣어 주세요.</div> : (
         <div className="wd">
           <div className="wd-main">
-            <div className="wd-tag">{fixed ? '선생님이 정한 낱말' : `${WORD_LEVELS.find((l) => l.id === book.level)?.label} 낱말`}</div>
+            <div className="wd-head">
+              <div className={`wd-tag ${pick.from}`}>{pickLabel(pick)}</div>
+              <LevelToggle level={book.level} onChange={(level) => { playSound('select'); onSave({ ...book, level }); if (pick.from === 'set' || pick.from === 'custom') toast(`${levelOf(level).label} 단계로 바꿨어요. 오늘은 ${pickLabel(pick)}가 나와요`); }} />
+            </div>
             <button className={`wd-word${entry.word.length > 4 ? ' long' : ''}`} onClick={() => say(entry.word)} aria-label={`${entry.word} 듣기`}>{entry.word}<i className="ph-fill ph-speaker-high" /></button>
             <button className="wd-line" onClick={() => say(entry.meaning)}><span>뜻</span>{entry.meaning || '뜻을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
             <button className="wd-line" onClick={() => say(entry.sentence)}><span>문장</span>{entry.sentence || '문장을 적어 주세요'}<i className="ph-fill ph-speaker-high" /></button>
@@ -418,6 +531,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
           </div>
         </div>
       )}
+      <SourceFoot entry={entry ?? undefined} />
     </Popup>
   );
 }

@@ -225,7 +225,7 @@ export function WeatherSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** 오늘의 낱말 학습지: 따라 쓰기 · 낱말 놀이 · 그리고 써 보기 · 낱말 카드 · 이번 주 모아 쓰기 */
+/** 오늘의 어휘 학습지: 따라 쓰기 · 낱말 놀이 · 그리고 써 보기 · 낱말 카드 · 이번 주 모아 쓰기 */
 export function WordSheet({ entry, week, onBack }: { entry: WordEntry; week: WordEntry[]; onBack: () => void }) {
   const date = useDay((s) => s.date);
   const wsOpts = usePrefs((s) => s.wsOpts);
@@ -233,7 +233,7 @@ export function WordSheet({ entry, week, onBack }: { entry: WordEntry; week: Wor
   const [sel, setSel] = useState(wordSel);
   const html = useMemo(() => buildWordSheetHTML({ entry, week, date, sel, size: wsOpts.size, dot: wsOpts.dot }), [entry, week, date, sel, wsOpts]);
   return (
-    <SheetFrame title="📝 낱말 학습지 만들기" html={html} canExport={WORD_PARTS.some(([k]) => sel[k])} pdfName={`낱말학습지_${entry.word}`} backLabel="← 낱말로" onBack={onBack}>
+    <SheetFrame title="📝 어휘 학습지 만들기" html={html} canExport={WORD_PARTS.some(([k]) => sel[k])} pdfName={`어휘학습지_${entry.word}`} backLabel="← 어휘로" onBack={onBack}>
       <div className="ws-opts">
         <Checks parts={WORD_PARTS} sel={sel} onChange={(k, v) => { wordSel = { ...sel, [k]: v }; setSel(wordSel); }} />
       </div>

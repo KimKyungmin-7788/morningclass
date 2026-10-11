@@ -5,7 +5,7 @@ const entry = { word: '학교', meaning: '공부하러 가는 곳', sentence: '�
 const week = [entry, { word: '친구', meaning: '가깝게 지내는 사람', sentence: '친구와 같이 놀아요.' }, { word: '인사', meaning: '만날 때 하는 말', sentence: '' }];
 const base = { entry, week, date: new Date(2026, 9, 12), size: 15, dot: true };
 
-describe('오늘의 낱말 학습지', () => {
+describe('오늘의 어휘 학습지', () => {
   it('글자 찾기 판에는 낱말의 글자가 두 번씩 들어 있고, 같은 낱말이면 늘 같은 판이 나온다', () => {
     const grid = letterGrid('학교');
     expect(grid).toHaveLength(24);

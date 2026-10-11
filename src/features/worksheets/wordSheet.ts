@@ -1,6 +1,6 @@
 import type { WordEntry } from '@/features/word/model';
 
-// 오늘의 낱말 학습지(A4): 고른 쪽만 이어 붙여 한 문서로 만든다 (화면과 무관한 계산 — 같은 낱말이면 늘 같은 문제가 나온다).
+// 오늘의 어휘 학습지(A4): 고른 쪽만 이어 붙여 한 문서로 만든다 (화면과 무관한 계산 — 같은 낱말이면 늘 같은 문제가 나온다).
 //  · trace  따라 쓰기: 낱말을 진한 글씨 → 흐린 글씨 → 빈칸으로, 문장도 줄을 나눠 따라 쓴다
 //  · play   낱말 놀이: 글자 찾기 · 글자 수 세기 · 알맞은 낱말 고르기 · 뜻 잇기
 //  · mine   그리고 써 보기: 그림으로 그리기 · 낱말을 넣어 내 문장 쓰기 · 오늘 낱말 스스로 평가
@@ -105,7 +105,7 @@ export function buildWordSheetHTML({ entry, week, date, sel, size, dot }: WordSh
       const rows = lines.length * 3 * sc + lines.length * 3 <= room ? ['bold', dotMode, 'blank'] : ['bold', dotMode];
       sentenceBlock = `<h2>✏️ 문장 따라 쓰기</h2>${lines.map((l) => `<div class="sline">${rows.map((m) => cells(l, [...l].length, sc, m)).join('')}</div>`).join('')}`;
     }
-    pages.push(`<section class="page">${head('오늘의 낱말 따라 쓰기', '낱말을 읽고, 흐린 글씨를 따라 쓴 다음 혼자 써요.')}
+    pages.push(`<section class="page">${head('오늘의 어휘 따라 쓰기', '낱말을 읽고, 흐린 글씨를 따라 쓴 다음 혼자 써요.')}
       ${wordBox}
       <h2>✏️ 낱말 따라 쓰기</h2><div class="wrows">${wordRows.join('')}</div>
       ${sentenceBlock}</section>`);
@@ -121,8 +121,8 @@ export function buildWordSheetHTML({ entry, week, date, sel, size, dot }: WordSh
     const blanked = cut >= 0 ? `${esc(entry.sentence.slice(0, cut))}<span class="hole" style="width:${Math.max(18, letters.length * 11)}mm"></span>${esc(entry.sentence.slice(cut + word.length))}` : '';
     const match = [entry, ...others.slice(0, 2)];
     const right = shuffle(match, rand);
-    pages.push(`<section class="page">${head('오늘의 낱말 놀이', '낱말을 찾고, 세고, 골라 봐요.')}
-      <div class="today">오늘의 낱말 <b>${esc(word)}</b></div>
+    pages.push(`<section class="page">${head('오늘의 어휘 놀이', '낱말을 찾고, 세고, 골라 봐요.')}
+      <div class="today">오늘의 어휘 <b>${esc(word)}</b></div>
       <h2>🔍 1. 낱말의 글자를 모두 찾아 ○ 하세요</h2>
       <div class="lgrid">${grid.map((ch) => `<span>${esc(ch)}</span>`).join('')}</div>
       <h2>🔢 2. 몇 글자일까요? 글자 수만큼 색칠하세요</h2>
@@ -137,7 +137,7 @@ export function buildWordSheetHTML({ entry, week, date, sel, size, dot }: WordSh
 
   // ③ 그리고 써 보기
   if (sel.mine) {
-    pages.push(`<section class="page">${head('오늘의 낱말로 그리고 써 보기', '낱말을 그림으로 그리고, 내 문장을 써요.')}
+    pages.push(`<section class="page">${head('오늘의 어휘로 그리고 써 보기', '낱말을 그림으로 그리고, 내 문장을 써요.')}
       ${wordBox}
       <h2>🎨 낱말을 그림으로 그려 보세요</h2><div class="draw"></div>
       <h2>📝 낱말을 넣어 내 문장을 써 보세요</h2><div class="lines"><i></i><i></i><i></i></div>

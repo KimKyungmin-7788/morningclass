@@ -66,6 +66,12 @@ export function holidaysOfYear(y: number): Record<string, string> {
   return out;
 }
 
+/** 그 해 설날 · 추석 당일의 양력 날짜. 표에 없는 해는 null (짐작하지 않는다) */
+export function lunarDays(y: number): { seol: Date; chuseok: Date } | null {
+  const l = LUNAR[y];
+  return l ? { seol: at(`${y}-${l.seol}`), chuseok: at(`${y}-${l.chuseok}`) } : null;
+}
+
 export function holidayName(d: Date): string {
   return holidaysOfYear(d.getFullYear())[key(d)] ?? '';
 }

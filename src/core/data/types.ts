@@ -99,7 +99,7 @@ export interface DayRecord {
   /** 그날 준 칭찬 스티커와, 판을 완성해 받은 보상 */
   praise?: PraiseLog[];
   praiseRewards?: { s: StudentId; reward: string; at: string }[];
-  /** 오늘의 낱말 '다같이 써보기'를 마쳤는지 (쓴 글씨는 저장하지 않는다) */
+  /** 오늘의 어휘 '다같이 써보기'를 마쳤는지 (쓴 글씨는 저장하지 않는다) */
   wordDone?: true;
   /** 그날 완료 축하를 이미 봤는지 */
   celebrated?: true;

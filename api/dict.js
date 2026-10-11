@@ -1,4 +1,4 @@
-// Vercel Serverless Function — 국립국어원 한국어기초사전 오픈API 프록시 (오늘의 낱말)
+// Vercel Serverless Function — 국립국어원 한국어기초사전 오픈API 프록시 (오늘의 어휘)
 // 키(KRDICT_KEY)는 Vercel 환경변수에만 저장되며 클라이언트로 전달되지 않는다.
 // 호출 예: /api/dict?q=학교        → 낱말 검색 (품사 · 어휘 등급 · 뜻풀이)
 //         /api/dict?code=12345    → 낱말 하나의 자세한 내용 (예문 포함)
