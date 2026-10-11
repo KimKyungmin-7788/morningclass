@@ -110,3 +110,47 @@ export function bestHit(hits: DictHit[], word: string): DictHit | null {
   const same = hits.filter((h) => h.word === word.trim() && h.definition);
   return [...(same.length ? same : hits.filter((h) => h.definition))].sort((a, b) => rank(a.grade) - rank(b.grade))[0] ?? null;
 }
+
+// ── 쓰기 화면 ──
+/** 글자 하나의 너비(글자 크기 = 1). 한글은 1, 영문 · 숫자 · 문장부호는 좁고, 띄어쓰기는 더 좁다 */
+const widthOf = (s: string) => [...s].reduce((n, ch) => n + (ch === ' ' ? 0.3 : /[\x21-\x7e]/.test(ch) ? 0.6 : 1), 0);
+
+/**
+ * 따라 쓸 글을 칸(w × h)에 가장 크게 넣는 줄 나눔과 글자 크기(px).
+ * 줄은 띄어쓰기에서만 바꾼다 — 긴 문장은 여러 줄로 나눠 글자를 키운다.
+ */
+export function fitText(text: string, w: number, h: number, lineHeight = 1.3): { lines: string[]; size: number } {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (!words.length || w <= 0 || h <= 0) return { lines: words.length ? [words.join(' ')] : [], size: 0 };
+  const wrap = (limit: number) => {
+    const lines: string[] = [];
+    for (const word of words) {
+      const last = lines[lines.length - 1];
+      if (last !== undefined && widthOf(`${last} ${word}`) <= limit) lines[lines.length - 1] = `${last} ${word}`;
+      else lines.push(word);
+    }
+    return lines;
+  };
+  const longest = Math.max(...words.map(widthOf));
+  const total = widthOf(words.join(' '));
+  let best = { lines: [words.join(' ')], size: 0 };
+  for (let limit = longest; limit <= total + 0.5; limit += 0.5) {
+    const lines = wrap(limit);
+    const size = Math.min((w * 0.9) / Math.max(...lines.map(widthOf)), (h * 0.88) / (lines.length * lineHeight));
+    if (size > best.size + 0.01) best = { lines, size };
+  }
+  return { lines: best.lines, size: Math.floor(best.size) };
+}
+
+/** 다같이 써보기에서 한 화면에 나누는 최대 인원. 넘으면 모둠으로 나눠 차례로 쓴다 */
+export const WRITE_PAGE = 12;
+/** 학생을 한 화면 분량씩 모둠으로 나눈다 */
+export function writeGroups<T>(list: T[], size = WRITE_PAGE): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
+  return out;
+}
+/** 인원에 따른 칸의 가로 개수 (전자칠판 가로 화면 기준) */
+export const writeColumns = (n: number) => (n <= 3 ? Math.max(1, n) : n <= 4 ? 2 : n <= 6 ? 3 : 4);
+/** 칸마다 주는 펜 색 */
+export const WRITE_INKS = ['#1971C2', '#E8590C', '#2F9E44', '#7048E8', '#C2255C', '#0C8599', '#B08900', '#495057'];

@@ -74,6 +74,8 @@ export interface DayRecord {
   helpers: { ids: StudentId[]; pickedAt: string | null };
   lucky: { ids: StudentId[]; pickedAt: string | null };
   meal: { dishes: Dish[]; nutri: Loose | null; loadedAt: string | null } | null;
+  /** 오늘의 낱말 '다같이 써보기'를 마쳤는지 (쓴 글씨는 저장하지 않는다) */
+  wordDone?: true;
   /** 그날 완료 축하를 이미 봤는지 */
   celebrated?: true;
 }

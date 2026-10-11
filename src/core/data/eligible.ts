@@ -23,3 +23,8 @@ export function eligibleStudents(cls: ClassRoom | undefined, rec: DayRecord, kin
   const inc = attIncludeOf(cls);
   return (cls?.students ?? []).filter((s) => !s.archived && isIncluded(rec.attendance[s.id]?.status, kind, inc));
 }
+
+/** 오늘 등교한 학생 — 결석으로 체크한 학생만 뺀다 (지각 · 조퇴 · 아직 체크하지 않은 학생은 포함) */
+export function presentStudents(cls: ClassRoom | undefined, rec: DayRecord): Student[] {
+  return (cls?.students ?? []).filter((s) => !s.archived && rec.attendance[s.id]?.status !== 'absent');
+}

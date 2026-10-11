@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
-import { WORD_LEVELS, bestHit, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
+import { useDay } from '@/core/data/day';
+import { presentStudents } from '@/core/data/eligible';
+import { useCurrentClass } from '@/core/data/store';
+import type { Student } from '@/core/data/types';
+import { WORD_LEVELS, WRITE_INKS, WRITE_PAGE, bestHit, fitText, writeColumns, writeGroups, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, type WordBook, type WordEntry } from './model';
 
 // 오늘의 낱말 창: 낱말 · 뜻 · 문장을 크게 보여 주고, 읽기 · 쓰기 · 말하기 세 가지 활동을 한다.
 // 제목 줄의 "낱말 정하기"에서 단계, 이번 주 요일별 낱말, 추가한 낱말을 고친다.
@@ -17,13 +22,18 @@ const TABS: { id: Tab; label: string; desc: string; icon: string }[] = [
 ];
 /** 녹음은 이 시간(ms)에서 스스로 멈춘다 */
 const REC_MAX = 15000;
+/** 문장 '함께 쓰기'에 고를 수 있는 학생 수 */
+const PAIR_MAX = 2;
 /** 또박또박 천천히 읽어 준다 */
 const say = (text: string) => speak(text, { rate: 0.8 });
 
 // ── 쓰기: 흐린 글씨 위에 손가락으로 따라 쓴다 ──
-function TraceBoard({ text }: { text: string }) {
+/** 따라 쓰는 칸 하나. 글은 칸 크기에 맞춰 가장 크게(긴 문장은 여러 줄로) 놓이고, 여러 손가락이 함께 써도 된다. */
+function TracePad({ text, ink = '#1B3A57', wipe = 0 }: { text: string; ink?: string; wipe?: number }) {
+  const box = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLCanvasElement>(null);
   const last = useRef(new Map<number, { x: number; y: number }>());
+  const [fit, setFit] = useState<{ lines: string[]; size: number }>({ lines: [text], size: 0 });
   const clear = () => {
     const cv = ref.current;
     if (!cv) return;
@@ -31,11 +41,22 @@ function TraceBoard({ text }: { text: string }) {
     cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
     cv.getContext('2d')!.scale(dpr, dpr);
   };
-  useEffect(clear, [text]);
+  // 칸 크기가 바뀌면 글자 크기를 다시 맞추고 쓴 것을 지운다 (글자 자리가 달라지므로)
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => { setFit(fitText(text, el.clientWidth, el.clientHeight)); clear(); };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [text]);
+  useEffect(() => { if (wipe) clear(); }, [wipe]);
   const at = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const pen = Math.max(6, Math.min(18, fit.size * 0.085));
   return (
-    <div className="wd-trace">
-      <div className={`wd-ghost${text.length > 5 ? ' long' : ''}`} aria-hidden="true">{text}</div>
+    <div className="wd-trace" ref={box}>
+      <div className="wd-ghost" aria-hidden="true" style={{ fontSize: fit.size || undefined }}>{fit.lines.map((l, i) => <span key={i}>{l}</span>)}</div>
       <canvas ref={ref} aria-label={`${text} 따라 쓰기`}
         onPointerDown={(e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* 잡지 못해도 쓸 수 있다 */ } last.current.set(e.pointerId, at(e)); }}
         onPointerMove={(e) => {
@@ -43,13 +64,116 @@ function TraceBoard({ text }: { text: string }) {
           if (!from) return;
           const to = at(e);
           const ctx = e.currentTarget.getContext('2d')!;
-          ctx.strokeStyle = '#1B3A57'; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          ctx.strokeStyle = ink; ctx.lineWidth = pen; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
           ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
           last.current.set(e.pointerId, to);
         }}
         onPointerUp={(e) => last.current.delete(e.pointerId)} onPointerCancel={(e) => last.current.delete(e.pointerId)} />
       <button className="wd-clear" onClick={() => { clear(); playSound('select'); }}>↺ 다시 쓰기</button>
     </div>
+  );
+}
+
+interface Stage {
+  text: string;
+  /** 칸을 나눠 쓸 학생. 비어 있으면 혼자 크게 쓴다 */
+  writers: Student[];
+  /** 다같이 써보기: 종료하면 오늘 낱말 쓰기를 마친 것으로 기록한다 */
+  all?: boolean;
+}
+
+/** 전체 화면 쓰기: 학생마다 이름표가 붙은 칸을 나눠 준다 (전자칠판에서 여럿이 함께 쓴다). 쓴 글씨는 저장하지 않는다. */
+function WriteStage({ stage, onClose, onFinish }: { stage: Stage; onClose: () => void; onFinish: () => void }) {
+  const groups = stage.writers.length ? writeGroups(stage.writers) : [[]];
+  const [page, setPage] = useState(0);
+  const [wipe, setWipe] = useState(0);
+  const group = groups[Math.min(page, groups.length - 1)];
+  // Esc 는 이 화면만 닫는다 (뒤의 낱말 창은 그대로)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onClose(); } };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [onClose]);
+  return createPortal(
+    <div className="wd-stage" role="dialog" aria-modal="true" aria-label="따라 쓰기">
+      <div className="wd-stage-bar">
+        <b><i className="ph-fill ph-pencil-simple" /> {stage.all ? '다같이 써보기' : stage.writers.length ? '함께 쓰기' : '크게 쓰기'}</b>
+        <span className="wd-stage-text">{stage.text}</span>
+        {groups.length > 1 && (
+          <div className="mv-toggle" role="group" aria-label="모둠 고르기">
+            {groups.map((g, i) => <button key={i} className={i === page ? 'on' : ''} aria-pressed={i === page} onClick={() => { setPage(i); playSound('select'); }}>{i + 1}모둠 ({g.length}명)</button>)}
+          </div>
+        )}
+        <button className="wd-stage-btn" onClick={() => { setWipe((n) => n + 1); playSound('select'); }}>↺ 모두 지우기</button>
+        {stage.all
+          ? <button className="wd-stage-btn done" onClick={onFinish}>✓ 종료 (모두 작성 완료)</button>
+          : <button className="wd-stage-btn done" onClick={onClose}>✓ 닫기</button>}
+      </div>
+      <div className="wd-stage-grid" key={page} style={{ gridTemplateColumns: `repeat(${writeColumns(group.length)}, minmax(0, 1fr))` }}>
+        {group.length === 0 && <div className="wd-stage-cell"><TracePad text={stage.text} wipe={wipe} /></div>}
+        {group.map((s, i) => {
+          const ink = WRITE_INKS[(page * WRITE_PAGE + i) % WRITE_INKS.length];
+          return (
+            <div key={s.id} className="wd-stage-cell" style={{ borderColor: ink }}>
+              <div className="wd-stage-name" style={{ background: ink }}>{s.name}</div>
+              <TracePad text={stage.text} ink={ink} wipe={wipe} />
+            </div>
+          );
+        })}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** 쓰기 활동: 낱말 · 문장을 고르고, 여기서 바로 쓰거나 전체 화면으로 크게 · 여럿이 쓴다 */
+function WritePractice({ entry }: { entry: WordEntry }) {
+  const cls = useCurrentClass();
+  const record = useDay((s) => s.record);
+  const update = useDay((s) => s.update);
+  const [target, setTarget] = useState<'word' | 'sentence'>('word');
+  const [choosing, setChoosing] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [stage, setStage] = useState<Stage | null>(null);
+  const present = presentStudents(cls, record);
+  const sentence = target === 'sentence' && !!entry.sentence;
+  const text = sentence ? entry.sentence : entry.word;
+  const toggle = (id: string) => {
+    if (picked.includes(id)) setPicked(picked.filter((x) => x !== id));
+    else if (picked.length < PAIR_MAX) setPicked([...picked, id]);
+    else toast(`함께 쓰기는 ${PAIR_MAX}명까지예요`);
+    playSound('select');
+  };
+  const open = (s: Stage) => { ensureAudio(); playSound('select'); setStage(s); };
+  return (
+    <>
+      <div className="wd-write-top">
+        <div className="mv-toggle wd-target">
+          <button className={!sentence ? 'on' : ''} onClick={() => { setTarget('word'); setChoosing(false); }}>낱말 쓰기</button>
+          <button className={sentence ? 'on' : ''} disabled={!entry.sentence} onClick={() => setTarget('sentence')}>문장 쓰기</button>
+        </div>
+        <button className="wd-act" onClick={() => open({ text, writers: [] })}><i className="ph-bold ph-arrows-out" /> 크게 쓰기</button>
+        {sentence
+          ? <button className={`wd-act together${choosing ? ' on' : ''}`} disabled={!present.length} onClick={() => { setChoosing(!choosing); playSound('select'); }}><i className="ph-fill ph-users" /> 함께 쓰기</button>
+          : <button className="wd-act together" disabled={!present.length} onClick={() => open({ text, writers: present, all: true })}><i className="ph-fill ph-users-three" /> 다같이 써보기</button>}
+      </div>
+      {sentence && choosing && (
+        <div className="wd-pick">
+          <span>누가 쓸까요? <small>({PAIR_MAX}명까지)</small></span>
+          <div>{present.map((s) => <button key={s.id} className={picked.includes(s.id) ? 'on' : ''} aria-pressed={picked.includes(s.id)} onClick={() => toggle(s.id)}>{s.name}</button>)}</div>
+          <button className="go" disabled={!picked.length} onClick={() => open({ text, writers: present.filter((s) => picked.includes(s.id)) })}>쓰기 시작 ▶</button>
+        </div>
+      )}
+      <TracePad text={text} />
+      {stage && (
+        <WriteStage stage={stage} onClose={() => setStage(null)}
+          onFinish={() => {
+            update((r) => { r.wordDone = true; });
+            playSound('complete'); toast('모두 작성 완료! 👏', 'success');
+            setStage(null);
+          }} />
+      )}
+    </>
   );
 }
 
@@ -255,7 +379,6 @@ function WordSetup({ book, date, onSave, onBack }: { book: WordBook; date: Date;
 export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; date: Date; onSave: (b: WordBook) => void; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>('read');
   const [setup, setSetup] = useState(false);
-  const [target, setTarget] = useState<'word' | 'sentence'>('word');
   const entry = wordOfDay(book, date);
   const fixed = !!book.weeks[weekKey(date)]?.[weekdayIndex(date)]?.word.trim();
 
@@ -283,15 +406,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
             </div>
             <div className={`wd-pane ${tab}`} role="tabpanel">
             {tab === 'read' && <ReadPractice entry={entry} />}
-            {tab === 'write' && (
-              <>
-                <div className="mv-toggle wd-target">
-                  <button className={target === 'word' ? 'on' : ''} onClick={() => setTarget('word')}>낱말 쓰기</button>
-                  <button className={target === 'sentence' ? 'on' : ''} disabled={!entry.sentence} onClick={() => setTarget('sentence')}>문장 쓰기</button>
-                </div>
-                <TraceBoard text={target === 'sentence' && entry.sentence ? entry.sentence : entry.word} />
-              </>
-            )}
+            {tab === 'write' && <WritePractice entry={entry} />}
             {tab === 'speak' && <SpeakPractice entry={entry} />}
             </div>
           </div>

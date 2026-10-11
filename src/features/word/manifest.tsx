@@ -20,12 +20,13 @@ function WordCard({ size }: CardProps) {
   const book = { ...emptyBook(), ...saved };
   const [open, setOpen] = useState(false);
   const word = wordOfDay(book, date);
+  const done = useDay((s) => s.record.wordDone === true);   // 다같이 써보기를 마쳤는지
 
   return (
     <>
       <CardFrame id="word" label="오늘의 낱말" state="plain" className="wd-card" onOpen={() => { ensureAudio(); setOpen(true); }}>
-        {isCompact(size) ? <CardCompact {...TITLE} title="오늘의 낱말" done={!!word}>{word ? word.word : '낱말을 정해요'}</CardCompact> : <>
-        <CardTitle {...TITLE}>오늘의 낱말</CardTitle>
+        {isCompact(size) ? <CardCompact {...TITLE} title="오늘의 낱말" done={done}>{word ? word.word : '낱말을 정해요'}</CardCompact> : <>
+        <CardTitle {...TITLE} extra={done ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 낱말</CardTitle>
         {word ? (
           <div className="wd-face"><b className={word.word.length > 4 ? 'long' : ''}>{word.word}</b><span>{word.meaning}</span>{size === 'large' && word.sentence && <q className="wd-sentence">{word.sentence}</q>}</div>
         ) : <div className="card-hint">터치해서 낱말을 정해요 👆</div>}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BASE_WORDS, bestHit, emptyBook, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, wordPool } from './model';
+import { fitText, writeColumns, writeGroups, BASE_WORDS, bestHit, emptyBook, parseDictExamples, parseDictSearch, weekKey, weekdayIndex, wordOfDay, wordPool } from './model';
 
 describe('오늘의 낱말', () => {
   it('주의 열쇠는 그 주 월요일이고, 일요일은 지난 주에 든다', () => {
@@ -57,5 +57,34 @@ describe('오늘의 낱말', () => {
     </sense_info></word_info></item>`;
     expect(parseDictExamples(view)).toEqual(['나는 매일 학교에 간다.', '학교 운동장.']);
     expect(parseDictSearch('<error><error_code>020</error_code></error>')).toEqual([]);
+  });
+});
+
+describe('쓰기 화면', () => {
+  it('짧은 낱말은 한 줄로, 칸에 맞는 크기로 넣는다', () => {
+    const { lines, size } = fitText('학교', 400, 300);
+    expect(lines).toEqual(['학교']);
+    expect(size).toBeGreaterThan(100);
+    expect(size * 2).toBeLessThanOrEqual(400);
+  });
+  it('긴 문장은 띄어쓰기에서 줄을 바꿔 글자를 키운다', () => {
+    const one = fitText('아침에 학교에 가요.', 2000, 100);
+    expect(one.lines).toHaveLength(1);
+    const many = fitText('비밀번호는 다른 사람에게 알려 주지 않아요.', 600, 600);
+    expect(many.lines.length).toBeGreaterThan(1);
+    expect(many.lines.join(' ')).toBe('비밀번호는 다른 사람에게 알려 주지 않아요.');
+    expect(many.size).toBeGreaterThan(fitText('비밀번호는 다른 사람에게 알려 주지 않아요.', 600, 60).size);
+  });
+  it('낱말 안에서는 줄을 바꾸지 않는다', () => {
+    expect(fitText('횡단보도', 100, 1000).lines).toEqual(['횡단보도']);
+  });
+  it('빈 글이나 크기가 없는 칸은 크기 0', () => {
+    expect(fitText('', 100, 100).size).toBe(0);
+    expect(fitText('학교', 0, 100).size).toBe(0);
+  });
+  it('12명씩 모둠으로 나누고, 인원에 맞춰 칸 수를 정한다', () => {
+    expect(writeGroups([1, 2, 3])).toEqual([[1, 2, 3]]);
+    expect(writeGroups(Array.from({ length: 14 }, (_, i) => i)).map((g) => g.length)).toEqual([12, 2]);
+    expect([1, 2, 3, 4, 5, 6, 7, 12].map(writeColumns)).toEqual([1, 2, 3, 2, 3, 3, 4, 4]);
   });
 });
