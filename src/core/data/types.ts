@@ -38,8 +38,10 @@ export interface ClassRoom {
     attInclude?: Partial<AttInclude>;
     emoMode?: 'drag' | 'tap';
     helperMode?: 'helper' | 'lucky';
+    /** 도우미 · 행운을 뽑는 방식 (기본 · 복권 · 사다리 · 빠칭코 · 돌림판) */
+    drawStyle?: 'basic' | 'scratch' | 'ladder' | 'marble' | 'wheel';
     mealHidden?: string[];
-    tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'board', boolean>>;
+    tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'noise' | 'board', boolean>>;
     video?: { url: string; title: string };
   };
 }

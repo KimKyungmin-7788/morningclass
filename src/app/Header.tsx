@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { ensureAudio, playSound } from '@/core/sound';
-import { toast } from '@/core/ui/toast';
 import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
 import { DateCard } from '@/features/date/DateCard';
 import { RecordsPanel } from '@/features/attendance/RecordsPanel';
@@ -11,7 +10,8 @@ import { Suggest } from '@/features/suggest/Suggest';
 
 type Open = null | 'settings' | 'records' | 'picker' | 'welcome' | 'suggest';
 
-// 상단 줄: 학교·학급(누르면 학급 선택), 날짜, 기능 제안·소리·저장 확인·이전 기록·설정
+// 상단 줄: 학교·학급(누르면 학급 선택), 날짜, 기능 제안·소리·이전 기록·설정
+// 저장 단추는 없다 — 바뀔 때마다 바로 저장하고, 저장하지 못했을 때만 알림을 띄운다.
 export function Header() {
   const muted = usePrefs((s) => s.muted);
   const setPrefs = usePrefs((s) => s.set);
@@ -45,11 +45,6 @@ export function Header() {
           <button title={muted ? '소리 켜기' : '소리 끄기'} aria-label="소리 켜기/끄기" aria-pressed={muted}
             onClick={() => { setPrefs({ muted: !muted }); if (muted) { ensureAudio(); playSound('select'); } }}>
             <i className={`ph-fill ph-speaker-${muted ? 'slash' : 'high'}`} />
-          </button>
-          {/* 바뀔 때마다 자동으로 저장되므로, 이 버튼은 저장됐는지 확인해 주는 용도다 */}
-          <button className="primary" title="저장 확인" aria-label="저장 확인"
-            onClick={() => { ensureAudio(); playSound('save'); toast('💾 자동으로 저장되고 있어요', 'success'); }}>
-            <i className="ph-fill ph-floppy-disk" />
           </button>
           <button title="이전 기록 보기" aria-label="이전 기록 보기" onClick={() => setOpen('records')}><i className="ph-fill ph-folder-open" /></button>
           <button title="설정" aria-label="설정 열기" onClick={() => setOpen('settings')}><i className="ph-fill ph-gear-six" /></button>

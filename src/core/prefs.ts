@@ -16,10 +16,12 @@ interface Prefs {
   mealView: 'pic' | 'text';
   /** 따라쓰기 학습지: 흐린 글씨(점선 글자) 켜기·끄기, 쓰기 칸 크기(mm) */
   wsOpts: { dot: boolean; size: number };
+  /** 판서: 용지, 바탕색, 도구 영역 펼침, 쓰기 시작하면 옵션 카드 닫기 */
+  board: { paper: string; bg: string; panelOpen: boolean; autoClose: boolean };
 }
 
 const KEY = 'mc2_prefs';
-const DEFAULTS: Prefs = { muted: false, appMode: 'morning', lastBackup: '', backupSnooze: '', mealView: 'pic', wsOpts: { dot: true, size: 15 } };
+const DEFAULTS: Prefs = { muted: false, appMode: 'morning', lastBackup: '', backupSnooze: '', mealView: 'pic', wsOpts: { dot: true, size: 15 }, board: { paper: 'blank', bg: '#FFFFFF', panelOpen: true, autoClose: true } };
 
 function load(): Prefs {
   try {
@@ -37,9 +39,9 @@ export const usePrefs = create<PrefsState>((set, get) => ({
   ...load(),
   set: (patch) => {
     set(patch);
-    const { muted, appMode, lastBackup, backupSnooze, mealView, wsOpts } = get();
+    const { muted, appMode, lastBackup, backupSnooze, mealView, wsOpts, board } = get();
     try {
-      localStorage.setItem(KEY, JSON.stringify({ muted, appMode, lastBackup, backupSnooze, mealView, wsOpts }));
+      localStorage.setItem(KEY, JSON.stringify({ muted, appMode, lastBackup, backupSnooze, mealView, wsOpts, board }));
     } catch {
       /* 저장소를 못 쓰는 환경에서도 화면은 동작해야 한다 */
     }

@@ -29,13 +29,6 @@ function TimetableCard() {
   const arranged = !!tt.arranged?.some(Boolean);
   const openPopup = () => { ensureAudio(); setOpen(true); };
 
-  if (weekend) {
-    return (
-      <CardFrame id="timetable" label="시간표 맞추기" style={{ cursor: 'default' }}>
-        <CardTitle {...TITLE}>오늘의 시간표</CardTitle><div className="card-hint">🎈 오늘은 쉬는 날이에요!</div>
-      </CardFrame>
-    );
-  }
   return (
     <>
       <CardFrame id="timetable" label="시간표 맞추기" state={arranged ? 'filled' : 'empty'} onOpen={openPopup}>
@@ -56,7 +49,8 @@ function TimetableCard() {
             <div className="tt-preview">{periods.map((s, i) => s && <div key={i} className="tt-row empty"><span className="num">{i + 1}교시</span><span className="name">?</span></div>)}</div>
             <div style={{ textAlign: 'center', color: 'var(--text-sub)', fontSize: 18, fontWeight: 700 }}>터치해서 시간표를 맞춰봐요 👆</div>
           </>
-        ) : <div className="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>}
+        ) : weekend ? <div className="card-hint">🎈 오늘은 쉬는 날이에요!<br />터치하면 시간표를 직접 배치할 수 있어요</div>   // 쉬는 날에도 열 수 있다 (보충 수업 · 미리 해 보기)
+          : <div className="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>}
       </CardFrame>
       {open && cls && <ArrangeWindow cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} />}
       {noteAt != null && (

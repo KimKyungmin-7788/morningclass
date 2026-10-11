@@ -54,11 +54,7 @@ export function AttendanceCard() {
         <div className="v3-sub">전체 {students.length}명 · 미체크 {c.unchecked}명</div>
       </CardFrame>
       {draft && (
-        <Popup title="🙋 오늘의 출석" onClose={() => setDraft(null)}>
-          <div className="att-toolbar">
-            <button onClick={() => { setDraft(Object.fromEntries(students.map((s) => [s.id, { status: 'present' as const }]))); playSound('correct'); }}>🟢 전원 출석</button>
-            <button onClick={() => setDraft({})}>↺ 초기화</button>
-          </div>
+        <Popup title={<><img className="popup-title-img" src="/img/attendance.png" alt="" />오늘의 출석</>} onClose={() => setDraft(null)}>
           <div className="att-list" ref={listRef}>
             {students.map((s) => {
               const cur = draft[s.id];
@@ -82,6 +78,10 @@ export function AttendanceCard() {
             })}
           </div>
           <PopupActions>
+            {/* 한꺼번에 바꾸는 단추는 왼쪽에, 창을 닫는 단추(취소 · 완료)는 오른쪽에 — 가운데 선으로 나눈다 */}
+            <button className="btn-tool" onClick={() => { setDraft(Object.fromEntries(students.map((s) => [s.id, { status: 'present' as const }]))); playSound('correct'); }}>🟢 전원 출석</button>
+            <button className="btn-tool" onClick={() => setDraft({})}>↺ 초기화</button>
+            <span className="pa-divider" aria-hidden="true" />
             <button className="btn-cancel" onClick={() => setDraft(null)}>취소</button>
             <button className="btn-save" onClick={() => {
               // 명단에 없는 학생(보관된 학생)의 기록은 건드리지 않고 그대로 둔다

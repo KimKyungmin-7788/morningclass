@@ -21,6 +21,10 @@ const SOUNDS = {
     { f: 523, t: 0, d: 0.12 }, { f: 659, t: 0.13, d: 0.12 },
     { f: 784, t: 0.26, d: 0.12 }, { f: 1047, t: 0.39, d: 0.3 },
   ],
+  // 타이머 끝: 삐빅-삐— 를 세 번 (교실 뒤에서도 들리게 또렷한 음색으로)
+  timeup: [0, 0.85, 1.7].flatMap((s) => [
+    { f: 988, t: s, d: 0.14, w: 'square' as Wave }, { f: 988, t: s + 0.18, d: 0.14, w: 'square' as Wave }, { f: 1319, t: s + 0.36, d: 0.34, w: 'square' as Wave },
+  ]),
   drum: [{ f: 140, t: 0, d: 0.07, w: 'triangle' }, { f: 110, t: 0.035, d: 0.06, w: 'triangle' }],
   sparkle: [{ f: 1319, t: 0, d: 0.08 }, { f: 1760, t: 0.07, d: 0.08 }, { f: 2093, t: 0.14, d: 0.14 }],
   fanfare: [
@@ -61,7 +65,7 @@ export function playSound(id: SoundId): void {
     gain.connect(audio.destination);
     osc.frequency.value = f;
     osc.type = w ?? 'sine';
-    gain.gain.setValueAtTime(0.3, audio.currentTime + t);
+    gain.gain.setValueAtTime(w === 'square' ? 0.16 : 0.3, audio.currentTime + t);   // 네모 파형은 같은 크기에도 훨씬 크게 들린다
     gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + d);
     osc.start(audio.currentTime + t);
     osc.stop(audio.currentTime + t + d + 0.05);

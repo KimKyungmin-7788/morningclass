@@ -10,16 +10,12 @@ import { useDay } from '@/core/data/day';
 import { attIncludeOf, eligibleStudents, isIncluded } from '@/core/data/eligible';
 import type { Student } from '@/core/data/types';
 import type { FeatureManifest } from '../types';
+import { DrawStage } from './DrawStages';
+import { DRAW_STYLES, drawStyleOf, shuffle } from './model';
 
 // 도우미 카드: 🎲 오늘의 도우미 / 🍀 행운의 주인공 두 가지 모드 (학급별 저장)
 
 type Mode = 'helper' | 'lucky';
-
-function shuffle<T>(list: T[]): T[] {
-  const a = [...list];
-  for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
 
 function HelperCard() {
   const cls = useCurrentClass();
@@ -73,12 +69,15 @@ function HelperCard() {
   );
 }
 
-/** 뽑기 창. 도우미는 최대 6명·슬롯 연출, 행운은 최대 3명·밤하늘 무대와 폭죽 */
+/** 뽑기 창. 도우미는 최대 6명, 행운은 최대 3명. 뽑는 방식(기본 · 복권 · 사다리 · 빠칭코 · 돌림판)은 제목 줄에서 고른다(학급별로 기억) */
 function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
   const lucky = mode === 'lucky';
   const cls = useCurrentClass();
+  const saveClass = useData((s) => s.saveClass);
   const record = useDay((s) => s.record);
   const update = useDay((s) => s.update);
+  const style = drawStyleOf(cls?.options.drawStyle);
+  const [run, setRun] = useState<Student[] | null>(null);         // 기본이 아닌 방식으로 보여 주는 중인 결과
   const all = activeStudents(cls);
   const eligible = eligibleStudents(cls, record, 'help');
   const pool = eligible.length ? eligible : all;                 // 모두 제외되면 전체에서 뽑는다
@@ -89,6 +88,7 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
   const [rolling, setRolling] = useState<string[] | null>(null);  // 돌아가는 동안 보여 줄 이름
   const stageRef = useRef<HTMLDivElement>(null);
   const alive = useRef(true);
+  const busy = !!rolling || !!run;
   const winners = savedIds.map((id) => all.find((s) => s.id === id)?.name).filter((x): x is string => !!x);
   const stars = useMemo(() => Array.from({ length: 18 }, (_, i) => (
     <i key={i} className="ls-star" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animationDelay: `${(Math.random() * 2).toFixed(2)}s` }} />
@@ -108,9 +108,24 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
     }
   };
 
+  /** 결과를 기록하고 알린다 */
+  const finish = (final: Student[]) => {
+    const ids = final.map((s) => s.id);
+    const names = final.map((s) => s.name).join(', ');
+    const at = new Date().toISOString();
+    update((r) => { if (lucky) r.lucky = { ids, pickedAt: at }; else r.helpers = { ids, pickedAt: at }; });
+    if (lucky) {
+      burst(); playSound('fanfare'); toast(`행운의 주인공: ${names} 👑`, 'success');
+      setTimeout(() => speak(`오늘의 행운의 주인공은, ${names} 입니다! 축하해요!`, { pitch: 1.15 }), 450);
+    } else {
+      playSound('complete'); toast(`오늘의 도우미: ${names} 🌟`, 'success'); speak(`오늘의 도우미는, ${names} 입니다.`);
+    }
+  };
+
   const roll = () => {
-    if (rolling) return;
-    const final = shuffle(pool).slice(0, n);
+    if (rolling || run) return;
+    const final = shuffle(pool).slice(0, n);                      // 누가 뽑히는지는 여기서 정해진다 — 방식은 보여 주는 연출만 다르다
+    if (style !== 'basic') { setRun(final); return; }
     const totalTicks = lucky ? 26 : 16 + n * 2;
     let ticks = 0;
     if (lucky) speak('두구두구두구');
@@ -120,33 +135,38 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
       setRolling(Array.from({ length: lucky ? 1 : n }, () => pool[Math.floor(Math.random() * pool.length)].name));
       playSound(lucky ? 'drum' : 'check');
       if (ticks < totalTicks) { setTimeout(tick, (lucky ? 55 : 60) + (ticks / totalTicks) ** 3 * (lucky ? 420 : 340)); return; }   // 점점 느려짐
-      const ids = final.map((s) => s.id);
-      const names = final.map((s) => s.name).join(', ');
-      const at = new Date().toISOString();
-      update((r) => { if (lucky) r.lucky = { ids, pickedAt: at }; else r.helpers = { ids, pickedAt: at }; });
       setRolling(null);
-      if (lucky) {
-        burst(); playSound('fanfare'); toast(`행운의 주인공: ${names} 👑`, 'success');
-        setTimeout(() => speak(`오늘의 행운의 주인공은, ${names} 입니다! 축하해요!`, { pitch: 1.15 }), 450);
-      } else {
-        playSound('complete'); toast(`오늘의 도우미: ${names} 🌟`, 'success'); speak(`오늘의 도우미는, ${names} 입니다.`);
-      }
+      finish(final);
     };
     tick();
   };
 
   return (
-    <Popup title={lucky ? '🍀 행운의 주인공' : '🎲 오늘의 도우미 뽑기'} onClose={() => { alive.current = false; onClose(); }}>
-      <div className="helper-setup">
+    <Popup title={lucky ? '🍀 행운의 주인공' : '🎲 오늘의 도우미 뽑기'} onClose={() => { alive.current = false; onClose(); }}
+      headerExtra={cls && (
+        <div className="mv-toggle dr-styles" role="group" aria-label="뽑는 방식">
+          {DRAW_STYLES.map((s) => (
+            <button key={s.id} className={s.id === style ? 'on' : ''} title={s.label} aria-pressed={s.id === style} disabled={busy}
+              onClick={() => { void saveClass({ ...cls, options: { ...cls.options, drawStyle: s.id } }); playSound('select'); }}>
+              <span>{s.icon}</span><em>{s.label}</em>
+            </button>
+          ))}
+        </div>
+      )}>
+      {/* 판을 보여 주는 동안에는 인원 고르기를 접어 판이 한 화면에 들어오게 한다 */}
+      <div className="helper-setup" hidden={!!run}>
         <div className="helper-count-label">몇 명 뽑을까요?</div>
         <div className="helper-count">
           {Array.from({ length: max }, (_, i) => i + 1).map((c) => (
-            <button key={c} className={`hc-btn${lucky ? ' lk' : ''}${c === n ? ' active' : ''}`} disabled={!!rolling} onClick={() => setCount(c)}>{c}명</button>
+            <button key={c} className={`hc-btn${lucky ? ' lk' : ''}${c === n ? ' active' : ''}`} disabled={busy} onClick={() => setCount(c)}>{c}명</button>
           ))}
         </div>
         <div className="helper-pool-note">후보 {pool.length}명</div>
       </div>
-      {lucky ? (
+      {run && style !== 'basic' ? (
+        <DrawStage style={style} pool={pool.map((s) => s.name)} winners={run.map((s) => s.name)}
+          onDone={() => { if (!alive.current) return; const final = run; setRun(null); finish(final); }} />
+      ) : lucky ? (
         <div className="lucky-stage" ref={stageRef}>
           {stars}
           <div className="ls-inner">
@@ -164,11 +184,11 @@ function DrawWindow({ mode, onClose }: { mode: Mode; onClose: () => void }) {
       )}
       <PopupActions>
         <button className="btn-cancel" onClick={() => { alive.current = false; onClose(); }}>닫기</button>
-        <button className={`btn-save${lucky ? ' lk-roll' : ''}`} disabled={!!rolling} onClick={roll}>
+        <button className={`btn-save${lucky ? ' lk-roll' : ''}`} disabled={busy} onClick={roll}>
           {lucky ? `🍀 ${winners.length ? '다시 뽑기' : '행운 뽑기'}` : `🎲 ${winners.length ? '다시 뽑기' : '뽑기'}`}
         </button>
       </PopupActions>
-      <InclToggles kind="help" disabled={!!rolling} />
+      {!run && <InclToggles kind="help" disabled={busy} />}
     </Popup>
   );
 }

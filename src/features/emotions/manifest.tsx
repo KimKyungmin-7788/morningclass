@@ -156,8 +156,8 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       setHot(false); setDragging(null);
       const cur = itemsRef.current;
-      if (!ghost) {                                               // 탭: 넣은 감정은 빼고, 새 감정은 마음 자리에 쏙
-        if (fromIdx != null) removeAt(fromIdx); else add(k, heartPos());
+      if (!ghost) {                                               // 끌지 않고 누르기만 했을 때: 넣은 감정은 빼고, 새 감정은 넣지 않는다 (끌어서 넣기이므로)
+        if (fromIdx != null) removeAt(fromIdx); else { playSound('select'); toast('감정 친구를 끌어서 사람 몸에 넣어 주세요'); }
         return;
       }
       ghost.remove();

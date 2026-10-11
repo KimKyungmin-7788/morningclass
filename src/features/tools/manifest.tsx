@@ -1,28 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import { CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
-import { speak } from '@/core/tts';
 import { useCurrentClass, useData } from '@/core/data/store';
 import type { FeatureManifest } from '../types';
 import { fmtMS, fmtTenths, swElapsed, timerLeft, timerShown, useTools } from './store';
 import { BoardWindow } from '@/features/board/BoardWindow';
+import { NoiseMeter } from './NoiseMeter';
 
-// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 판서 중 학급에서 고른 것만 보여 준다.
+// 수업 도구 카드: 시계 · 타이머 · 스톱워치 · 소음 측정기 · 판서 중 학급에서 고른 것만 보여 준다.
 
-type ToolId = 'clock' | 'timer' | 'stopwatch';
+type ToolId = 'clock' | 'timer' | 'stopwatch' | 'noise';
 type CardTool = ToolId | 'board';
 const TOOLS: { id: ToolId; label: string; icon: string }[] = [
   { id: 'clock', label: '시계', icon: 'ph-clock' },
   { id: 'timer', label: '타이머', icon: 'ph-timer' },
   { id: 'stopwatch', label: '스톱워치', icon: 'ph-hourglass-medium' },
+  { id: 'noise', label: '소음', icon: 'ph-ear' },
 ];
 /** 카드에 놓을 수 있는 도구 전체. 카드에는 아이콘으로 한 줄에 놓는다 */
 const CARD_TOOLS: { id: CardTool; label: string; icon: string }[] = [...TOOLS, { id: 'board', label: '판서', icon: 'ph-pencil-line' }];
 /** 카드 한 줄에 놓는 도구 수 — 이보다 많이 고를 수 없다 (도구가 더 늘어도 카드가 넘치지 않게) */
 const MAX_ON_CARD = 4;
+/** 타이머가 이만큼 남으면 깜빡이기 시작한다 */
+const HURRY_SEC = 10;
 const DAY = ['일', '월', '화', '수', '목', '금', '토'];
 
 /** 화면을 주기적으로 다시 그리게 하는 현재 시각 */
@@ -35,7 +39,8 @@ function useNow(ms: number): number {
 function ToolsCard() {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
-  const on = { clock: true, timer: true, stopwatch: true, board: true, ...cls?.options.tools };
+  // 도구는 5가지지만 카드에는 4개만 놓는다 — 처음에는 소음 측정기를 뺀 4개가 놓여 있다
+  const on = { clock: true, timer: true, stopwatch: true, noise: false, board: true, ...cls?.options.tools };
   const [board, setBoard] = useState(false);
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
@@ -45,10 +50,12 @@ function ToolsCard() {
   const sw = useTools((s) => s.sw);
   const finishIfDue = useTools((s) => s.finishIfDue);
 
-  // 타이머가 끝나면 알린다 (도구 창이 닫혀 있어도)
+  // 타이머가 끝나면 효과음으로 알린다 (도구 창이 닫혀 있어도). 말로 읽어 주지는 않는다
   useEffect(() => {
-    if (finishIfDue()) { playSound('complete'); toast('⏰ 시간이 다 됐어요!', 'success'); speak('시간이 다 됐어요.'); }
+    if (finishIfDue()) { playSound('timeup'); toast('⏰ 시간이 다 됐어요!', 'success'); }
   }, [now, finishIfDue]);
+  /** 마지막 10초 — 화면 전체가 깜빡여서 곧 끝난다는 것을 알린다 */
+  const hurry = !!timer.endAt && timerLeft(timer) <= HURRY_SEC;
 
   const cardList = CARD_TOOLS.filter((t) => on[t.id]).slice(0, MAX_ON_CARD);
   const picked = CARD_TOOLS.filter((t) => on[t.id]).length;
@@ -63,8 +70,8 @@ function ToolsCard() {
     <>
       {/* 아이콘 한 줄만 있으면 되므로 내용만큼만 높이를 쓴다 — 남는 높이는 급식·유의사항 카드가 쓴다 */}
       <CardFrame id="tools" label="수업 도구" state="plain" style={{ flex: '0 0 auto' }}>
-        <CardTitle icon="ph-fill ph-timer" tint="#e0f2fe" color="#0284c7"
-          extra={<span className="tl-side"><button title="쓸 도구 고르기" aria-label="쓸 도구 고르기" onClick={() => { ensureAudio(); setPicking(true); }}><i className="ph-bold ph-sliders-horizontal" /></button></span>}>
+        <CardTitle icon="ph-fill ph-wrench" tint="#e5e7eb" color="#374151"
+          extra={<span className="tl-side"><button title={`쓸 도구 고르기 (${MAX_ON_CARD}개까지)`} aria-label="쓸 도구 고르기" onClick={() => { ensureAudio(); setPicking(true); }}><i className="ph-bold ph-sliders-horizontal" /></button></span>}>
           수업 도구
         </CardTitle>
         {cardList.length ? (
@@ -76,13 +83,17 @@ function ToolsCard() {
               </button>
             ))}
           </div>
-        ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 골라요</div>}
+        ) : <div className="card-hint" style={{ fontSize: 15 }}>오른쪽 위 버튼으로 쓸 도구를 {MAX_ON_CARD}개까지 골라요</div>}
       </CardFrame>
       {board && <BoardWindow onClose={() => setBoard(false)} />}
+      {hurry && createPortal(<div className="tl-hurry" aria-hidden="true" />, document.body)}
 
       {picking && cls && (
-        <Popup title="🧰 쓸 도구 고르기" onClose={() => setPicking(false)}>
-          <div className="hint" style={{ marginBottom: 12 }}>우리 반 화면에 보일 도구를 골라요. 최대 {MAX_ON_CARD}개까지 놓을 수 있어요.</div>
+        <Popup title={`🧰 쓸 도구 고르기 (${MAX_ON_CARD}개까지)`} onClose={() => setPicking(false)}>
+          <div className="hint" style={{ marginBottom: 12 }}>
+            도구 {CARD_TOOLS.length}가지 중 <b>{MAX_ON_CARD}개</b>를 골라 우리 반 화면에 놓아요. <b>지금 {Math.min(picked, MAX_ON_CARD)} / {MAX_ON_CARD}개</b>
+            {picked >= MAX_ON_CARD && <><br />{MAX_ON_CARD}개가 다 찼어요. 다른 도구를 넣으려면 먼저 하나를 빼 주세요.</>}
+          </div>
           <div className="ws-opts">
             {CARD_TOOLS.map((t) => (
               <label key={t.id} className="ws-opt" style={!on[t.id] && picked >= MAX_ON_CARD ? { opacity: 0.5 } : undefined}>
@@ -147,7 +158,7 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
           )}
           {cur === 'timer' && (
             <>
-              <div className={`tp-pie${timer.done ? ' done' : ''}`} style={{ '--p': `${(timer.total ? Math.min(100, (left / timer.total) * 100) : 0).toFixed(2)}%` } as CSSProperties}>
+              <div className={`tp-pie${timer.done ? ' done' : ''}${timer.endAt && left <= HURRY_SEC ? ' hurry' : ''}`} style={{ '--p': `${(timer.total ? Math.min(100, (left / timer.total) * 100) : 0).toFixed(2)}%` } as CSSProperties}>
                 <div className="tp-pie-in"><b>{fmtMS(timerShown(timer))}</b>{timer.done && <span>끝!</span>}</div>
               </div>
               <div className="tp-side">
@@ -164,6 +175,7 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
               </div>
             </>
           )}
+          {cur === 'noise' && <NoiseMeter />}
           {cur === 'stopwatch' && (
             <>
               <div className="tp-big sw"><b>{elapsed.ms}.{elapsed.tenth}</b></div>
