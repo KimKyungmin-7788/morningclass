@@ -41,10 +41,35 @@ export const schoolLevelOf = (cls: ClassLike): Exclude<SchoolLevel, ''> => cls?.
 export const levelSubjects = (cls: ClassLike): string[] => SUBJECTS_BY_LEVEL[schoolLevelOf(cls)];
 export const subjectIcon = (name: string, cls: ClassLike): string => cls?.subjects.icons[name.trim()] || SUBJECT_ICONS[name.trim()] || '📖';
 
-/** 시간표 맞추기에 나오는 과목: 숨기지 않은 기본 과목 + 추가 과목 + 지금 시간표에 들어 있는 이름 */
+/**
+ * 시간표 맞추기에 나오는 과목: 숨기지 않은 기본 과목 + 추가 과목 + 지금 시간표에 들어 있는 이름.
+ * 선생님이 순서를 바꿔 두었으면(subjects.order) 그 순서대로, 순서에 없는 과목은 뒤에 붙는다.
+ */
 export function subjectBank(cls: ClassLike, inUse: string[] = []): string[] {
   const hidden = cls?.subjects.hidden ?? [];
-  return [...new Set([...levelSubjects(cls).filter((n) => !hidden.includes(n)), ...(cls?.subjects.custom ?? []), ...inUse.map((x) => x.trim()).filter(Boolean)])];
+  const all = [...new Set([...levelSubjects(cls).filter((n) => !hidden.includes(n)), ...(cls?.subjects.custom ?? []), ...inUse.map((x) => x.trim()).filter(Boolean)])];
+  const order = cls?.subjects.order;
+  if (!order?.length) return all;
+  const at = (n: string) => { const i = order.indexOf(n); return i < 0 ? order.length + all.indexOf(n) : i; };
+  return [...all].sort((x, y) => at(x) - at(y));
+}
+
+/** 숨겨 둔 기본 과목 (교과 편집에서 다시 넣을 수 있다) */
+export const hiddenSubjects = (cls: ClassLike): string[] => levelSubjects(cls).filter((n) => (cls?.subjects.hidden ?? []).includes(n));
+
+/** 과목 빼기: 기본 과목이면 숨기고, 추가한 과목이면 지운다 */
+export function withoutSubject<T extends ClassRoom>(cls: T, name: string): T {
+  const s = cls.subjects;
+  const isBase = levelSubjects(cls).includes(name);
+  return { ...cls, subjects: { ...s, hidden: isBase && !s.hidden.includes(name) ? [...s.hidden, name] : s.hidden, custom: s.custom.filter((x) => x !== name), order: s.order?.filter((x) => x !== name) } };
+}
+
+/** 과목 자리 옮기기: list 에서 name 을 before 앞으로 (before 가 없으면 맨 뒤로) 옮긴 새 순서 */
+export function moveSubject(list: string[], name: string, before: string | null): string[] {
+  if (name === before || !list.includes(name)) return list;
+  const rest = list.filter((x) => x !== name);
+  const at = before == null ? -1 : rest.indexOf(before);
+  return at < 0 ? [...rest, name] : [...rest.slice(0, at), name, ...rest.slice(at)];
 }
 
 /** 과목 추가: 기본 과목 이름이면 숨김만 풀고, 아니면 추가 과목으로 등록 */

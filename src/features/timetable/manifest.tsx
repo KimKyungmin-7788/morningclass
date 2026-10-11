@@ -7,7 +7,7 @@ import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { useCurrentClass, useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
-import { subjectBank, subjectIcon, withSubject } from '@/core/data/subjects';
+import { hiddenSubjects, moveSubject, subjectBank, subjectIcon, withSubject, withoutSubject } from '@/core/data/subjects';
 import { MAX_PERIODS, periodsOn, useTimetables } from '@/core/data/timetables';
 import type { ClassRoom } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
@@ -96,6 +96,8 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
   const saveClass = useData((s) => s.saveClass);
   const [slots, setSlots] = useState(() => (Array.isArray(saved) ? pad7(saved) : pad7([])));
   const [shake, setShake] = useState<number | null>(null);
+  /** 교과 편집: 보관함의 교과 카드를 빼고 · 옮기고 · 넣는다 (꾹 누르거나 '교과 편집'으로 들어간다) */
+  const [editing, setEditing] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const graded = hasAnswer(answer);
   const bank = subjectBank(cls, [...answer, ...slots]);
@@ -151,6 +153,79 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
     style: { touchAction: 'none' as const },
   });
 
+  /** 지금 저장된 학급 (끌기처럼 화면 밖에서 불릴 때 최신 값을 쓴다) */
+  const latest = () => useData.getState().classes.find((c) => c.id === cls.id) ?? cls;
+  const removeSubject = (name: string) => {
+    const next = withoutSubject(latest(), name);
+    void saveClass(next);
+    playSound('select');
+    if (subjectBank(next, [...answer, ...slots]).includes(name)) toast(`"${name}"은(는) 오늘 시간표에 들어 있어 보관함에 남아 있어요`);
+  };
+  const restoreSubject = (name: string) => { void saveClass(withSubject(latest(), name)); playSound('select'); };
+  const reorder = (name: string, before: string | null) => {
+    const now = latest();
+    const order = moveSubject(subjectBank(now, [...answer, ...slots]), name, before);
+    void saveClass({ ...now, subjects: { ...now.subjects, order } });
+    playSound('select');
+  };
+
+  /**
+   * 보관함의 교과 카드 누르기.
+   *  · 평소: 끌어서 교시 칸에 놓는다. 움직이지 않고 꾹 누르면 교과 편집으로 들어간다.
+   *  · 교과 편집 중: 끌어서 다른 교과 카드 위에 놓으면 그 앞으로 자리를 옮긴다 (빈 곳에 놓으면 맨 뒤로).
+   */
+  const bankProps = (name: string) => ({
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button || (e.target as Element).closest('.sj-x')) return;
+      const chip = e.currentTarget;
+      const sx = e.clientX; const sy = e.clientY;
+      const edit = editing;
+      let ghost: HTMLElement | null = null;
+      const root = () => bodyRef.current;
+      const clearOver = () => root()?.querySelectorAll('.drag-over, .sj-over').forEach((el) => el.classList.remove('drag-over', 'sj-over'));
+      const stop = () => { clearTimeout(hold); window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onCancel); };
+      const hold = edit ? 0 : window.setTimeout(() => { if (!ghost) { stop(); setEditing(true); playSound('select'); } }, 550);
+      const onMove = (ev: PointerEvent) => {
+        if (!ghost && (Math.abs(ev.clientX - sx) > 5 || Math.abs(ev.clientY - sy) > 5)) {
+          clearTimeout(hold);
+          ghost = chip.cloneNode(true) as HTMLElement;
+          ghost.classList.add('ghost');
+          ghost.querySelector('.sj-x')?.remove();
+          ghost.style.width = `${chip.offsetWidth}px`;
+          document.body.appendChild(ghost);
+          chip.classList.add('dragging');
+        }
+        if (!ghost) return;
+        ghost.style.left = `${ev.clientX - 60}px`;
+        ghost.style.top = `${ev.clientY - 28}px`;
+        clearOver();
+        const el = document.elementFromPoint(ev.clientX, ev.clientY);
+        if (edit) { const over = el?.closest<HTMLElement>('[data-subj]'); if (over && over !== chip) over.classList.add('sj-over'); }
+        else el?.closest('.tt-slot')?.classList.add('drag-over');
+      };
+      const end = () => { stop(); ghost?.remove(); chip.classList.remove('dragging'); clearOver(); };
+      const onCancel = () => end();
+      const onUp = (ev: PointerEvent) => {
+        const dragged = !!ghost;
+        end();
+        if (!dragged) return;
+        const el = document.elementFromPoint(ev.clientX, ev.clientY);
+        if (edit) {
+          const over = el?.closest<HTMLElement>('[data-subj]');
+          if (over?.dataset.subj && over.dataset.subj !== name) reorder(name, over.dataset.subj);
+          else if (!over && el?.closest('[data-bank]')) reorder(name, null);
+          return;
+        }
+        const slot = el?.closest<HTMLElement>('.tt-slot');
+        if (slot?.dataset.slot != null) drop({ name, from: null }, Number(slot.dataset.slot));
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onCancel);
+    },
+    style: { touchAction: 'none' as const },
+  });
+
   const addSubject = () => {
     const name = prompt('새 교과명을 입력하세요 (예: 한국사)')?.trim();
     if (!name) return;
@@ -193,10 +268,22 @@ function ArrangeWindow({ cls, answer, onClose }: { cls: ClassRoom; answer: strin
             })}
           </div>
           <div className="tt-bank">
-            <div className="tt-section-title">교과 보관함</div>
-            <div className="tt-bank-grid" data-bank="1">
+            <div className="tt-section-title sj-head">
+              교과 보관함
+              <button type="button" className={`sj-edit${editing ? ' on' : ''}`} aria-pressed={editing} onClick={() => { setEditing(!editing); playSound(editing ? 'save' : 'select'); }}>
+                {editing ? '✓ 편집 끝' : '✏️ 교과 편집'}
+              </button>
+            </div>
+            {editing && <div className="sj-hint">끌어서 순서를 바꾸고, <b>−</b> 로 빼요. 뺀 교과는 아래 점선 카드를 눌러 다시 넣어요.</div>}
+            <div className={`tt-bank-grid${editing ? ' editing' : ''}`} data-bank="1">
               {bank.map((s) => (
-                <div key={s} className={`subject-chip${s.length > 4 ? ' long' : ''}`} title={s} {...dragProps({ name: s, from: null })}><span className="ico">{subjectIcon(s, cls)}</span><span className="nm">{s}</span></div>
+                <div key={s} className={`subject-chip${s.length > 4 ? ' long' : ''}`} title={s} data-subj={s} {...bankProps(s)}>
+                  <span className="ico">{subjectIcon(s, cls)}</span><span className="nm">{s}</span>
+                  {editing && <button type="button" className="sj-x" aria-label={`${s} 빼기`} onClick={() => removeSubject(s)}><i className="ph-bold ph-minus" /></button>}
+                </div>
+              ))}
+              {editing && hiddenSubjects(cls).filter((s) => !bank.includes(s)).map((s) => (
+                <button key={s} type="button" className={`subject-chip sj-hidden${s.length > 4 ? ' long' : ''}`} title={`${s} 다시 넣기`} onClick={() => restoreSubject(s)}><span className="ico">＋</span><span className="nm">{s}</span></button>
               ))}
               <button className="subject-chip add-chip" type="button" onClick={addSubject}><span className="ico">➕</span>직접입력</button>
             </div>

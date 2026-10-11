@@ -1019,13 +1019,13 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 
 /* ── 하단 줄: 왼쪽 절반은 바구니에 담긴 카드 이름, 오른쪽 절반은 진행률 ── */
 footer .dock{flex:0 0 calc(50% - 7px);min-width:0;display:flex;align-items:center;gap:8px;padding-right:14px;border-right:2px solid rgba(0,0,0,.07)}
-footer .dock>i{flex:none;font-size:22px;color:#c2701c}
+footer .dock>i{flex:none;font-size:20px;color:#b8c2d0}
 footer .dock>div{flex:1;min-width:0;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
 footer .dock>div::-webkit-scrollbar{display:none}
-footer .dock button{flex:none;padding:4px 10px;border-radius:99px;font-size:var(--fs-body);font-weight:var(--fw-label);color:var(--text);transition:.15s}
-footer .dock button:hover{background:#fff;color:var(--primary-dark)}
-footer .dock button+button{position:relative;margin-left:10px}
-footer .dock button+button::before{content:'·';position:absolute;left:-8px;color:#cbd5e1;pointer-events:none}
+/* 이름마다 옅은 회색 상자 하나 — 화면에 놓인 카드보다 눈에 덜 띄게 */
+footer .dock>div{gap:6px;padding:2px 0}
+footer .dock button{flex:none;padding:4px 12px;border-radius:10px;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.35);font-size:clamp(13px,1vw,16px);font-weight:var(--fw-label);color:#94a3b8;transition:.15s}
+footer .dock button:hover{background:#fff;border-color:#94a3b8;color:#475569}
 footer .dock~.progress-wrap{flex:1 1 0}
 footer:has(.dock) .status{flex:none}
 @media print{footer .dock{display:none!important}}
@@ -1036,3 +1036,22 @@ footer:has(.dock) .status{flex:none}
 /* 판서 카드 */
 .bdc-face{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;color:var(--text-sub);font-size:var(--fs-body);word-break:keep-all}
 .bdc-face i{font-size:clamp(40px,4.4vw,96px);color:#0ea5e9}
+
+/* ── 시간표 맞추기: 교과 편집 (꾹 누르거나 '교과 편집') — 카드가 흔들리고, − 로 빼고, 끌어서 자리를 옮긴다 ── */
+.sj-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sj-edit{flex:none;height:34px;padding:0 12px;border-radius:99px;background:#F0F4FF;font-size:14px;font-weight:var(--fw-label);color:var(--text-sub);transition:.15s}
+.sj-edit:hover{background:var(--primary);color:#fff}
+.sj-edit.on{background:var(--success);color:#fff}
+.sj-hint{padding:6px 10px;border-radius:10px;background:#fff7ed;font-size:13px;line-height:1.4;color:#9a3412;word-break:keep-all}
+.tt-bank-grid .subject-chip{position:relative}
+.tt-bank-grid.editing{background:#fffaf2;box-shadow:inset 0 0 0 2px #fdba74;padding-top:14px}
+.tt-bank-grid.editing .subject-chip[data-subj]{--jig:1.1deg;animation:layJiggle .27s ease-in-out infinite alternate;cursor:grab}
+.tt-bank-grid.editing .subject-chip[data-subj]:nth-child(2n){animation-duration:.31s;animation-direction:alternate-reverse}
+.tt-bank-grid.editing .subject-chip[data-subj]:nth-child(3n){animation-delay:-.12s}
+.tt-bank-grid.editing .subject-chip.dragging{animation:none}
+.tt-bank-grid.editing .subject-chip.sj-over{animation:none;box-shadow:0 0 0 4px var(--primary);transform:scale(1.04)}
+.sj-x{position:absolute;top:-9px;left:-9px;z-index:2;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#475569;color:#fff;font-size:15px;border:2px solid #fff;box-shadow:0 2px 6px rgba(15,23,42,.3);touch-action:manipulation}
+.sj-x:hover{background:var(--danger)}
+.subject-chip.sj-hidden{border-style:dashed;border-color:#cbd5e1;background:transparent;color:var(--text-sub)}
+.subject-chip.sj-hidden:hover{border-color:var(--primary);color:var(--text)}
+@media (prefers-reduced-motion: reduce){.tt-bank-grid.editing .subject-chip[data-subj]{animation:none}}

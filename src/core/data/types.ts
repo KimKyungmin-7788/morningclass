@@ -45,7 +45,8 @@ export interface ClassRoom {
   students: Student[];
   /** 학생별 알레르기 번호(NEIS 1~19) */
   allergies: Record<StudentId, number[]>;
-  subjects: { hidden: string[]; custom: string[]; icons: Record<string, string> };
+  /** hidden = 숨긴 기본 과목, custom = 추가한 과목, icons = 바꾼 아이콘, order = 교과 보관함에 놓는 순서(없으면 기본 순서) */
+  subjects: { hidden: string[]; custom: string[]; icons: Record<string, string>; order?: string[] };
   options: {
     attInclude?: Partial<AttInclude>;
     emoMode?: 'drag' | 'tap';
