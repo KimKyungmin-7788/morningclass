@@ -46,7 +46,7 @@ function TimetableCard({ size }: CardProps) {
             ? <div className="tt-mini">{tt.arranged!.map((s, i) => s && <span key={i} className="tt-chip"><b>{i + 1}</b>{s}</span>)}</div>
             : <div className="card-hint">터치해서 시간표를 맞춰봐요 👆</div>}
         </> : <>
-        <CardTitle {...TITLE} extra={arranged ? <span className="v3-badge"><i className="ph-bold ph-check" />완성</span> : undefined}>오늘의 시간표</CardTitle>
+        <CardTitle {...TITLE} extra={status === 'done' ? <span className="v3-check"><i className="ph-bold ph-check" /></span> : undefined}>오늘의 시간표</CardTitle>
         {arranged ? (
           <div className="tt-preview">
             {tt.arranged!.map((s, i) => s && (

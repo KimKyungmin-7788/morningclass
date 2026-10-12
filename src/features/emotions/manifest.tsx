@@ -75,7 +75,7 @@ function EmotionsCard({ size }: CardProps) {
         ) : big ? <>
           <CardTitle {...TITLE} extra={(
             <span className="tl-side">
-              {allDone && <span className="v3-badge"><i className="ph-bold ph-check" />모두 완료</span>}
+              {allDone && <span className="v3-check" role="img" aria-label="모두 완료"><i className="ph-bold ph-check" /></span>}
               <button title="감정 활동지" aria-label="감정 활동지 만들기" onClick={() => { ensureAudio(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /></button>
             </span>
           )}>우리반 감정</CardTitle>
