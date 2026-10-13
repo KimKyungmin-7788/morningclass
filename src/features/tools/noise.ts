@@ -9,6 +9,9 @@ export function noiseLevel(rms: number): number {
   return Math.round(Math.min(100, Math.max(0, ((db + 60) / 50) * 100)));
 }
 
+/** 컴퓨터에서 나는 소리를 그대로 받는 입력 장치인지 (스테레오 믹스 따위 — 마이크가 아니다) */
+export const isLoopbackInput = (label: string) => /stereo\s*mix|스테레오\s*믹스|what\s*u\s*hear|loopback|monitor of|wave\s*out|blackhole|soundflower|vb-audio|voicemeeter|cable output/i.test(label);
+
 /** 기준(limit)에 견준 상태: 기준의 80% 밑이면 조용, 기준 밑이면 주의, 기준을 넘으면 시끄러움 */
 export const noiseState = (level: number, limit: number): NoiseState => (level >= limit ? 'loud' : level >= limit * 0.8 ? 'warn' : 'quiet');
 

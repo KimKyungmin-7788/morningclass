@@ -935,6 +935,8 @@ header .actions button.suggest.customize.on:hover{color:#fff;background:#57b864}
 .pr-stage .pr-reward{padding:14px;border-radius:16px;background:#fffbeb;border:2px solid #fcd34d}
 .pr-stage .pr-reward span{font-size:clamp(17px,1.4vw,22px)}
 .pr-stage .pr-reward button{min-height:54px;font-size:clamp(17px,1.4vw,22px)}
+.pr-fix{flex:none;display:flex;flex-wrap:wrap;gap:8px}
+.pr-undo.take{display:inline-flex;align-items:center;gap:6px;border-color:#e5e7eb;color:var(--text-sub)}
 .pr-undo{align-self:flex-start;height:40px;padding:0 14px;border-radius:99px;background:#fff;border:2px solid #e9d5ff;font-weight:var(--fw-label);color:#7e22ce}
 @media (max-width:820px){.pr-stage{grid-template-columns:1fr}}
 

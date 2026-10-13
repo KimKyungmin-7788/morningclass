@@ -10,7 +10,7 @@ import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import {
   OWN_REASON_MAX, OWN_REWARD_MAX, PRAISE_SHAPES, PRAISE_SIZES, REASON_MAX, REWARD_MAX,
-  claimReward, cleanOwn, clusterRows, givePraise, isFull, praiseConfigOf, reasonCounts, reasonsFor, rewardsFor, tallyOf, undoPraise,
+  claimReward, cleanOwn, clusterRows, givePraise, isFull, praiseConfigOf, reasonCounts, reasonsFor, rewardsFor, takePraise, tallyOf, undoPraise,
 } from '@/core/data/praise';
 import type { PraiseConfig, PraiseLog, PraiseOwn, Student } from '@/core/data/types';
 import { recordsOf } from '@/core/data/backupActions';
@@ -18,7 +18,7 @@ import type { CardProps, FeatureManifest } from '../types';
 import { certFileName, downloadCanvas, drawCertificate, printImage, type CertData } from './certificate';
 
 // 칭찬판: 학생마다 자기 판(포도 · 나무 · 별)을 칭찬 스티커로 채우고, 다 채우면 보상을 고른다.
-// 스티커는 선생님만 준다 — 주기 전에 곱셈 문제로 확인하고, 한 번 맞히면 잠시 동안은 다시 묻지 않는다.
+// 스티커는 선생님만 주고 뺀다 — 그 전에 곱셈 문제로 확인하고, 한 번 맞히면 잠시 동안은 다시 묻지 않는다.
 // (1인 1역할 "했어요"에 자동으로 주는 것은 설정에서 켠다.)
 
 const TITLE = { icon: 'ph-fill ph-seal-check', tint: '#f3e8ff', color: '#7e22ce' };
@@ -282,6 +282,13 @@ function PraiseCard({ size }: CardProps) {
     playSound('sparkle');
     speak(`${s.name}, ${reason}! 칭찬해요!`);
   });
+  /** 스티커 하나를 뺀다 (조용히 — 소리 내어 읽지 않는다) */
+  const take = (s: Student) => asTeacher(() => {
+    if (!takePraise(s.id)) return;
+    setLast(null);
+    playSound('select');
+    toast(`${s.name}의 스티커를 하나 뺐어요`);
+  });
   /** 보상을 고르면: 이번 판에서 칭찬받은 일을 모아 인증서를 만들고, 새 판을 시작한다 */
   const claim = (s: Student, reward: string) => asTeacher(() => {
     void (async () => {
@@ -406,8 +413,15 @@ function PraiseCard({ size }: CardProps) {
                       </div>
                     )}
 
-                    {last && last.s === shown.id && !gate && (
-                      <button type="button" className="pr-undo" onClick={() => { undoPraise(last.id); setLast(null); playSound('select'); toast('방금 준 스티커를 되돌렸어요'); }}>↩ 방금 준 것 취소</button>
+                    {!gate && (t.now > 0 || (last && last.s === shown.id)) && (
+                      <div className="pr-fix">
+                        {last && last.s === shown.id && (
+                          <button type="button" className="pr-undo" onClick={() => { undoPraise(last.id); setLast(null); playSound('select'); toast('방금 준 스티커를 되돌렸어요'); }}>↩ 방금 준 것 취소</button>
+                        )}
+                        {t.now > 0 && (
+                          <button type="button" className="pr-undo take" title={`${shown.name}의 스티커를 하나 빼요 (선생님만)`} onClick={() => take(shown)}><i className="ph-bold ph-minus-circle" /> 스티커 하나 빼기</button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

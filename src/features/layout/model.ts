@@ -36,7 +36,7 @@ export const DEFAULT_LAYOUT: Layout = {
   a1: 'weather', a2: 'word', a3: 'attendance',
   b1: 'timetable', b2: 'dday',
   c1: 'emotions', c2: 'helper',
-  d1: 'meal', d2: 'notes', d3: 'tools', d4: 'book',
+  d1: 'meal', d2: 'praise', d3: 'tools', d4: 'book',
 };
 
 export interface Placement {

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { ensureAudio, playSound } from '@/core/sound';
-import { NOISE_TEXT, noiseLevel, noiseState, smoothLevel } from './noise';
+import { NOISE_TEXT, isLoopbackInput, noiseLevel, noiseState, smoothLevel } from './noise';
 import { fmtMS } from './store';
 
 // 소음 측정기: 교실 소리의 크기를 마이크로 재서 보여 준다. 목표는 조용히 하기 —
 // 기준보다 조용하게 버틴 시간을 재고, 기준을 넘으면 화면이 "쉿!"으로 바뀌면서 시간이 처음으로 돌아간다.
 // 소리는 크기만 재고 녹음하거나 보내지 않으며, 측정을 멈추거나 창을 닫으면 마이크도 끈다.
+// 컴퓨터에서 나는 소리(영상 · 음악 · 효과음)는 재지 않는다 — 스피커 소리가 마이크로 되돌아온 것은 걸러 내고, 컴퓨터 소리를 받는 입력 장치는 쓰지 않는다.
 
-type Status = 'idle' | 'on' | 'denied' | 'unsupported';
+type Status = 'idle' | 'on' | 'denied' | 'unsupported' | 'nomic';
 /** 이만큼 이어서 시끄러워야 "조용히 한 시간"을 처음으로 돌린다 (문 닫는 소리 한 번에 끊기지 않게) */
 const LOUD_HOLD_MS = 700;
 const TICK_MS = 100;
@@ -30,8 +31,16 @@ export function NoiseMeter() {
     if (!audio || !navigator.mediaDevices?.getUserMedia) { setStatus('unsupported'); return; }
     let stream: MediaStream;
     try {
-      // 목소리를 다듬는 기능을 끄고 있는 그대로의 크기를 잰다
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      // 목소리를 다듬는 기능(잡음 줄이기 · 크기 맞추기)은 끄고 있는 그대로의 크기를 잰다. 스피커 소리가 마이크로 되돌아온 것만 걸러 낸다
+      const want = { echoCancellation: true, noiseSuppression: false, autoGainControl: false };
+      stream = await navigator.mediaDevices.getUserMedia({ audio: want });
+      // 기본 입력이 마이크가 아니라 컴퓨터 소리(스테레오 믹스 따위)이면 진짜 마이크로 바꾼다
+      if (isLoopbackInput(stream.getAudioTracks()[0]?.label ?? '')) {
+        const mic = (await navigator.mediaDevices.enumerateDevices()).find((d) => d.kind === 'audioinput' && d.deviceId !== 'default' && d.deviceId !== 'communications' && !isLoopbackInput(d.label));
+        stream.getTracks().forEach((t) => t.stop());
+        if (!mic) { setStatus('nomic'); return; }
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { ...want, deviceId: { exact: mic.deviceId } } });
+      }
     } catch {
       setStatus('denied');
       return;
@@ -91,6 +100,7 @@ export function NoiseMeter() {
           <div className="tp-noise-msg">
             {status === 'denied' ? <>마이크를 쓸 수 없어요.<br />주소창의 🔒 에서 마이크를 허용해 주세요.</>
               : status === 'unsupported' ? <>이 기기에서는 소음을 잴 수 없어요.</>
+              : status === 'nomic' ? <>마이크를 찾지 못했어요.<br />마이크를 연결한 뒤 다시 눌러 주세요.</>
               : <>우리 반 소리가 얼마나 큰지 재요.<br />조용히 한 시간이 길수록 좋아요! <small>소리는 크기만 재고 녹음하지 않아요.</small></>}
           </div>
         )}

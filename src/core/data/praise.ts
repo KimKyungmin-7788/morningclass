@@ -4,7 +4,7 @@ import { newId, type ClassRoom, type PraiseConfig, type PraiseLog, type PraiseOw
 
 // 칭찬판 규칙과 스티커 주기. 1인 1역할도 "했어요"에 스티커를 줄 수 있어서 core 에 둔다.
 // 판은 학생마다 따로 채운다. 설정과 학생별 진행은 학급 설정에, 스티커 하나하나(누가 · 무엇으로 · 언제)는 그날 기록에 남는다.
-// 스티커를 빼앗는 기능은 없다 — 잘못 준 것을 되돌리는 취소만 있다.
+// 잘못 준 것은 바로 되돌리고(취소), 선생님이 고른 학생의 스티커를 하나씩 뺄 수도 있다.
 
 export const PRAISE_SIZES = [10, 20, 30];
 export const PRAISE_SHAPES: { id: PraiseConfig['shape']; label: string; icon: string }[] = [
@@ -105,6 +105,16 @@ export function undoPraise(logId: string): void {
   if (!log || !cls) return;
   saveTally(removeSticker(cls.options.praiseTally, log.s));
   useDay.getState().update((r) => { r.praise = (r.praise ?? []).filter((p) => p.id !== logId); });
+}
+
+/** 선생님이 스티커 하나를 뺀다. 오늘 받은 것이 있으면 가장 나중 것의 기록도 지우고, 없으면(지난 날에 받은 것) 개수만 줄인다. 뺄 것이 없으면 false */
+export function takePraise(studentId: StudentId): boolean {
+  const cls = currentClass();
+  if (!cls || of(cls.options.praiseTally, studentId).now <= 0) return false;
+  const log = [...(useDay.getState().record.praise ?? [])].reverse().find((x) => x.s === studentId);
+  if (log) undoPraise(log.id);
+  else saveTally(removeSticker(cls.options.praiseTally, studentId));
+  return true;
 }
 
 /** 1인 1역할 "했어요"를 취소했을 때: 그 역할로 오늘 자동으로 받은 스티커를 되돌린다 */

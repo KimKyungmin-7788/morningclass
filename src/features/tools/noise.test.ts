@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { noiseLevel, noiseState, smoothLevel } from './noise';
+import { isLoopbackInput, noiseLevel, noiseState, smoothLevel } from './noise';
 
 describe('소음 측정', () => {
   it('소리 크기를 0~100 으로 바꾼다 (클수록 큰 값, 범위를 벗어나지 않는다)', () => {
@@ -22,5 +22,12 @@ describe('소음 측정', () => {
   it('커질 때는 빨리, 작아질 때는 천천히 따라간다', () => {
     expect(smoothLevel(20, 80)).toBe(50);
     expect(smoothLevel(80, 20)).toBeCloseTo(69.2);
+  });
+
+  it('컴퓨터 소리를 받는 입력 장치는 마이크로 치지 않는다', () => {
+    expect(isLoopbackInput('스테레오 믹스(Realtek(R) Audio)')).toBe(true);
+    expect(isLoopbackInput('Stereo Mix (Realtek High Definition Audio)')).toBe(true);
+    expect(isLoopbackInput('마이크 배열(Realtek(R) Audio)')).toBe(false);
+    expect(isLoopbackInput('')).toBe(false);
   });
 });

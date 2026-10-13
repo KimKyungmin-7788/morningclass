@@ -38,8 +38,8 @@ function useNow(ms: number): number {
 function ToolsCard() {
   const cls = useCurrentClass();
   const saveClass = useData((s) => s.saveClass);
-  // 도구는 5가지지만 카드에는 4개만 놓는다 — 처음에는 소음 측정기를 뺀 4개가 놓여 있다
-  const on = { clock: true, timer: true, stopwatch: true, noise: false, ...cls?.options.tools };
+  // 처음에는 도구 4가지가 모두 놓여 있다
+  const on = { clock: true, timer: true, stopwatch: true, noise: true, ...cls?.options.tools };
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
   const [picking, setPicking] = useState(false);
@@ -66,7 +66,7 @@ function ToolsCard() {
 
   return (
     <>
-      {/* 아이콘 한 줄만 있으면 되므로 내용만큼만 높이를 쓴다 — 남는 높이는 급식·유의사항 카드가 쓴다 */}
+      {/* 아이콘 한 줄만 있으면 되므로 내용만큼만 높이를 쓴다 — 남는 높이는 급식·칭찬판 카드가 쓴다 */}
       <CardFrame id="tools" label="수업 도구" state="plain">
         <CardTitle icon="ph-fill ph-wrench" tint="#e5e7eb" color="#374151"
           extra={<span className="tl-side"><button title={`쓸 도구 고르기 (${MAX_ON_CARD}개까지)`} aria-label="쓸 도구 고르기" onClick={() => { ensureAudio(); setPicking(true); }}><i className="ph-bold ph-sliders-horizontal" /></button></span>}>
