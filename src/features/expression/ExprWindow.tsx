@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Popup } from '@/core/ui/Popup';
 import { RecMeter, useRecorder } from '@/core/ui/Recorder';
 import { toast } from '@/core/ui/toast';
 import { playSound } from '@/core/sound';
+import { chime, fireworks } from '@/core/ui/fireworks';
 import { speak } from '@/core/tts';
 import { DAY_NAMES, useDay } from '@/core/data/day';
 import { useKv } from '@/core/data/kv';
@@ -54,38 +56,45 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
   const [saved, setBook] = useKv(`expr:${cls?.id ?? ''}`, emptyExprBook());
   const book = normalizeExprBook(saved);
   const students = activeStudents(cls);
-  const placedCount = students.filter((st) => book.levels[st.id]).length;
-  const [assign, setAssign] = useState(placedCount === 0);   // 처음(아무도 배치 안 됨)에는 배치하기부터
+  const placed = students.filter((st) => book.levels[st.id]);
+  const unplaced = students.filter((st) => !book.levels[st.id]);
   const done = doneList(useDay((st) => st.record.exprDone));
+  const doneCount = placed.filter((st) => done.includes(st.id)).length;
+  const allDone = placed.length > 0 && doneCount === placed.length;
+  const [cheer, setCheer] = useState(false);
   const update = useDay((st) => st.update);
   const s = topic.days[idx];
   useEffect(() => { if (stage === 'scene') say(`${s.scene} 이럴 땐 뭐라고 말할까요?`); }, [s.scene, stage]);
 
-  // 배치는 마지막 학생까지 칸에 놓으면 저절로 끝난다 (끝내기 단추 없음)
+  // 배치하기 모드는 없다: 이름은 언제든 끌어서 다른 수준 칸(또는 아래 이름 줄)으로 옮긴다
   const drag = useNameDrag((id, level) => {
-    const next = setLevel(book, id, level);
-    setBook(next);
+    setBook(setLevel(book, id, level));
     playSound(level ? 'check' : 'select');
-    if (level && students.every((st) => next.levels[st.id])) {
-      setAssign(false);
-      toast('배치를 마쳤어요. 따라 말한 학생의 이름을 누르면 ✓가 돼요', 'success');
-    }
   });
+  /** 말해 본 학생: 이름을 누르면 ✓ (다시 누르면 취소). 칸에 놓인 학생이 모두 ✓ 이면 다 함께 축하한다 */
   const tapName = (st: Student) => {
-    if (assign) return;
     const on = !done.includes(st.id);
+    const next = toggleDone(done, st.id);
     update((r) => { r.exprDone = toggleDone(r.exprDone, st.id); });
-    playSound(on ? 'correct' : 'select');
-    if (on) toast(`${st.name} 따라 말하기 완료! 👏`, 'success');
+    if (!on) { playSound('select'); return; }
+    if (placed.every((p) => next.includes(p.id))) {
+      setCheer(true);
+      chime(); fireworks();
+      speak('모두모두 잘했어요!', { rate: 1, pitch: 1.1 });
+    } else {
+      playSound('correct');
+      say(`${st.name}, 잘했어요!`);
+    }
   };
   const nameChip = (st: Student, level: ExprLevel | 'none') => {
-    const ok = done.includes(st.id);
+    // 칸에 놓인 이름: 누르면 말해 보기 ✓, 끌면 다른 칸으로. 이름 줄의 이름: 끌어서 칸에 놓는다
+    const ok = level !== 'none' && done.includes(st.id);
     return (
-      <button key={st.id} className={`ex-name lv-${level}${ok && !assign ? ' done' : ''}${assign ? ' grab' : ''}${drag.dragging === st.id ? ' dragging' : ''}`}
-        onPointerDown={assign ? (e) => drag.start(e, st) : undefined}
-        onClick={() => tapName(st)}
-        aria-label={assign ? `${st.name} 끌어서 배치` : `${st.name} 따라 말하기 ${ok ? '완료 취소' : '완료'}`}>
-        {ok && !assign && <i className="ph-bold ph-check" />}{st.name}
+      <button key={st.id} className={`ex-name grab lv-${level}${ok ? ' done' : ''}${drag.dragging === st.id ? ' dragging' : ''}`}
+        onPointerDown={(e) => drag.start(e, st)}
+        onClick={() => { if (drag.wasDrag()) return; if (level === 'none') toast('이름을 끌어서 수준 칸에 놓아 주세요'); else tapName(st); }}
+        aria-label={level === 'none' ? `${st.name} 끌어서 수준 칸에 놓기` : `${st.name} 말해 보기 ${ok ? '완료 취소' : '완료'}`}>
+        {ok ? <i className="ph-bold ph-check" /> : level !== 'none' && <i className="ph-fill ph-microphone" />}{st.name}
       </button>
     );
   };
@@ -104,7 +113,6 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
   return (
     <Popup title={`💬 오늘의 생활표현 · ${topic.name}`} large onClose={() => { window.speechSynthesis?.cancel(); onClose(); }}
       headerExtra={<>
-        {stage === 'practice' && !assign && <button className="wd-setup-btn ex-assign-btn" onClick={() => { playSound('select'); setAssign(true); }}><i className="ph-bold ph-users-three" /> 학생 배치하기</button>}
         <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 그림 카드 인쇄</button>
       </>}>
       <ExprTour showScene={() => setStage('scene')} showPractice={() => { window.speechSynthesis?.cancel(); setStage('practice'); }} />
@@ -112,9 +120,9 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
         <div className="ex">
           {days}
           <div className="ex-scene-big">
+            <p className="ex-q">이럴 땐 뭐라고 말할까요? <span className={`ex-to ${s.to}`}>{TO_LABEL[s.to]}</span></p>
             <SceneImage s={s} />
             <button className="ex-scene-text" onClick={() => say(s.scene)}>{s.scene}<i className="ph-fill ph-speaker-high" /></button>
-            <p className="ex-q">이럴 땐 뭐라고 말할까요? <span className={`ex-to ${s.to}`}>{TO_LABEL[s.to]}</span></p>
           </div>
           <div className="ex-nav">
             <button className="next" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setStage('practice'); }}>말해 보기 <i className="ph-bold ph-arrow-right" /></button>
@@ -126,9 +134,17 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
           <div className="ex-scene">
             <button className="ex-thumb" onClick={() => { playSound('select'); setStage('scene'); }} aria-label="상황 그림 크게 보기"><SceneImage s={s} /></button>
             <div>
-              <button className="ex-scene-text" onClick={() => say(s.scene)}>{s.scene}<i className="ph-fill ph-speaker-high" /></button>
               <p className="ex-q">이럴 땐 뭐라고 말할까요? <span className={`ex-to ${s.to}`}>{TO_LABEL[s.to]}</span></p>
+              <button className="ex-scene-text" onClick={() => say(s.scene)}>{s.scene}<i className="ph-fill ph-speaker-high" /></button>
             </div>
+          </div>
+          <div className={`ex-progress${allDone ? ' all' : ''}`} role="status">
+            {placed.length ? <>
+              <b>{allDone ? '🎉 모두 한 번씩 말했어요!' : <>🎤 모두 한 번씩 말해 봐요!</>}</b>
+              <span className="ex-bar" aria-hidden="true"><i style={{ width: `${(doneCount / placed.length) * 100}%` }} /></span>
+              <span className="ex-count"><b>{doneCount}</b> / {placed.length}명</span>
+              <small>말해 본 친구는 이름을 눌러요 → ✓</small>
+            </> : <b>👇 학생 이름을 끌어서 수준 칸에 놓으면 시작해요</b>}
           </div>
           <div className="ex-levels">
             {LEVELS.map((l) => (
@@ -136,18 +152,35 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
                 drop={drag.over === l.id} names={students.filter((st) => book.levels[st.id] === l.id).map((st) => nameChip(st, l.id))} />
             ))}
           </div>
-          {assign ? (
+          {/* 아직 칸에 없는 학생 · 끄는 중이면 이름 줄을 보여 준다 (칸에서 여기로 끌어 오면 배치가 빠진다) */}
+          {(unplaced.length > 0 || !students.length || drag.dragging) ? (
             <div className={`ex-tray${drag.over === 'none' ? ' drop' : ''}`} data-drop="none">
-              <span>이름을 끌어서 수준 칸에 놓아요. 모두 놓으면 배치가 끝나요. 칸에서 여기로 끌어 오면 배치가 빠져요.</span>
-              <div>{students.length ? students.filter((st) => !book.levels[st.id]).map((st) => nameChip(st, 'none'))
+              <span>{unplaced.length ? '이름을 끌어서 수준 칸에 놓아요. 칸에 놓은 이름도 언제든 끌어서 옮겨요.' : '여기에 놓으면 칸에서 빠져요'}</span>
+              <div>{students.length ? unplaced.map((st) => nameChip(st, 'none'))
                 : <em>⚙️ 설정에서 학생을 등록해 주세요</em>}</div>
             </div>
           ) : (
-            <p className="ex-note">{placedCount ? '따라 말하기를 마친 친구의 이름을 누르면 ✓ 가 돼요. ' : ''}녹음은 여기서 들어 보기만 하고 저장하지 않아요.</p>
+            <p className="ex-note">이름은 끌어서 다른 칸으로 옮길 수 있어요. 녹음은 여기서 들어 보기만 하고 저장하지 않아요.</p>
           )}
         </div>
       )}
+      {cheer && <Cheer onClose={() => setCheer(false)} />}
     </Popup>
+  );
+}
+
+/** 모두 말했을 때: 가운데에 크게 떠오르는 축하 (누르거나 잠시 뒤 닫힌다) */
+function Cheer({ onClose }: { onClose: () => void }) {
+  useEffect(() => { const t = setTimeout(onClose, 3600); return () => clearTimeout(t); }, [onClose]);
+  return createPortal(
+    <div className="ex-cheer" role="alert" onClick={onClose}>
+      <div className="ex-cheer-box">
+        <span aria-hidden="true">🎉</span>
+        <b>모두모두 잘했어요!</b>
+        <small>오늘 모두 한 번씩 말해 봤어요</small>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -160,6 +193,8 @@ function useNameDrag(onDrop: (id: string, level: ExprLevel | undefined) => void)
   const [over, setOver] = useState<string | null>(null);
   const onDropRef = useRef(onDrop);
   onDropRef.current = onDrop;
+  /** 방금 끌기가 끝났는지 — 끈 뒤 같은 이름 위에서 손을 떼도 누르기(✓)로 치지 않게 */
+  const dragged = useRef(false);
   const zoneAt = (x: number, y: number) => (document.elementFromPoint(x, y)?.closest('[data-drop]') as HTMLElement | null)?.dataset.drop ?? null;
   const start = (e: React.PointerEvent, st: Student) => {
     if (e.button > 0) return;
@@ -171,6 +206,7 @@ function useNameDrag(onDrop: (id: string, level: ExprLevel | undefined) => void)
       if (m.pointerId !== pid) return;
       if (!ghost) {
         if (Math.hypot(m.clientX - sx, m.clientY - sy) < 8) return;
+        dragged.current = true;
         ghost = from.cloneNode(true) as HTMLElement;
         ghost.classList.add('ex-ghost');
         document.body.appendChild(ghost);
@@ -184,14 +220,15 @@ function useNameDrag(onDrop: (id: string, level: ExprLevel | undefined) => void)
       if (u.pointerId !== pid) return;
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       setDragging(null); setOver(null);
-      if (!ghost) { toast('이름을 끌어서 수준 칸에 놓아 주세요'); return; }
+      if (!ghost) return;                                          // 끌지 않고 누름 — 누르기(onClick)가 맡는다
+      setTimeout(() => { dragged.current = false; }, 0);
       ghost.remove();
       const zone = u.type === 'pointercancel' ? null : zoneAt(u.clientX, u.clientY);
       if (zone) onDropRef.current(st.id, zone === 'none' ? undefined : (zone as ExprLevel));
     };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   };
-  return { start, dragging, over };
+  return { start, dragging, over, wasDrag: () => dragged.current };
 }
 
 function LevelPanel({ level, s, topic, first, names, drop }: {
