@@ -3,8 +3,8 @@ import { dragDemo, useTour, type TourStep } from '@/core/ui/Tour';
 // 생활표현 창을 처음 열었을 때 한 번 보여 주는 안내.
 // 상황 그림 → '말해 보기'(안내가 연습 화면으로 바꿔 준다) → 수준별 연습 · 녹음 → 학생 배치(끌어 놓기 시범) → 모두 한 번씩 말하기 ✓ → 그림 카드 인쇄(선택)
 
-/** 아직 칸에 없는 학생이 있으면 이름 줄과 수준 칸을 함께, 모두 놓였으면 수준 칸을 밝힌다 */
-const assignTarget = () => (document.querySelector('.ex-tray') ? '.ex-levels, .ex-tray' : '.ex-levels');
+/** 이름 줄과 수준 칸을 함께 밝힌다 */
+const assignTarget = '.ex-levels, .ex-tray';
 
 /** showScene · showPractice: 안내가 상황 그림 화면과 연습 화면을 직접 바꿔 보여 준다 (누르지 않아도 넘어가게) */
 export function ExprTour({ showScene, showPractice }: { showScene: () => void; showPractice: () => void }) {

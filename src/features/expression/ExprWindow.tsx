@@ -152,16 +152,14 @@ export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; 
                 drop={drag.over === l.id} names={students.filter((st) => book.levels[st.id] === l.id).map((st) => nameChip(st, l.id))} />
             ))}
           </div>
-          {/* 아직 칸에 없는 학생 · 끄는 중이면 이름 줄을 보여 준다 (칸에서 여기로 끌어 오면 배치가 빠진다) */}
-          {(unplaced.length > 0 || !students.length || drag.dragging) ? (
-            <div className={`ex-tray${drag.over === 'none' ? ' drop' : ''}`} data-drop="none">
-              <span>{unplaced.length ? '이름을 끌어서 수준 칸에 놓아요. 칸에 놓은 이름도 언제든 끌어서 옮겨요.' : '여기에 놓으면 칸에서 빠져요'}</span>
-              <div>{students.length ? unplaced.map((st) => nameChip(st, 'none'))
-                : <em>⚙️ 설정에서 학생을 등록해 주세요</em>}</div>
-            </div>
-          ) : (
-            <p className="ex-note">이름은 끌어서 다른 칸으로 옮길 수 있어요. 녹음은 여기서 들어 보기만 하고 저장하지 않아요.</p>
-          )}
+          {/* 아래 이름 줄은 늘 있다: 아직 칸에 없는 학생이 여기 있고, 칸에서 여기로 끌어 오면 배치가 빠진다 */}
+          <div className={`ex-tray${drag.over === 'none' ? ' drop' : ''}${unplaced.length ? '' : ' empty'}`} data-drop="none">
+            <span>{!students.length ? '⚙️ 설정에서 학생을 등록해 주세요'
+              : unplaced.length ? '이름을 끌어서 수준 칸에 놓아요. 칸에 놓은 이름도 언제든 끌어서 옮겨요.'
+              : '모두 칸에 있어요. 이름을 끌어서 다른 칸으로 옮기거나, 여기로 끌어 오면 칸에서 빠져요.'}</span>
+            {unplaced.length > 0 && <div>{unplaced.map((st) => nameChip(st, 'none'))}</div>}
+          </div>
+          <p className="ex-note">녹음은 여기서 들어 보기만 하고 저장하지 않아요.</p>
         </div>
       )}
       {cheer && <Cheer onClose={() => setCheer(false)} />}

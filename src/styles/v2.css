@@ -1328,3 +1328,5 @@ body:has(.tour-spot.act) .cal-day:is(.sun,.sat,.holiday){pointer-events:none}
 @keyframes exCheer{0%{transform:scale(.4) rotate(-6deg);opacity:0}100%{transform:none;opacity:1}}
 @keyframes exCheerBob{50%{transform:translateY(-10px) rotate(8deg)}}
 @media (prefers-reduced-motion:reduce){.ex-name.done,.ex-cheer-box,.ex-cheer-box span{animation:none}}
+.ex-tray.empty{padding:8px 14px;gap:0}
+.ex-tray.empty>span{font-size:13px}
