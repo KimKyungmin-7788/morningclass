@@ -15,6 +15,7 @@ import { EXPR_PARTS, buildExprCardsHTML } from './cardSheet';
 import { ExprTour } from './ExprTour';
 import { correctFirst, doneList, recentPicks, sayImages, sceneImages, setLevel, toggleDone, type ExprLevel, type ExprPick } from './model';
 import { useExprToday } from './useToday';
+import { ExprPlanner } from './ExprPlanner';
 
 // 생활표현 창: ① 상황 그림을 크게 보고 → ② 모든 학생이 자기 수준(문장 · 낱말 · 그림 카드)으로 말해 본다.
 // 문장 · 낱말은 듣기 · 녹음 · 내 목소리 듣기, 그림 카드는 두 장 중 맞는 카드 고르기. 녹음은 이 창에서만 듣고 저장하지 않는다.
@@ -52,6 +53,8 @@ export function ExprWindow({ pick, date, onClose }: { pick: ExprPick; date: Date
   const { topic, situation: s } = pick;
   const [stage, setStage] = useState<'scene' | 'practice'>('scene');
   const [sheet, setSheet] = useState(false);
+  /** 이번 주 정하기 */
+  const [planning, setPlanning] = useState(false);
   const cls = useCurrentClass();
   const { book, setBook } = useExprToday(cls?.id, date);
   const students = activeStudents(cls);
@@ -106,11 +109,18 @@ export function ExprWindow({ pick, date, onClose }: { pick: ExprPick; date: Date
     );
   };
 
+  if (planning) return (
+    <Popup title="📅 생활표현 정하기" large onClose={() => setPlanning(false)}>
+      <ExprPlanner book={book} date={date} onBack={() => setPlanning(false)}
+        onSave={(plan) => { setBook({ ...book, plan }); playSound('save'); toast('정한 날에는 고른 상황이, 나머지 날에는 무작위 상황이 나와요', 'success'); setPlanning(false); }} />
+    </Popup>
+  );
   if (sheet) return <CardSheet pick={pick} recent={recentPicks(book.bag, 5)} onBack={() => setSheet(false)} />;
 
   return (
     <Popup title={`💬 오늘의 생활표현 · ${topic.name}`} large onClose={() => { window.speechSynthesis?.cancel(); onClose(); }}
       headerExtra={<>
+        <button className="wd-setup-btn ex-plan-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setPlanning(true); }}><i className="ph-bold ph-calendar-check" /> 이번 주 정하기</button>
         <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 그림 카드 인쇄</button>
       </>}>
       <ExprTour showScene={() => setStage('scene')} showPractice={() => { window.speechSynthesis?.cancel(); setStage('practice'); }} />

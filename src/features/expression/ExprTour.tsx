@@ -17,6 +17,7 @@ export function ExprTour({ showScene, showPractice }: { showScene: () => void; s
     { target: assignTarget, title: '학생 배치', onEnter: () => { showPractice(); return dragDemo('.ex-tray .ex-name', '.ex-level.lv-sentence .ex-names'); },
       text: <>학생 이름을 <b>끌어서</b> 수준에 맞는 칸(문장 · 낱말 · 그림 카드)에 놓아요. 놓은 이름도 언제든 끌어서 옮겨요.</> },
     { target: '.ex-progress', title: '모두 한 번씩 말하기', onEnter: showPractice, text: <>말해 본 학생은 이름을 눌러 ✓ 해요. 모두 말하면 다 함께 축하해요.</> },
+    { target: '.ex-plan-btn', title: '이번 주 정하기 (선택)', onEnter: showPractice, text: <>상황은 날마다 무작위로 나와요. ‘이번 주 정하기’로 요일마다 나올 상황을 직접 고를 수도 있어요.</> },
     { target: '#popup-extra .wd-setup-btn:last-child', title: '그림 카드 인쇄 (선택)', onEnter: showPractice, text: <>‘그림 카드 인쇄’로 그림 카드와 문장 띠를 뽑을 수 있어요. 필요할 때만 써요.</> },
   ];
   useTour('expression', steps, () => true);

@@ -1352,3 +1352,42 @@ body:has(.tour-spot.act) .cal-day:is(.sun,.sat,.holiday){pointer-events:none}
 .ex-zoom .ex-scene-img.emoji{font-size:30vh;background:transparent;box-shadow:none}
 .ex-zoom p{padding:10px 24px;border-radius:16px;background:#fff;font-size:clamp(22px,2.4vw,36px);font-weight:var(--fw-display);color:#115e59}
 @media (max-width:820px){.ex-say{flex-wrap:wrap}.ex-say .ex-progress{flex:1 1 100%}}
+
+/* ── 생활표현 이번 주 정하기 ── */
+.xp{display:flex;flex-direction:column;gap:12px;height:min(calc(90vh - 150px),660px);word-break:keep-all}
+.xp-week{flex:none;display:flex;align-items:center;justify-content:center;gap:10px}
+.xp-week b{font-size:clamp(17px,1.4vw,21px);font-weight:var(--fw-title)}
+.xp-week small{padding:2px 10px;border-radius:99px;background:#ccfbf1;color:#0f766e;font-size:13px;font-weight:var(--fw-label)}
+.xp-step{width:34px;height:34px;border-radius:50%;background:#F0F4FF;font-size:18px;font-weight:var(--fw-title);color:#475569}
+.xp-step:disabled{opacity:.3}
+.xp-days{flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.xp-day{position:relative;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 6px;border-radius:16px;background:#F8FAFF;border:2px dashed #cbd5e1;cursor:pointer;text-align:center;transition:border-color .15s,background .15s,box-shadow .15s}
+.xp-day.set{background:#f0fdfa;border:2px solid #5eead4}
+.xp-day.target{border:2px solid #0d9488;box-shadow:0 0 0 4px rgba(13,148,136,.15)}
+.xp-day.past{opacity:.5;cursor:default}
+.xp-dow{font-size:15px;font-weight:var(--fw-title);color:#334155}
+.xp-dow small{font-size:12px;font-weight:var(--fw-body);color:#94a3b8}
+.xp-day .xp-em{font-size:26px;line-height:1}
+.xp-tt{font-size:13px;font-weight:var(--fw-label);color:#0f172a;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.xp-rand{font-size:13px;color:#94a3b8}
+.xp-day.target .xp-rand{color:#0d9488;font-weight:var(--fw-label)}
+.xp-swap{font-size:11px;color:#0d9488}
+.xp-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;font-size:11px;color:#64748b}
+.xp-x:hover{color:#dc2626;border-color:#fca5a5}
+.xp-cats{flex:none;display:flex;flex-wrap:wrap;gap:6px}
+.xp-cats button{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:99px;background:#F0F4FF;font-size:14px;font-weight:var(--fw-label);color:#475569}
+.xp-cats button.on{background:#0d9488;color:#fff}
+.xp-cats em{min-width:18px;padding:0 5px;border-radius:99px;background:#f97316;color:#fff;font-style:normal;font-size:11px;line-height:18px}
+.xp-list{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:start;padding:2px}
+.xp-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#fff;border:2px solid #e2e8f0;text-align:left;transition:border-color .15s,background .15s}
+.xp-item:hover:not(:disabled){border-color:#5eead4}
+.xp-item:disabled{opacity:.45}
+.xp-item.on{border-color:#0d9488;background:#f0fdfa}
+.xp-check{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:8px;border:2px solid #cbd5e1;font-size:13px;font-weight:var(--fw-title);color:#fff}
+.xp-item.on .xp-check{background:#0d9488;border-color:#0d9488}
+.xp-item .xp-em{flex:none;font-size:26px;line-height:1}
+.xp-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.xp-txt b{font-size:15px;font-weight:var(--fw-title);color:#0f172a}
+.xp-txt small{font-size:13px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xp-used{flex:none;padding:2px 8px;border-radius:99px;background:#f1f5f9;color:#94a3b8;font-size:11px;font-weight:var(--fw-label)}
+@media (max-width:820px){.xp-list{grid-template-columns:1fr}.xp-days{gap:4px}}

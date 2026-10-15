@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EXPR_TOPICS } from './data';
-import { EXPR_IDS, correctFirst, doneList, drawToday, emptyExprBook, normalizeExprBook, recentPicks, sayImages, sceneImages, setLevel, toggleDone } from './model';
+import { dateKeyOf } from '@/core/data/day';
+import { EXPR_IDS, correctFirst, dayId, prunePlan, settleDay, weekDays, doneList, drawToday, emptyExprBook, normalizeExprBook, recentPicks, sayImages, sceneImages, setLevel, toggleDone } from './model';
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
 
@@ -24,8 +25,8 @@ describe('생활표현 자료', () => {
 describe('날마다 무작위로 뽑기 (한 바퀴 다 돌기 전에는 다시 안 나옴)', () => {
   const empty = () => normalizeExprBook(undefined).bag;
   it('같은 날은 다시 뽑아도 같은 상황', () => {
-    const a = drawToday(empty(), '2026-10-15');
-    expect(drawToday(a.bag, '2026-10-15', EXPR_IDS, () => 0.99).id).toBe(a.id);
+    const a = drawToday(empty(), '20261015');
+    expect(drawToday(a.bag, '20261015', EXPR_IDS, () => 0.99).id).toBe(a.id);
   });
   it('100일 동안 100개가 한 번씩 모두 나온다', () => {
     let bag = empty();
@@ -49,12 +50,44 @@ describe('날마다 무작위로 뽑기 (한 바퀴 다 돌기 전에는 다시 
   });
   it('최근에 나온 상황을 날짜 순서로 (최근 것부터)', () => {
     const [a, b, c] = EXPR_IDS;
-    const list = recentPicks({ used: [], days: { '2026-10-2': b, '2026-9-30': a, '2026-10-14': c } }, 2);
+    const list = recentPicks({ used: [], days: { '20261002': b, '20260930': a, '20261014': c } }, 2);
     expect(list.map((p) => p.situation.id)).toEqual([c, b]);
   });
   it('학생 수준을 바꿔도 뽑기 기록은 남는다', () => {
-    const book = { levels: {}, bag: { used: ['a'], days: { d: 'a' } } };
+    const book = { levels: {}, bag: { used: ['a'], days: { d: 'a' } }, plan: {} };
     expect(setLevel(book, 's1', 'word').bag).toEqual(book.bag);
+  });
+});
+
+describe('선생님이 정한 일주일', () => {
+  const [a, b, c] = EXPR_IDS;
+  const book = (plan: Record<string, string>, days: Record<string, string> = {}) => ({ levels: {}, bag: { used: Object.values(days), days }, plan });
+  it('정해 둔 날은 그 상황, 이미 무작위로 뽑힌 날이어도 정한 것으로 바뀐다', () => {
+    expect(dayId(book({ '20261019': a }), '20261019')).toBe(a);
+    const next = settleDay(book({ '20261019': a }, { '20261019': b }), '20261019');
+    expect(next?.days['20261019']).toBe(a);
+    expect(next?.used).toContain(a);
+  });
+  it('정하지 않은 날은 무작위로 뽑되, 앞으로 정해 둔 상황은 피한다', () => {
+    const ids = EXPR_IDS.filter((x) => x !== c);   // 남은 후보를 c 하나만 남기는 대신, c 를 피하는지 여러 번 본다
+    for (let i = 0; i < 20; i += 1) {
+      const bag = settleDay(book({ '20261023': c }), '20261019', () => i / 20);
+      expect(ids).toContain(bag?.days['20261019']);
+    }
+  });
+  it('주말에는 다가오는 주의 월~금', () => {
+    const days = weekDays(d(2026, 10, 18)).map((x) => x.getDate());   // 일요일
+    expect(days).toEqual([19, 20, 21, 22, 23]);
+    expect(weekDays(d(2026, 10, 15)).map((x) => x.getDate())).toEqual([12, 13, 14, 15, 16]);
+    expect(weekDays(d(2026, 10, 15), 1)[0].getDate()).toBe(19);
+  });
+  it('앱의 날짜 열쇠(dateKeyOf) 모양 그대로 다룬다', () => {
+    const k = dateKeyOf(d(2026, 10, 20));
+    expect(prunePlan({ [k]: a }, d(2026, 10, 15))).toEqual({ [k]: a });
+    expect(weekDays(d(2026, 10, 15)).map(dateKeyOf)).toContain(dateKeyOf(d(2026, 10, 15)));
+  });
+  it('한 달 넘게 지난 날과 없는 상황은 지운다', () => {
+    expect(prunePlan({ '20260801': a, '20261020': b, '20261021': 'zzz' }, d(2026, 10, 15))).toEqual({ '20261020': b });
   });
 });
 
