@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Popup } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { playSound } from '@/core/sound';
-import { usePrefs } from '@/core/prefs';
 import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
-import { dateKeyOf } from '@/core/data/day';
 import { addNames } from '@/core/data/roster';
-import { downloadBackup, storageStats } from '@/core/data/backupActions';
 
-// 첫 접속 흐름: 학급이 여러 개면 학급 선택, 학생이 없으면 환영 창. 그리고 백업 알림.
+// 첫 접속 흐름: 학급이 여러 개면 학급 선택, 학생이 없으면 환영 창.
 
 /** 체험학급: 이름은 체험학교지만 급식은 실제 학교(강원 K10 / 7801212)의 것을 불러온다 */
 const DEMO = { schoolName: '체험학교', className: '4학년 1반', level: 'elem' as const, students: ['김안목', '김강문', '김경포', '김순긋', '김사천'], neis: { atptCode: 'K10', schoolCode: '7801212' } };
@@ -57,33 +52,5 @@ export function Welcome({ onClose, onMine }: { onClose: () => void; onMine: () =
         <div className="wl-note">체험학급은 나중에 ⚙️ 설정에서 학급을 추가한 뒤 삭제할 수 있어요.</div>
       </div>
     </Popup>
-  );
-}
-
-/** 기록이 있는데 7일 넘게 백업하지 않았으면 화면 아래에 알린다. '나중에'를 누르면 그날은 다시 묻지 않는다 */
-export function BackupReminder() {
-  const cls = useCurrentClass();
-  const { lastBackup, backupSnooze, set } = usePrefs();
-  const [show, setShow] = useState(false);
-  const today = dateKeyOf(new Date());
-  const days = lastBackup ? (Date.now() - new Date(lastBackup).getTime()) / 86400000 : Infinity;
-  const hasStudents = activeStudents(cls).length > 0;
-
-  useEffect(() => {
-    if (!cls || !hasStudents || backupSnooze === today || days < 7) { setShow(false); return; }
-    let alive = true;
-    void storageStats(cls.id).then((s) => { if (alive) setShow(s.allRecords >= 1); });
-    return () => { alive = false; };
-  }, [cls, hasStudents, backupSnooze, today, days]);
-
-  if (!show) return null;
-  return createPortal(
-    <div className="backup-reminder" role="status">
-      <span className="br-ico">💾</span>
-      <div className="br-text"><b>기록을 파일로 저장해 두세요</b><br /><span className="br-sub">{lastBackup ? `${Math.floor(days)}일째 백업을 안 했어요` : '아직 파일 백업을 한 번도 안 했어요'}. 브라우저 데이터가 지워지면 복구할 수 없어요.</span></div>
-      <button className="br-backup" onClick={() => { void downloadBackup().then(() => toast('백업 완료 📤', 'success')); }}>📤 백업하기</button>
-      <button className="br-later" onClick={() => set({ backupSnooze: today })}>나중에</button>
-    </div>,
-    document.body,
   );
 }

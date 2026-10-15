@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
+import { MealTour } from './MealTour';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
@@ -121,6 +122,7 @@ function MealWindow({ cls, onClose, onAllergy, onSheet }: { cls: ClassRoom; onCl
           <button className={view === 'text' ? 'on' : ''} aria-pressed={view === 'text'} onClick={() => { setPrefs({ mealView: 'text' }); playSound('select'); }}>🔤 글자만</button>
         </div>
       )}>
+      <MealTour />
       <div className="meal-modal">
         <div className="mm-body" id="mm-body">
           {phase.at === 'loading' && <div className="meal-loading"><div className="spinner">{SPIN[spin % SPIN.length]}</div><div className="text">급식 메뉴를 불러오는 중...</div></div>}

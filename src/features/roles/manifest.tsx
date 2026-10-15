@@ -10,6 +10,7 @@ import { useDay } from '@/core/data/day';
 import { givePraise, praiseConfigOf, undoRolePraise } from '@/core/data/praise';
 import { newId, type RoleItem, type Student } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
+import { RolesSetupTour, RolesTodayTour } from './RolesTour';
 import { ROLE_ICONS, ROLE_PRESETS, cleanRoles, dealRoles, roleProgress, roleViews, rotateRoles, toggleDone, toggleMember, withoutRole, type RoleView } from './model';
 
 // 1인 1역할: 학생마다 맡은 학급 일을 보여 주고, 한 학생이 자기 이름을 눌러 "오늘 했어요"를 남긴다.
@@ -22,6 +23,7 @@ type Member = RoleView['members'][number];
 function RoleBoard({ views, onMark }: { views: RoleView[]; onMark: (role: RoleItem, m: Member) => void }) {
   return (
     <div className="rl-board">
+      <RolesTodayTour />
       {views.map(({ role, members }) => {
         const todo = members.filter((m) => !m.absent);
         return (
@@ -88,6 +90,7 @@ function RoleSetup({ initial, students, onSave, onBack }: { initial: RoleItem[];
   const roleCount = (id: string) => roles.filter((r) => r.students.includes(id)).length;
   return (
     <div className="rl-setup" ref={box}>
+      <RolesSetupTour />
       <div className="rl-sum" role="status">
         <span>역할 <b>{roles.length}</b>개</span>
         <span>맡은 친구 <b>{students.length - free.length}</b>/{students.length}명</span>

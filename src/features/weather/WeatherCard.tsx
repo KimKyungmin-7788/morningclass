@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact, type SlotSize } from '@/core/ui/slot';
 import { Popup } from '@/core/ui/Popup';
@@ -12,6 +12,7 @@ import { geoDust, geoErrorText, geoWeather } from './geo';
 import { WeatherScene } from './WeatherScene';
 import { DustChip } from './DustCard';
 import { WeatherSheet } from '@/features/worksheets/Worksheets';
+import { WeatherTour } from './WeatherTour';
 
 // 오늘의 날씨: 직접 고르기 → (선택) GPS 로 정답 확인. 고르면 날씨 장면을 크게 보여 준다.
 
@@ -19,7 +20,7 @@ type Stage =
   | { at: 'closed' }
   | { at: 'pick' }
   | { at: 'reveal'; w: WeatherValue }
-  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null; dustAns: DustLevel | null; guessDust: DustLevel | null }
+  | { at: 'result'; ans: WeatherValue; guess: WeatherKind; guessFeel: string | null; dustAns: DustLevel | null; guessDust: DustLevel | null; sample?: boolean }
   | { at: 'sheet' };
 
 /** 날씨와 구분되도록 온도계 아이콘을 단 기온 패널 */
@@ -48,6 +49,19 @@ export function WeatherCard({ size }: { size: SlotSize }) {
   const [dust, setDust] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
   const close = () => setStage({ at: 'closed' });
+
+  // 처음 안내가 정답 확인 화면을 예시로 띄웠다가 되돌린다 (기록은 바꾸지 않는다)
+  const picked = useRef({ pick, feel, dust });
+  picked.current = { pick, feel, dust };
+  const tourScreen = useRef({
+    showSample: () => {
+      const { pick: p, feel: f, dust: d } = picked.current;
+      const guess = WEATHER[p ?? 0];
+      const guessDust = d != null ? DUST[d] : null;
+      setStage({ at: 'result', ans: { ...guess, ...(f ? { feel: f } : {}) }, guess, guessFeel: f, dustAns: guessDust ?? DUST[0], guessDust, sample: true });
+    },
+    backToPick: () => setStage((s) => (s.at === 'result' && s.sample ? { at: 'pick' } : s)),
+  }).current;
   const t = w ? wxTheme(w) : null;
   const feelNow = wxFeel(w);
 
@@ -141,6 +155,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
         </>}
       </CardFrame>
 
+      {(stage.at === 'pick' || (stage.at === 'result' && stage.sample)) && <WeatherTour {...tourScreen} />}
       {stage.at === 'pick' && (
         <Popup title="오늘 날씨는 어때요?" onClose={close}>
           <div className="wxp-sec temp">
@@ -200,7 +215,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
       })()}
 
       {stage.at === 'result' && (() => {
-        const { ans, guess, guessFeel, dustAns, guessDust } = stage;
+        const { ans, guess, guessFeel, dustAns, guessDust, sample } = stage;
         const dOk = guessDust && dustAns ? guessDust.level === dustAns.level : null;   // 미세먼지는 고르고, 정답도 불러왔을 때만 맞춰 본다
         const th = wxTheme(ans);
         const gf = FEEL.find((f) => f.k === guessFeel) ?? null;
@@ -213,7 +228,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
                 <i className="ph-fill ph-notepad" style={{ fontSize: 24 }} />날씨 활동지
               </button>
             )}>
-            <div className={`wxres-head ${allOk && dOk !== false ? 'ok' : 'no'}`}>{allOk && dOk !== false ? '🎉 모두 맞았어요!' : '🤔 정답을 확인해요'}</div>
+            <div className={`wxres-head ${allOk && dOk !== false ? 'ok' : 'no'}`}>{sample ? '👀 예시 화면이에요' : allOk && dOk !== false ? '🎉 모두 맞았어요!' : '🤔 정답을 확인해요'}</div>
             <div className="wxres-grid three">
               {resultCard('ph-cloud-sun', '날씨', guess, wOk)}
               {resultCard('ph-thermometer-simple', '기온', gf, gf ? fOk : null)}

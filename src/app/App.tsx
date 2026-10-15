@@ -4,11 +4,12 @@ import { useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import { toast } from '@/core/ui/toast';
 import { ToastHost } from '@/core/ui/toast';
+import { TourHost } from '@/core/ui/Tour';
+import { MainTour } from '@/features/onboarding/MainTour';
 import { Header } from './Header';
 import { Dashboard } from './Dashboard';
 import { Footer } from './Footer';
 import { SideSwitch } from './SideSwitch';
-import { BackupReminder } from '@/features/onboarding/Onboarding';
 import { Celebrate } from './Celebrate';
 import { LessonView } from '@/features/lesson/LessonView';
 import { LayoutDrawer, LayoutGate } from '@/features/layout/Drawer';
@@ -59,15 +60,16 @@ export function App() {
             <Dashboard />
             {layoutEditing ? <LayoutDrawer /> : <Footer />}
             <LayoutGate />
+            {!layoutEditing && <MainTour />}
           </div>
         ) : (
           <div id="lesson-view"><LessonView /></div>
         )}
         <SideSwitch />
       </div>
-      {appMode === 'morning' && <BackupReminder />}
       {appMode === 'morning' && <Celebrate />}
       <ToastHost />
+      <TourHost />
     </>
   );
 }

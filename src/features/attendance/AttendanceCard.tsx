@@ -9,6 +9,7 @@ import { activeStudents, useCurrentClass } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
 import type { AttendanceStatus, DayRecord } from '@/core/data/types';
 import { ABSENT_REASONS, STATUS_LABEL, todayCounts } from './model';
+import { AttendanceTour } from './AttendanceTour';
 
 // 오늘의 출석: 카드에는 출석·지각·결석 수, 창에서는 학생별로 고른다. 결석이면 사유를 고를 수 있다(선택).
 
@@ -73,6 +74,7 @@ export function AttendanceCard({ size }: { size: SlotSize }) {
       </CardFrame>
       {draft && (
         <Popup title={<><img className="popup-title-img" src="/img/attendance.png" alt="" />오늘의 출석</>} onClose={() => setDraft(null)}>
+          <AttendanceTour />
           <div className="att-list" ref={listRef}>
             {students.map((s) => {
               const cur = draft[s.id];

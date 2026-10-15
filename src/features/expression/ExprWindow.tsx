@@ -1,0 +1,265 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Popup } from '@/core/ui/Popup';
+import { RecMeter, useRecorder } from '@/core/ui/Recorder';
+import { toast } from '@/core/ui/toast';
+import { playSound } from '@/core/sound';
+import { speak } from '@/core/tts';
+import { DAY_NAMES, useDay } from '@/core/data/day';
+import { useKv } from '@/core/data/kv';
+import { activeStudents, useCurrentClass } from '@/core/data/store';
+import type { Student } from '@/core/data/types';
+import { SheetFrame } from '@/features/worksheets/Worksheets';
+import { TO_LABEL, type ExprSituation, type ExprTopic } from './data';
+import { EXPR_PARTS, buildExprCardsHTML } from './cardSheet';
+import { ExprTour } from './ExprTour';
+import { correctFirst, doneList, emptyExprBook, normalizeExprBook, sceneImages, setLevel, toggleDone, type ExprLevel } from './model';
+
+// 생활표현 창: ① 상황 그림을 크게 보고 → ② 모든 학생이 자기 수준(문장 · 낱말 · 그림 카드)으로 말해 본다.
+// 문장 · 낱말은 듣기 · 녹음 · 내 목소리 듣기, 그림 카드는 두 장 중 맞는 카드 고르기. 녹음은 이 창에서만 듣고 저장하지 않는다.
+// 학생 배치: 이름을 수준 칸으로 끌어다 놓는다(처음 한 번). 배치된 이름을 누르면 오늘 따라 말하기 완료 ✓.
+
+const REC_MAX = 10000;
+/** 또박또박 천천히 읽어 준다 */
+const say = (text: string) => speak(text, { rate: 0.85 });
+
+const LEVELS: { id: ExprLevel; icon: string; label: string }[] = [
+  { id: 'sentence', icon: '🗣️', label: '문장' },
+  { id: 'word', icon: '💬', label: '낱말' },
+  { id: 'card', icon: '✋', label: '그림 카드' },
+];
+
+/** 그림 카드 (교실의 그림 카드처럼: 그림 + 말) */
+export function PictureCard({ emoji, text, small }: { emoji: string; text: string; small?: boolean }) {
+  return (
+    <button className={`ex-pic${small ? ' small' : ''}`} onClick={(e) => { e.stopPropagation(); say(text); }} aria-label={`${text} 그림 카드 듣기`}>
+      <span aria-hidden="true">{emoji}</span><b>{text}</b>
+    </button>
+  );
+}
+
+/** 상황 그림: public/img/expression/<id>.webp → .png → 없으면 emoji */
+export function SceneImage({ s, className = '' }: { s: ExprSituation; className?: string }) {
+  const srcs = sceneImages(s.id);
+  const [at, setAt] = useState(0);
+  useEffect(() => setAt(0), [s.id]);
+  if (at >= srcs.length) return <span className={`ex-scene-img emoji ${className}`} aria-hidden="true">{s.emoji}</span>;
+  return <img className={`ex-scene-img ${className}`} src={srcs[at]} alt={s.title} draggable={false} onError={() => setAt(at + 1)} />;
+}
+
+export function ExprWindow({ topic, today, date, onClose }: { topic: ExprTopic; today: number; date: Date; onClose: () => void }) {
+  const [idx, setIdx] = useState(today);
+  const [stage, setStage] = useState<'scene' | 'practice'>('scene');
+  const [sheet, setSheet] = useState(false);
+  const cls = useCurrentClass();
+  const [saved, setBook] = useKv(`expr:${cls?.id ?? ''}`, emptyExprBook());
+  const book = normalizeExprBook(saved);
+  const students = activeStudents(cls);
+  const placedCount = students.filter((st) => book.levels[st.id]).length;
+  const [assign, setAssign] = useState(placedCount === 0);   // 처음(아무도 배치 안 됨)에는 배치하기부터
+  const done = doneList(useDay((st) => st.record.exprDone));
+  const update = useDay((st) => st.update);
+  const s = topic.days[idx];
+  useEffect(() => { if (stage === 'scene') say(`${s.scene} 이럴 땐 뭐라고 말할까요?`); }, [s.scene, stage]);
+
+  // 배치는 마지막 학생까지 칸에 놓으면 저절로 끝난다 (끝내기 단추 없음)
+  const drag = useNameDrag((id, level) => {
+    const next = setLevel(book, id, level);
+    setBook(next);
+    playSound(level ? 'check' : 'select');
+    if (level && students.every((st) => next.levels[st.id])) {
+      setAssign(false);
+      toast('배치를 마쳤어요. 따라 말한 학생의 이름을 누르면 ✓가 돼요', 'success');
+    }
+  });
+  const tapName = (st: Student) => {
+    if (assign) return;
+    const on = !done.includes(st.id);
+    update((r) => { r.exprDone = toggleDone(r.exprDone, st.id); });
+    playSound(on ? 'correct' : 'select');
+    if (on) toast(`${st.name} 따라 말하기 완료! 👏`, 'success');
+  };
+  const nameChip = (st: Student, level: ExprLevel | 'none') => {
+    const ok = done.includes(st.id);
+    return (
+      <button key={st.id} className={`ex-name lv-${level}${ok && !assign ? ' done' : ''}${assign ? ' grab' : ''}${drag.dragging === st.id ? ' dragging' : ''}`}
+        onPointerDown={assign ? (e) => drag.start(e, st) : undefined}
+        onClick={() => tapName(st)}
+        aria-label={assign ? `${st.name} 끌어서 배치` : `${st.name} 따라 말하기 ${ok ? '완료 취소' : '완료'}`}>
+        {ok && !assign && <i className="ph-bold ph-check" />}{st.name}
+      </button>
+    );
+  };
+
+  if (sheet) return <CardSheet topic={topic} onBack={() => setSheet(false)} />;
+  const days = (
+    <div className="ex-days" role="group" aria-label="이번 주 상황">
+      {topic.days.map((d, i) => (
+        <button key={d.id} className={i === idx ? 'on' : ''} aria-pressed={i === idx} onClick={() => { playSound('select'); setIdx(i); setStage('scene'); }}>
+          {DAY_NAMES[i + 1]}{i === today && <small>오늘</small>}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <Popup title={`💬 오늘의 생활표현 · ${topic.name}`} large onClose={() => { window.speechSynthesis?.cancel(); onClose(); }}
+      headerExtra={<>
+        {stage === 'practice' && !assign && <button className="wd-setup-btn ex-assign-btn" onClick={() => { playSound('select'); setAssign(true); }}><i className="ph-bold ph-users-three" /> 학생 배치하기</button>}
+        <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 그림 카드 인쇄</button>
+      </>}>
+      <ExprTour showScene={() => setStage('scene')} showPractice={() => { window.speechSynthesis?.cancel(); setStage('practice'); }} />
+      {stage === 'scene' ? (
+        <div className="ex">
+          {days}
+          <div className="ex-scene-big">
+            <SceneImage s={s} />
+            <button className="ex-scene-text" onClick={() => say(s.scene)}>{s.scene}<i className="ph-fill ph-speaker-high" /></button>
+            <p className="ex-q">이럴 땐 뭐라고 말할까요? <span className={`ex-to ${s.to}`}>{TO_LABEL[s.to]}</span></p>
+          </div>
+          <div className="ex-nav">
+            <button className="next" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setStage('practice'); }}>말해 보기 <i className="ph-bold ph-arrow-right" /></button>
+          </div>
+        </div>
+      ) : (
+        <div className="ex">
+          {days}
+          <div className="ex-scene">
+            <button className="ex-thumb" onClick={() => { playSound('select'); setStage('scene'); }} aria-label="상황 그림 크게 보기"><SceneImage s={s} /></button>
+            <div>
+              <button className="ex-scene-text" onClick={() => say(s.scene)}>{s.scene}<i className="ph-fill ph-speaker-high" /></button>
+              <p className="ex-q">이럴 땐 뭐라고 말할까요? <span className={`ex-to ${s.to}`}>{TO_LABEL[s.to]}</span></p>
+            </div>
+          </div>
+          <div className="ex-levels">
+            {LEVELS.map((l) => (
+              <LevelPanel key={`${idx}-${l.id}`} level={l} s={s} topic={topic} first={correctFirst(date, idx)}
+                drop={drag.over === l.id} names={students.filter((st) => book.levels[st.id] === l.id).map((st) => nameChip(st, l.id))} />
+            ))}
+          </div>
+          {assign ? (
+            <div className={`ex-tray${drag.over === 'none' ? ' drop' : ''}`} data-drop="none">
+              <span>이름을 끌어서 수준 칸에 놓아요. 모두 놓으면 배치가 끝나요. 칸에서 여기로 끌어 오면 배치가 빠져요.</span>
+              <div>{students.length ? students.filter((st) => !book.levels[st.id]).map((st) => nameChip(st, 'none'))
+                : <em>⚙️ 설정에서 학생을 등록해 주세요</em>}</div>
+            </div>
+          ) : (
+            <p className="ex-note">{placedCount ? '따라 말하기를 마친 친구의 이름을 누르면 ✓ 가 돼요. ' : ''}녹음은 여기서 들어 보기만 하고 저장하지 않아요.</p>
+          )}
+        </div>
+      )}
+    </Popup>
+  );
+}
+
+/**
+ * 이름 끌어다 놓기 (손가락 · 펜 · 마우스 모두 포인터로). 놓은 자리의 [data-drop] 으로 수준을 정한다.
+ * 칸 밖에 놓으면 아무것도 바꾸지 않는다.
+ */
+function useNameDrag(onDrop: (id: string, level: ExprLevel | undefined) => void) {
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [over, setOver] = useState<string | null>(null);
+  const onDropRef = useRef(onDrop);
+  onDropRef.current = onDrop;
+  const zoneAt = (x: number, y: number) => (document.elementFromPoint(x, y)?.closest('[data-drop]') as HTMLElement | null)?.dataset.drop ?? null;
+  const start = (e: React.PointerEvent, st: Student) => {
+    if (e.button > 0) return;
+    e.preventDefault();
+    const sx = e.clientX; const sy = e.clientY; const pid = e.pointerId;
+    const from = e.currentTarget as HTMLElement;
+    let ghost: HTMLElement | null = null;
+    const move = (m: PointerEvent) => {
+      if (m.pointerId !== pid) return;
+      if (!ghost) {
+        if (Math.hypot(m.clientX - sx, m.clientY - sy) < 8) return;
+        ghost = from.cloneNode(true) as HTMLElement;
+        ghost.classList.add('ex-ghost');
+        document.body.appendChild(ghost);
+        setDragging(st.id);
+        playSound('select');
+      }
+      ghost.style.transform = `translate(${m.clientX}px,${m.clientY}px) translate(-50%,-50%)`;
+      setOver(zoneAt(m.clientX, m.clientY));
+    };
+    const up = (u: PointerEvent) => {
+      if (u.pointerId !== pid) return;
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      setDragging(null); setOver(null);
+      if (!ghost) { toast('이름을 끌어서 수준 칸에 놓아 주세요'); return; }
+      ghost.remove();
+      const zone = u.type === 'pointercancel' ? null : zoneAt(u.clientX, u.clientY);
+      if (zone) onDropRef.current(st.id, zone === 'none' ? undefined : (zone as ExprLevel));
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+  };
+  return { start, dragging, over };
+}
+
+function LevelPanel({ level, s, topic, first, names, drop }: {
+  level: (typeof LEVELS)[number]; s: ExprSituation; topic: ExprTopic; first: boolean; names: React.ReactNode[]; drop: boolean;
+}) {
+  const rec = useRecorder(REC_MAX);
+  const text = level.id === 'sentence' ? s.sentence : s.word;
+  return (
+    <section className={`ex-level lv-${level.id}${drop ? ' drop' : ''}`} data-drop={level.id}>
+      <h3><span aria-hidden="true">{level.icon}</span> {level.label}</h3>
+      {level.id === 'card' ? <CardChoice s={s} topic={topic} first={first} /> : <>
+        <div className="ex-level-body">
+          <button className={`ex-line lv-${level.id}`} onClick={() => say(text)}>{text}</button>
+          <p className="ex-thanks">{s.next.when} → <b>{s.next.say}</b></p>
+        </div>
+        {rec.state === 'on' && rec.live && <RecMeter stream={rec.live} maxMs={REC_MAX} bars={12} />}
+        <div className="ex-acts">
+          <button onClick={() => say(text)}><i className="ph-fill ph-speaker-high" /> 듣기</button>
+          <button className={rec.state === 'on' ? 'rec' : ''} onClick={rec.toggle}>
+            {rec.state === 'on' ? <><i className="ph-fill ph-stop" /> 그만</> : <><i className="ph-fill ph-microphone" /> {rec.url ? '다시 녹음' : '녹음'}</>}
+          </button>
+          <button disabled={!rec.url || rec.state === 'on'} onClick={rec.play}><i className="ph-fill ph-play" /> 내 목소리</button>
+        </div>
+        {rec.state === 'denied' && <p className="ex-warn">마이크를 쓸 수 없어요. 주소창의 🔒 에서 마이크를 허용해 주세요.</p>}
+        {rec.state === 'unsupported' && <p className="ex-warn">이 기기에서는 녹음할 수 없어요.</p>}
+      </>}
+      <div className="ex-names">{names.length ? names : <span className="ex-names-empty">여기에 이름을 놓아요</span>}</div>
+    </section>
+  );
+}
+
+/** 그림 카드 수준: 두 장 중 이 상황에 맞는 카드 고르기 */
+function CardChoice({ s, topic, first }: { s: ExprSituation; topic: ExprTopic; first: boolean }) {
+  const [picked, setPicked] = useState<'right' | 'wrong' | null>(null);
+  const right = { key: 'right' as const, emoji: s.cardEmoji ?? topic.cardEmoji, text: s.card };
+  const wrong = { key: 'wrong' as const, ...s.wrong };
+  const cards = first ? [right, wrong] : [wrong, right];
+  const pick = (k: 'right' | 'wrong', text: string) => {
+    setPicked(k);
+    if (k === 'right') { playSound('correct'); say(`${text}. 잘했어요!`); } else { playSound('wrong'); say(`${text}. 다시 골라 볼까요?`); }
+  };
+  return <>
+    <div className="ex-level-body">
+      <p className="ex-pick-q">어떤 카드를 건넬까요?</p>
+      <div className="ex-pick">
+        {cards.map((c) => (
+          <button key={c.key} className={`ex-pic${picked === c.key ? ` ${c.key}` : ''}`} onClick={() => pick(c.key, c.text)} aria-label={`${c.text} 카드 고르기`}>
+            <span aria-hidden="true">{c.emoji}</span><b>{c.text}</b>
+          </button>
+        ))}
+      </div>
+      <p className={`ex-act${picked ? ` ${picked}` : ''}`}>{picked === 'right' ? `잘했어요! ${topic.cardAct[s.to]}` : picked === 'wrong' ? '다시 골라 볼까요?' : ' '}</p>
+    </div>
+    <div className="ex-acts one">
+      <button disabled={!picked} onClick={() => { playSound('select'); setPicked(null); }}><i className="ph-bold ph-arrow-counter-clockwise" /> 다시 하기</button>
+    </div>
+  </>;
+}
+
+let cardSel: Record<string, boolean> = { cards: true, strip: true };
+function CardSheet({ topic, onBack }: { topic: ExprTopic; onBack: () => void }) {
+  const [sel, setSel] = useState(cardSel);
+  const html = useMemo(() => buildExprCardsHTML(topic, sel), [topic, sel]);
+  return (
+    <SheetFrame title="🖨️ 그림 카드 · 문장 띠 인쇄" html={html} canExport={EXPR_PARTS.some(([k]) => sel[k])} pdfName="생활표현_그림카드" backLabel="← 돌아가기" onBack={onBack}>
+      <div className="ws-opts">
+        {EXPR_PARTS.map(([k, l]) => <label key={k} className="ws-opt"><input type="checkbox" checked={!!sel[k]} onChange={(e) => { cardSel = { ...sel, [k]: e.target.checked }; setSel(cardSel); }} /> {l}</label>)}
+      </div>
+    </SheetFrame>
+  );
+}

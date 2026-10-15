@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact } from '@/core/ui/slot';
 import { Popup } from '@/core/ui/Popup';
+import { EmotionTour } from './EmotionTour';
 import { InclToggles } from '@/core/ui/InclToggles';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -256,6 +257,7 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
           <button className={mode === 'tap' ? 'on' : ''} aria-pressed={mode === 'tap'} onClick={() => setMode('tap')}><i className="ph-bold ph-hand-pointing" /> 눌러서 넣기</button>
         </div>
       )}>
+      <EmotionTour mode={mode} />
       <div className={`emo-modal${mode === 'tap' ? ' mode-tap' : ''}`}>
         <div className="emo-palette">
           <div className="emo-pal-title"><span>❤️</span> 감정 친구들</div>

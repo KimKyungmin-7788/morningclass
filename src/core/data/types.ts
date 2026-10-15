@@ -101,6 +101,8 @@ export interface DayRecord {
   praiseRewards?: { s: StudentId; reward: string; at: string }[];
   /** 오늘의 어휘 '다같이 써보기'를 마쳤는지 (쓴 글씨는 저장하지 않는다) */
   wordDone?: true;
+  /** 오늘의 생활표현: 따라 말하기를 마친 학생 */
+  exprDone?: StudentId[];
   /** 그날 완료 축하를 이미 봤는지 */
   celebrated?: true;
 }

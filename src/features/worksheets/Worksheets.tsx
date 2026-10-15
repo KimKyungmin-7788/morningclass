@@ -71,7 +71,7 @@ async function sheetImages(names: string[]): Promise<Record<string, string | nul
 }
 
 /** 미리보기 + 인쇄 + PDF 저장을 갖춘 학습지 창의 틀 */
-function SheetFrame({ title, html, canExport, pdfName, backLabel, onBack, loading, children }: {
+export function SheetFrame({ title, html, canExport, pdfName, backLabel, onBack, loading, children }: {
   title: string; html: string; canExport: boolean; pdfName: string; backLabel: string; onBack: () => void; loading?: string; children: React.ReactNode;
 }) {
   const frameRef = useRef<HTMLIFrameElement>(null);

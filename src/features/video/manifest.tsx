@@ -1,3 +1,4 @@
+import { VideoTour } from './VideoTour';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CardFrame } from '@/core/ui/CardFrame';
@@ -47,6 +48,7 @@ function VideoWindow({ start, onClose }: { start: string; onClose: () => void })
 
   return createPortal(
     <div className="video-window" role="dialog" aria-label="영상 재생">
+      <VideoTour />
       <div className="vw-header">
         <div className="vw-title">▶️ 영상 재생</div>
         <button className="vw-btn" title="영상 목록" aria-label="영상 목록" onClick={() => setView('list')}>

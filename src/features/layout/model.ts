@@ -33,7 +33,7 @@ export type Layout = Record<string, string | null>;
 
 /** 저장된 배치표가 없을 때의 배치 */
 export const DEFAULT_LAYOUT: Layout = {
-  a1: 'weather', a2: 'word', a3: 'attendance',
+  a1: 'weather', a2: 'expression', a3: 'attendance',
   b1: 'timetable', b2: 'dday',
   c1: 'emotions', c2: 'helper',
   d1: 'meal', d2: 'praise', d3: 'tools', d4: 'book',

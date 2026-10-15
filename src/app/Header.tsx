@@ -8,6 +8,7 @@ import { Settings } from '@/features/settings/Settings';
 import { ClassPicker, Welcome } from '@/features/onboarding/Onboarding';
 import { Suggest } from '@/features/suggest/Suggest';
 import { useLayoutEdit } from '@/features/layout/store';
+import { useTours } from '@/core/ui/Tour';
 
 type Open = null | 'settings' | 'records' | 'picker' | 'welcome' | 'suggest';
 
@@ -22,14 +23,18 @@ export function Header() {
   const close = () => setOpen(null);
   const customizing = useLayoutEdit((s) => s.editing);
 
-  // 첫 접속: 학급이 여러 개면 학급 선택, 학생이 아직 없으면 환영 창 (한 번만)
+  // 첫 접속: 학급이 여러 개면 학급 선택, 학생이 아직 없으면 환영 창 (한 번만).
+  // 환영 창은 첫 화면 안내(MainTour)를 다 보거나 그만둔 뒤에 띄운다 — 화면을 먼저 익히고 학급을 고르게.
+  const tourSeen = useTours((s) => s.seen.includes('main'));
   const greeted = useRef(false);
   useEffect(() => {
     if (greeted.current) return;
+    if (classCount > 1) { greeted.current = true; setOpen('picker'); return; }
+    if (activeStudents(cls).length) { greeted.current = true; return; }
+    if (!tourSeen) return;
     greeted.current = true;
-    if (classCount > 1) setOpen('picker');
-    else if (!activeStudents(cls).length) setOpen('welcome');
-  }, [classCount, cls]);
+    setOpen('welcome');
+  }, [classCount, cls, tourSeen]);
 
   return (
     <>
@@ -39,7 +44,7 @@ export function Header() {
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen('picker'); } }}>
           {cls?.schoolName || '학교명'} · {cls?.className || '학급명'}
         </div>
-        <DateCard hidden={open === 'picker' || open === 'welcome' || open === 'settings'} />
+        <DateCard />
         <div className="actions">
           <button className="suggest" title="새 기능을 제안해요" aria-label="기능 제안하기" onClick={() => { ensureAudio(); setOpen('suggest'); }}>
             <i className="ph-fill ph-lightbulb" /><span>기능 제안</span>

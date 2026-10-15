@@ -28,7 +28,7 @@ describe('배치표 읽기', () => {
     expect(drawer).toEqual(['newcard']);
   });
   it('없어진 카드의 자리는 빈 칸이 된다', () => {
-    const { slots, drawer } = resolveLayout(DEFAULT_LAYOUT, CARDS.filter((c) => c !== 'word'));
+    const { slots, drawer } = resolveLayout(DEFAULT_LAYOUT, CARDS.filter((c) => c !== 'expression'));
     expect(slots.a2).toBeNull();
     expect(drawer).toEqual([]);
   });
@@ -36,7 +36,7 @@ describe('배치표 읽기', () => {
     const { slots, drawer } = resolveLayout({ ...DEFAULT_LAYOUT, a2: 'weather' }, CARDS);
     expect(slots.a1).toBe('weather');
     expect(slots.a2).toBeNull();
-    expect(drawer).toEqual(['word']);
+    expect(drawer).toEqual(['expression']);
   });
   it('모르는 칸 이름과 잘못된 값은 무시한다', () => {
     const { slots } = resolveLayout({ a1: 'weather', z9: 'meal', a2: 7 }, CARDS);

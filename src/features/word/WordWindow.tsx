@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { WordTour } from './WordTour';
 import { createPortal } from 'react-dom';
 import { Popup, PopupActions } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
+import { RecMeter, useRecorder } from '@/core/ui/Recorder';
 import { useDay } from '@/core/data/day';
 import { presentStudents } from '@/core/data/eligible';
 import { useCurrentClass } from '@/core/data/store';
@@ -201,70 +203,9 @@ function ReadPractice({ entry }: { entry: WordEntry }) {
   );
 }
 
-/** 녹음 중 표시: 목소리 크기에 따라 움직이는 막대와 남은 시간 (소리는 크기만 재고 어디에도 보내지 않는다) */
-function RecMeter({ stream }: { stream: MediaStream }) {
-  const bars = useRef<HTMLDivElement>(null);
-  const [left, setLeft] = useState(REC_MAX / 1000);
-  useEffect(() => {
-    const began = Date.now();
-    const tick = setInterval(() => setLeft(Math.max(0, Math.ceil((REC_MAX - (Date.now() - began)) / 1000))), 200);
-    const audio = ensureAudio();
-    if (!audio) return () => clearInterval(tick);
-    const source = audio.createMediaStreamSource(stream);
-    const analyser = audio.createAnalyser();
-    analyser.fftSize = 64;
-    source.connect(analyser);                                       // 스피커로는 잇지 않는다 (울림 방지)
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    let raf = 0;
-    const draw = () => {
-      analyser.getByteFrequencyData(data);
-      const els = bars.current?.children;
-      if (els) for (let i = 0; i < els.length; i += 1) (els[i] as HTMLElement).style.height = `${Math.max(8, Math.min(100, (data[i + 1] / 255) * 130))}%`;
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => { clearInterval(tick); cancelAnimationFrame(raf); source.disconnect(); };
-  }, [stream]);
-  return (
-    <div className="wd-rec" role="status" aria-label={`녹음 중, ${left}초 남음`}>
-      <div className="wd-rec-top"><span className="dot" />녹음 중<b>{left}초</b></div>
-      <div className="wd-meter" ref={bars} aria-hidden="true">{Array.from({ length: 20 }, (_, i) => <i key={i} />)}</div>
-      <div className="wd-rec-bar"><i style={{ animationDuration: `${REC_MAX}ms` }} /></div>
-    </div>
-  );
-}
-
 // ── 말하기: 듣고 따라 말하기 + 내 목소리를 녹음해서 들어 보기 (녹음은 이 창에서만 쓰고 저장하지 않는다) ──
 function SpeakPractice({ entry }: { entry: WordEntry }) {
-  const [rec, setRec] = useState<'idle' | 'on' | 'denied' | 'unsupported'>('idle');
-  const [url, setUrl] = useState('');
-  const [live, setLive] = useState<MediaStream | null>(null);   // 녹음 중인 마이크 (크기 막대를 그리는 데 쓴다)
-  const stopRef = useRef<(() => void) | null>(null);
-  const urlRef = useRef('');
-  useEffect(() => () => { stopRef.current?.(); if (urlRef.current) URL.revokeObjectURL(urlRef.current); }, []);   // 창을 닫으면 마이크를 끄고 녹음도 버린다
-
-  const start = async () => {
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') { setRec('unsupported'); return; }
-    let stream: MediaStream;
-    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { setRec('denied'); return; }
-    const recorder = new MediaRecorder(stream);
-    const chunks: Blob[] = [];
-    recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-    recorder.onstop = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-      urlRef.current = URL.createObjectURL(new Blob(chunks, { type: recorder.mimeType }));
-      setUrl(urlRef.current);
-      setLive(null);
-      setRec('idle');
-    };
-    const timer = setTimeout(() => stopRef.current?.(), REC_MAX);   // 너무 길어지지 않게 15초에서 멈춘다
-    stopRef.current = () => { clearTimeout(timer); stopRef.current = null; if (recorder.state !== 'inactive') recorder.stop(); };
-    recorder.start();
-    setLive(stream);
-    setRec('on');
-    playSound('check');
-  };
+  const { state: rec, url, live, toggle, play } = useRecorder(REC_MAX);
 
   return (
     <div className="wd-speak">
@@ -274,10 +215,10 @@ function SpeakPractice({ entry }: { entry: WordEntry }) {
       </div>
       <div className="wd-step">
         <span>2</span><b>내 목소리를 녹음해요</b>
-        {rec === 'on' && live && <RecMeter stream={live} />}
+        {rec === 'on' && live && <RecMeter stream={live} maxMs={REC_MAX} />}
         <div>
-          <button className={rec === 'on' ? 'rec' : ''} onClick={() => { if (rec === 'on') stopRef.current?.(); else void start(); }}>{rec === 'on' ? '⏹ 그만하기' : url ? '🎤 다시 녹음' : '🎤 녹음 시작'}</button>
-          <button disabled={!url || rec === 'on'} onClick={() => { void new Audio(url).play(); }}>▶ 내 목소리 듣기</button>
+          <button className={rec === 'on' ? 'rec' : ''} onClick={toggle}>{rec === 'on' ? '⏹ 그만하기' : url ? '🎤 다시 녹음' : '🎤 녹음 시작'}</button>
+          <button disabled={!url || rec === 'on'} onClick={play}>▶ 내 목소리 듣기</button>
         </div>
       </div>
       <div className="wd-note">
@@ -512,6 +453,7 @@ export function WordWindow({ book, date, onSave, onClose }: { book: WordBook; da
         {entry && <button className="wd-setup-btn" onClick={() => { window.speechSynthesis?.cancel(); playSound('select'); setSheet(true); }}><i className="ph-bold ph-printer" /> 학습지</button>}
         <button className="wd-setup-btn" onClick={() => setSetup(true)}><i className="ph-bold ph-pencil-simple-line" /> 어휘 정하기</button>
       </>}>
+      <WordTour />
       {!pick || !entry ? <div className="card-hint" style={{ padding: 40 }}>어휘가 없어요. "어휘 정하기"에서 어휘를 넣어 주세요.</div> : (
         <div className="wd">
           <div className="wd-main">

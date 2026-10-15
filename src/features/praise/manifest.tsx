@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
+import { PraiseTour } from './PraiseTour';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
@@ -355,6 +356,7 @@ function PraiseCard({ size }: CardProps) {
       {view === 'board' && (
         <Popup title={`${icon} 칭찬판`} large onClose={() => setView(null)}
           headerExtra={<button className="wd-setup-btn" onClick={() => asTeacher(() => { setFocus(null); setView('setup'); })}><i className="ph-bold ph-sliders-horizontal" /> 칭찬판 설정</button>}>
+          <PraiseTour />
           <div className="pr-window">
             {/* 위: 학생과 칭찬 수를 간단히. 누르면 아래에 그 학생의 칭찬판이 크게 나온다 */}
             <div className="pr-strip" role="tablist" aria-label="학생 고르기">

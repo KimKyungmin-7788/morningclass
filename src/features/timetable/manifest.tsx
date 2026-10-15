@@ -12,6 +12,7 @@ import { MAX_PERIODS, periodsOn, useTimetables } from '@/core/data/timetables';
 import type { ClassRoom } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
 import { TimetableSheet } from '@/features/worksheets/Worksheets';
+import { TimetableTour } from './TimetableTour';
 import { arrangeStatus, hasAnswer, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
 
 // 오늘의 시간표: 과목 카드를 교시 칸에 끌어 놓아 맞춘다. 선생님이 설정에 넣은 시간표가 정답이 된다(없으면 자유 배치).
@@ -251,6 +252,7 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
   return (
     <Popup title="오늘의 시간표를 맞춰봐요! 📅" large onClose={onClose}
       headerExtra={<button className="wd-setup-btn" onClick={() => { playSound('select'); onSheet(); }}><i className="ph-bold ph-printer" /> 활동지</button>}>
+      <TimetableTour first={answer[0] ?? ''} />
       <div ref={bodyRef}>
         <div className="tt-popup">
           <div className="tt-slots">
