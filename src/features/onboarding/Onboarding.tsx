@@ -7,7 +7,7 @@ import { addNames } from '@/core/data/roster';
 // 첫 접속 흐름: 학급이 여러 개면 학급 선택, 학생이 없으면 환영 창.
 
 /** 체험학급: 이름은 체험학교지만 급식은 실제 학교(강원 K10 / 7801212)의 것을 불러온다 */
-const DEMO = { schoolName: '체험학교', className: '4학년 1반', level: 'elem' as const, students: ['김안목', '김강문', '김경포', '김순긋', '김사천'], neis: { atptCode: 'K10', schoolCode: '7801212' } };
+const DEMO = { schoolName: '체험학교', className: '4학년 1반', level: 'elem' as const, students: ['김모아', '김새나', '김단미', '김루리', '김별이'], neis: { atptCode: 'K10', schoolCode: '7801212' } };
 
 export function ClassPicker({ onClose, onAdd }: { onClose: () => void; onAdd: () => void }) {
   const { classes, currentClassId, setCurrentClass, addClass } = useData();

@@ -2,3 +2,6 @@
 node_modules
 dist
 *.tsbuildinfo
+.DS_Store
+# 그림 생성 원본 (앱에 쓰는 그림은 public/img/expression)
+output/
