@@ -288,7 +288,7 @@ function ImageSearch({ name, current, onClose }: { name: string; current?: strin
         </div>
         <div className="isub-tip">
           <div className="t">💡 원하는 그림이 안 나오면 <b>검색어를 단순화</b>해 보세요</div>
-          <div className="ex"><span className="from">코코넛대왕새우튀김</span><span className="arrow">→</span><span className="to">새우튀김</span></div>
+          <div className="isub-ex"><span className="from">코코넛대왕새우튀김</span><span className="arrow">→</span><span className="to">새우튀김</span></div>
         </div>
         <div className="dp-cands isub-cands">
           {state.at === 'loading' ? <div className="card-hint">🔍 찾는 중...</div>
