@@ -3,7 +3,24 @@
 import type { ClassRoom } from '@/core/data/types';
 
 const SENT_KEY = 'mc2_counted';   // 이미 알린 학급 ID (이 기기). '모두 지우기'에서 mc2_ 로 함께 지워진다
+const OFF_KEY = 'mc2_nocount';    // 이 기기는 세지 않음 — 앱 주소에 ?nocount 를 붙여 한 번 열면 켜지고, ?count 로 끈다
 const MAX_IDS = 10;
+/** 학교·학급 이름에 이 낱말이 있으면 시험용 학급으로 보고 세지 않는다 */
+const TEST_NAME = /테스트|시험|데모|샘플|test|demo|sample/i;
+
+export const isTestClass = (c: Pick<ClassRoom, 'schoolName' | 'className'>) => TEST_NAME.test(`${c.schoolName} ${c.className}`);
+
+/** 주소의 ?nocount / ?count 를 기억하고, 이 기기를 세지 않을지 돌려준다 */
+function deviceOff(): boolean {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.has('nocount')) localStorage.setItem(OFF_KEY, '1');
+    if (q.has('count')) localStorage.removeItem(OFF_KEY);
+    return localStorage.getItem(OFF_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 function readSent(): string[] {
   try {
@@ -19,16 +36,18 @@ async function sha256(text: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-/** 아직 알리지 않은, 학생이 있는 학급 ID */
-export function classesToReport(classes: Pick<ClassRoom, 'id' | 'students'>[], sent: string[]): string[] {
+type Countable = Pick<ClassRoom, 'id' | 'students' | 'schoolName' | 'className'>;
+
+/** 아직 알리지 않은, 학생이 있고 시험용이 아닌 학급 ID */
+export function classesToReport(classes: Countable[], sent: string[]): string[] {
   const done = new Set(sent);
-  return classes.filter((c) => c.students.length > 0 && !done.has(c.id)).map((c) => c.id).slice(0, MAX_IDS);
+  return classes.filter((c) => c.students.length > 0 && !isTestClass(c) && !done.has(c.id)).map((c) => c.id).slice(0, MAX_IDS);
 }
 
 let inFlight = false;
 
-export async function reportClasses(classes: Pick<ClassRoom, 'id' | 'students'>[]): Promise<void> {
-  if (inFlight || !/^https:$/.test(location.protocol) || !crypto?.subtle) return;   // 로컬 미리보기에서는 알리지 않는다
+export async function reportClasses(classes: Countable[]): Promise<void> {
+  if (inFlight || deviceOff() || !/^https:$/.test(location.protocol) || !crypto?.subtle) return;   // 로컬 미리보기·집계 끈 기기에서는 알리지 않는다
   const sent = readSent();
   const ids = classesToReport(classes, sent);
   if (!ids.length) return;

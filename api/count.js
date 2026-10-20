@@ -47,6 +47,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (process.env.VERCEL_ENV !== 'production') { res.status(200).json({ ok: true, ignored: true }); return; }   // 미리보기 배포는 세지 않는다
       if (!sameOrigin(req)) { res.status(403).json({ error: 'forbidden' }); return; }
       let body = req.body;
       if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = null; } }
