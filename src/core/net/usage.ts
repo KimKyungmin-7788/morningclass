@@ -6,7 +6,7 @@ const SENT_KEY = 'mc2_counted';   // 이미 알린 학급 ID (이 기기). '모�
 const OFF_KEY = 'mc2_nocount';    // 이 기기는 세지 않음 — 앱 주소에 ?nocount 를 붙여 한 번 열면 켜지고, ?count 로 끈다
 const MAX_IDS = 10;
 /** 학교·학급 이름에 이 낱말이 있으면 시험용 학급으로 보고 세지 않는다 */
-const TEST_NAME = /테스트|시험|데모|샘플|test|demo|sample/i;
+const TEST_NAME = /테스트|시험|체험|데모|샘플|test|demo|sample/i;   // '체험학교'는 처음 화면의 체험학급
 
 export const isTestClass = (c: Pick<ClassRoom, 'schoolName' | 'className'>) => TEST_NAME.test(`${c.schoolName} ${c.className}`);
 
