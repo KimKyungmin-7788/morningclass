@@ -162,9 +162,9 @@ h1 em{font-style:normal;color:#FFE27A;white-space:nowrap}
       </div>
       <p class="together" id="together" hidden><span class="ic"><i class="ph-bold ph-users-three"></i></span><span>지금까지 <b id="together-n"></b>개 학급이 아침교실과 함께했어요</span></p>
       <script>
-        // 함께한 학급 수 — 50곳을 넘었을 때만 보인다 (/api/count, 익명 집계)
+        // 함께한 학급 수 — 20곳을 넘었을 때만 보인다 (/api/count, 익명 집계)
         fetch('/api/count').then((r) => (r.ok ? r.json() : null)).then((d) => {
-          if (!d || !(d.count >= 50)) return;
+          if (!d || !(d.count > 20)) return;
           document.getElementById('together-n').textContent = d.count.toLocaleString('ko-KR');
           document.getElementById('together').hidden = false;
         }).catch(() => {});
