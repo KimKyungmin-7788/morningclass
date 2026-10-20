@@ -87,6 +87,12 @@ h1 em{font-style:normal;color:#FFE27A;white-space:nowrap}
 .facts{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:rgba(255,255,255,.9)}
 .facts span{display:inline-flex;align-items:center;gap:5px}
 .facts i{color:#C8FFD0;font-size:17px}
+.together{margin-top:22px;display:inline-flex;align-items:center;gap:12px;padding:10px 20px 10px 12px;border-radius:999px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(6px);
+  font-size:clamp(16px,1.2vw,19px);font-weight:600;color:#fff;box-shadow:0 8px 24px rgba(12,60,120,.18)}
+.together[hidden]{display:none}
+.together .ic{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#FFD24A;color:#0F2C4A;font-size:21px;flex:none}
+.together b{font-size:1.5em;font-weight:900;color:#FFD24A;margin:0 2px;font-variant-numeric:tabular-nums}
 
 /* 오른쪽: 아침 루틴 미리보기 */
 .stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:0}
@@ -154,6 +160,15 @@ h1 em{font-style:normal;color:#FFE27A;white-space:nowrap}
           <span><i class="ph-bold ph-lock-simple"></i>학생 정보는 이 기기에만</span>
         </div>
       </div>
+      <p class="together" id="together" hidden><span class="ic"><i class="ph-bold ph-users-three"></i></span><span>지금까지 <b id="together-n"></b>개 학급이 아침교실과 함께했어요</span></p>
+      <script>
+        // 함께한 학급 수 — 50곳을 넘었을 때만 보인다 (/api/count, 익명 집계)
+        fetch('/api/count').then((r) => (r.ok ? r.json() : null)).then((d) => {
+          if (!d || !(d.count >= 50)) return;
+          document.getElementById('together-n').textContent = d.count.toLocaleString('ko-KR');
+          document.getElementById('together').hidden = false;
+        }).catch(() => {});
+      </script>
     </section>
 
     <section class="stage" aria-label="아침 루틴 미리보기">

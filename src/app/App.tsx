@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { useData } from '@/core/data/store';
 import { useDay } from '@/core/data/day';
+import { reportClasses } from '@/core/net/usage';
 import { toast } from '@/core/ui/toast';
 import { ToastHost } from '@/core/ui/toast';
 import { TourHost } from '@/core/ui/Tour';
@@ -25,11 +26,14 @@ export function App() {
   const init = useData((s) => s.init);
 
   const currentClassId = useData((s) => s.currentClassId);
+  const classes = useData((s) => s.classes);
   const loadDay = useDay((s) => s.load);
 
   useEffect(() => { void init(); }, [init]);
   // 학급이 정해지거나 바뀌면 그 학급의 오늘 기록을 불러온다
   useEffect(() => { if (boot === 'ready' && currentClassId) void loadDay(currentClassId); }, [boot, currentClassId, loadDay]);
+  // 학생을 넣은 학급을 한 번씩 익명으로 알린다 (랜딩 페이지의 함께한 학급 수)
+  useEffect(() => { if (boot === 'ready') void reportClasses(classes); }, [boot, classes]);
   useEffect(() => {
     if (migration) toast(`기존 자료를 옮겼어요 (학급 ${migration.classes}개 · 기록 ${migration.records}일)`, 'success');
   }, [migration]);
