@@ -21,7 +21,7 @@ export function resetKvCache(): void {
 }
 
 /** 세 번째 값: 저장소에서 읽기를 마쳤는지 (아직이면 첫 값은 기본값이다) */
-export function useKv<T>(key: string, fallback: T): [T, (next: T) => void, boolean] {
+export function useKv<T>(key: string, fallback: T): [T, (next: T | ((current: T) => T)) => void, boolean] {
   const value = useSyncExternalStore(subscribe, () => (cache.has(key) ? (cache.get(key) as T) : fallback));
   useEffect(() => {
     if (cache.has(key) || loading.has(key) || missing.has(key)) return;
@@ -30,12 +30,13 @@ export function useKv<T>(key: string, fallback: T): [T, (next: T) => void, boole
     // fallback 은 매번 새 값이 올 수 있어 의존성에서 뺀다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, value]);
-  const set = useCallback((next: T) => {
+  const set = useCallback((value: T | ((current: T) => T)) => {
+    const next = typeof value === 'function' ? (value as (current: T) => T)(cache.has(key) ? cache.get(key) as T : fallback) : value;
     if (next === undefined) { cache.delete(key); missing.add(key); } else cache.set(key, next);
     emit();
     // undefined 를 넣으면 그 값을 지운다 (다음에 읽을 때 기본값으로 돌아간다)
     (next === undefined ? db.kvDelete(key) : db.kvSet(key, next)).catch(() => toast('저장하지 못했어요. 설정에서 백업을 받아 주세요', 'error'));
-  }, [key]);
+  }, [key, fallback]);
   const loaded = useSyncExternalStore(subscribe, () => cache.has(key) || missing.has(key));
   return [value, set, loaded];
 }

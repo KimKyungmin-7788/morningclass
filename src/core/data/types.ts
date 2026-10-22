@@ -55,6 +55,7 @@ export interface ClassRoom {
     drawStyle?: 'basic' | 'scratch' | 'ladder' | 'marble' | 'wheel';
     mealHidden?: string[];
     tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'noise' | 'board', boolean>>;
+    timetableAutoLoad?: boolean;
     video?: { url: string; title: string };
     /** 1인 1역할: 역할과 맡은 학생 (선생님이 바꿀 때까지 그대로 간다) */
     roles?: RoleItem[];

@@ -9,6 +9,19 @@ describe('백업', () => {
     expect(parseBackup(buildBackup(data))).toEqual({ data });
   });
 
+  it('주간 시간표·자동 불러오기·영상 목록과 기본 영상을 백업으로 보존한다', () => {
+    const data = emptyData();
+    const cls = data.classes[0];
+    cls.options.timetableAutoLoad = true;
+    cls.options.video = { url: 'https://youtu.be/VAoR8bL04qA', title: '아침 음악' };
+    data.timetables = [{ classId: cls.id, day: 0, periods: ['국어', '', '음악'] }];
+    data.videos = [{ ...cls.options.video, videoId: 'VAoR8bL04qA', playedAt: '2026-10-22T00:00:00.000Z' }];
+    const restored = parseBackup(buildBackup(data)).data;
+    expect(restored.classes[0].options).toEqual(cls.options);
+    expect(restored.timetables).toEqual(data.timetables);
+    expect(restored.videos).toEqual(data.videos);
+  });
+
   it('기존 앱의 백업 파일을 변환해 읽는다', () => {
     const old = JSON.stringify({
       mc_classes: JSON.stringify([{ id: 'c1', className: '1반', students: ['가람'] }]),

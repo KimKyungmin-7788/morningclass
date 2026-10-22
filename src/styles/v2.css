@@ -1391,3 +1391,128 @@ body:has(.tour-spot.act) .cal-day:is(.sun,.sat,.holiday){pointer-events:none}
 .xp-txt small{font-size:13px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xp-used{flex:none;padding:2px 8px;border-radius:99px;background:#f1f5f9;color:#94a3b8;font-size:11px;font-weight:var(--fw-label)}
 @media (max-width:820px){.xp-list{grid-template-columns:1fr}.xp-days{gap:4px}}
+
+/* 설정: 교사용 관리 메뉴 */
+.settings-card{font-family:var(--font-ui)}
+.settings-card .popup-title{display:flex;align-items:center;gap:10px;color:#24344b;font-size:24px}
+.settings-card .settings-modal{grid-template-columns:238px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0;min-height:540px;max-height:72vh}
+.settings-card .settings-tabs{border:0;border-radius:16px;background:#f4f6fa;padding:20px 12px;gap:8px}
+.settings-nav-caption{padding:0 14px 12px;font-size:12px;font-weight:var(--fw-label);letter-spacing:.06em;color:#66758a}
+.settings-card .settings-tab{position:relative;display:flex;align-items:center;gap:12px;min-height:76px;padding:14px 12px;color:#40516a;border:1px solid transparent;border-radius:12px;font-size:16px}
+.settings-tab>i:first-child{font-size:23px;flex:none}
+.settings-tab>span{display:flex;flex-direction:column;gap:5px;flex:1}
+.settings-tab strong{font-weight:var(--fw-label);line-height:1.3;white-space:nowrap}
+.settings-tab small{font-size:12px;font-weight:var(--fw-body);color:#68788e;line-height:1.4}
+.settings-card .settings-tab:hover{background:#e9eef6}
+.settings-card .settings-tab.active{background:#fff;color:#1d4ed8;border-color:#d5e1f5;box-shadow:0 2px 6px #1e3a5f08}
+.settings-tab.active:before{content:'';position:absolute;left:-1px;top:20px;bottom:20px;width:3px;border-radius:4px;background:#2563eb}
+.settings-tab.active small{color:#496591}
+.settings-nav-arrow{font-size:13px;opacity:0}
+.settings-tab.active .settings-nav-arrow{opacity:1}
+.settings-nav-note{display:flex;gap:8px;margin-top:auto;padding:24px 12px 0;color:#68788e;font-size:12px;line-height:1.7}
+.settings-nav-note i{font-size:17px;margin-top:2px}
+.settings-card .settings-content{padding:8px 8px 16px 28px;min-width:0}
+.settings-card .settings-footer{justify-content:flex-end;margin-top:18px;border-top:1px solid #e5eaf1}
+.settings-card .settings-footer button{flex:0 0 auto;min-width:110px}
+.settings-card button:focus-visible,.tt-manage-bar button:focus-visible,.vw-body button:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+.tt-manage-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.tt-mode-buttons{display:flex;background:#f1f5f9;border-radius:12px;padding:4px;gap:4px}
+.tt-mode-buttons button{padding:11px 16px;border-radius:9px;color:#475569;font-weight:var(--fw-label);font-size:15px}
+.tt-mode-buttons button.active{background:white;color:#1d4ed8;box-shadow:0 1px 5px #0f172a15}
+.tt-auto{display:flex;align-items:center;gap:8px;font-size:14px;color:#334155;cursor:pointer}
+.tt-auto input{width:18px;height:18px;accent-color:#2563eb}
+.tt-manage-hint{font-size:13px;color:#64748b;margin:0 0 20px;line-height:1.6}
+.tt-planner{padding:12px;border:1px solid #e2e8f0;border-radius:14px}
+.vw-search,.vw-save-row{display:flex;gap:8px;margin-bottom:10px}
+.vw-search input,.vw-save-row input{min-width:0;flex:1;border:1px solid #cbd5e1;border-radius:9px;padding:10px 12px;font:inherit;font-size:14px}
+.vw-search button,.vw-save-row button{padding:10px 12px;border-radius:9px;background:#eef2ff;color:#334e9b;font-weight:var(--fw-label);white-space:nowrap;font-size:13px}
+.vw-search-hint{font-size:12px;line-height:1.6;color:#64748b;margin:0 0 14px}
+.vw-save-row button:disabled{opacity:.45;cursor:not-allowed}
+.vi-play{display:flex;flex:1;min-width:0;text-align:left;align-items:center;gap:10px;color:inherit}
+@media(max-width:700px){
+ .settings-card .settings-modal{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;min-height:0;max-height:76vh}
+ .settings-card .settings-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:8px;gap:6px;margin-bottom:16px}
+ .settings-nav-caption,.settings-nav-note,.settings-nav-arrow{display:none}
+ .settings-card .settings-tab{min-height:56px;padding:10px;gap:8px;font-size:14px}
+ .settings-tab small{display:none}
+ .settings-card .settings-content{padding:4px}
+ .settings-card .settings-footer{margin-top:10px}
+ .vw-save-row{flex-wrap:wrap}
+}
+
+/* 주간 시간표: 요일을 오가지 않고 한 화면에서 입력 */
+.tt-week-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tt-week-heading h3{font-size:18px;color:#24344b;margin:0}
+.tt-week-heading>span{font-size:12px;color:#537466;white-space:nowrap}
+.tt-week-help{font-size:13px;color:#64748b;line-height:1.6;margin:6px 0 12px}
+.tt-week-tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tt-week-tools button{padding:7px 10px;border:1px solid #dbe3ee;border-radius:8px;font-size:13px;font-weight:var(--fw-label);background:#fff;color:#475569}
+.tt-week-tools button[aria-pressed=true]{background:#e8efff;border-color:#6289e6;color:#1d4ed8;box-shadow:inset 0 0 0 1px #6289e6}
+.tt-tool-divider{width:1px;background:#dbe3ee;margin:4px}
+.tt-week-scroll{overflow-x:auto;border:1px solid #dbe3ee;border-radius:12px}
+.tt-week-table{width:100%;min-width:520px;table-layout:fixed;border-collapse:collapse;font-size:14px}
+.tt-week-status{caption-side:bottom;text-align:left;padding:8px 12px;color:#526581;background:#f8fafc;font-size:12px;border-top:1px solid #e2e8f0}
+.tt-week-table th{background:#f4f7fb;color:#526581;font-weight:var(--fw-label);height:36px}
+.tt-week-table thead th:first-child{width:48px}
+.tt-week-table td{border-top:1px solid #e2e8f0;border-left:1px solid #e2e8f0;height:38px;padding:2px;background:#fff}
+.tt-week-table tbody th{border-top:1px solid #e2e8f0}
+.tt-week-table td.filled{background:#f2f6ff}
+.tt-week-table input,.tt-week-table td button{display:block;width:100%;height:33px;border:0;border-radius:6px;background:transparent;text-align:center;font:inherit;color:#233c63;padding:4px;min-width:0}
+.tt-week-table input:focus,.tt-week-table td button:focus-visible{outline:2px solid #2563eb;outline-offset:-2px;background:#fff}
+.tt-week-table td button:hover{background:#dce8ff}
+.tt-week-empty{color:#a5b2c5}
+.tt-week-copy{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;font-size:13px;color:#64748b}
+.tt-week-copy select{padding:6px 10px;border:1px solid #dbe3ee;border-radius:7px;background:white;font-size:13px}
+.tt-week-copy button{background:#edf2fa;color:#334e78;padding:7px 15px;border-radius:7px;font-weight:var(--fw-label)}
+.tt-week-copy button:disabled{opacity:.4;cursor:default}
+.tt-subject-details{border-top:1px solid #e2e8f0;margin-top:16px;padding-top:12px}
+.tt-subject-details summary{cursor:pointer;font-size:14px;font-weight:var(--fw-label);color:#334155;margin-bottom:12px}
+.tt-subject-details summary span{margin-left:8px;color:#64748b;font-size:12px;font-weight:var(--fw-body)}
+.tt-week-tools button:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+.tt-week-copy{margin:8px 0}
+.tt-subject-details{margin-top:10px;padding-top:10px}
+.tt-manage-hint{margin-bottom:12px}
+
+/* 카드 전체 끌기를 유지하고, 카드 사이 빈 공간을 터치 스크롤에 쓴다. */
+.tt-popup .tt-bank-grid{row-gap:8px;column-gap:24px;padding:10px 24px;touch-action:pan-y}
+
+/* 백업: 다운로드와 복원에 집중하고 정리 기능은 접어 둔다. */
+.backup-panel{max-width:720px;color:#334155;padding-bottom:12px}
+.settings-section .backup-heading h3{color:#24344b;font-size:22px;margin:0 0 6px}
+.backup-heading p{font-size:13px;color:#64748b;margin:0 0 24px}
+.backup-download{position:relative;background:#f5f8ff;border:1px solid #dce6f5;border-radius:16px;padding:24px}
+.backup-symbol{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#e6eeff;color:#2563eb;font-size:22px;margin-bottom:16px}
+.backup-panel h4{font-size:17px;color:#24344b;margin:0 0 8px;font-weight:var(--fw-label)}
+.backup-panel section p{font-size:14px;line-height:1.6;color:#64748b;margin:0 0 18px}
+.backup-primary,.backup-secondary{border-radius:9px;padding:11px 18px;font-size:14px;font-weight:var(--fw-label)}
+.backup-primary{background:#2563eb;color:#fff}
+.backup-primary:hover{background:#1d4ed8}
+.backup-secondary{border:1px solid #cbd5e1;background:#fff;color:#334155}
+.backup-secondary:hover{background:#f1f5f9}
+.backup-panel button:disabled{opacity:.5;cursor:wait}
+.backup-panel button:focus-visible,.backup-cleanup summary:focus-visible{outline:3px solid #93b4fc;outline-offset:3px}
+.backup-restore{padding:24px 0;border-bottom:1px solid #e2e8f0}
+.backup-note{font-size:12px;color:#64748b;line-height:1.8;margin:18px 0}
+.backup-cleanup{border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:14px 0}
+.backup-cleanup summary{cursor:pointer;font-size:14px;font-weight:var(--fw-label);color:#475569}
+.backup-cleanup .data-btn{font-size:13px;margin-top:12px;padding:12px;border:1px solid #e2e8f0;border-radius:9px}
+.backup-privacy{display:inline-block;color:#64748b;font-size:12px;margin-top:16px;text-decoration:underline}
+.backup-preview{margin-top:16px;padding:18px;background:#f8fafc;border:1px solid #dbe3ee;border-radius:12px;overflow-wrap:anywhere}
+.backup-preview>strong{display:block;font-size:14px;margin-bottom:8px}
+.backup-panel .backup-preview p{margin-bottom:10px;font-size:13px}
+.backup-panel .backup-replace-note{color:#9a4b19}
+.backup-preview-actions{display:flex;gap:8px;justify-content:flex-end}
+.backup-preview ul{font-size:13px;color:#9a4b19;padding-left:20px;margin-bottom:14px}
+.backup-secondary.restore-confirm{color:#1d4ed8;border-color:#93b4fc}
+
+header .actions .header-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;padding:0 14px;white-space:nowrap;font-size:14px;color:#475569}
+header .actions .header-action i{font-size:21px}
+.settings-nav-bottom{margin-top:auto}
+.settings-nav-bottom .settings-nav-note{margin:0;padding:20px 10px 12px}
+.settings-feedback{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:#526581;text-align:left;border-radius:8px}
+.settings-feedback:hover{background:#e9eef6}
+@media(max-width:700px){.settings-nav-bottom{grid-column:1/-1}.settings-nav-bottom .settings-nav-note{display:none}.settings-feedback{padding:6px 10px;font-size:12px}header .actions .header-action{padding:0 10px;gap:5px;font-size:12px}}
+
+/* 관리 화면도 앱 공통 글꼴·굵기 체계를 따른다. */
+.settings-card .popup-title,.backup-panel h4,.tt-week-heading h3{font-weight:var(--fw-title)}
+header .actions .header-action{font-weight:var(--fw-label)}

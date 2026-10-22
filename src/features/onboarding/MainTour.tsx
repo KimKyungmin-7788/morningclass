@@ -12,7 +12,7 @@ const picking = () => !!document.querySelector('.dp-modes');
 const weekdayPicked = () => !!document.querySelector('.cal-day.selected:not(.sun):not(.sat):not(.holiday)');
 
 const STEPS: TourStep[] = [
-  { target: 'header .date-card', title: '날짜', text: <>날짜를 먼저 입력해요. 반짝이는 날짜 카드를 눌러 보세요.</>,
+  { target: 'header .date-card', title: '날짜', text: <>날짜를 바꾸면 그날의 기록을 볼 수 있어요. 날짜를 먼저 입력해요. 반짝이는 날짜 카드를 눌러 보세요.</>,
     skip: dateSet, until: () => dateSet() || picking() },
   { target: '.cal-grid', title: '날짜 고르기', text: <>이번 달 <b>평일</b> 하루를 눌러요. 주말 · 공휴일은 급식이 나오지 않아요.</>,
     skip: dateSet, until: () => dateSet() || weekdayPicked(), back: () => !picking() },
@@ -20,9 +20,9 @@ const STEPS: TourStep[] = [
     skip: dateSet, until: dateSet, back: () => !picking() || !weekdayPicked() },
   { target: 'main', title: '카드 화면', text: <>이곳은 아침에 할 일이 모여 있어요. 카드를 누르면 크게 열려요.</> },
   { target: 'header .school', title: '학급', text: <>학교 · 학급 이름을 누르면 다른 학급으로 바꿔요.</> },
-  { target: 'header .customize', title: '배치', text: <>‘내 맘대로 배치’를 누르면 카드를 옮기고, 빼고, 넣을 수 있어요.</> },
+  { target: 'main', title: '배치', text: <>카드를 <b>꾹 누르면</b> 화면 배치를 바꿀 수 있어요. ‘관리 → 학급설정 → 화면 배치 편집’에서도 시작할 수 있어요.</> },
   { target: 'footer', title: '바구니와 진행률', text: <>뺀 카드는 왼쪽 바구니에 이름으로 남아요. 아침 준비를 마칠수록 오른쪽 막대가 차요.</> },
-  { target: 'header button[aria-label="설정 열기"]', title: '설정', text: <>학생 명단과 시간표는 ‘설정’에서 고쳐요.</> },
+  { target: 'header button[aria-label="관리 열기"]', title: '관리', text: <>학급과 학생, 출결 통계와 백업은 ‘관리’에서 확인해요. 시간표는 시간표 카드에서 고쳐요.</> },
 ];
 
 export function MainTour() {

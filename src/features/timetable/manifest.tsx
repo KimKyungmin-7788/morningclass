@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CardCompact, CardFrame, CardTitle } from '@/core/ui/CardFrame';
 import { isCompact } from '@/core/ui/slot';
 import { Popup, PopupActions } from '@/core/ui/Popup';
@@ -12,10 +12,11 @@ import { MAX_PERIODS, periodsOn, useTimetables } from '@/core/data/timetables';
 import type { ClassRoom } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
 import { TimetableSheet } from '@/features/worksheets/Worksheets';
+import { TimetableTab } from '@/features/settings/TimetableTab';
 import { TimetableTour } from './TimetableTour';
-import { arrangeStatus, hasAnswer, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
+import { arrangeStatus, hasAnswer, isCorrect, isPerfect, move, pad7, shouldAutoLoad, trimEnd } from './model';
 
-// 오늘의 시간표: 과목 카드를 교시 칸에 끌어 놓아 맞춘다. 선생님이 설정에 넣은 시간표가 정답이 된다(없으면 자유 배치).
+// 오늘의 시간표: 과목 카드를 교시 칸에 끌어 놓아 맞춘다. 선생님이 모달에서 미리 입력한 시간표가 정답이 된다(없으면 자유 배치).
 
 const TITLE = { icon: 'ph-fill ph-calendar-check', tint: '#e0e7ff', color: '#4f46e5' };
 
@@ -35,6 +36,12 @@ function TimetableCard({ size }: CardProps) {
   const arranged = !!tt.arranged?.some(Boolean);
   const openPopup = () => { ensureAudio(); setOpen(true); };
   const status = arrangeStatus(tt.arranged, tt.correct, periods);
+
+  useEffect(() => {
+    const state = useDay.getState();
+    if (open || !cls || !byDay || state.classId !== cls.id || !shouldAutoLoad(!!cls.options.timetableAutoLoad, state.record.timetable.arranged, periods)) return;
+    update((r) => { r.timetable.arranged = [...periods]; r.timetable.correct = true; });
+  }, [cls, byDay, date, tt.arranged, update, open]);
 
   return (
     <>
@@ -65,10 +72,10 @@ function TimetableCard({ size }: CardProps) {
             <div style={{ textAlign: 'center', color: 'var(--text-sub)', fontSize: 18, fontWeight: 700 }}>터치해서 시간표를 맞춰봐요 👆</div>
           </>
         ) : weekend ? <div className="card-hint">🎈 오늘은 쉬는 날이에요!<br />터치하면 시간표를 직접 배치할 수 있어요</div>   // 쉬는 날에도 열 수 있다 (보충 수업 · 미리 해 보기)
-          : <div className="card-hint">⚙️ 설정에서 시간표를 입력하거나 터치해서 직접 배치해요</div>}
+          : <div className="card-hint">터치해서 시간표를 미리 입력하거나 직접 배치해요</div>}
         </>}
       </CardFrame>
-      {open && cls && !sheet && <ArrangeWindow cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} onSheet={() => setSheet(true)} />}
+      {open && cls && !sheet && <ArrangeWindow key={`${cls.id}-${date.toDateString()}`} cls={cls} answer={pad7(periods)} onClose={() => setOpen(false)} onSheet={() => setSheet(true)} />}
       {open && sheet && <TimetableSheet onBack={() => setSheet(false)} />}
       {noteAt != null && (
         <NoteWindow subject={tt.arranged?.[noteAt] || `${noteAt + 1}교시`} initial={tt.notes[noteAt] ?? ''} onClose={() => setNoteAt(null)}
@@ -102,6 +109,7 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
   const [shake, setShake] = useState<number | null>(null);
   /** 교과 편집: 보관함의 교과 카드를 빼고 · 옮기고 · 넣는다 (꾹 누르거나 '교과 편집'으로 들어간다) */
   const [editing, setEditing] = useState(false);
+  const [planning, setPlanning] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const graded = hasAnswer(answer);
   const bank = subjectBank(cls, [...answer, ...slots]);
@@ -139,7 +147,14 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
         clearOver();
         document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.tt-slot')?.classList.add('drag-over');
       };
+      const onCancel = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onCancel);
+        ghost?.remove(); chip.classList.remove('dragging'); clearOver();
+      };
       const onUp = (ev: PointerEvent) => {
+        window.removeEventListener('pointercancel', onCancel);
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onUp);
         if (!ghost) return;
@@ -153,6 +168,7 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
       };
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onCancel);
     },
     style: { touchAction: 'none' as const },
   });
@@ -252,6 +268,17 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
   return (
     <Popup title="오늘의 시간표를 맞춰봐요! 📅" large onClose={onClose}
       headerExtra={<button className="wd-setup-btn" onClick={() => { playSound('select'); onSheet(); }}><i className="ph-bold ph-printer" /> 활동지</button>}>
+      <div className="tt-manage-bar">
+        <div className="tt-mode-buttons">
+          <button className={!planning ? 'active' : ''} aria-pressed={!planning} onClick={() => setPlanning(false)}>오늘 시간표</button>
+          <button className={planning ? 'active' : ''} aria-pressed={planning} onClick={() => setPlanning(true)}>요일별 미리 입력</button>
+        </div>
+        <label className="tt-auto"><input type="checkbox" checked={!!cls.options.timetableAutoLoad} onChange={(e) => {
+          const now = latest(); void saveClass({ ...now, options: { ...now.options, timetableAutoLoad: e.target.checked } });
+        }} />자동 불러오기</label>
+      </div>
+      <p className="tt-manage-hint">자동 불러오기를 켜면 비어 있는 날에 요일별 시간표를 채워요. 이미 작성한 시간표는 유지돼요.</p>
+      {planning ? <div className="tt-planner"><TimetableTab draft={cls} onSubjects={(subjects) => { void saveClass({ ...latest(), subjects }); }} /></div> : <>
       <TimetableTour first={answer[0] ?? ''} />
       <div ref={bodyRef}>
         <div className="tt-popup">
@@ -296,11 +323,13 @@ function ArrangeWindow({ cls, answer, onClose, onSheet }: { cls: ClassRoom; answ
           </div>
         </div>
         <div className="tt-popup-actions">
+          {graded && <button className="btn-hint" onClick={() => { if (slots.some(Boolean) && !confirm('지금 배치한 시간표를 저장된 요일 시간표로 바꿀까요?')) return; setSlots([...answer]); playSound('select'); }}>요일 시간표 불러오기</button>}
           {graded && <button className="btn-hint" onClick={() => { setSlots([...answer]); playSound('complete'); }}>💡 정답 보기</button>}
           <button className="btn-cancel" onClick={() => { setSlots(Array<string>(MAX_PERIODS).fill('')); playSound('select'); }}>↺ 초기화</button>
           <button className="btn-done" disabled={!anyFilled} onClick={done}>{isPerfect(slots, answer) ? '🎉 완벽해요!' : anyFilled ? '✅ 완료' : '1칸 이상 채워주세요'}</button>
         </div>
       </div>
+      </>}
     </Popup>
   );
 }

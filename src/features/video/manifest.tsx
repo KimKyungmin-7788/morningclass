@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { CardFrame } from '@/core/ui/CardFrame';
 import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
-import { useCurrentClass } from '@/core/data/store';
+import { useCurrentClass, useData } from '@/core/data/store';
 import { useKv } from '@/core/data/kv';
 import type { VideoItem } from '@/core/data/types';
 import type { CardProps, FeatureManifest } from '../types';
@@ -25,25 +25,47 @@ async function fetchTitle(url: string): Promise<string> {
 }
 
 function VideoWindow({ start, onClose }: { start: string; onClose: () => void }) {
-  const [list, setList] = useKv<VideoItem[]>('videos', []);
+  const [list, setList, loaded] = useKv<VideoItem[]>('videos', []);
+  const cls = useCurrentClass()!;
+  const [query, setQuery] = useState('');
+  const [title, setTitle] = useState('');
+  const [saving, setSaving] = useState(false);
   const [view, setView] = useState<'player' | 'list'>('player');
   // 창을 열 때는 미리보기만(자동 재생 안 함). 주소를 넣거나 목록에서 고르면 재생한다.
-  const [current, setCurrent] = useState({ url: list[0]?.url || start, autoplay: false });
+  const [current, setCurrent] = useState({ url: start, autoplay: false });
   const [input, setInput] = useState(current.url);
   const id = extractVideoId(current.url);
 
   const play = (url: string) => {
     const vid = extractVideoId(url);
     if (!vid) { toast('유튜브 링크를 확인해 주세요', 'error'); return; }
-    const next = recordVideo(list, url);
-    setList(next);
+    if (!loaded) return;
+    setList((items) => recordVideo(items, url));
     setCurrent({ url, autoplay: true });
     setInput(url);
+    setTitle('');
     setView('player');
     playSound('select');
     if (needsTitle(list.find((v) => v.videoId === vid))) {
-      void fetchTitle(url).then((title) => { if (title) setList(next.map((v) => (v.videoId === vid ? { ...v, title } : v))); });
+      void fetchTitle(url).then((title) => { if (title) setList((items) => items.map((v) => (v.videoId === vid && needsTitle(v) ? { ...v, title } : v))); });
     }
+  };
+
+  const saveVideo = async () => {
+    if (!loaded || saving) return;
+    const url = input.trim();
+    const videoId = extractVideoId(url);
+    if (!videoId) { toast('유튜브 링크를 확인해 주세요', 'error'); return; }
+    const videoTitle = title.trim() || list.find((v) => v.videoId === videoId)?.title || url;
+    setSaving(true);
+    try {
+      setList((items) => recordVideo(items, url).map((v) => v.videoId === videoId ? { ...v, title: videoTitle } : v));
+      const latest = useData.getState().classes.find((c) => c.id === cls.id);
+      if (latest) await useData.getState().saveClass({ ...latest, options: { ...latest.options, video: { url, title: videoTitle } } });
+      setCurrent({ url, autoplay: false });
+      toast('영상을 저장하고 카드의 기본 영상으로 지정했어요', 'success');
+    } catch { toast('기본 영상을 저장하지 못했어요. 다시 시도해 주세요', 'error'); }
+    finally { setSaving(false); }
   };
 
   return createPortal(
@@ -51,12 +73,20 @@ function VideoWindow({ start, onClose }: { start: string; onClose: () => void })
       <VideoTour />
       <div className="vw-header">
         <div className="vw-title">▶️ 영상 재생</div>
-        <button className="vw-btn" title="영상 목록" aria-label="영상 목록" onClick={() => setView('list')}>
+        <button className="vw-btn" title="저장한 영상" aria-label="저장한 영상" onClick={() => setView('list')}>
           <i className="ph-bold ph-list-bullets" /><span className="vw-badge">{list.length}</span>
         </button>
         <button className="vw-btn close" title="닫기" aria-label="닫기" onClick={onClose}>✕</button>
       </div>
       <div className="vw-body">
+        <form className="vw-search" onSubmit={(e) => {
+          e.preventDefault();
+          if (query.trim()) window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query.trim())}`, '_blank', 'noopener,noreferrer');
+        }}>
+          <input aria-label="유튜브 검색어" name="search_query" placeholder="어떤 영상을 찾으세요?" value={query} onChange={(e) => setQuery(e.target.value)} required />
+          <button type="submit">유튜브 검색 ↗</button>
+        </form>
+        <p className="vw-search-hint">새 창에서 영상을 찾고, 공유 링크를 아래에 붙여 넣으세요. 저장한 영상은 다음에도 사용할 수 있어요.</p>
         {view === 'list' ? (
           <>
             <div className="vw-list-head">
@@ -66,22 +96,27 @@ function VideoWindow({ start, onClose }: { start: string; onClose: () => void })
             </div>
             <div className="vw-list">
               {list.length ? list.map((v) => (
-                <div key={v.videoId} className="vw-item" onClick={() => play(v.url)}>
+                <div key={v.videoId} className="vw-item">
+                  <button className="vi-play" onClick={() => play(v.url)}>
                   <span className="vi-title">{v.title || v.url}</span>
-                  <span className="vi-time">{fmtVideoTime(v.playedAt)}</span>
+                  <span className="vi-time">{fmtVideoTime(v.playedAt)}</span></button>
                   <button className="vi-del" title="삭제" aria-label="삭제"
-                    onClick={(e) => { e.stopPropagation(); setList(list.filter((x) => x.videoId !== v.videoId)); }}>✕</button>
+                    onClick={(e) => { e.stopPropagation(); setList((items) => items.filter((x) => x.videoId !== v.videoId)); }}>✕</button>
                 </div>
-              )) : <div className="vw-empty-list">아직 재생한 영상이 없어요 📭</div>}
+              )) : <div className="vw-empty-list">아직 저장한 영상이 없어요 📭</div>}
             </div>
           </>
         ) : (
           <>
-            <input className="vw-url" placeholder="유튜브 영상 링크를 붙여넣으면 자동으로 재생돼요" autoComplete="off" value={input}
+            <input aria-label="유튜브 영상 링크" disabled={!loaded} className="vw-url" placeholder="유튜브 영상 링크를 붙여넣으면 자동으로 재생돼요" autoComplete="off" value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); play(input.trim()); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); play(input.trim()); } }}
               onPaste={(e) => { const text = e.clipboardData.getData('text').trim(); if (extractVideoId(text)) { e.preventDefault(); play(text); } }}
               onBlur={() => { const v = input.trim(); if (v && v !== current.url && extractVideoId(v)) play(v); }} />
+            <div className="vw-save-row">
+              <input aria-label="저장할 영상 제목" placeholder="영상 제목 (선택)" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <button disabled={!loaded || saving || !extractVideoId(input.trim())} onClick={() => void saveVideo()}>저장 · 기본 영상 지정</button>
+            </div>
             <div className="vw-player">
               {id
                 ? <iframe key={`${id}-${current.autoplay}`} title="영상" src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=${current.autoplay ? 1 : 0}`} allow="autoplay; encrypted-media; fullscreen" allowFullScreen />
@@ -119,7 +154,7 @@ function VideoCard({ size }: CardProps) {
           <div className="book-arrow"><i className="ph-fill ph-play" /></div>
         </div>
       </CardFrame>
-      {open && <VideoWindow start={video.url} onClose={() => setOpen(false)} />}
+      {open && cls && <VideoWindow key={cls.id} start={video.url} onClose={() => setOpen(false)} />}
     </>
   );
 }

@@ -37,3 +37,8 @@ export function arrangeStatus(arranged: string[] | null | undefined, correct: bo
   if (!arranged?.some(Boolean)) return 'none';
   return !hasAnswer(answer) || correct ? 'done' : 'doing';
 }
+
+/** 자동 채우기는 아직 작성하지 않은 날에만 한다. 빈 배열도 사용자가 저장한 결과다. */
+export function shouldAutoLoad(enabled: boolean, arranged: string[] | null, periods: string[]): boolean {
+  return enabled && arranged === null && periods.some(Boolean);
+}

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { emptyClass } from '@/core/data/types';
 import { guessLevel, levelSubjects, subjectBank, subjectIcon, withSubject } from '@/core/data/subjects';
 import { periodsOn } from '@/core/data/timetables';
-import { arrangeStatus, isCorrect, isPerfect, move, pad7, trimEnd } from './model';
+import { arrangeStatus, isCorrect, isPerfect, move, pad7, shouldAutoLoad, trimEnd } from './model';
 
 describe('시간표 맞추기', () => {
   it('카드 옮기기: 보관함 → 칸, 칸 ↔ 칸, 칸 → 보관함', () => {
@@ -71,5 +71,18 @@ describe('카드에 보여 줄 진행 상태', () => {
   });
   it('정답 시간표가 없는 날은 하나라도 놓으면 작성 완료', () => {
     expect(arrangeStatus(['체육'], false, [])).toBe('done');
+  });
+});
+
+describe('요일 시간표 자동 불러오기', () => {
+  it('설정을 켠 미작성 날에만 채운다', () => {
+    expect(shouldAutoLoad(true, null, ['국어'])).toBe(true);
+    expect(shouldAutoLoad(false, null, ['국어'])).toBe(false);
+    expect(shouldAutoLoad(true, ['미술'], ['국어'])).toBe(false);
+    expect(shouldAutoLoad(true, [], ['국어'])).toBe(false);
+  });
+  it('주말과 미입력 요일은 채우지 않는다', () => {
+    expect(shouldAutoLoad(true, null, periodsOn(new Date(2026, 9, 17), { 0: ['국어'] }))).toBe(false);
+    expect(shouldAutoLoad(true, null, ['', ''])).toBe(false);
   });
 });
