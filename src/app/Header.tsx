@@ -1,3 +1,4 @@
+import { FEATURES } from '@/features/registry';
 import { useEffect, useRef, useState } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -42,6 +43,7 @@ export function Header() {
           {cls?.schoolName || '학교명'} · {cls?.className || '학급명'}
         </div>
         <DateCard />
+        {FEATURES.map((f) => f.Header ? <f.Header key={f.id} /> : null)}
         <div className="actions">
           <button className="header-action" title={muted ? '소리 켜기' : '소리 끄기'} aria-label="소리" aria-pressed={!muted}
             onClick={() => { setPrefs({ muted: !muted }); if (muted) { ensureAudio(); playSound('select'); } }}>

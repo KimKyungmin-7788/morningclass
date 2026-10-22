@@ -1,0 +1,44 @@
+/* 학생이 누르는 곳은 64px, 선생님 입력은 48px 이상으로 둔다. */
+:root { --line: #E5E7EB; --empty-line: #CBD5E1; --soft: #F0F4FF; }
+.sc-header { flex: 1 1 240px; min-width: 220px; display: flex; gap: 8px; align-items: center; position: relative; }
+.sc-header-names { display: flex; gap: 8px; white-space: nowrap; }
+.sc-measure { position: absolute; visibility: hidden; pointer-events: none; width: max-content; }
+.sc-header button, .sc-floating, .sc-write, .sc-panel button, .sc-pin button { font: inherit; font-weight: var(--fw-label); min-height: 48px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); color: var(--text); cursor: pointer; }
+.sc-header button { min-height: 64px; border-radius: 99px; white-space: nowrap; font-size: var(--fs-body); }
+.sc-header button:last-child { min-height: 48px; }
+.sc-panel { display: grid; gap: 16px; color: var(--text); font: var(--fw-body) var(--fs-body)/1.5 var(--font-ui, 'Paperozi', 'Noto Sans KR', sans-serif); }
+.sc-panel h3, .sc-pin h3 { font-weight: var(--fw-title); }
+.sc-panel fieldset { border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
+.sc-panel legend { font-weight: var(--fw-label); }
+.sc-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sc-chips button { border-radius: 99px; }
+.sc-panel button[aria-pressed="true"] { background: var(--primary); color: var(--text); border-color: var(--primary); }
+.sc-students button { min-height: 64px; min-width: 64px; }
+.sc-panel button:disabled, .sc-pin button:disabled { opacity: .5; cursor: default; }
+.sc-panel label { display: grid; gap: 8px; margin: 8px 0; }
+.sc-panel input:not([type="checkbox"]), .sc-panel select, .sc-panel textarea { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font: inherit; color: var(--text); background: var(--card); box-sizing: border-box; }
+.sc-panel textarea { min-height: 100px; }
+.sc-fields { display: grid; gap: 16px; }
+.sc-panel .sc-check { display: flex; align-items: center; min-height: 48px; }
+.sc-check input { width: 24px; height: 24px; }
+.sc-hint, .sc-panel small, .sc-note time { font-size: var(--fs-small); color: var(--text-sub); }
+.sc-note { border: 1px solid var(--line); border-radius: 16px; margin: 16px 0; padding: 12px; }
+.sc-note > button:first-child { width: 100%; text-align: left; background: var(--card); }
+.sc-note p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sc-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.sc-summary section { padding: 16px; border: 1px solid var(--line); border-radius: 16px; }
+.sc-bar { display: grid; grid-template-columns: 140px 1fr 40px; gap: 8px; align-items: center; }
+.sc-bar meter { width: 100%; }
+.sc-pin { max-width: 420px; margin: auto; text-align: center; font-size: var(--fs-body); }
+.sc-digits { letter-spacing: 12px; font-size: var(--fs-card-title); padding: 16px; }
+.sc-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sc-keypad button { min-height: 64px; min-width: 64px; }
+.sc-file { display: grid; gap: 12px; text-align: left; }
+.sc-file input { min-height: 48px; max-width: 100%; }
+.sc-chip-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.sc-chip-row span { flex: 1; }
+.sc-floating { display: none; position: fixed; bottom: 24px; right: 100px; z-index: 1800; box-shadow: var(--card-shadow); }
+.sc-floating.sc-visible, body:has(.bd-area) .sc-floating { display: block; }
+body:has(.sc-panel, .sc-pin) .popup-overlay { z-index: 1900; }
+.popup-overlay.closing .sc-panel { visibility: hidden; }
+@media (max-width: 800px) { .sc-summary { grid-template-columns: 1fr; } .sc-header { flex-basis: 220px; } }

@@ -1,3 +1,4 @@
+import { FEATURES } from '@/features/registry';
 import { useEffect } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { useData } from '@/core/data/store';
@@ -72,6 +73,7 @@ export function App() {
         <SideSwitch />
       </div>
       {appMode === 'morning' && <Celebrate />}
+      {FEATURES.map((f) => f.Overlay ? <f.Overlay key={f.id} /> : null)}
       <ToastHost />
       <TourHost />
     </>

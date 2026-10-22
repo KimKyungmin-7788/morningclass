@@ -23,7 +23,7 @@ export function BackupTab({ onRestored }: { onRestored: () => void }) {
 
   const download = async () => {
     setBusy(true);
-    try { await downloadBackup(); playSound('save'); toast('백업 파일을 다운로드했어요', 'success'); }
+    try { if (await downloadBackup()) { playSound('save'); toast('백업 파일을 준비했어요', 'success'); } }
     catch { toast('백업 파일을 만들지 못했어요. 다시 시도해 주세요', 'error'); }
     finally { setBusy(false); }
   };

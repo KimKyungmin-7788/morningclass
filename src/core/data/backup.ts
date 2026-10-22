@@ -1,5 +1,5 @@
 import { hasLegacyData, migrateLegacy, type LegacyDump, type MigrationReport } from './migrateLegacy';
-import { SCHEMA_VERSION, type AppData } from './types';
+import { SCHEMA_VERSION, defaultNotesConfig, type AppData } from './types';
 
 // 백업 파일: 새 형식 하나로 내보내고, 가져올 때는 새 형식과 기존 앱의 백업 파일을 모두 읽는다.
 
@@ -8,7 +8,7 @@ const FORMAT = 'morningclass-backup';
 interface BackupFile { format: typeof FORMAT; schemaVersion: number; exportedAt: string; data: AppData }
 
 export function buildBackup(data: AppData, now = new Date()): string {
-  const file: BackupFile = { format: FORMAT, schemaVersion: data.schemaVersion, exportedAt: now.toISOString(), data };
+  const file: BackupFile = { format: FORMAT, schemaVersion: data.schemaVersion, exportedAt: now.toISOString(), data: Object.fromEntries(Object.entries(data).filter(([key]) => key !== 'pinHash')) as AppData };
   return JSON.stringify(file);
 }
 
@@ -33,7 +33,9 @@ export function parseBackup(text: string): ParsedBackup {
     const data = file.data;
     if (!data || !Array.isArray(data.classes) || !data.classes.length || !Array.isArray(data.records)) throw new Error('백업 파일의 내용이 비어 있거나 깨졌어요');
     if ((data.schemaVersion ?? 0) > SCHEMA_VERSION) throw new Error('더 새로운 버전의 아침교실에서 만든 백업이에요. 앱을 새로 고친 뒤 다시 해 주세요');
-    return { data };
+    const { pinHash: _pin, ...safe } = data as AppData & { pinHash?: unknown };
+    return { data: { ...safe, schemaVersion: SCHEMA_VERSION, studentNotes: data.studentNotes ?? [], ieps: data.ieps ?? [],
+      expr: data.expr ?? {}, notesConfig: data.notesConfig ?? defaultNotesConfig() } };
   }
   // 기존 앱의 백업: mc_ 로 시작하는 열쇠에 문자열 값이 그대로 들어 있다
   const dump: LegacyDump = {};

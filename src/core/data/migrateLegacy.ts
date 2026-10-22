@@ -1,3 +1,4 @@
+import { defaultNotesConfig } from './types';
 import {
   SCHEMA_VERSION, emptyClass, emptyRecord,
   type AbsentReason, type AppData, type AttendanceStatus, type ClassId, type ClassRoom, type DayRecord,
@@ -269,6 +270,7 @@ export function migrateLegacy(dump: LegacyDump): MigrationResult {
   };
 
   const data: AppData = {
+    studentNotes: [], ieps: [], expr: {}, notesConfig: defaultNotesConfig(),
     schemaVersion: SCHEMA_VERSION, classes, currentClassId, records, timetables, ddays, dateSet, schoolDays,
     lessons: parse<unknown[]>(dump.mc_lessons, []).map(obj), mealImages, videos,
   };

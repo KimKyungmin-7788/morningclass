@@ -1,3 +1,6 @@
+import { NotesTab } from '@/features/students/NotesTab';
+import { readNotes, readIeps } from '@/core/data/notes';
+import { useStudentWindows } from '@/core/data/studentWindows';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from '@/core/ui/toast';
@@ -16,11 +19,12 @@ import { useLayoutEdit } from '@/features/layout/store';
 import { BackupTab } from './BackupTab';
 
 // 학급·학생 정보는 저장 버튼으로 반영한다.
-type Tab = 'info' | 'students' | 'data' | 'backup';
+type Tab = 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
 const TABS: [Tab, string, string, string][] = [
   ['info', '학급설정', '학교와 학급 정보', 'ph-buildings'],
   ['students', '학생설정', '학생 명단 관리', 'ph-users'],
   ['data', '출결대시보드', '출결 조회와 통계', 'ph-chart-bar'],
+  ['studentNotes', '학생 기록', 'PIN과 빠른 기록 설정', 'ph-note-pencil'],
   ['backup', '백업', '자료 보관과 복원', 'ph-hard-drives'],
 ];
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
@@ -38,7 +42,7 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
   // 다른 학급으로 바꾸면 그 학급의 내용으로 다시 채운다
   useEffect(() => { setDraft(structuredClone(useData.getState().classes.find((c) => c.id === cls.id)!)); }, [cls.id]);
   // 기록이 있는 학생은 지워도 '보관된 학생'으로 남기기 위해, 누가 기록에 나오는지 미리 읽어 둔다
-  useEffect(() => { void recordsOf(cls.id).then((r) => setUsed(usedStudentIds(r, cls.allergies))); }, [cls.id, cls.allergies]);
+  useEffect(() => { void Promise.all([recordsOf(cls.id), readNotes(cls.id), readIeps(cls.id)]).then(([r, notes, ieps]) => setUsed(new Set([...usedStudentIds(r, cls.allergies), ...notes.map((n) => n.studentId), ...ieps.map((i) => i.studentId)]))); }, [cls.id, cls.allergies]);
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -102,10 +106,11 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
               )}
               {tab === 'students' && <StudentsTab draft={draft} patch={patch} used={used} switcher={switcher('학급 선택 (관리할 학급)', '선택한 학급의 학생을 아래에서 관리해요.')} />}
               {tab === 'data' && <><h3>📊 출결 대시보드</h3><AttendanceDashboard embedded /></>}
+              {tab === 'studentNotes' && <NotesTab />}
               {tab === 'backup' && <BackupTab onRestored={onClose} />}
             </div>
           </div>
-          {tab !== 'backup' && <div className="settings-footer">
+          {tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
             <button className="btn-cancel" onClick={close}>취소</button>
             <button className="btn-save" onClick={() => void save()}>💾 저장</button>
           </div>}
@@ -250,7 +255,7 @@ function StudentsTab({ draft, patch, used, switcher }: TabProps & { used: Set<st
               <button title="이름 고치기" aria-label={`${s.name} 이름 고치기`} onClick={() => { const name = prompt('이름을 고쳐 주세요 (출결·감정 기록은 그대로 이어져요)', s.name); if (name != null) set(renameStudent(draft.students, s.id, name)); }}>✏️</button>
               <button aria-label={`${s.name} 위로`} disabled={i === 0} onClick={() => set(moveStudent(draft.students, s.id, -1))}>▲</button>
               <button aria-label={`${s.name} 아래로`} disabled={i === list.length - 1} onClick={() => set(moveStudent(draft.students, s.id, 1))}>▼</button>
-              <button className="del" aria-label={`${s.name} 삭제`} onClick={() => set(removeStudent(draft.students, s.id, used))}>✕</button>
+              <button className="del" aria-label={`${s.name} 삭제`} onClick={() => set(removeStudent(draft.students, s.id, new Set([...used, s.id])))}>✕</button>
             </div>
           ))}
         </div>
@@ -262,6 +267,7 @@ function StudentsTab({ draft, patch, used, switcher }: TabProps & { used: Set<st
           {archived.map((s) => (
             <div key={s.id} className="student-list-item" style={{ opacity: 0.75 }}>
               <span className="nm">{s.name}</span>
+              <button onClick={() => useStudentWindows.getState().show(draft.id, s.id)}>학생 카드</button>
               <button onClick={() => { set(addNames(draft.students, [s.name])); playSound('select'); }}>↩ 명단에 다시 넣기</button>
             </div>
           ))}

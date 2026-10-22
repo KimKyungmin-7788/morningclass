@@ -9,6 +9,8 @@ interface PopupProps {
   onClose: () => void;
   /** 넓은 창 (전자칠판 전체 화면용 기능) */
   large?: boolean;
+  /** 자동 저장 창은 닫기 전에 저장을 마친다. 실패하면 창을 그대로 둔다. */
+  beforeClose?: () => Promise<boolean>;
   /** 제목 줄 오른쪽에 둘 버튼 (예: 급식 보기 방식) */
   headerExtra?: ReactNode;
   children: ReactNode;
@@ -16,15 +18,23 @@ interface PopupProps {
 
 const CLOSE_MS = 180;
 
-export function Popup({ title, onClose, large, headerExtra, children }: PopupProps) {
+export function Popup({ title, onClose, large, headerExtra, children, beforeClose }: PopupProps) {
   const [closing, setClosing] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
-  const close = useRef(() => {
-    setClosing(true);
-    setTimeout(() => onCloseRef.current(), CLOSE_MS); // 닫히는 움직임이 끝난 뒤 실제로 닫음
+  const beforeCloseRef = useRef(beforeClose);
+  beforeCloseRef.current = beforeClose;
+  const savingClose = useRef(false);
+  const close = useRef(async () => {
+    if (savingClose.current) return;
+    savingClose.current = true;
+    try {
+      if (beforeCloseRef.current && !(await beforeCloseRef.current())) return;
+      setClosing(true);
+      setTimeout(() => onCloseRef.current(), CLOSE_MS); // 닫히는 움직임이 끝난 뒤 실제로 닫음
+    } finally { savingClose.current = false; }
   }).current;
 
   useEffect(() => {

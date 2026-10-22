@@ -1,3 +1,5 @@
+import type { ExprBag, ExprBook, ExprLevel } from '@/core/data/types';
+export type { ExprBag, ExprBook, ExprLevel } from '@/core/data/types';
 // 오늘의 생활표현 규칙 (화면과 무관한 계산).
 // 요일에 묶지 않고, 학급마다 날마다 하나를 무작위로 뽑는다. 뽑힌 상황은 100개가 한 바퀴 다 나온 뒤에야 다시 나온다(주머니 뽑기).
 import { EXPR_TOPICS, type ExprSituation, type ExprTopic } from './data';
@@ -10,7 +12,7 @@ export const EXPR_IDS: string[] = [...ALL.keys()];
 export const exprById = (id: string | undefined): ExprPick | undefined => (id ? ALL.get(id) : undefined);
 
 /** 학급별 뽑기 기록: 이번 바퀴에 나온 상황, 날짜별로 뽑힌 상황 */
-export interface ExprBag { used: string[]; days: Record<string, string> }
+
 /** 날짜별 기록은 최근 것만 남긴다 (문장 띠 인쇄 · 같은 날 다시 열기에 쓴다) */
 const KEEP_DAYS = 60;
 
@@ -90,11 +92,11 @@ export function recentPicks(bag: ExprBag, n: number): ExprPick[] {
 export const correctFirst = (date: Date, id: string) => ([...id].reduce((a, c) => a + c.charCodeAt(0), 0) + date.getDate()) % 2 === 0;
 
 // ── 학생별 수준 ──
-export type ExprLevel = 'sentence' | 'word' | 'card';
+
 export const EXPR_LEVELS: ExprLevel[] = ['sentence', 'word', 'card'];
 
 /** 학급별로 저장하는 설정: 학생 → 수준, 상황 뽑기 기록, 선생님이 날짜별로 정한 상황 */
-export interface ExprBook { levels: Record<string, ExprLevel>; bag: ExprBag; plan: Record<string, string> }
+
 export const emptyExprBook = (): ExprBook => ({ levels: {}, bag: { used: [], days: {} }, plan: {} });
 export function normalizeExprBook(saved: unknown): ExprBook {
   const v = (saved ?? {}) as { levels?: Record<string, unknown>; bag?: { used?: unknown; days?: unknown }; plan?: unknown };
