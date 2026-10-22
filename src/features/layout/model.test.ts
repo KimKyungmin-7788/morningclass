@@ -29,13 +29,13 @@ describe('배치표 읽기', () => {
   });
   it('없어진 카드의 자리는 빈 칸이 된다', () => {
     const { slots, drawer } = resolveLayout(DEFAULT_LAYOUT, CARDS.filter((c) => c !== 'expression'));
-    expect(slots.a2).toBeNull();
+    expect(slots.a3).toBeNull();
     expect(drawer).toEqual([]);
   });
   it('같은 카드가 두 번 적혀 있으면 앞의 칸만 인정한다', () => {
-    const { slots, drawer } = resolveLayout({ ...DEFAULT_LAYOUT, a2: 'weather' }, CARDS);
-    expect(slots.a1).toBe('weather');
-    expect(slots.a2).toBeNull();
+    const { slots, drawer } = resolveLayout({ ...DEFAULT_LAYOUT, a3: 'weather' }, CARDS);
+    expect(slots.a2).toBe('weather');
+    expect(slots.a3).toBeNull();
     expect(drawer).toEqual(['expression']);
   });
   it('모르는 칸 이름과 잘못된 값은 무시한다', () => {
@@ -51,13 +51,13 @@ describe('배치 바꾸기', () => {
   it('두 칸을 맞바꾼다 (원래 배치표는 그대로)', () => {
     const next = swapSlots(base, 'a1', 'b1');
     expect(next.a1).toBe('timetable');
-    expect(next.b1).toBe('weather');
-    expect(base.a1).toBe('weather');
+    expect(next.b1).toBe('attendance');
+    expect(base.a1).toBe('attendance');
   });
   it('빈 칸과 바꾸면 옮기기가 된다', () => {
     const next = swapSlots(clearSlot(base, 'a2'), 'a1', 'a2');
     expect(next.a1).toBeNull();
-    expect(next.a2).toBe('weather');
+    expect(next.a2).toBe('attendance');
   });
   it('같은 칸이거나 모르는 칸이면 그대로 둔다', () => {
     expect(swapSlots(base, 'a1', 'a1')).toBe(base);
@@ -77,7 +77,7 @@ describe('배치 바꾸기', () => {
   it('보관함의 카드를 찬 칸에 넣으면 원래 카드가 보관함으로 간다', () => {
     const next = placeCard(clearSlot(base, 'd4'), 'a1', 'book');
     expect(next.a1).toBe('book');
-    expect(resolveLayout(next, CARDS).drawer).toEqual(['weather']);
+    expect(resolveLayout(next, CARDS).drawer).toEqual(['attendance']);
   });
   it('첫 빈 칸을 위에서부터 찾는다', () => {
     expect(firstEmptySlot(base)).toBeNull();
@@ -91,7 +91,7 @@ describe('배치 바꾸기', () => {
   it('이미 놓인 카드를 다른 칸에 넣으면 두 칸이 맞바뀐다', () => {
     const next = placeCard(base, 'b1', 'weather');
     expect(next.b1).toBe('weather');
-    expect(next.a1).toBe('timetable');
+    expect(next.a2).toBe('timetable');
   });
 });
 
