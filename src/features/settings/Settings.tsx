@@ -1,3 +1,6 @@
+import { NotesTab } from '@/features/students/NotesTab';
+import { readNotes, readIeps } from '@/core/data/notes';
+import { useStudentWindows } from '@/core/data/studentWindows';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from '@/core/ui/toast';
@@ -18,8 +21,8 @@ import { BackupTab } from './BackupTab';
 
 // 설정 창. 학급정보·학생·영상은 [저장]을 눌러야 반영되고, 시간표·과목·백업은 바꾸는 즉시 저장된다.
 
-type Tab = 'info' | 'students' | 'timetable' | 'book' | 'data' | 'backup';
-const TABS: [Tab, string][] = [['info', '🏫 학급정보'], ['students', '👨‍🎓 학생'], ['timetable', '📅 시간표'], ['book', '📹 영상 재생'], ['data', '📊 출결 대시보드'], ['backup', '💾 백업']];
+type Tab = 'studentNotes' | 'info' | 'students' | 'timetable' | 'book' | 'data' | 'backup';
+const TABS: [Tab, string][] = [['info', '🏫 학급정보'], ['students', '👨‍🎓 학생'], ['timetable', '📅 시간표'], ['book', '📹 영상 재생'], ['data', '📊 출결 대시보드'], ['studentNotes', '✎ 학생 기록'], ['backup', '💾 백업']];
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
 
 export function Settings({ onClose }: { onClose: () => void }) {
@@ -35,7 +38,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
   // 다른 학급으로 바꾸면 그 학급의 내용으로 다시 채운다
   useEffect(() => { setDraft(structuredClone(useData.getState().classes.find((c) => c.id === cls.id)!)); }, [cls.id]);
   // 기록이 있는 학생은 지워도 '보관된 학생'으로 남기기 위해, 누가 기록에 나오는지 미리 읽어 둔다
-  useEffect(() => { void recordsOf(cls.id).then((r) => setUsed(usedStudentIds(r, cls.allergies))); }, [cls.id, cls.allergies]);
+  useEffect(() => { void Promise.all([recordsOf(cls.id), readNotes(cls.id), readIeps(cls.id)]).then(([r, notes, ieps]) => setUsed(new Set([...usedStudentIds(r, cls.allergies), ...notes.map((n) => n.studentId), ...ieps.map((i) => i.studentId)]))); }, [cls.id, cls.allergies]);
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -92,13 +95,14 @@ export function Settings({ onClose }: { onClose: () => void }) {
               {tab === 'timetable' && <TimetableTab draft={draft} onSubjects={(subjects) => { patch({ subjects }); const stored = useData.getState().classes.find((c) => c.id === cls.id); if (stored) void saveClass({ ...stored, subjects }); }} />}
               {tab === 'book' && <VideoTab draft={draft} patch={patch} />}
               {tab === 'data' && <><h3>📊 출결 대시보드</h3><AttendanceDashboard embedded /></>}
-              {tab === 'backup' && <BackupTab classId={cls.id} />}
+              {tab === 'studentNotes' && <NotesTab />}
+              {tab === 'backup' && <BackupTab classId={cls.id} onRestored={onClose} />}
             </div>
           </div>
-          <div className="settings-footer">
+          {tab !== 'studentNotes' && <div className="settings-footer">
             <button className="btn-cancel" onClick={close}>취소</button>
             <button className="btn-save" onClick={() => void save()}>💾 저장</button>
-          </div>
+          </div>}
         </div>
       </div>
     </div>,
@@ -240,7 +244,7 @@ function StudentsTab({ draft, patch, used, switcher }: TabProps & { used: Set<st
               <button title="이름 고치기" aria-label={`${s.name} 이름 고치기`} onClick={() => { const name = prompt('이름을 고쳐 주세요 (출결·감정 기록은 그대로 이어져요)', s.name); if (name != null) set(renameStudent(draft.students, s.id, name)); }}>✏️</button>
               <button aria-label={`${s.name} 위로`} disabled={i === 0} onClick={() => set(moveStudent(draft.students, s.id, -1))}>▲</button>
               <button aria-label={`${s.name} 아래로`} disabled={i === list.length - 1} onClick={() => set(moveStudent(draft.students, s.id, 1))}>▼</button>
-              <button className="del" aria-label={`${s.name} 삭제`} onClick={() => set(removeStudent(draft.students, s.id, used))}>✕</button>
+              <button className="del" aria-label={`${s.name} 삭제`} onClick={() => set(removeStudent(draft.students, s.id, new Set([...used, s.id])))}>✕</button>
             </div>
           ))}
         </div>
@@ -252,6 +256,7 @@ function StudentsTab({ draft, patch, used, switcher }: TabProps & { used: Set<st
           {archived.map((s) => (
             <div key={s.id} className="student-list-item" style={{ opacity: 0.75 }}>
               <span className="nm">{s.name}</span>
+              <button onClick={() => useStudentWindows.getState().show(draft.id, s.id)}>학생 카드</button>
               <button onClick={() => { set(addNames(draft.students, [s.name])); playSound('select'); }}>↩ 명단에 다시 넣기</button>
             </div>
           ))}

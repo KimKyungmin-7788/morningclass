@@ -6,14 +6,17 @@ import type { ClassId } from './types';
 
 // 백업 파일 내려받기·가져오기, 저장소 통계, 기록 정리 (화면에서 부르는 동작)
 
-export async function downloadBackup(): Promise<void> {
-  const blob = new Blob([buildBackup(await db.readAll())], { type: 'application/json' });
+export async function downloadBackup(): Promise<boolean> {
+  const data = await db.readAll();
+  if ((data.studentNotes.length || data.ieps.length) && !confirm('백업 파일에는 누가기록과 개별화교육계획이 들어 있어요. 학교 밖으로 보내지 말고 안전한 곳에 보관해 주세요.')) return false;
+  const blob = new Blob([buildBackup(data)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = backupFileName();
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   usePrefs.getState().set({ lastBackup: new Date().toISOString() });
+  return true;
 }
 
 /** 파일을 읽어 내용을 확인한다 (아직 바꾸지 않음). 읽을 수 없으면 이유를 담아 던진다 */

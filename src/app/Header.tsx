@@ -1,3 +1,4 @@
+import { FEATURES } from '@/features/registry';
 import { useEffect, useRef, useState } from 'react';
 import { usePrefs } from '@/core/prefs';
 import { ensureAudio, playSound } from '@/core/sound';
@@ -45,6 +46,7 @@ export function Header() {
           {cls?.schoolName || '학교명'} · {cls?.className || '학급명'}
         </div>
         <DateCard />
+        {FEATURES.map((f) => f.Header ? <f.Header key={f.id} /> : null)}
         <div className="actions">
           <button className="suggest" title="새 기능을 제안해요" aria-label="기능 제안하기" onClick={() => { ensureAudio(); setOpen('suggest'); }}>
             <i className="ph-fill ph-lightbulb" /><span>기능 제안</span>

@@ -24,4 +24,7 @@ export interface CardProps {
 export interface FeatureManifest {
   id: string;
   cards?: CardDef[];
+  /** 헤더 자리와 전역 창: 대시보드 카드 없이 등록할 수 있다. */
+  Header?: ComponentType;
+  Overlay?: ComponentType;
 }

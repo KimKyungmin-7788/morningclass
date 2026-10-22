@@ -1,6 +1,6 @@
 // 아침교실 v2 저장 형식. 형식을 바꾸면 SCHEMA_VERSION 을 올리고 변환 함수를 추가한다.
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export type ClassId = string;
 export type StudentId = string;
@@ -120,6 +120,11 @@ export interface VideoItem { url: string; videoId: string; title: string; played
 
 /** 저장소 전체 — 백업 파일의 내용이기도 하다 */
 export interface AppData {
+  studentNotes: StudentNote[];
+  ieps: Iep[];
+  notesConfig: NotesConfig;
+  recoveryKey?: string;
+  expr: Record<ClassId, ExprBook>;
   schemaVersion: number;
   classes: ClassRoom[];
   currentClassId: ClassId;
@@ -160,6 +165,7 @@ export function emptyData(): AppData {
   const cls = emptyClass(newId('c'));
   return {
     schemaVersion: SCHEMA_VERSION, classes: [cls], currentClassId: cls.id,
+    studentNotes: [], ieps: [], notesConfig: defaultNotesConfig(), expr: {},
     records: [], timetables: [], ddays: {}, dateSet: {}, schoolDays: {}, lessons: [], mealImages: {}, videos: [],
   };
 }
@@ -170,3 +176,27 @@ export function newId(prefix: string): string {
   idSeq += 1;
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}_${idSeq.toString(36)}`;
 }
+
+export type NoteCategory = 'study' | 'behavior' | 'challenge' | 'health' | 'peer' | 'home';
+export type SupportLevel = 'independent' | 'verbal' | 'model' | 'physical';
+export type Semester = string;
+export interface StudentNote {
+  id: string; classId: ClassId; studentId: StudentId; at: string; text: string;
+  category?: NoteCategory; goalId?: string; support?: SupportLevel;
+  abc?: { a: string; b: string; c: string; intensity?: 'low' | 'mid' | 'high'; minutes?: number };
+  share?: true; batch?: string; updatedAt: string;
+}
+export interface Iep { id: string; classId: ClassId; studentId: StudentId; semester: Semester; subjects: IepSubject[] }
+export interface IepSubject { id: string; name: string; goals: IepSemesterGoal[] }
+export interface IepSemesterGoal { id: string; text: string; monthly: IepMonthlyGoal[] }
+export interface IepMonthlyGoal { id: string; text: string; months: number[] }
+export interface NotesConfig { quick: string[]; abcA: string[]; abcC: string[] }
+export const defaultNotesConfig = (): NotesConfig => ({
+  quick: ['스스로 했어요', '도움 받아 했어요', '친구를 도왔어요', '집중이 어려웠어요', '기분이 좋아 보였어요', '⚠ 도전행동'],
+  abcA: ['과제 제시', '활동 전환', '요구 거절', '기다리기', '소음'],
+  abcC: ['휴식 제공', '과제 조정', '무시하기', '대체 행동 안내', '자리 이동'],
+});
+/** 생활표현 설정도 백업에 함께 담는다. */
+export type ExprLevel = 'sentence' | 'word' | 'card';
+export interface ExprBag { used: string[]; days: Record<string, string> }
+export interface ExprBook { levels: Record<string, ExprLevel>; bag: ExprBag; plan: Record<string, string> }

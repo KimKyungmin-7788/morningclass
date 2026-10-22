@@ -8,7 +8,7 @@ import { schoolYearOf } from '@/features/attendance/model';
 
 // 설정 → 백업: 파일로 저장·불러오기, 저장소 현황, 정리하기
 
-export function BackupTab({ classId }: { classId: string }) {
+export function BackupTab({ classId, onRestored }: { classId: string; onRestored?: () => void }) {
   const lastBackup = usePrefs((s) => s.lastBackup);
   const wipeAll = useData((s) => s.wipeAll);
   const [stats, setStats] = useState<{ records: number; usageKB: number | null } | null>(null);
@@ -29,6 +29,7 @@ export function BackupTab({ classId }: { classId: string }) {
       playSound('save');
       toast(parsed.report?.warnings.length ? `불러오기 완료 ✅ (확인할 점 ${parsed.report.warnings.length}가지: ${parsed.report.warnings[0]})` : '불러오기 완료 ✅', 'success');
       setTick((n) => n + 1);
+      onRestored?.();
     } catch (e) {
       toast(e instanceof Error ? e.message : '파일을 불러오지 못했어요', 'error');
     } finally {
@@ -46,7 +47,7 @@ export function BackupTab({ classId }: { classId: string }) {
         <div className="dstat"><div className="dstat-num" style={{ fontSize: 14 }}>{last ? `${last.getFullYear()}. ${last.getMonth() + 1}. ${last.getDate()}.` : '아직 없음'}</div><div className="dstat-lbl">마지막으로 저장한 날</div></div>
       </div>
       <div className="bk-steps">
-        <button className="bk-card save" onClick={() => { void downloadBackup().then(() => { playSound('save'); toast('백업 완료 📤', 'success'); }); }}>
+        <button className="bk-card save" onClick={() => { void downloadBackup().then((downloaded) => { if (downloaded) { playSound('save'); toast('백업 파일을 준비했어요 📤', 'success'); } }).catch(() => toast('백업 파일을 만들지 못했어요', 'error')); }}>
           <span className="bk-ico">📤</span><b>파일로 저장하기</b><small>내 자료를 파일 하나로 내려받아요</small>
         </button>
         <button className="bk-card load" onClick={() => fileRef.current?.click()}>

@@ -35,3 +35,19 @@ describe('백업', () => {
     expect(backupFileName(new Date(2026, 9, 3))).toBe('아침교실_백업_20261003.json');
   });
 });
+
+it('schemaVersion 1 백업은 학생 기록의 빈 칸과 기본 설정을 채운다', () => {
+  const data = emptyData();
+  const { studentNotes, ieps, expr, notesConfig, ...old } = data;
+  const parsed = parseBackup(JSON.stringify({ format: 'morningclass-backup', schemaVersion: 1, data: { ...old, schemaVersion: 1 } })).data;
+  expect(parsed.schemaVersion).toBe(2); expect(parsed.studentNotes).toEqual([]); expect(parsed.ieps).toEqual([]); expect(parsed.expr).toEqual({}); expect(parsed.notesConfig.quick).toHaveLength(6);
+});
+it('학생 기록·IEP·생활표현·설정·복구 열쇠가 왕복하고 PIN 해시는 빠진다', () => {
+  const data = emptyData();
+  data.studentNotes = [{ id: 'n', classId: data.currentClassId, studentId: 's', at: '2026-10-22T00:00:00Z', text: '관찰', category: 'challenge', abc: { a: '전환', b: '행동', c: '휴식', intensity: 'mid', minutes: 2 }, support: 'verbal', share: true, updatedAt: '2026-10-22T00:00:00Z' }];
+  data.ieps = [{ id: 'i', classId: data.currentClassId, studentId: 's', semester: '2026-2', subjects: [] }];
+  data.expr[data.currentClassId] = { levels: { s: 'word' }, plan: { '20261022': 'x' }, bag: { used: ['x'], days: { '20261022': 'x' } } };
+  data.notesConfig.quick = ['내 문장']; data.recoveryKey = 'a'.repeat(64);
+  const text = buildBackup({ ...data, pinHash: { hash: 'secret' } } as typeof data);
+  expect(text).not.toContain('pinHash'); expect(parseBackup(text).data).toEqual(data);
+});

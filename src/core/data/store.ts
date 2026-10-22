@@ -1,3 +1,4 @@
+import { useStudentWindows } from './studentWindows';
 import { create } from 'zustand';
 import * as db from '@/core/storage/db';
 import { usePrefs } from '@/core/prefs';
@@ -134,6 +135,7 @@ export const useData = create<DataState>((set, get) => ({
   },
 
   replaceAll: async (data) => {
+    useStudentWindows.getState().close();
     await db.replaceAll(data);
     resetKvCache();
     resetTimetableCache();
