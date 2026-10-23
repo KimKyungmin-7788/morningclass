@@ -12,6 +12,7 @@ export default defineConfig({
       input: {
         index: fileURLToPath(new URL('./index.html', import.meta.url)),
         app: fileURLToPath(new URL('./app.html', import.meta.url)),
+        outfitPreview: fileURLToPath(new URL('./outfit-preview.html', import.meta.url)),
         privacy: fileURLToPath(new URL('./privacy.html', import.meta.url)),
       },
     },

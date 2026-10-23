@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { OutfitFigure } from '@/core/ui/OutfitFigure';
 import { Popup } from '@/core/ui/Popup';
 import { toast } from '@/core/ui/toast';
 import { recordsOf } from '@/core/data/backupActions';
@@ -6,6 +7,8 @@ import { useKv } from '@/core/data/kv';
 import { useDay, dateKeyOf } from '@/core/data/day';
 import { useStudentNotes, removeNotes } from '@/core/data/notes';
 import type { ClassRoom, DayRecord, ExprBook, NoteCategory, StudentNote } from '@/core/data/types';
+import { useStudentWindows } from '@/core/data/studentWindows';
+import { PRAISE_SHAPES, praiseConfigOf } from '@/core/data/praise';
 import { PinGate } from './PinGate';
 import { QuickNote } from './QuickNote';
 import { CATEGORIES, EMOTIONS, SUPPORTS, filterNotes, studentSummary } from './model';
@@ -13,6 +16,9 @@ import { CATEGORIES, EMOTIONS, SUPPORTS, filterNotes, studentSummary } from './m
 const EMPTY_EXPR: ExprBook = { levels: {}, bag: { used: [], days: {} }, plan: {} };
 const ATT = { present: '출석', late: '지각', early: '조퇴', absent: '결석' };
 export function StudentCard({ cls, studentId, onClose }: { cls: ClassRoom; studentId: string; onClose: () => void }) {
+  const show = useStudentWindows((s) => s.show);
+  const students = cls.students.filter((s) => !s.archived);
+  const index = students.findIndex((s) => s.id === studentId);
   const [back, setBack] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [write, setWrite] = useState(false);
@@ -31,8 +37,8 @@ export function StudentCard({ cls, studentId, onClose }: { cls: ClassRoom; stude
     return () => { clearTimeout(timer); for (const event of ['pointerdown', 'keydown', 'input']) window.removeEventListener(event, touch); };
   }, [unlocked]);
   if (write || edit) return <QuickNote cls={cls} studentId={studentId} initial={edit} onClose={() => { setWrite(false); setEdit(undefined); setUnlocked(false); }} />;
-  return <Popup title={`👤 ${student.name}의 학생 카드`} large onClose={onClose} headerExtra={<button className="sc-write" onClick={() => setWrite(true)}>✎ 기록</button>}>
-    <div className="sc-panel"><div className="sc-chips"><button aria-pressed={!back} onClick={() => setBack(false)}>나의 하루</button><button aria-pressed={back} onClick={() => setBack(true)}>🔒 선생님 기록</button></div>
+  return <Popup title={`👤 ${student.name}`} large onClose={onClose} headerExtra={<button className="sc-write" onClick={() => setWrite(true)}>✎ 기록 남기기</button>}>
+    <div className="sc-panel"><div className="sc-card-toolbar"><div className="sc-chips sc-tabs" role="group" aria-label="학생 카드 보기"><button aria-pressed={!back} onClick={() => setBack(false)}>나의 하루</button><button aria-pressed={back} onClick={() => setBack(true)}>🔒 선생님 기록</button></div><div className="sc-student-nav"><button aria-label="이전 학생" disabled={index <= 0} onClick={() => show(cls.id, students[index - 1].id)}>〈</button><span>{index < 0 ? '보관된 학생' : `${index + 1} / ${students.length}`}</span><button aria-label="다음 학생" disabled={index < 0 || index >= students.length - 1} onClick={() => show(cls.id, students[index + 1].id)}>〉</button></div></div>
       {error && <p role="alert">{error}</p>}
       {!back ? <Front cls={cls} studentId={studentId} records={records} date={date} /> : !unlocked ? <PinGate onUnlock={() => setUnlocked(true)} /> : <Back cls={cls} studentId={studentId} records={records} onEdit={setEdit} />}
     </div>
@@ -46,13 +52,33 @@ function Front({ cls, studentId, records, date }: { cls: ClassRoom; studentId: s
   const week = studentSummary(records, cls, studentId, { from: dateKeyOf(monday), to: dateKeyOf(sunday) });
   const month = studentSummary(records, cls, studentId, { from: dateKeyOf(new Date(date.getFullYear(), date.getMonth(), 1)), to: dateKeyOf(new Date(date.getFullYear(), date.getMonth() + 1, 0)) });
   const roles = (cls.options.roles ?? []).filter((r) => r.students.includes(studentId));
+  const praiseIcon = PRAISE_SHAPES.find((shape) => shape.id === praiseConfigOf(cls).shape)?.icon ?? '🍇';
+  const emotions = Object.entries(week.emotions).filter(([, count]) => count > 0);
+  const shortDate = (d: Date) => `${d.getMonth() + 1}.${d.getDate()}`;
   return <div className="sc-summary">
-    <section><h3>{date.toLocaleDateString('ko-KR')} · 나의 하루</h3><p>{current?.attendance[studentId] ? ATT[current.attendance[studentId].status] : '출석을 아직 고르지 않았어요'}</p><p>{current?.emotions[studentId]?.items.map((e) => EMOTIONS[e.k]).join(' · ') || current?.emotions[studentId]?.legacy?.label || '감정을 아직 고르지 않았어요'}</p><p>{roles.length ? roles.map((r) => `${r.icon} ${r.name}${current?.roleDone?.[r.id]?.includes(studentId) ? ' ✓ 했어요' : ''}`).join(' · ') : '맡은 역할이 없어요'}</p><p>⭐ 오늘 칭찬 {(current?.praise ?? []).filter((p) => p.s === studentId).length}개</p></section>
-    <section><h3>이번 주</h3>{Object.entries(week.emotions).map(([key, count]) => <div key={key} className="sc-bar"><span>{EMOTIONS[key as keyof typeof EMOTIONS]}</span><meter min="0" max={Math.max(1, ...Object.values(week.emotions))} value={count} aria-label={EMOTIONS[key as keyof typeof EMOTIONS]} /><span>{count}회</span></div>)}<p>⭐ 칭찬 {week.praise.length}개 · 역할을 한 날 {week.roleDays}일</p>{week.praise.length > 0 && <ul>{week.praise.map((p) => <li key={p.id}>{p.r}</li>)}</ul>}</section>
-    <section><h3>이번 달</h3><div className="sc-chips">{Object.entries(month.attendance).map(([key, count]) => <span key={key}>{ATT[key as keyof typeof ATT]} {count}일</span>)}</div></section>
-    <section><h3>생활표현 연습</h3><p>{expr.levels[studentId] ? { sentence: '문장', word: '낱말', card: '그림 카드' }[expr.levels[studentId]] : '아직 정하지 않았어요'}</p></section>
+    <section className="sc-today">
+      <div className="sc-section-heading"><h3>나의 하루</h3><time dateTime={dateKeyOf(date)}>{date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</time></div>
+      <div className="sc-today-grid">
+        <div><span className="sc-summary-label"><img className="sc-summary-icon" src="/img/attendance.png" alt="" /> 출석</span><strong>{current?.attendance[studentId] ? ATT[current.attendance[studentId].status] : '아직 기록 없음'}</strong></div>
+        <div><span className="sc-summary-label">💖 감정</span><strong>{current?.emotions[studentId]?.items.map((e) => EMOTIONS[e.k]).join(' · ') || current?.emotions[studentId]?.legacy?.label || '아직 기록 없음'}</strong></div>
+        <div><span className="sc-summary-label">🙋 역할</span><strong>{roles.length ? roles.map((r) => `${r.icon} ${r.name}${current?.roleDone?.[r.id]?.includes(studentId) ? ' ✓ 했어요' : ''}`).join(' · ') : '맡은 역할 없음'}</strong></div>
+        <div><span className="sc-summary-label">{praiseIcon} 칭찬</span><strong>{(current?.praise ?? []).filter((p) => p.s === studentId).length}<span className="sc-unit">개</span></strong></div>
+      </div>
+    </section>
+    <section className="sc-week">
+      <div className="sc-section-heading"><h3>이번 주 마음</h3><span>{shortDate(monday)} ~ {shortDate(sunday)}</span></div>
+      {emotions.length ? <div className="sc-emotions">{emotions.map(([key, count]) => <div key={key} className="sc-bar"><span>{EMOTIONS[key as keyof typeof EMOTIONS]}</span><meter min="0" max={Math.max(1, ...Object.values(week.emotions))} value={count} aria-label={EMOTIONS[key as keyof typeof EMOTIONS]} /><strong>{count}회</strong></div>)}</div> : <p className="sc-empty">아직 고른 감정이 없어요.<br />아침 감정 활동을 하면 여기에 모여요.</p>}
+      <div className="sc-week-badges"><span>{praiseIcon} 칭찬 <strong>{week.praise.length}개</strong></span><span>🙋 역할을 한 날 <strong>{week.roleDays}일</strong></span></div>
+      {week.praise.length > 0 && <details className="sc-praise"><summary>칭찬 이야기 {week.praise.length}개</summary><ul>{week.praise.map((p) => <li key={p.id}>{p.r}</li>)}</ul></details>}
+    </section>
+    <div className="sc-summary-side">
+      <section><div className="sc-section-heading"><h3>이번 달 출결</h3><span>{date.getMonth() + 1}월</span></div><div className="sc-attendance">{Object.entries(month.attendance).map(([key, count]) => <div key={key}><span>{ATT[key as keyof typeof ATT]}</span><strong>{count}<span className="sc-unit">일</span></strong></div>)}</div></section>
+      <section className="sc-outfit"><h3>오늘은 어떤 옷?</h3>{current?.outfits?.[studentId] ? <div className="sc-outfit-figure"><OutfitFigure avatar={current.outfits[studentId].avatar} clothes={current.outfits[studentId].clothes}/></div> : <p className="sc-empty">아직 고른 옷차림이 없어요.</p>}</section>
+      <section className="sc-expression"><h3>생활표현 연습</h3><span className="sc-level">{expr.levels[studentId] ? { sentence: '문장', word: '낱말', card: '그림 카드' }[expr.levels[studentId]] : '아직 정하지 않았어요'}</span></section>
+    </div>
   </div>;
 }
+
 function Back({ cls, studentId, records, onEdit }: { cls: ClassRoom; studentId: string; records: DayRecord[]; onEdit: (n: StudentNote) => void }) {
   const { notes, error } = useStudentNotes(cls.id, studentId);
   const [info, setInfo] = useState(false);

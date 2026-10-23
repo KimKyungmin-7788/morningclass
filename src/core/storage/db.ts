@@ -1,10 +1,15 @@
-import { SCHEMA_VERSION, defaultNotesConfig, type StudentNote, type Iep, type AppData, type ClassId, type ClassRoom, type DateKey, type DayRecord, type MealImage, type Timetable } from '@/core/data/types';
+import { emptyRecord, SCHEMA_VERSION, defaultNotesConfig, type StudentNote, type Iep, type AppData, type ClassId, type ClassRoom, type DateKey, type DayRecord, type MealImage, type Timetable } from '@/core/data/types';
 
 // 저장 창구: 앱의 모든 자료는 여기(IndexedDB)를 거쳐 읽고 쓴다.
 // 기능 코드는 이 파일을 직접 쓰지 않고 core/data 의 저장소(store)·함수를 쓴다.
 
 const DB_NAME = 'morningclass';
-const DB_VERSION = 2;
+// v4: 학생의 outfitAvatar는 선택 사항이다. 기존 학급은 미선택 상태로 그대로 유지한다.
+// v5: 기존 옷차림의 hat·neck 누락은 소품 미착용으로 해석한다.
+// v6: 계절별 옷 ID 추가. 기존 옷차림은 변경 없이 그대로 읽는다.
+// v7: 손 소품(우산) 추가. 기존 기록의 누락된 hand는 미착용으로 읽는다.
+// v8: 학생별 감정 캐릭터. 기존 학생은 기본 남학생 그림으로 표시한다.
+const DB_VERSION = 8;
 
 /** 낱개 값(형식 버전, 지금 학급, D-DAY, 수업 차시 등)은 kv 에 열쇠-값으로 둔다 */
 type Store = 'kv' | 'classes' | 'records' | 'timetables' | 'mealImages' | 'notes' | 'ieps';
@@ -26,11 +31,15 @@ function open(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('timetables')) db.createObjectStore('timetables', { keyPath: ['classId', 'day'] });
       if (!db.objectStoreNames.contains('mealImages')) db.createObjectStore('mealImages');
       // 빈 저장소는 init 에 맡기고, 기존 자료는 그 자리에서 버전만 올린다.
+      // v3의 옷차림은 선택 필드라 기존 하루 기록을 덮어쓰지 않는다.
       const kv = req.transaction!.objectStore('kv');
       const version = kv.get('schemaVersion');
       version.onsuccess = () => { if (version.result != null) kv.put(SCHEMA_VERSION, 'schemaVersion'); };
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      req.result.onversionchange = () => { req.result.close(); dbPromise = null; };
+      resolve(req.result);
+    };
     req.onerror = () => reject(req.error);
     req.onblocked = () => reject(new Error('다른 탭에서 예전 버전을 쓰고 있어 저장소를 열 수 없어요'));
   });
@@ -189,3 +198,29 @@ export const deleteNotes = (ids: string[]) => tx(['notes'], 'readwrite', (t) => 
 export const setPin = (pin: unknown, recoveryKey: string) => tx(['kv'], 'readwrite', (t) => {
   t.objectStore('kv').put(pin, 'pinHash'); t.objectStore('kv').put(recoveryKey, 'recoveryKey');
 });
+
+/** 마지막 완료 학생과 그 학생의 옷차림을 한 번에 저장한다. */
+export function saveStudentOutfit(classId: string, date: string, studentId: string, value: import('@/core/data/types').StudentOutfit) {
+  return tx(['records'], 'readwrite', async t => {
+    const store = t.objectStore('records');
+    const saved = await done(store.get([classId, date]) as IDBRequest<DayRecord | undefined>);
+    const record = { ...emptyRecord(classId, date), ...saved };
+    record.outfits = { ...record.outfits, [studentId]: value };
+    record.lastOutfitStudentId = studentId;
+    record.savedAt = new Date().toISOString();
+    store.put(record);
+    return record;
+  });
+}
+
+/** 학생의 캐릭터만 원자적으로 변경해 다른 학생·학급 설정을 보존한다. */
+export function saveEmotionAvatar(classId: string, studentId: string, avatar: 'boy' | 'girl') {
+  return tx(['classes'], 'readwrite', async t => {
+    const store = t.objectStore('classes');
+    const cls = await done(store.get(classId) as IDBRequest<ClassRoom | undefined>);
+    if (!cls || !cls.students.some(s => s.id === studentId && !s.archived)) throw new Error('학생을 찾을 수 없어요');
+    const updated = {...cls, students: cls.students.map(s => s.id === studentId ? {...s, emotionAvatar: avatar} : s)};
+    store.put(updated);
+    return updated;
+  });
+}

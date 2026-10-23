@@ -1,11 +1,15 @@
 /* 학생이 누르는 곳은 64px, 선생님 입력은 48px 이상으로 둔다. */
 :root { --line: #E5E7EB; --empty-line: #CBD5E1; --soft: #F0F4FF; }
 .sc-header { flex: 1 1 240px; min-width: 220px; display: flex; gap: 8px; align-items: center; position: relative; }
-.sc-header-names { display: flex; gap: 8px; white-space: nowrap; }
+.sc-header-names { display: flex; gap: 0; white-space: nowrap; }
 .sc-measure { position: absolute; visibility: hidden; pointer-events: none; width: max-content; }
 .sc-header button, .sc-floating, .sc-write, .sc-panel button, .sc-pin button { font: inherit; font-weight: var(--fw-label); min-height: 48px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); color: var(--text); cursor: pointer; }
-.sc-header button { min-height: 64px; border-radius: 99px; white-space: nowrap; font-size: var(--fs-body); }
-.sc-header button:last-child { min-height: 48px; }
+/* 이름은 조용한 글자 단추로 보이되, 터치 영역은 충분히 남긴다. */
+.sc-header button { min-height: 48px; border-radius: 12px; white-space: nowrap; font-size: var(--fs-body); background: transparent; border-color: transparent; color: var(--text-sub); font-weight: var(--fw-body); padding: 10px 12px; }
+.sc-header-names button { min-width: 64px; min-height: 64px; }
+.sc-header > button:last-child { font-weight: var(--fw-label); }
+.sc-header button:hover, .sc-header button:focus-visible { background: var(--soft); color: var(--text); }
+
 .sc-panel { display: grid; gap: 16px; color: var(--text); font: var(--fw-body) var(--fs-body)/1.5 var(--font-ui, 'Paperozi', 'Noto Sans KR', sans-serif); }
 .sc-panel h3, .sc-pin h3 { font-weight: var(--fw-title); }
 .sc-panel fieldset { border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
@@ -25,10 +29,6 @@
 .sc-note { border: 1px solid var(--line); border-radius: 16px; margin: 16px 0; padding: 12px; }
 .sc-note > button:first-child { width: 100%; text-align: left; background: var(--card); }
 .sc-note p { white-space: pre-wrap; overflow-wrap: anywhere; }
-.sc-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.sc-summary section { padding: 16px; border: 1px solid var(--line); border-radius: 16px; }
-.sc-bar { display: grid; grid-template-columns: 140px 1fr 40px; gap: 8px; align-items: center; }
-.sc-bar meter { width: 100%; }
 .sc-pin { max-width: 420px; margin: auto; text-align: center; font-size: var(--fs-body); }
 .sc-digits { letter-spacing: 12px; font-size: var(--fs-card-title); padding: 16px; }
 .sc-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -41,4 +41,78 @@
 .sc-floating.sc-visible, body:has(.bd-area) .sc-floating { display: block; }
 body:has(.sc-panel, .sc-pin) .popup-overlay { z-index: 1900; }
 .popup-overlay.closing .sc-panel { visibility: hidden; }
-@media (max-width: 800px) { .sc-summary { grid-template-columns: 1fr; } .sc-header { flex-basis: 220px; } }
+
+
+/* 앞면: 하루 요약을 먼저 읽고, 주·월 기록을 아래에서 살펴본다. */
+.sc-card-toolbar, .sc-section-heading, .sc-student-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sc-tabs { gap: 4px; padding: 4px; background: var(--soft); border-radius: 16px; }
+.sc-tabs button { min-height: 64px; border: 0; background: transparent; border-radius: 12px; }
+.sc-student-nav { font-size: var(--fs-body); color: var(--text-sub); }
+.sc-student-nav button { min-width: 64px; min-height: 64px; background: var(--card); }
+.sc-summary { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: start; }
+.sc-summary section { padding: 24px; border: 1px solid var(--line); border-radius: 16px; }
+.sc-summary h3, .sc-quick h3 { margin: 0; font-size: var(--fs-card-title); }
+.sc-section-heading > span, .sc-section-heading time { color: var(--text-sub); }
+.sc-summary .sc-today { grid-column: 1 / -1; background: var(--soft); border: 0; }
+.sc-today-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.sc-today-grid > div { display: grid; align-content: start; gap: 12px; padding: 16px; background: var(--card); border-radius: 12px; overflow-wrap: anywhere; }
+.sc-summary-label { display: flex; align-items: center; gap: 4px; color: var(--text-sub); }
+.sc-summary-icon { width: 1.25em; height: 1.25em; object-fit: contain; }
+.sc-today-grid strong { font-size: var(--fs-body); font-weight: var(--fw-label); }
+.sc-unit { margin-left: 4px; font-size: var(--fs-body); font-weight: var(--fw-body); }
+.sc-summary-side { display: grid; gap: 20px; }
+.sc-empty { color: var(--text-sub); padding: 24px 0; margin: 0; line-height: 1.8; }
+.sc-emotions { display: grid; gap: 12px; margin: 20px 0; }
+.sc-bar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 48px; gap: 12px; align-items: center; }
+.sc-bar meter { width: 100%; height: 16px; accent-color: var(--primary); }
+.sc-bar meter::-webkit-meter-bar { background: var(--soft); border: 0; }
+.sc-bar meter::-webkit-meter-optimum-value { background: var(--primary); }
+.sc-bar strong { font-weight: var(--fw-label); text-align: right; }
+.sc-week-badges { display: flex; flex-wrap: wrap; gap: 12px; }
+.sc-week-badges > span { background: var(--soft); padding: 10px 14px; border-radius: 12px; }
+.sc-week-badges strong { font-weight: var(--fw-label); }
+.sc-praise { margin-top: 16px; }
+.sc-praise summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; color: var(--text-sub); }
+.sc-praise summary::before { content: '＋'; margin-right: 8px; }
+.sc-praise[open] summary::before { content: '−'; }
+.sc-attendance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 24px; }
+.sc-attendance > div { display: grid; gap: 8px; text-align: center; }
+.sc-attendance > div + div { border-left: 1px solid var(--line); }
+.sc-attendance > div > span { color: var(--text-sub); }
+.sc-attendance strong { font-size: var(--fs-card-title); font-weight: var(--fw-display); }
+.sc-expression { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.sc-level { background: var(--soft); padding: 8px 12px; border-radius: 99px; }
+/* 빠른 문장과 방금 쓴 내용이 같은 화면에 보이도록 둔다. */
+.sc-quick-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; align-items: start; }
+.sc-quick-choices { display: grid; gap: 24px; }
+.sc-quick-choices > fieldset, .sc-quick #sc-note-fields, .sc-fields > fieldset { border: 0; padding: 0; margin: 0; }
+.sc-quick-choices legend { margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; width: 100%; }
+.sc-step { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 99px; background: var(--soft); }
+.sc-selection-count { margin-left: auto; font-size: var(--fs-small); color: var(--text-sub); font-weight: var(--fw-body); }
+.sc-quick-sentences { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sc-quick-sentences button { min-height: 64px; background: var(--card); text-align: left; overflow-wrap: anywhere; }
+.sc-quick-sentences .sc-own-sentence { grid-column: 1 / -1; min-height: 48px; border-style: dashed; text-align: center; color: var(--text-sub); }
+.sc-quick-editor { min-width: 0; background: var(--soft); border-radius: 16px; padding: 20px; }
+.sc-save-status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding: 8px 0; color: var(--text-sub); font-size: var(--fs-small); }
+.sc-save-status button { background: var(--card); }
+.sc-fields { gap: 16px; }
+.sc-fields legend { margin-bottom: 8px; }
+.sc-fields .sc-chips button { background: var(--card); }
+.sc-fields .sc-check { background: var(--card); border-radius: 12px; padding: 12px; margin: 0; gap: 12px; }
+.sc-fields .sc-abc { border-top: 1px solid var(--line); padding-top: 16px; }
+.sc-quick-sentences button:hover:not(:disabled), .sc-student-nav button:hover:not(:disabled) { border-color: var(--primary); background: var(--soft); }
+.sc-edit-only { grid-template-columns: 1fr; }
+.sc-edit-only .sc-quick-choices { display: none; }
+@media (max-width: 800px) {
+  .sc-header { flex-basis: 220px; }
+  .sc-summary, .sc-quick-layout { grid-template-columns: 1fr; }
+  .sc-today-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sc-card-toolbar { flex-wrap: wrap; }
+  .sc-summary section { padding: 16px; }
+  .sc-section-heading { flex-wrap: wrap; }
+}
+@media (max-width: 420px) {
+  .sc-quick-sentences { grid-template-columns: 1fr; }
+  .sc-bar { grid-template-columns: 110px minmax(0, 1fr) 40px; gap: 8px; }
+  .sc-quick-editor { padding: 16px; }
+}

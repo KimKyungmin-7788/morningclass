@@ -8,6 +8,7 @@ import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
+import { chooseEmotionAvatar } from '@/core/data/emotionAvatar';
 import { useDay } from '@/core/data/day';
 import { eligibleStudents } from '@/core/data/eligible';
 import { EMOTIONS, EMO_ZONES, emotionOf } from '@/core/data/emotions';
@@ -143,17 +144,26 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
   const wrapRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef(items);
   itemsRef.current = items;
-  const pose = emoPose(items[0]?.k);
+  const avatar = cls?.students.find(s => s.id === student.id)?.emotionAvatar ?? 'boy';
+  const [choosingAvatar, setChoosingAvatar] = useState(false);
+  const selectAvatar = async (value: 'boy' | 'girl') => {
+    if (!cls || choosingAvatar) return;
+    setChoosingAvatar(true);
+    try { await chooseEmotionAvatar(cls.id, student.id, value); }
+    catch { toast('캐릭터를 저장하지 못했어요. 다시 눌러 주세요'); }
+    finally { setChoosingAvatar(false); }
+  };
+  const pose = emoPose(items[0]?.k, avatar);
   const lastPose = useRef(pose);
   const poseChanged = useRef(false);
   if (lastPose.current !== pose) { lastPose.current = pose; poseChanged.current = true; }
-  const inside: Inside = (p) => (masks.get(emoPose(itemsRef.current[0]?.k)) ?? roughInside)(p);
+  const inside: Inside = (p) => (masks.get(emoPose(itemsRef.current[0]?.k, avatar)) ?? roughInside)(p);
 
   useEffect(() => {
     // 표정 그림 9장을 미리 받아 두고(바뀔 때 깜빡이지 않게) 몸 판정용 지도도 만든다
-    [undefined, ...EMOTIONS.map((e) => e.k)].forEach((k) => loadMask(emoPose(k)));
+    [undefined, ...EMOTIONS.map((e) => e.k)].forEach((k) => loadMask(emoPose(k, avatar)));
     speak(`${student.name} 친구, 마음속에 어떤 감정이 있나요?`);
-  }, [student.name]);
+  }, [student.name, avatar]);
 
   /** 화면 좌표 → 사람 그림 기준 비율 좌표. 가운데 칸 밖이면 null (사람 옆 빈자리에 놓아도 받아 준다) */
   const toBox = (cx: number, cy: number): Pt | null => {
@@ -276,6 +286,9 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
           </div>
         </div>
         <div className="emo-center" ref={areaRef} onClick={tapArea}>
+          <div className="mv-toggle emo-avatar" role="group" aria-label="감정 캐릭터" onClick={e => e.stopPropagation()}>
+            {(['boy', 'girl'] as const).map(value => <button key={value} disabled={choosingAvatar} className={avatar === value ? 'on' : ''} aria-pressed={avatar === value} onClick={() => void selectAvatar(value)}>{value === 'boy' ? '남학생' : '여학생'}</button>)}
+          </div>
           <div className="emo-q handwriting">지금 내 마음속에는 어떤 감정이 있을까?</div>
           <div className="emo-fig-box">
             <div className={`emo-fig-wrap${hot ? ' hot' : ''}${mode === 'tap' && picked ? ' awaiting' : ''}`} ref={wrapRef}>

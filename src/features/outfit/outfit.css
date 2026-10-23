@@ -1,0 +1,79 @@
+.outfit-card-result{display:flex;align-items:center;justify-content:center;gap:12px;flex:1;min-height:0;height:100%;overflow:hidden}.outfit-card-result>.outfit-figure{max-height:220px;min-height:70px}.outfit-card-result strong{font-size:var(--fs-body)}.outfit-card-result span{display:block;color:var(--text-sub);font-size:var(--fs-small)}.outfit-card-empty{display:flex;flex:1;align-items:center;justify-content:center;gap:12px;font-size:var(--fs-card-title)}.outfit-card-empty span{font-size:var(--fs-body)}.outfit-students{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.outfit-students button{min-height:64px;min-width:96px;padding:12px 20px;border:2px solid var(--line,#e5e7eb);border-radius:16px;background:var(--card);font:var(--fw-label) var(--fs-body) var(--font-ui);color:var(--text)}.outfit-students button[aria-pressed=true]{background:var(--soft,#f0f4ff);border-color:var(--primary)}.outfit-students button:focus-visible{outline:3px solid var(--primary)}.outfit-prompt{padding:40px;text-align:center;font-size:var(--fs-card-title)}.outfit-date{color:var(--text-sub)}.sc-outfit-figure{height:240px;display:flex;justify-content:center;background:var(--bg-cream);border-radius:16px}.sc-outfit{grid-column:1/-1}
+/* 옷입히기는 창 안을 스크롤하지 않고 학생·아바타·옷장·완료를 함께 본다. */
+.popup-card:has(.outfit-shell){width:min(1200px,calc(100vw - 24px));height:min(780px,calc(100dvh - 24px));max-height:calc(100dvh - 24px);display:flex;flex-direction:column;padding:20px}
+.popup-card:has(.outfit-shell) .popup-header{flex-shrink:0;margin-bottom:8px;padding-bottom:8px}
+.popup-card:has(.outfit-shell) #popup-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.outfit-shell{display:flex;flex-direction:column;flex:1;min-height:0}
+.outfit-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.outfit-toolbar label{display:flex;align-items:center;gap:12px;font-weight:var(--fw-label)}
+.outfit-toolbar select{height:48px;width:210px;padding:4px 12px;border:1px solid var(--line,#e5e7eb);border-radius:12px;background:var(--soft,#f0f4ff);color:var(--text);font:inherit}
+.outfit-shell .outfit-editor{flex:1;min-height:0;display:flex;flex-direction:column}
+.outfit-shell .heading{margin:0 0 6px;gap:8px;font-size:var(--fs-small)}
+.outfit-shell .heading button{min-height:40px;padding:4px 12px}
+.outfit-shell .workspace{flex:1;min-height:0;grid-template-columns:minmax(230px,.75fr) minmax(340px,1.25fr);gap:16px}
+.outfit-shell .avatar-panel,.outfit-shell .closet{padding:8px;min-height:0;display:flex;flex-direction:column}
+.outfit-shell .panel-top{margin-bottom:8px;gap:8px}
+.outfit-shell h2{font-size:var(--fs-body)}
+.outfit-shell .avatar-select{padding:2px}
+.outfit-shell .avatar-select button{min-height:40px;padding:4px 10px;font-size:var(--fs-small)}
+.outfit-shell .stage{height:auto;flex:1;min-height:0}
+.outfit-shell .worn,.outfit-shell .layer-guide,.outfit-shell .feedback,.outfit-shell .scope{display:none}
+.outfit-shell .done{min-height:56px;margin-top:8px;flex-shrink:0;background:var(--success)}
+.outfit-shell .seasons,.outfit-shell .weather{gap:6px;margin-bottom:6px}
+.outfit-shell .seasons button,.outfit-shell .weather button{min-height:40px;padding:4px;font-size:var(--fs-small)}
+.outfit-shell .season-options{margin:0 0 6px;justify-content:flex-end}
+.outfit-shell .season-options button{min-height:32px;padding:2px 10px;font-size:var(--fs-small)}
+.outfit-shell .categories{gap:6px;margin-bottom:6px;flex-wrap:nowrap}
+.outfit-shell .categories button{flex:1;min-height:40px;padding:4px;font-size:var(--fs-small)}
+.outfit-shell .items{flex:1;min-height:0;max-height:none;overflow:hidden;padding:2px;scrollbar-gutter:auto;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:8px}
+.outfit-shell .item,.outfit-shell .item[aria-pressed=true]{min-height:0;padding:4px;justify-content:center}
+.outfit-shell .item-picture{height:130px;flex-shrink:0;transform:scale(.65);transform-origin:top center;margin-bottom:-45px}
+.outfit-shell .item-name{font-size:var(--fs-small);line-height:1.2}
+.outfit-shell .check{width:22px;height:22px;top:4px;right:4px}
+.outfit-pages{display:flex;align-items:center;justify-content:center;gap:16px;flex-shrink:0;margin-top:6px;font-size:var(--fs-small)}
+.outfit-shell .outfit-pages button{min-height:36px;min-width:48px;padding:2px}
+@media(max-height:650px){.outfit-shell .item-picture{transform:scale(.5);margin-bottom:-65px}.outfit-shell .heading{display:none}.outfit-shell .panel-top{margin-bottom:4px}}
+@media(max-width:700px){.popup-card:has(.outfit-shell){padding:12px}.outfit-shell .workspace{grid-template-columns:minmax(115px,.6fr) minmax(210px,1.4fr);gap:4px}.outfit-shell .avatar-panel,.outfit-shell .closet{padding:2px}.outfit-shell .avatar-panel .panel-top{flex-direction:column}.outfit-shell .items{grid-template-columns:repeat(2,minmax(0,1fr))}.outfit-shell .item-picture{transform:scale(.5);margin-bottom:-65px}.outfit-shell .weather-badge{display:none}.outfit-shell .heading p{display:none}.outfit-shell .categories{gap:2px}.outfit-shell .categories button{font-size:14px}.outfit-shell .count{display:none}}
+.outfit-shell .workspace{align-items:stretch;grid-template-rows:minmax(0,1fr)}
+.outfit-shell .feedback{display:block;min-height:20px;margin-top:4px;padding:0;background:transparent;font-size:var(--fs-small);line-height:1.25}
+.outfit-shell .stage .doll{position:absolute;top:0;bottom:0;height:100%}
+
+.outfit-toolbar .outfit-students{flex:1;min-width:0;margin:0;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:3px}
+.outfit-toolbar .outfit-students button{min-width:64px;min-height:44px;padding:6px 14px;font-size:var(--fs-small);white-space:nowrap;border-width:1px;border-radius:12px}
+.outfit-date{white-space:nowrap;font-size:var(--fs-small)}
+.outfit-editor-wrap{position:relative;display:flex;flex:1;min-height:0}
+.outfit-editor-body{display:flex;flex:1;min-height:0}
+.outfit-editor-body.is-inactive{opacity:.28;filter:grayscale(.5);pointer-events:none;user-select:none}
+.outfit-selection-hint,.outfit-avatar-first{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 30px #1b3a5714;text-align:center}
+.outfit-avatar-first>div{display:flex;gap:16px;margin-top:12px}
+.outfit-avatar-first button{display:flex;flex-direction:column;align-items:center;background:var(--soft);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:8px 24px;font:inherit;cursor:pointer}
+.outfit-avatar-first img{height:min(240px,34dvh);width:auto}
+.outfit-shell .heading{justify-content:flex-end}
+
+/* 학생 선택과 계절·날씨를 같은 상단 줄에 모은다. */
+.outfit-toolbar{flex-wrap:wrap;gap:8px}
+.outfit-toolbar .outfit-students{flex:1 1 300px}
+.outfit-toolbar-filters{flex:0 1 auto;min-width:0}
+.outfit-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.outfit-shell .outfit-filters .seasons,.outfit-shell .outfit-filters .weather{display:flex;gap:3px;margin:0}
+.outfit-shell .outfit-filters button{min-height:40px;padding:4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:var(--fw-label) var(--fs-small) var(--font-ui);white-space:nowrap;cursor:pointer}
+.outfit-shell .outfit-filters button[aria-pressed=true]{background:var(--soft);border-color:var(--primary)}
+.outfit-shell .outfit-filters button:disabled{opacity:.35;cursor:default}
+.outfit-shell .outfit-filters button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.outfit-shell .items{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr)}
+.outfit-shell .item-picture{transform:scale(.65);margin-bottom:-45px}
+@media(max-height:650px){.outfit-shell .item-picture{transform:scale(.45);margin-bottom:-72px}}
+@media(max-width:700px){.outfit-toolbar .outfit-students{flex-basis:100%}.outfit-shell .outfit-filters button{padding:4px 6px;font-size:13px}.outfit-shell .item-picture{transform:scale(.45);margin-bottom:-72px}}
+
+/* 세 열은 유지하고, 여백을 쓸어 아래 옷까지 탐색한다. */
+.outfit-shell .items{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:clamp(128px,18dvh,160px);align-content:start;gap:24px;padding:14px 22px 24px 14px;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;scrollbar-gutter:stable;background:var(--soft);border-radius:16px}
+.outfit-shell .item{background:var(--card)}
+.outfit-shell .categories{flex-wrap:nowrap}
+.outfit-shell .categories button{min-width:0;padding:4px 2px}
+.outfit-shell .item-name{overflow-wrap:anywhere;text-align:center}
+@media(max-width:700px){.outfit-shell .items{gap:18px;padding:12px;grid-auto-rows:120px}.outfit-shell .categories button{font-size:12px}}
+.outfit-shell .avatar-panel{align-self:stretch;margin:0;max-width:none;width:auto}
+
+/* 고정 썸네일 틀을 축소해 좁은 카드에서도 양 소매를 모두 보여준다. */
+.outfit-shell .item-picture{width:220px;max-width:none;transform:scale(.55);margin-bottom:-58px}
+@media(max-width:700px){.outfit-shell .item-picture{transform:scale(.4);margin-bottom:-78px}}

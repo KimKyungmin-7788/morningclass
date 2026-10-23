@@ -52,3 +52,13 @@ describe('마음 일기 규칙', () => {
     expect(compact([{ k: 'joy', x: 0.123456, y: 0.5, zone: 'chest' }])).toEqual([{ k: 'joy', x: 0.123, y: 0.5, zone: 'chest' }]);
   });
 });
+
+it('기본과 모든 감정에 캐릭터별 그림을 연결한다', async()=>{
+ const {emoPose}=await import('./model');
+ expect(emoPose(undefined)).toBe('/img/emotion/person.webp');
+ expect(emoPose(undefined,'girl')).toBe('/img/emotion/girl.png');
+ for(const k of ['joy','sad','angry','tired','excited','anxious','meh','sick'] as const){
+   expect(emoPose(k,'girl')).toBe(`/img/emotion/girl-${k}.png`);
+   expect(emoPose(k,'boy')).toBe(`/img/emotion/person-${k}.webp`);
+ }
+});

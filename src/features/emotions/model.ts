@@ -9,7 +9,9 @@ export const EMO_MAX = 10;
 
 export const emoImg = (k: EmotionKind) => `/img/emotion/${k}.webp`;
 /** 첫 감정을 넣으면 사람이 그 감정 표정·몸짓으로 바뀐다 */
-export const emoPose = (k: EmotionKind | undefined) => (k ? `/img/emotion/person-${k}.webp` : '/img/emotion/person.webp');
+export const emoPose = (k: EmotionKind | undefined, avatar: 'boy' | 'girl' = 'boy') => avatar === 'girl'
+  ? `/img/emotion/girl${k ? `-${k}` : ''}.png`
+  : (k ? `/img/emotion/person-${k}.webp` : '/img/emotion/person.webp');
 
 export interface Pt { x: number; y: number }
 /** 그 자리가 몸 안인가 (그림의 투명도로 판정) */

@@ -44,10 +44,11 @@ function StudentWindows() {
   const current = useCurrentClass();
   const classes = useData((s) => s.classes);
   const mode = usePrefs((s) => s.appMode);
+  const record = useDay((s) => s.record);
   const cls = classes.find((c) => c.id === open?.classId);
   return <>
     {current && !open && <button className={`sc-floating${mode === 'lesson' ? ' sc-visible' : ''}`} onClick={() => show(current.id, undefined, true)}>✎ 기록</button>}
-    {open && cls && (open.quick ? <QuickNote key={cls.id} cls={cls} studentId={open.studentId} onClose={close} /> : open.studentId ? <StudentCard key={`${cls.id}-${open.studentId}`} cls={cls} studentId={open.studentId} onClose={close} /> : <Popup title="👤 학생 카드" onClose={close}><div className="sc-panel sc-chips sc-students">{activeStudents(cls).length ? activeStudents(cls).map((s) => <button key={s.id} onClick={() => show(cls.id, s.id)}>{s.name}</button>) : <p>설정에서 학생을 먼저 넣어 주세요.</p>}</div></Popup>)}
+    {open && cls && (open.quick ? <QuickNote key={cls.id} cls={cls} studentId={open.studentId} onClose={close} /> : open.studentId ? <StudentCard key={`${cls.id}-${open.studentId}`} cls={cls} studentId={open.studentId} onClose={close} /> : <Popup title="👤 학생 카드" onClose={close}><div className="sc-panel sc-chips sc-students">{activeStudents(cls).length ? activeStudents(cls).map((s) => <button key={s.id} onClick={() => show(cls.id, s.id)}>{s.name}{record.classId === cls.id && doneToday(record, s.id) ? ' ✓' : ''}</button>) : <p>설정에서 학생을 먼저 넣어 주세요.</p>}</div></Popup>)}
   </>;
 }
 const manifest: FeatureManifest = { id: 'students', Header: StudentHeader, Overlay: StudentWindows };

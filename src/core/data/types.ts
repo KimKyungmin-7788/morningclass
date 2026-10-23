@@ -1,6 +1,6 @@
 // 아침교실 v2 저장 형식. 형식을 바꾸면 SCHEMA_VERSION 을 올리고 변환 함수를 추가한다.
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 8;
 
 export type ClassId = string;
 export type StudentId = string;
@@ -17,6 +17,10 @@ export interface Student {
   name: string;
   /** 지금 명단에는 없지만 과거 기록이 남아 있는 학생 (전출·개명 전 이름) */
   archived?: true;
+  /** 처음 선택한 옷입히기 아바타. 없으면 첫 선택을 기다린다. */
+  outfitAvatar?: OutfitAvatar;
+  /** 마음 일기에서 고른 캐릭터. 날짜와 무관하게 유지한다. */
+  emotionAvatar?: 'boy' | 'girl';
 }
 
 /** 1인 1역할의 역할 하나: 그림 · 이름 · 하는 일 · 맡은 학생들 */
@@ -55,6 +59,7 @@ export interface ClassRoom {
     drawStyle?: 'basic' | 'scratch' | 'ladder' | 'marble' | 'wheel';
     mealHidden?: string[];
     tools?: Partial<Record<'clock' | 'timer' | 'stopwatch' | 'noise' | 'board', boolean>>;
+    timetableAutoLoad?: boolean;
     video?: { url: string; title: string };
     /** 1인 1역할: 역할과 맡은 학생 (선생님이 바꿀 때까지 그대로 간다) */
     roles?: RoleItem[];
@@ -81,7 +86,20 @@ export interface Dish { name: string; codes: number[] }
 /** 날씨·미세먼지 등 아직 세부 형식을 정하지 않은 값 (해당 기능 단계에서 좁힌다) */
 export type Loose = Record<string, unknown>;
 
+export type OutfitAvatar = 'boy' | 'girl';
+export type OutfitItem = 'base-shirt' | 'shirt' | 'sweater' | 'shorts' | 'pants' | 'jacket' | 'puffer' | 'sneakers' | 'boots' | 'stripe-shirt' | 'pink-cardigan' | 'chinos' | 'spring-cap' | 'spring-scarf' | 'lemon-shirt' | 'summer-shorts' | 'sun-hat' | 'rust-sweatshirt' | 'denim-jacket' | 'cargo-pants' | 'winter-coat' | 'knit-hat' | 'wool-scarf' | 'umbrella';
+export type OutfitClothes = Record<'top' | 'bottom', OutfitItem> & Partial<Record<'outer' | 'shoes' | 'hat' | 'neck' | 'hand', OutfitItem>>;
+export interface StudentOutfit {
+  avatar: OutfitAvatar;
+  clothes: OutfitClothes;
+  season: '봄' | '여름' | '가을' | '겨울' | 'all';
+  weather: '맑음' | '비' | '눈' | '바람';
+  completedAt: string;
+}
 export interface DayRecord {
+  /** 선택 날짜에 완료한 학생별 옷차림. 초안은 저장하지 않는다. */
+  outfits?: Record<StudentId, StudentOutfit>;
+  lastOutfitStudentId?: StudentId;
   classId: ClassId;
   date: DateKey;
   savedAt?: string;

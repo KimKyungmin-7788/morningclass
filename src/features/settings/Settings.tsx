@@ -16,16 +16,20 @@ import type { ClassRoom } from '@/core/data/types';
 import { AttendanceDashboard } from '@/features/attendance/Dashboard';
 import { usePrefs } from '@/core/prefs';
 import { useLayoutEdit } from '@/features/layout/store';
-import { TimetableTab } from './TimetableTab';
 import { BackupTab } from './BackupTab';
 
-// 설정 창. 학급정보·학생·영상은 [저장]을 눌러야 반영되고, 시간표·과목·백업은 바꾸는 즉시 저장된다.
-
-type Tab = 'studentNotes' | 'info' | 'students' | 'timetable' | 'book' | 'data' | 'backup';
-const TABS: [Tab, string][] = [['info', '🏫 학급정보'], ['students', '👨‍🎓 학생'], ['timetable', '📅 시간표'], ['book', '📹 영상 재생'], ['data', '📊 출결 대시보드'], ['studentNotes', '✎ 학생 기록'], ['backup', '💾 백업']];
+// 학급·학생 정보는 저장 버튼으로 반영한다.
+type Tab = 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
+const TABS: [Tab, string, string, string][] = [
+  ['info', '학급설정', '학교와 학급 정보', 'ph-buildings'],
+  ['students', '학생설정', '학생 명단 관리', 'ph-users'],
+  ['data', '출결대시보드', '출결 조회와 통계', 'ph-chart-bar'],
+  ['studentNotes', '학생 기록', 'PIN과 빠른 기록 설정', 'ph-note-pencil'],
+  ['backup', '백업', '자료 보관과 복원', 'ph-hard-drives'],
+];
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
 
-export function Settings({ onClose }: { onClose: () => void }) {
+export function Settings({ onClose, onSuggest }: { onClose: () => void; onSuggest: () => void }) {
   const cls = useCurrentClass()!;
   const { classes, setCurrentClass, addClass, deleteClass, saveClass } = useData();
   const [draft, setDraft] = useState<ClassRoom>(() => structuredClone(cls));
@@ -49,7 +53,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
   /** 편집 중이던 내용을 지금 학급에 저장한다 (과목 설정은 즉시 저장분이 최신이므로 그쪽을 따른다) */
   const commit = async () => {
     const stored = useData.getState().classes.find((c) => c.id === draft.id);
-    await saveClass({ ...draft, subjects: stored?.subjects ?? draft.subjects, options: { ...stored?.options, video: draft.options.video } });
+    await saveClass({ ...draft, subjects: stored?.subjects ?? draft.subjects, options: stored?.options ?? draft.options });
   };
   const save = async () => { await commit(); playSound('save'); toast('설정 저장 완료!', 'success'); close(); };
   const switchTo = async (id: string) => { if (id !== cls.id) { await commit(); await setCurrentClass(id); } };
@@ -70,15 +74,24 @@ export function Settings({ onClose }: { onClose: () => void }) {
 
   return createPortal(
     <div className={`popup-overlay active${closing ? ' closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-      <div className="popup-card large">
+      <div className="popup-card large settings-card">
         <div className="popup-header">
-          <h2 className="popup-title" id="settings-title">⚙️ 설정</h2>
+          <h2 className="popup-title" id="settings-title"><i className="ph-bold ph-gear-six" aria-hidden="true" /> 관리</h2>
           <button className="popup-close" aria-label="닫기" onClick={close}>✕</button>
         </div>
         <div className="settings-modal">
-          <div className="settings-tabs" id="settings-tabs">
-            {TABS.map(([k, label]) => <button key={k} className={`settings-tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>{label}</button>)}
-          </div>
+          <nav className="settings-tabs" id="settings-tabs" aria-label="관리 메뉴">
+            <div className="settings-nav-caption">우리 반 관리</div>
+            {TABS.map(([k, label, hint, icon]) => <button key={k} className={`settings-tab${tab === k ? ' active' : ''}`} aria-current={tab === k ? 'page' : undefined} onClick={() => setTab(k)}>
+              <i className={`ph-bold ${icon}`} aria-hidden="true" />
+              <span><strong>{label}</strong><small>{hint}</small></span>
+              <i className="ph-bold ph-caret-right settings-nav-arrow" aria-hidden="true" />
+            </button>)}
+            <div className="settings-nav-bottom">
+              <p className="settings-nav-note"><i className="ph-bold ph-hand-tap" aria-hidden="true" />카드를 꾹 누르면<br />화면 배치를 바꿀 수 있어요.</p>
+              <button className="settings-feedback" onClick={() => void commit().then(onSuggest)}><i className="ph-bold ph-chat-circle" aria-hidden="true" /> 의견 보내기</button>
+            </div>
+          </nav>
           <div className="settings-content" id="settings-content">
             <div className="settings-section active" key={`${tab}-${cls.id}`}>
               {tab === 'info' && (
@@ -92,14 +105,12 @@ export function Settings({ onClose }: { onClose: () => void }) {
                   }} />
               )}
               {tab === 'students' && <StudentsTab draft={draft} patch={patch} used={used} switcher={switcher('학급 선택 (관리할 학급)', '선택한 학급의 학생을 아래에서 관리해요.')} />}
-              {tab === 'timetable' && <TimetableTab draft={draft} onSubjects={(subjects) => { patch({ subjects }); const stored = useData.getState().classes.find((c) => c.id === cls.id); if (stored) void saveClass({ ...stored, subjects }); }} />}
-              {tab === 'book' && <VideoTab draft={draft} patch={patch} />}
               {tab === 'data' && <><h3>📊 출결 대시보드</h3><AttendanceDashboard embedded /></>}
               {tab === 'studentNotes' && <NotesTab />}
-              {tab === 'backup' && <BackupTab classId={cls.id} onRestored={onClose} />}
+              {tab === 'backup' && <BackupTab onRestored={onClose} />}
             </div>
           </div>
-          {tab !== 'studentNotes' && <div className="settings-footer">
+          {tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
             <button className="btn-cancel" onClick={close}>취소</button>
             <button className="btn-save" onClick={() => void save()}>💾 저장</button>
           </div>}
@@ -197,13 +208,13 @@ function InfoTab({ draft, patch, switcher, canDelete, onDelete, onDecorate }: Ta
   );
 }
 
-/** '내 맘대로 배치'로 바로 들어가는 단추. 상단 줄의 단추나 카드를 길게 눌러도 들어갈 수 있다(그때는 확인 문제를 맞혀야 한다). */
+/** 관리에서 배치 편집 진입. 카드 길게 누르기도 지원한다. */
 function LayoutStart({ onStart }: { onStart: () => void }) {
   return (
     <div className="field">
-      <label>내 맘대로 배치</label>
-      <button className="btn-test" style={{ margin: 0 }} onClick={onStart}>🧩 지금 배치하기</button>
-      <div className="hint">카드를 원하는 자리로 옮기고, 빼거나 넣을 수 있어요. 화면 위쪽의 <b>내 맘대로 배치</b> 단추를 누르거나 카드를 <b>길게 눌러도</b> 돼요(곱셈 문제를 맞혀야 해요). 누르면 지금까지 고친 설정을 저장하고 배치 화면으로 넘어가요.</div>
+      <label>화면 배치</label>
+      <button className="btn-test" style={{ margin: 0 }} onClick={onStart}>화면 배치 편집</button>
+      <div className="hint">카드를 <b>꾹 눌러도</b> 배치를 바꿀 수 있어요. 버튼을 누르면 편집 중인 학급 설정을 저장하고 배치 화면으로 이동해요.</div>
     </div>
   );
 }
@@ -262,24 +273,6 @@ function StudentsTab({ draft, patch, used, switcher }: TabProps & { used: Set<st
           ))}
         </div>
       )}
-    </>
-  );
-}
-
-function VideoTab({ draft, patch }: TabProps) {
-  const video = draft.options.video ?? { url: '', title: '' };
-  const set = (p: Partial<typeof video>) => patch({ options: { ...draft.options, video: { ...video, ...p } } });
-  const id = video.url.match(/(?:youtu\.be\/|v=|shorts\/)([^&\n?#]+)/)?.[1];
-  return (
-    <>
-      <h3>📹 영상 재생 · 기본 영상</h3>
-      <div className="field">
-        <label htmlFor="f-book-url">기본 영상 URL</label>
-        <input id="f-book-url" value={video.url} placeholder="https://youtu.be/..." onChange={(e) => set({ url: e.target.value.trim() })} />
-        <div className="hint">영상 재생 카드를 열 때 처음 보여줄 영상이에요</div>
-      </div>
-      <div className="field"><label htmlFor="f-book-title">영상 제목</label><input id="f-book-title" value={video.title} onChange={(e) => set({ title: e.target.value })} /></div>
-      {id && <img src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`} alt="" style={{ maxWidth: 240, borderRadius: 10, marginTop: 8 }} />}
     </>
   );
 }

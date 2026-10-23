@@ -34,7 +34,8 @@ export function parseBackup(text: string): ParsedBackup {
     if (!data || !Array.isArray(data.classes) || !data.classes.length || !Array.isArray(data.records)) throw new Error('백업 파일의 내용이 비어 있거나 깨졌어요');
     if ((data.schemaVersion ?? 0) > SCHEMA_VERSION) throw new Error('더 새로운 버전의 아침교실에서 만든 백업이에요. 앱을 새로 고친 뒤 다시 해 주세요');
     const { pinHash: _pin, ...safe } = data as AppData & { pinHash?: unknown };
-    return { data: { ...safe, schemaVersion: SCHEMA_VERSION, studentNotes: data.studentNotes ?? [], ieps: data.ieps ?? [],
+    return { data: { ...safe, // 예전 자료의 옷차림·아바타 설정 누락은 미선택 상태로 해석한다.
+      schemaVersion: SCHEMA_VERSION, studentNotes: data.studentNotes ?? [], ieps: data.ieps ?? [],
       expr: data.expr ?? {}, notesConfig: data.notesConfig ?? defaultNotesConfig() } };
   }
   // 기존 앱의 백업: mc_ 로 시작하는 열쇠에 문자열 값이 그대로 들어 있다

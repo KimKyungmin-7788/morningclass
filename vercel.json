@@ -28,6 +28,19 @@
           "value": "camera=(), microphone=(self), geolocation=(self), payment=(), usb=(), web-share=()"
         }
       ]
+    },
+    {
+      "source": "/img/outfit/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; sandbox"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        }
+      ]
     }
   ]
 }

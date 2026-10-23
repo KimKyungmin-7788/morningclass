@@ -1,0 +1,8 @@
+.outfit-figure{position:relative;height:100%;aspect-ratio:2/3;flex-shrink:0;overflow:hidden}.outfit-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;transform-origin:0 0}
+.outfit-figure .layer-spring-cap{transform:translate(18%,1.1%) scale(.64,.42) var(--asset-fit)}
+.outfit-figure .layer-spring-scarf{transform:translate(32.5%,21%) scale(.37,.36) var(--asset-fit)}
+.outfit-figure .layer-sun-hat{transform:translate(19%,.3%) scale(.62,.45) var(--asset-fit)}
+.outfit-figure .layer-knit-hat{transform:translate(18%,1.7%) scale(.64,.35) var(--asset-fit)}
+.outfit-figure .layer-wool-scarf{transform:translate(41%,27.7%) scale(.23,.28) var(--asset-fit)}
+.outfit-figure .layer-umbrella{transform:translate(23%,29%) scale(.7) var(--asset-fit)}
+.outfit-figure .outfit-rig{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}

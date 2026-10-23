@@ -1,0 +1,105 @@
+.outfit-editor {
+button,a{font:inherit}button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font-weight:var(--fw-label);padding:10px 18px}button:focus-visible,a:focus-visible{outline:3px solid var(--primary);outline-offset:3px}button:hover:not(:disabled){border-color:var(--primary)}button:disabled{opacity:.4;cursor:default}button[aria-pressed=true]{background:var(--soft);border-color:var(--primary)}main{max-width:1350px;margin:auto;padding:24px 32px}header{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:24px;font-weight:var(--fw-title)}.brand span{font-size:var(--fs-small);font-weight:var(--fw-body);border-left:1px solid #cbd5e1;padding-left:14px;margin-left:12px;color:var(--text-sub)}a{color:var(--text-sub);font-size:var(--fs-small);text-decoration:none}.heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:24px 0 20px}h1{font-size:34px;line-height:1.3;margin:2px 0 6px;font-weight:var(--fw-title)}h2{font-size:var(--fs-card-title);margin:0;font-weight:var(--fw-title)}p{margin:0}.heading p{color:var(--text-sub)}.eyebrow{font-size:var(--fs-small);margin-bottom:6px}.undo{background:transparent}.workspace{display:grid;grid-template-columns:minmax(330px,.85fr) minmax(480px,1.15fr);gap:24px;align-items:start}.avatar-panel,.closet{background:var(--card);border-radius:24px;padding:24px}.panel-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.avatar-select{display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--soft)}.avatar-select button{min-height:48px;border-color:transparent;background:transparent;padding:6px 12px}.avatar-select button[aria-pressed=true]{background:var(--card);border-color:var(--primary)}.stage{height:440px;border:2px dashed transparent;border-radius:16px;background:#fff9ec;position:relative;display:flex;justify-content:center;overflow:hidden}.doll{height:100%;aspect-ratio:2/3;position:relative;flex-shrink:0}.doll img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}.weather-badge{position:absolute;top:14px;left:14px;z-index:4;border-radius:99px;background:var(--card);padding:6px 12px;font-size:var(--fs-small);color:var(--text-sub)}.stage.drop-over{border-color:var(--primary);background:var(--soft)}.drop-label{position:absolute;bottom:16px;z-index:5;background:var(--text);color:white;border-radius:99px;padding:8px 20px}.worn{min-height:68px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 0;font-size:var(--fs-small)}.worn>span:first-child{color:var(--text-sub);margin-right:4px}.base-label{color:var(--text-sub)}.worn button{font-size:var(--fs-small);padding:6px 10px}.worn button span{margin-left:8px}.done{width:100%;min-height:56px;background:var(--primary);border-color:var(--primary);font-size:20px}.count{font-size:var(--fs-small);color:var(--text-sub)}.seasons,.weather{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.seasons button{min-height:58px;padding:8px}.weather button{border:0;min-height:48px;padding:8px}.scope{font-size:var(--fs-small);color:var(--text-sub);margin:8px 0 18px}.categories{display:flex;gap:8px;margin-bottom:14px}.categories button{padding:8px 22px}.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.item{position:relative;display:flex;flex-direction:column;align-items:center;min-height:230px;padding:12px;touch-action:none;user-select:none;overflow:hidden;border-radius:16px}.item[aria-pressed=true]{background:var(--card);border:2px solid var(--primary);padding:11px}.item-picture{display:block;width:100%;height:150px;position:relative;overflow:hidden;pointer-events:none}.item-picture img{position:absolute;width:340px;max-width:none;height:510px;left:50%;top:-157px;transform:translateX(-50%);pointer-events:none}.item-name{font-size:20px}.item-sub{font-size:var(--fs-small);color:var(--text-sub);margin-top:2px}.check{position:absolute;right:12px;top:10px;border-radius:99px;width:28px;height:28px;background:var(--soft);color:var(--text-sub);display:grid;place-items:center}.item[aria-pressed=true] .check{background:var(--primary);color:var(--text)}.layer-guide{margin-top:24px;padding:16px;background:var(--soft);border-radius:16px;font-size:var(--fs-small)}.layer-guide>span{color:var(--text-sub)}.layer-guide>div{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}.layer-guide div span{padding:6px 10px;border-radius:12px;background:var(--card)}.layer-guide div span.active{background:var(--primary)}.layer-guide b{font-weight:400;color:var(--text-sub)}.feedback{margin-top:14px;min-height:64px;background:#e8f7ed;padding:16px;border-radius:16px}.footnote{color:var(--text-sub);font-size:var(--fs-small);margin-top:14px}.drag-ghost{pointer-events:none;position:fixed;transform:translate(-50%,-110%);z-index:100;background:var(--card);border:2px solid var(--primary);border-radius:16px;padding:14px;box-shadow:0 8px 24px #1b3a5722}
+@media(min-height:950px){.stage{height:530px}.item-picture{height:180px}.item{min-height:260px}}
+@media(max-width:900px){main{padding:20px}.workspace{grid-template-columns:1fr}.stage{height:430px}.closet{padding:20px}.heading{margin-top:20px}header .brand span{display:none}.items{max-width:600px}.item-picture img{width:340px}.avatar-panel{max-width:600px;width:100%;margin:auto}}
+@media(max-width:420px){main{padding:12px}.avatar-panel,.closet{padding:16px}.panel-top{flex-wrap:wrap}h1{font-size:28px}header a{font-size:14px}.brand{font-size:20px}.item-picture img{width:280px;height:420px;top:-125px}.item-picture{height:130px}.seasons button,.weather button{padding:6px}.item-name{font-size:18px}}
+
+/* 재킷 원본의 목·손목을 공통 아바타 기준점에 맞춘다. */
+
+.jacket .item-picture img{width:260px;height:390px;top:-108px}
+/* 2단계: 옷장은 스크롤하고, 아바타는 같은 자리에 둔다. */
+@media(min-width:901px){.avatar-panel{position:sticky;top:16px}.workspace{align-items:start}}
+.items{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-height:440px;overflow-y:auto;overscroll-behavior:contain;padding:4px 12px 8px 4px;scrollbar-gutter:stable}
+.item{min-height:205px;padding:10px}.item[aria-pressed=true]{padding:9px}.item-name{font-size:var(--fs-body)}.item-sub{font-size:var(--fs-small)}
+.item-picture{height:130px}.item-picture img{width:310px;height:465px;top:-145px}
+.jacket .item-picture img{width:230px;height:345px;top:-94px}
+.season-options{display:flex;align-items:center;gap:12px;margin:12px 0}.season-options .scope{margin:0;flex:1}.season-options button{font-size:var(--fs-small);padding:8px 12px;flex-shrink:0}
+.categories{flex-wrap:wrap;gap:8px}.categories button{padding:8px 16px}
+.worn .base-label{padding:8px 10px;background:var(--soft);border-radius:12px}
+.empty-items{padding:24px 8px;color:var(--text-sub)}
+.base-shirt .item-picture img{top:-145px;clip-path:inset(32% 29% 44% 29%)}
+.shorts .item-picture img{top:-215px;clip-path:inset(54.5% 32% 33% 32%)}
+.pants .item-picture img{width:265px;height:397.5px;top:-215px}
+.sneakers .item-picture img{width:340px;height:510px;top:-373px}
+.boots .item-picture img{width:320px;height:480px;top:-339px}
+.sweater .item-picture img,.puffer .item-picture img{width:230px;height:345px;top:-97px}
+.layer-guide{margin-top:16px}.layer-guide>div{gap:6px}.layer-guide div span{font-size:var(--fs-small)}
+@media(max-width:1100px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.items{max-width:none;max-height:none;overflow:visible;padding:4px;gap:20px}.season-options{align-items:flex-start}.stage{height:400px}}
+/* 원본은 그대로 두고 공통 아바타의 허리·발 위치에 맞춰 그린다. */
+
+
+
+.pants .item-picture img{width:125px;height:187.5px;top:-44px}
+
+
+.sweater .item-picture img,.puffer .item-picture img{width:190px;height:285px;top:-88px}
+
+
+
+}
+.outfit-editor .workspace{grid-template-columns:minmax(260px,.8fr) minmax(360px,1.2fr)}
+.outfit-editor button{min-height:64px;font-family:var(--font-ui)}
+.outfit-editor .stage{height:360px}
+.outfit-editor .avatar-panel{position:static}
+@media(max-width:850px){.outfit-editor .workspace{grid-template-columns:1fr}}
+
+.outfit-editor .doll .worn-target{position:absolute;background:transparent;border:0;padding:0;min-height:0;touch-action:none;cursor:grab;border-radius:10px}
+.outfit-editor .worn-target:active{cursor:grabbing}
+.outfit-editor .worn-upper{left:20%;top:33%;width:60%;height:23%}
+.outfit-editor .worn-bottom{left:32%;top:56%;width:34%;height:25%}
+.outfit-editor .worn-shoes{left:30%;top:82%;width:40%;height:15%}
+.outfit-drag-ghost{position:fixed;width:160px;height:160px;transform:translate(-50%,-50%);pointer-events:none;z-index:10000;overflow:hidden;filter:drop-shadow(0 6px 5px #193a5733)}
+.outfit-drag-ghost img{position:absolute;width:250px;max-width:none;height:375px;left:50%;top:-116px;transform:translateX(-50%);user-select:none}
+.outfit-drag-ghost.base-shirt img{clip-path:inset(32% 29% 44% 29%)}
+.outfit-drag-ghost.shorts img{top:-190px;clip-path:inset(54.5% 32% 33% 32%)}
+.outfit-drag-ghost.sweater img,.outfit-drag-ghost.puffer img{width:220px;height:330px;top:-105px}
+.outfit-drag-ghost.pants img{width:150px;height:225px;top:-55px}
+.outfit-drag-ghost.sneakers img,.outfit-drag-ghost.boots img{top:-270px}
+
+.outfit-editor .worn-hat{left:28%;top:4%;width:44%;height:12%}
+.outfit-editor .worn-neck{left:42%;top:32%;width:18%;height:9%}
+.outfit-editor .stripe-shirt .item-picture img{width:310px;height:465px;top:-145px}
+.outfit-editor .pink-cardigan .item-picture img{width:230px;height:345px;top:-94px}
+.outfit-editor .chinos .item-picture img{width:125px;height:187.5px;top:-44px}
+.outfit-editor .spring-cap .item-picture img{width:310px;height:465px;top:-15px}
+.outfit-editor .spring-scarf .item-picture img{width:500px;height:750px;top:-230px}
+.outfit-drag-ghost.chinos img{width:150px;height:225px;top:-55px}
+.outfit-drag-ghost.spring-cap img{width:320px;height:480px;top:0}
+.outfit-drag-ghost.spring-scarf img{width:500px;height:750px;top:-220px}
+/* 옷을 직접 잡는 곳과 스크롤 여백을 분리한다. */
+.outfit-editor .items{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:14px 22px 24px 14px;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.outfit-editor .stripe-shirt .item-picture img{width:190px;height:285px;top:-77px}
+.outfit-editor .spring-cap .item-picture img{width:200px;height:300px;top:-10px}
+.outfit-editor .spring-scarf .item-picture img{width:220px;height:330px;top:-108px}
+.outfit-drag-ghost.stripe-shirt img{width:220px;height:330px;top:-85px}
+.outfit-drag-ghost.spring-cap img{width:220px;height:330px;top:0}
+.outfit-drag-ghost.spring-scarf img{width:260px;height:390px;top:-130px}
+.outfit-editor .worn-hat{height:16%}
+
+.outfit-editor .lemon-shirt .item-picture img{width:160px;height:240px;top:-48px}
+.outfit-editor .summer-shorts .item-picture img{width:310px;height:465px;top:-240px}
+.outfit-editor .sun-hat .item-picture img{width:170px;height:255px;top:0}
+.outfit-drag-ghost.lemon-shirt img{width:175px;height:262.5px;top:-52px}
+.outfit-drag-ghost.summer-shorts img{width:310px;height:465px;top:-240px}
+.outfit-drag-ghost.sun-hat img{width:170px;height:255px;top:0}
+
+.outfit-editor .rust-sweatshirt .item-picture img{width:190px;height:285px;top:-88px}
+.outfit-editor .denim-jacket .item-picture img{width:210px;height:315px;top:-84px}
+.outfit-editor .cargo-pants .item-picture img{width:125px;height:187.5px;top:-18px}
+.outfit-drag-ghost.rust-sweatshirt img{width:220px;height:330px;top:-105px}
+.outfit-drag-ghost.denim-jacket img{width:220px;height:330px;top:-85px}
+.outfit-drag-ghost.cargo-pants img{width:125px;height:187.5px;top:-18px}
+
+.outfit-editor .winter-coat .item-picture img{width:190px;height:285px;top:-78px}
+.outfit-editor .knit-hat .item-picture img{width:170px;height:255px;top:0}
+.outfit-editor .wool-scarf .item-picture img{width:150px;height:225px;top:-45px}
+.outfit-drag-ghost.winter-coat img{width:220px;height:330px;top:-88px}
+.outfit-drag-ghost.knit-hat img{width:190px;height:285px;top:0}
+.outfit-drag-ghost.wool-scarf img{width:180px;height:270px;top:-55px}
+
+.outfit-editor .worn-hand{left:70%;top:57%;width:16%;height:35%}
+.outfit-editor .umbrella .item-picture img,.outfit-drag-ghost.umbrella img{width:190px;height:285px;top:-108px;left:calc(50% - 50px)}
+
+/* 그림책 화풍을 기존 썸네일·드래그 좌표에 맞춘다. */
+.outfit-editor .item-picture img,.outfit-drag-ghost img{transform-origin:0 0;transform:translateX(-50%) var(--asset-fit)}

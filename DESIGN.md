@@ -71,6 +71,7 @@
 | 오늘의 어휘 | book-open-text | #DCFCE7 / #16A34A (초록) |
 | 판서 | pencil-line | #E0F2FE / #0369A1 (하늘) |
 | 영상 재생 | play-circle | #FEE2E2 / #DC2626 (빨강) |
+| 오늘은 어떤 옷? | t-shirt | #ECFCCB / #4D7C0F (연두) |
 | 수업 도구 | wrench | #E5E7EB / #374151 (회색) |
 
 같은 색을 쓰는 짝(출석·급식, 감정·유의사항, 시간표·D-DAY)은 이미 있는 것이다. 새 기능은 짝을 더 만들지 않는다.

@@ -1,0 +1,19 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>옷입히기 화풍 검수</title><style>body{background:#f1f6fa;color:#193a57;font-family:system-ui;margin:20px}h1{font-size:24px}main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}article{background:#fff9ec;border-radius:16px;padding:10px;text-align:center}h2{font-size:15px;margin:0 0 8px}.pair{height:280px;display:flex;justify-content:center;overflow:hidden}.pair .outfit-figure{min-width:0;flex-shrink:1}button{padding:10px;font:inherit;margin:0 4px 16px}@media(max-width:1000px){main{grid-template-columns:repeat(3,minmax(0,1fr))}.pair{height:220px}}main{grid-template-columns:repeat(2,minmax(0,1fr))}.pair{height:500px}@media(max-width:1000px){main{grid-template-columns:1fr}.pair{height:600px}}nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px}nav button{margin:0}main.detail{display:block;max-width:900px;margin:auto}main.detail .pair{height:min(610px,75vh)}main.overview{grid-template-columns:repeat(3,minmax(0,1fr))}main.overview .pair{height:240px}</style><h1>공통 몸 기준 · 남녀 옷 맞춤 검수</h1><div id="root"></div><script type="module">
+import React from 'react';import{createRoot}from'react-dom/client';import{OutfitFigure}from'../src/core/ui/OutfitFigure';import{ITEMS}from'../src/features/outfit/model';
+const basics={top:'base-shirt',bottom:'shorts'};
+const sets=[['기본 아바타',basics],...ITEMS.filter(i=>!i.base).map(i=>[i.name,{...basics,[i.slot]:i.id}]),['봄 겹쳐 입기',{top:'stripe-shirt',bottom:'chinos',outer:'pink-cardigan',shoes:'sneakers',hat:'spring-cap'}],['여름 조합',{top:'lemon-shirt',bottom:'summer-shorts',shoes:'sneakers',hat:'sun-hat'}],['가을 조합',{top:'rust-sweatshirt',bottom:'cargo-pants',outer:'denim-jacket',neck:'spring-scarf',shoes:'sneakers'}],['겨울 조합',{top:'sweater',bottom:'pants',outer:'winter-coat',neck:'wool-scarf',hat:'knit-hat',shoes:'boots'}],['비 오는 날',{top:'shirt',bottom:'pants',outer:'jacket',shoes:'boots',hand:'umbrella'}]];
+function Gallery(){
+ const [index,setIndex]=React.useState(sets.length-2);
+ const [all,setAll]=React.useState(false);
+ const [name,clothes]=sets[index];
+ const pair=(n,c)=>React.createElement('article',{key:n},React.createElement('h2',null,n),React.createElement('div',{className:'pair'},...['boy','girl'].map(avatar=>React.createElement(OutfitFigure,{key:avatar,avatar,clothes:c}))));
+ return React.createElement(React.Fragment,null,
+  React.createElement('nav',null,
+   React.createElement('button',{onClick:()=>setIndex((index-1+sets.length)%sets.length),disabled:all},'← 이전'),
+   React.createElement('span',null,`${index+1} / ${sets.length} · ${name}`),
+   React.createElement('button',{onClick:()=>setIndex((index+1)%sets.length),disabled:all},'다음 →'),
+   React.createElement('button',{onClick:()=>setAll(!all)},all?'크게 보기':'전체 보기')),
+  React.createElement('main',{className:all?'overview':'detail'},all?sets.map(([n,c])=>pair(n,c)):pair(name,clothes)));
+}
+createRoot(document.getElementById('root')).render(React.createElement(Gallery));
+</script></html>

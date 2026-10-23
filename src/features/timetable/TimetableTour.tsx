@@ -9,7 +9,7 @@ export function TimetableTour({ first }: { first: string }) {
   const steps: TourStep[] = [
     { target: '.tt-slots, .tt-bank', title: '끌어 놓기', onEnter: () => dragDemo(from, '.tt-slot[data-slot="0"] .drop-zone'),
       text: <>오른쪽 과목 카드를 <b>끌어서</b> 왼쪽 교시 칸에 놓아요. </> },
-    { target: '.tt-slots', title: '맞았는지 보기', text: <>설정에 넣은 시간표와 같으면 ✓가 떠요. 다르면 칸이 흔들려요. 설정에 시간표가 없으면 자유롭게 놓아요.</> },
+    { target: '.tt-slots', title: '맞았는지 보기', text: <>미리 입력한 시간표와 같으면 ✓가 떠요. 다르면 칸이 흔들려요. 미리 입력한 시간표가 없으면 자유롭게 놓아요.</> },
     { target: '.tt-slot', title: '옮기기 · 비우기', text: <>놓은 카드는 다른 칸으로 끌어 옮기거나, ✕ 로 비워요.</> },
     { target: '.sj-edit', title: '교과 편집', text: <>‘교과 편집’으로 과목 카드 순서를 바꾸거나 빼요. 없는 과목은 보관함 맨 아래 ‘직접입력’으로 넣어요.</> },
     { target: '.tt-popup-actions', title: '완료', text: <>막히면 ‘정답 보기’, 다 놓았으면 ‘완료’를 눌러요. 완료하면 카드에서 교시마다 메모를 달 수 있어요.</> },
