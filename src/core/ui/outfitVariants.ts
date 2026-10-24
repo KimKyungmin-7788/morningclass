@@ -1,5 +1,14 @@
 /** 같은 몸 기준점을 공유하는 계절별 디자인. */
 export const OUTFIT_VARIANTS: Record<string, string> = {
+  "spring-rain-jacket": "jacket",
+  "spring-frog-boots": "boots",
+  "summer-slippers": "sandals",
+  "summer-rainbow-shirt": "shirt",
+  "autumn-orange-windbreaker": "jacket",
+  "autumn-olive-pants": "cargo-pants",
+  "winter-teal-puffer": "puffer",
+  "winter-cream-boots": "winter-shoes",
+
   "spring-flower-shirt": "shirt",
   "spring-mint-knit": "sweater",
   "spring-lavender-pants": "chinos",

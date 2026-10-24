@@ -64,6 +64,15 @@ GARMENT_RIGS['winter-shoes'] = [...footwear([80,1070,405,420],[285,1348,170,157]
 
 for (const [id, parent] of Object.entries(OUTFIT_VARIANTS)) GARMENT_RIGS[id] = GARMENT_RIGS[parent];
 
+// 새 디자인은 생성 후 측정한 목·소매 끝·허리·신발 입구를 별도로 대응한다.
+GARMENT_RIGS['spring-rain-jacket'] = longTop(385,490,735,1040,525,975);
+GARMENT_RIGS['autumn-orange-windbreaker'] = longTop(370,480,710,985,525,930);
+GARMENT_RIGS['winter-teal-puffer'] = longTop(415,535,770,1060,520,1005);
+GARMENT_RIGS['autumn-olive-pants'] = bottom([0,195,420,512,600,830,1024],110,400,1390);
+GARMENT_RIGS['spring-frog-boots'] = [...footwear([75,690,405,710],[300,1280,160,225]),...footwear([550,690,405,710],[564,1280,160,225])];
+GARMENT_RIGS['summer-slippers'] = [...footwear([40,1075,470,370],[285,1348,170,157]),...footwear([530,1075,460,370],[569,1348,170,157])];
+GARMENT_RIGS['winter-cream-boots'] = [...footwear([35,895,470,525],[285,1315,170,190]),...footwear([540,895,465,525],[569,1315,170,190])];
+
 /** 긴 바지는 장화 입구 안으로 들어가도록 무릎 아래만 좁힌다. */
 export function fittedPatches(item:string, boots:boolean): Patch[] {
   const patches=GARMENT_RIGS[item];

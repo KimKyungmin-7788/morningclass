@@ -85,3 +85,10 @@ it('새 계절 옷·신발과 선택한 계절·날씨를 백업 왕복으로 �
  data.records=[record];
  expect(parseBackup(buildBackup(data)).data.records[0].outfits).toEqual(record.outfits);
 });
+
+
+it('슬리퍼와 새 날씨 의상을 백업해도 ID를 그대로 보존한다',()=>{
+ const data=emptyData();const record=emptyRecord(data.classes[0].id,'20261024');
+ record.outfits={s:{avatar:'boy',clothes:{top:'summer-rainbow-shirt',bottom:'autumn-olive-pants',outer:'spring-rain-jacket',shoes:'summer-slippers'},season:'여름',weather:'비',completedAt:'2026-10-24T00:00:00Z'}};
+ data.records=[record];expect(parseBackup(buildBackup(data)).data.records[0].outfits).toEqual(record.outfits);
+});

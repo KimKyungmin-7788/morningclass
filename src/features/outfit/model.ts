@@ -8,6 +8,15 @@ export type Weather = '맑음' | '비' | '눈' | '바람';
 export interface Garment { id: Item; slot: Slot; name: string; sub: string; seasons: Season[]; weather?: Weather[]; image: string; base?: boolean }
 const ALL: Season[] = ['봄','여름','가을','겨울'];
 export const ITEMS: Garment[] = [
+  {id:'spring-rain-jacket',slot:'outer',name:'연보라 비옷',sub:'',seasons:['봄'],weather:["비"],image:'spring-rain-jacket'},
+  {id:'spring-frog-boots',slot:'shoes',name:'개구리 장화',sub:'',seasons:['봄'],weather:["비"],image:'spring-frog-boots'},
+  {id:'summer-slippers',slot:'shoes',name:'파란 슬리퍼',sub:'',seasons:['여름'],weather:["맑음"],image:'summer-slippers'},
+  {id:'summer-rainbow-shirt',slot:'top',name:'무지개 반팔',sub:'',seasons:['여름'],weather:["맑음"],image:'summer-rainbow-shirt'},
+  {id:'autumn-orange-windbreaker',slot:'outer',name:'주황 바람막이',sub:'',seasons:['가을'],weather:["맑음", "비"],image:'autumn-orange-windbreaker'},
+  {id:'autumn-olive-pants',slot:'bottom',name:'올리브 활동 바지',sub:'',seasons:['가을'],weather:["맑음"],image:'autumn-olive-pants'},
+  {id:'winter-teal-puffer',slot:'outer',name:'청록 패딩',sub:'',seasons:['겨울'],weather:["눈"],image:'winter-teal-puffer'},
+  {id:'winter-cream-boots',slot:'shoes',name:'크림색 방한 부츠',sub:'',seasons:['겨울'],weather:["눈"],image:'winter-cream-boots'},
+
   {id:'spring-flower-shirt',slot:'top',name:'꽃무늬 반팔',sub:'',seasons:['봄'],image:'spring-flower-shirt'},
   {id:'spring-mint-knit',slot:'top',name:'민트 줄무늬 니트',sub:'',seasons:['봄'],image:'spring-mint-knit'},
   {id:'spring-lavender-pants',slot:'bottom',name:'연보라 면바지',sub:'',seasons:['봄'],image:'spring-lavender-pants'},
@@ -77,7 +86,7 @@ export function layers(outfit: Outfit): Item[] {
   return (['bottom','top','outer','shoes','hat','neck','hand'] as const).flatMap(slot=>outfit[slot]&&!garment(outfit[slot]!).base?[outfit[slot]!]:[]);
 }
 /** 날씨를 바꿔도 신발 → 모자 → 목도리 → 우산 위치를 유지한다. */
-const ACCESSORY_ORDER: Item[] = ['sneakers','pink-sneakers','sandals','boots','winter-shoes','spring-cap','sun-hat','knit-hat','spring-scarf','wool-scarf','umbrella'];
+const ACCESSORY_ORDER: Item[] = ['sneakers','pink-sneakers','sandals','summer-slippers','boots','spring-frog-boots','winter-shoes','winter-cream-boots','spring-cap','sun-hat','knit-hat','spring-scarf','wool-scarf','umbrella'];
 export function visibleItems(season: Season|'all',category: Category,weather: Weather): Garment[] {
   return ITEMS.filter(i=>(season==='all'||i.seasons.includes(season))&&(category==='all'||(category==='accessory' ? ['shoes','hat','neck','hand'].includes(i.slot) : i.slot===category)))
     .sort((a,b)=>category==='accessory'
