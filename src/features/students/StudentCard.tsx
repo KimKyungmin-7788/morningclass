@@ -12,13 +12,14 @@ import { useStudentWindows } from '@/core/data/studentWindows';
 import { PRAISE_SHAPES, praiseConfigOf } from '@/core/data/praise';
 import { PinGate } from './PinGate';
 import { QuickNote } from './QuickNote';
+import { PortfolioPreview } from './PortfolioPreview';
 import { studentIndexColor, CATEGORIES, EMOTIONS, SUPPORTS, filterNotes, studentSummary } from './model';
 
 const EMPTY_EXPR: ExprBook = { levels: {}, bag: { used: [], days: {} }, plan: {} };
 const ATT = { present: '출석', late: '지각', early: '조퇴', absent: '결석' };
 export function StudentCard(props: { cls: ClassRoom; studentId: string; onClose: () => void }) {
   const name = props.cls.students.find(s => s.id === props.studentId)?.name ?? '학생';
-  return <UtilityWindow title={`👤 ${name}`} onClose={props.onClose}><StudentCardBody key={props.studentId} {...props}/></UtilityWindow>;
+  return <UtilityWindow initialPlacement="top-right" title={`👤 ${name}`} onClose={props.onClose}><StudentCardBody key={props.studentId} {...props}/></UtilityWindow>;
 }
 function StudentCardBody({ cls, studentId }: { cls: ClassRoom; studentId: string; onClose: () => void }) {
   const host = useWindowDocument().defaultView ?? window;
@@ -26,6 +27,7 @@ function StudentCardBody({ cls, studentId }: { cls: ClassRoom; studentId: string
   const students = cls.students.filter((s) => !s.archived);
   const index = students.findIndex((s) => s.id === studentId);
   const [back, setBack] = useState(false);
+  const [portfolio, setPortfolio] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [write, setWrite] = useState(false);
   const [edit, setEdit] = useState<StudentNote | undefined>();
@@ -43,9 +45,9 @@ function StudentCardBody({ cls, studentId }: { cls: ClassRoom; studentId: string
   }, [unlocked, host]);
   if (write || edit) return <QuickNote cls={cls} studentId={studentId} initial={edit} onClose={() => { setWrite(false); setEdit(undefined); setUnlocked(false); }} />;
   return <div className="sc-floating-card" style={{'--index-color':studentIndexColor(Math.max(0,index))} as CSSProperties}>
-    <div className="sc-panel"><div className="sc-card-toolbar"><div className="sc-chips sc-tabs" role="group" aria-label="학생 카드 보기"><button aria-pressed={!back} onClick={() => setBack(false)}>나의 하루</button><button aria-pressed={back} onClick={() => setBack(true)}>🔒 선생님 기록</button></div><div className="sc-student-nav"><button aria-label="이전 학생" disabled={index <= 0} onClick={() => show(cls.id, students[index - 1].id)}>〈</button><span>{index < 0 ? '보관된 학생' : `${index + 1} / ${students.length}`}</span><button aria-label="다음 학생" disabled={index < 0 || index >= students.length - 1} onClick={() => show(cls.id, students[index + 1].id)}>〉</button></div><button className="sc-write" onClick={() => setWrite(true)}>✎ 기록 남기기</button></div>
+    <div className="sc-panel"><div className="sc-card-toolbar"><div className="sc-chips sc-tabs" role="group" aria-label="학생 카드 보기"><button aria-pressed={!back && !portfolio} onClick={() => {setBack(false);setPortfolio(false);}}>나의 하루</button><button aria-pressed={back && !portfolio} onClick={() => {setBack(true);setPortfolio(false);}}>🔒 선생님 기록</button><button aria-pressed={portfolio} onClick={()=>setPortfolio(true)}>포트폴리오</button></div><div className="sc-student-nav"><button aria-label="이전 학생" disabled={index <= 0} onClick={() => show(cls.id, students[index - 1].id)}>〈</button><span>{index < 0 ? '보관된 학생' : `${index + 1} / ${students.length}`}</span><button aria-label="다음 학생" disabled={index < 0 || index >= students.length - 1} onClick={() => show(cls.id, students[index + 1].id)}>〉</button></div><button className="sc-write" onClick={() => setWrite(true)}>✎ 기록 남기기</button></div>
       {error && <p role="alert">{error}</p>}
-      {!back ? <Front cls={cls} studentId={studentId} records={records} date={date} /> : !unlocked ? <PinGate onUnlock={() => setUnlocked(true)} /> : <Back cls={cls} studentId={studentId} records={records} onEdit={setEdit} />}
+      {portfolio ? <PortfolioPreview/> : !back ? <Front cls={cls} studentId={studentId} records={records} date={date} /> : !unlocked ? <PinGate onUnlock={() => setUnlocked(true)} /> : <Back cls={cls} studentId={studentId} records={records} onEdit={setEdit} />}
     </div>
   </div>;
 }

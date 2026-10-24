@@ -13,10 +13,10 @@ export function openUtilityWindow(title: string): Window | null {
   child.document.body.className='utility-document';
   return child;
 }
-export function UtilityWindow({title,external,onClose,children}: {title:string;external?:Window|null;onClose:()=>void;children:ReactNode}) {
+export function UtilityWindow({title,external,onClose,children,initialPlacement='default'}: {initialPlacement?:'default'|'top-right';title:string;external?:Window|null;onClose:()=>void;children:ReactNode}) {
   const [target,setTarget]=useState(external ?? null);
   const [full,setFull]=useState(false);
-  const [pos,setPos]=useState({x:40,y:70});
+  const [pos,setPos]=useState(()=>initialPlacement==='top-right' ? {x:Math.max(8,window.innerWidth-Math.min(960,window.innerWidth*.9)-56),y:Math.min(32,window.innerHeight*.04)} : {x:40,y:70});
   const [error,setError]=useState('');
   const root=useRef<HTMLDivElement>(null);
   const closingTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);

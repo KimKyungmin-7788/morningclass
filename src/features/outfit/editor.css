@@ -103,3 +103,5 @@ button,a{font:inherit}button{min-height:48px;border:1px solid var(--line);border
 
 /* 그림책 화풍을 기존 썸네일·드래그 좌표에 맞춘다. */
 .outfit-editor .item-picture img,.outfit-drag-ghost img{transform-origin:0 0;transform:translateX(-50%) var(--asset-fit)}
+
+.outfit-weather-caption{flex-shrink:0;text-align:center;font-size:12px;line-height:20px;color:var(--text-sub);padding:2px 0;background:none}
