@@ -34,12 +34,12 @@ const TABS: [Tab, string, string, string][] = [
 if (personalCloudEnabled) TABS.push(['personalCloud', '개인 서버', 'Google 로그인과 서버 저장', 'ph-cloud']);
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
 
-export function Settings({ onClose, onSuggest }: { onClose: () => void; onSuggest: () => void }) {
+export function Settings({ onClose, onSuggest, initialTab }: { onClose: () => void; onSuggest: () => void; initialTab?: Tab }) {
   const cls = useCurrentClass()!;
   const { classes, setCurrentClass, addClass, deleteClass, saveClass } = useData();
   const [draft, setDraft] = useState<ClassRoom>(() => structuredClone(cls));
   // 처음 열 때: 학급 정보가 갖춰졌으면 출결 대시보드, 아니면 학급정보부터
-  const [tab, setTab] = useState<Tab>(() => (cls.className.trim() && activeStudents(cls).length ? 'data' : 'info'));
+  const [tab, setTab] = useState<Tab>(() => initialTab ?? (cls.className.trim() && activeStudents(cls).length ? 'data' : 'info'));
   const [closing, setClosing] = useState(false);
   const [used, setUsed] = useState<Set<string>>(new Set());
   const patch = (p: Partial<ClassRoom>) => setDraft((d) => ({ ...d, ...p }));

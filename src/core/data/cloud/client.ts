@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import * as db from '@/core/storage/db';
 import { buildBackup, parseBackup } from '../backup';
+import type { AppData } from '../types';
 import { checkSnapshotSize, cloudEnabled } from './model';
 
 export const personalCloudEnabled = cloudEnabled(import.meta.env);
@@ -24,9 +25,9 @@ export async function getCloudSnapshot(): Promise<CloudSnapshot | null> {
   return data;
 }
 /** 읽어 본 버전과 일치할 때만 저장해 다른 기기의 새 기록을 덮어쓰지 않는다. */
-export async function saveCloudSnapshot(expectedRevision: number | null): Promise<void> {
+export async function saveCloudSnapshot(expectedRevision: number | null, data?: AppData): Promise<void> {
   const user = await requireOwner();
-  const payload = buildBackup(await db.readAll());
+  const payload = buildBackup(data ?? await db.readAll());
   checkSnapshotSize(payload);
   const next = { user_id: user.id, payload, revision: (expectedRevision ?? 0)+1, saved_at: new Date().toISOString() };
   const result = expectedRevision === null
@@ -44,4 +45,11 @@ export async function loginCloud() {
   if(!cloud) return;
   const {error} = await cloud.auth.signInWithOAuth({provider:'google',options:{redirectTo: `${location.origin}/app.html?nocount`,queryParams:{prompt:'select_account'}}});
   if(error) throw new Error('Google 로그인을 시작하지 못했어요.');
+}
+
+export async function getCloudRevision(): Promise<number | null> {
+ const user = await requireOwner();
+ const { data, error } = await cloud!.from('mc_private_snapshots').select('revision').eq('user_id', user.id).maybeSingle();
+ if (error) throw new Error('서버에 연결하지 못했어요. 기기 자료는 유지돼요.');
+ return data?.revision ?? null;
 }

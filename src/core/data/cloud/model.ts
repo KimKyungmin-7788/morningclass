@@ -5,3 +5,19 @@ export function checkSnapshotSize(payload: string): void {
 export function cloudEnabled(env: { VITE_PERSONAL_CLOUD?: string; VITE_SUPABASE_URL?: string; VITE_SUPABASE_PUBLISHABLE_KEY?: string }): boolean {
   return env.VITE_PERSONAL_CLOUD === 'true' && !!env.VITE_SUPABASE_URL?.startsWith('https://') && !!env.VITE_SUPABASE_PUBLISHABLE_KEY;
 }
+
+export interface SyncBaseline { revision: number; fingerprint: string }
+export function syncDecision(local: string, remote: string | null, revision: number | null, base?: SyncBaseline): 'push' | 'pull' | 'same' | 'conflict' {
+  if (remote === local) return 'same';
+  if (!base) return remote === null ? 'push' : 'conflict';
+  if (revision === base.revision) return 'push';
+  if (local === base.fingerprint && remote !== null) return 'pull';
+  return 'conflict';
+}
+/** 내보낸 시간·객체 키 순서는 변경으로 세지 않는다. */
+export async function fingerprint(data: unknown): Promise<string> {
+  const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical)
+    : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, canonical(v)])) : value;
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(canonical(data))));
+  return Array.from(new Uint8Array(bytes), v => v.toString(16).padStart(2, '0')).join('');
+}

@@ -1,0 +1,10 @@
+.personal-cloud { display: flex; flex-direction: column; gap: 16px; max-width: 800px; }
+.personal-cloud p, .personal-cloud h3, .personal-cloud h4 { margin: 0; line-height: 1.6; }
+.personal-cloud .hint, .personal-cloud details { color: var(--text-sub); font-size: var(--fs-small); }
+.personal-cloud .personal-cloud-status { padding: 16px 20px; background: var(--soft); border-radius: var(--radius-sm); font-weight: var(--fw-label); }
+.personal-cloud-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.personal-cloud .btn-test { background: var(--soft); color: var(--text); border: 1px solid var(--line); padding: 10px 16px; border-radius: 12px; font: inherit; cursor: pointer; }
+.personal-cloud button:disabled { opacity: .5; cursor: default; }
+.personal-cloud details { border-top: 1px solid var(--line); padding-top: 16px; }
+.personal-cloud summary { cursor: pointer; font-weight: var(--fw-label); }
+.personal-cloud details p, .personal-cloud details .personal-cloud-actions { margin-top: 14px; }

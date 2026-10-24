@@ -53,17 +53,24 @@ const done = <T>(req: IDBRequest<T>) => new Promise<T>((resolve, reject) => {
   req.onerror = () => reject(req.error);
 });
 
-async function tx<T>(stores: Store[], mode: IDBTransactionMode, run: (t: IDBTransaction) => Promise<T> | T): Promise<T> {
+async function tx<T>(stores: Store[], mode: IDBTransactionMode, run: (t: IDBTransaction) => Promise<T> | T, internal = false): Promise<T> {
   const db = await open();
   return new Promise<T>((resolve, reject) => {
-    const t = db.transaction(stores, mode);
+    const t = db.transaction(mode === 'readwrite' ? [...new Set<Store>([...stores, 'kv'])] : stores, mode);
     let result: T;
     t.oncomplete = () => resolve(result);
     t.onerror = () => reject(t.error);
     t.onabort = () => reject(t.error ?? new Error('저장이 취소됐어요'));
     const fail = (e: unknown) => { try { t.abort(); } catch { /* 이미 끝남 */ } reject(e); };
     // put()은 복제할 수 없는 값에서 동기로도 실패한다. 이때 앞선 쓰기도 취소한다.
-    try { Promise.resolve(run(t)).then((r) => { result = r; }, fail); } catch (e) { fail(e); }
+    try {
+      const execute = async () => {
+        const generation = mode === 'readwrite' && !internal ? (await done(t.objectStore('kv').get('_cloud:generation')) as number | undefined) ?? 0 : null;
+        result = await run(t);
+        if (generation !== null) t.objectStore('kv').put(generation + 1, '_cloud:generation');
+      };
+      void execute().catch(fail);
+    } catch (e) { fail(e); }
   });
 }
 
@@ -140,11 +147,20 @@ export function readAll(): Promise<AppData> {
 }
 
 /** 저장소 내용을 통째로 바꾼다 — 한 번에 성공하거나 전부 그대로 남는다 */
-export function replaceAll(data: AppData): Promise<void> {
+export function replaceAll(data: AppData, guard?: { generation: number; recovery: AppData; key: string; baseline: unknown }): Promise<void> {
   return tx(STORES, 'readwrite', async (t) => {
+    const keys = await done(t.objectStore('kv').getAllKeys());
+    const internalKeys = keys.filter(k => String(k).startsWith('_cloud:'));
+    const internalValues = await Promise.all(internalKeys.map(k => done(t.objectStore('kv').get(k))));
+    if (guard && ((await done(t.objectStore('kv').get('_cloud:generation'))) ?? 0) !== guard.generation) throw new Error('새로 입력한 자료가 있어 불러오기를 미뤘어요.');
     const [pin, recovery] = await Promise.all([done(t.objectStore('kv').get('pinHash')), done(t.objectStore('kv').get('recoveryKey'))]);
     for (const s of STORES) t.objectStore(s).clear();
     const kv = t.objectStore('kv');
+    internalKeys.forEach((key, i) => kv.put(internalValues[i], key));
+    if (guard) {
+      kv.put(guard.recovery, '_cloud:recovery');
+      kv.put(guard.baseline, guard.key);
+    }
     kv.put(SCHEMA_VERSION, 'schemaVersion');
     if (pin && recovery && recovery === data.recoveryKey) kv.put(pin, 'pinHash');
     if (data.recoveryKey) kv.put(data.recoveryKey, 'recoveryKey');
@@ -243,4 +259,18 @@ export function saveStudentFace(classId: string, studentId: string, photo?: stri
     store.put(updated);
     return updated;
   });
+}
+
+// 동기화 기준과 복구 사본은 기기별 값이라 백업/서버 자료에 포함하지 않는다.
+export const cloudMetaSet = (key: string, value: unknown) => {
+  if (!key.startsWith('_cloud:')) throw new Error('동기화 설정 열쇠가 아니에요.');
+  return tx(['kv'], 'readwrite', t => { t.objectStore('kv').put(value, key); }, true);
+};
+export async function readVersioned() {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const generation = (await kvGet<number>('_cloud:generation')) ?? 0;
+    const data = await readAll();
+    if (generation === ((await kvGet<number>('_cloud:generation')) ?? 0)) return { data, generation };
+  }
+  throw new Error('입력이 끝나면 다시 저장할게요.');
 }

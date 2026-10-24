@@ -1,3 +1,4 @@
+import { startCloudSync } from '@/core/data/cloud/sync';
 import { FEATURES } from '@/features/registry';
 import { useEffect } from 'react';
 import { usePrefs } from '@/core/prefs';
@@ -31,6 +32,7 @@ export function App() {
   const loadDay = useDay((s) => s.load);
 
   useEffect(() => { void init(); }, [init]);
+  useEffect(() => { if (boot === 'ready') return startCloudSync(); }, [boot]);
   // 학급이 정해지거나 바뀌면 그 학급의 오늘 기록을 불러온다
   useEffect(() => { if (boot === 'ready' && currentClassId) void loadDay(currentClassId); }, [boot, currentClassId, loadDay]);
   // 학생을 넣은 학급을 한 번씩 익명으로 알린다 (랜딩 페이지의 함께한 학급 수)

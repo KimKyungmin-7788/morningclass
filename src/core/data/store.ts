@@ -33,7 +33,7 @@ interface DataState {
   /** 이 기기의 아침교실 자료를 모두 지운다 (되돌릴 수 없음) */
   wipeAll: () => Promise<void>;
   /** 저장소 전체를 바꾼다 (백업 가져오기) */
-  replaceAll: (data: AppData) => Promise<void>;
+  replaceAll: (data: AppData, guard?: Parameters<typeof db.replaceAll>[1]) => Promise<void>;
 }
 
 /** 기존 앱이 localStorage 에 남긴 자료를 읽기만 한다 (지우지 않는다) */
@@ -134,9 +134,9 @@ export const useData = create<DataState>((set, get) => ({
     }
   },
 
-  replaceAll: async (data) => {
+  replaceAll: async (data, guard) => {
+    await db.replaceAll(data, guard);
     useStudentWindows.getState().close();
-    await db.replaceAll(data);
     resetKvCache();
     resetTimetableCache();
     resetMealImageCache();
