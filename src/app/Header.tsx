@@ -49,6 +49,7 @@ export function Header() {
         {FEATURES.map((f) => f.Header ? <f.Header key={f.id} /> : null)}
         <div className="actions">
           {personalCloudEnabled && <button className="header-action" style={{ fontSize: 'var(--fs-small)', color: 'var(--text-sub)' }} title={cloudMessage} onClick={() => setOpen('cloud')}>{cloudMessage === '서버 저장 완료' ? '☁ 저장됨' : '☁ 저장 상태'}</button>}
+          <a className="header-home" href="./?intro" title="아침교실 소개 화면으로" aria-label="홈 — 아침교실 소개 화면으로"><i className="ph-bold ph-house" aria-hidden="true" /><span>홈</span></a>
           <button className="header-action" title={muted ? '소리 켜기' : '소리 끄기'} aria-label="소리" aria-pressed={!muted}
             onClick={() => { setPrefs({ muted: !muted }); if (muted) { ensureAudio(); playSound('select'); } }}>
             <i aria-hidden="true" className={`ph-fill ph-speaker-${muted ? 'slash' : 'high'}`} /><span>소리 {muted ? '꺼짐' : '켜짐'}</span>

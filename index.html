@@ -119,11 +119,24 @@ h1 em{font-style:normal;color:#FFE27A;white-space:nowrap}
 .c-purple{background:#F3ECFD;color:var(--purple)}.c-indigo{background:#EEF0FF;color:#6366F1}
 .step.wide{grid-column:1/-1}.c-pink{background:#FFF0E6;color:#F08A4B}
 
+.cta-group{display:flex;flex-direction:column;gap:10px;width:260px;max-width:100%}
+.cta-group .cta{justify-content:space-between;padding-inline:24px}
+.resource-link{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:10px 24px;
+  color:var(--text);font-size:13px;font-weight:600;line-height:1.5;text-decoration:none;border-radius:20px;
+  background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);transition:background .15s,border-color .15s}
+.resource-link i{flex:none;font-size:16px}
+.resource-link:hover{background:rgba(255,255,255,.38);border-color:rgba(255,255,255,.75)}
+.cta:focus-visible,.resource-link:focus-visible{outline:3px solid var(--text);outline-offset:4px}
 .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:#2C6EA8;opacity:.85}
 .foot a{color:inherit}
 
 /* 중간 화면: 카드 이름이 줄바꿈되지 않게 오른쪽을 넓게 */
 @media (max-width:1280px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+@media (min-width:861px) and (max-height:800px){
+  body{overflow:auto}
+  .page{height:auto;min-height:100dvh}
+  .hero{padding:32px 0}
+}
 /* 작은 화면: 세로로 쌓고 스크롤 허용 */
 @media (max-width:860px){
   body{overflow:auto}
@@ -131,7 +144,7 @@ h1 em{font-style:normal;color:#FFE27A;white-space:nowrap}
   .hero{grid-template-columns:1fr;padding:28px 0}
   .board{max-width:none}
 }
-@media (max-width:480px){.steps{grid-template-columns:1fr}.cta{width:100%;justify-content:center}}
+@media (max-width:480px){.steps{grid-template-columns:1fr}.cta-group{width:100%}.cta{width:100%;justify-content:center}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.sun{transform:translate(-50%,18%);opacity:.7}}
 /* 이용 방식 안내 */
 body{overflow:auto;background-attachment:fixed}
@@ -182,7 +195,12 @@ a:focus-visible{outline:3px solid var(--text);outline-offset:5px}
       <h1>매일 아침<br>우리 반이 함께 여는<br><em>좋은 루틴</em></h1>
       <p class="lead">날씨 보고, 출석 부르고, 오늘 급식과 시간표까지.<br>한 화면에 띄우면 아침 10분이 가벼워져요.</p>
       <div class="cta-row">
-        <a class="cta" href="./app.html">가입 없이 바로 시작 <i class="ph-bold ph-arrow-right"></i></a>
+        <div class="cta-group">
+          <a class="cta" href="./app.html">가입 없이 바로 시작 <i class="ph-bold ph-arrow-right"></i></a>
+          <a class="resource-link" href="https://special-edu-hub.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="연구회 누리집 바로가기 (새 탭으로 열림)">
+            <span>연구회 누리집 바로가기</span><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+        </div>
         <div class="facts">
           <span><i class="ph-bold ph-check-circle"></i>설치 없이</span>
           <span><i class="ph-bold ph-check-circle"></i>무료</span>
