@@ -1,3 +1,5 @@
+import { personalCloudEnabled } from '@/core/data/cloud/client';
+import { PersonalCloud } from '@/features/personalCloud/PersonalCloud';
 import { NotesTab } from '@/features/students/NotesTab';
 import { readNotes, readIeps } from '@/core/data/notes';
 import { useStudentWindows } from '@/core/data/studentWindows';
@@ -20,7 +22,7 @@ import { BackupTab } from './BackupTab';
 import { EducationAppsPreview } from './EducationAppsPreview';
 
 // 학급·학생 정보는 저장 버튼으로 반영한다.
-type Tab = 'educationApps' | 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
+type Tab = 'personalCloud' | 'educationApps' | 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
 const TABS: [Tab, string, string, string][] = [
   ['info', '학급설정', '학교와 학급 정보', 'ph-buildings'],
   ['students', '학생설정', '학생 명단 관리', 'ph-users'],
@@ -29,6 +31,7 @@ const TABS: [Tab, string, string, string][] = [
   ['educationApps', '교육 앱 연결', '앱 등록과 결과 수신', 'ph-plugs-connected'],
   ['backup', '백업', '자료 보관과 복원', 'ph-hard-drives'],
 ];
+if (personalCloudEnabled) TABS.push(['personalCloud', '개인 서버', 'Google 로그인과 서버 저장', 'ph-cloud']);
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
 
 export function Settings({ onClose, onSuggest }: { onClose: () => void; onSuggest: () => void }) {
@@ -110,10 +113,11 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
               {tab === 'data' && <><h3>📊 출결 대시보드</h3><AttendanceDashboard embedded /></>}
               {tab === 'studentNotes' && <NotesTab />}
               {tab === 'educationApps' && <EducationAppsPreview />}
+              {tab === 'personalCloud' && <PersonalCloud onRestored={onClose} />}
               {tab === 'backup' && <BackupTab onRestored={onClose} />}
             </div>
           </div>
-          {tab !== 'educationApps' && tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
+          {tab !== 'personalCloud' && tab !== 'educationApps' && tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
             <button className="btn-cancel" onClick={close}>취소</button>
             <button className="btn-save" onClick={() => void save()}>💾 저장</button>
           </div>}

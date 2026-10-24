@@ -13,6 +13,7 @@
     "check": "tsc -b --noEmit && vitest run"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "perfect-freehand": "^1.2.3",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
