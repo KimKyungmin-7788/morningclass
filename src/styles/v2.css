@@ -1509,11 +1509,17 @@ body:has(.tour-spot.act) .cal-day:is(.sun,.sat,.holiday){pointer-events:none}
 
 header .actions .header-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;padding:0 14px;white-space:nowrap;font-size:14px;color:#475569}
 header .actions .header-action i{font-size:21px}
+header .actions .header-home{display:inline-flex;align-items:center;justify-content:center;align-self:center;gap:5px;min-height:36px;padding:0 10px;border-radius:12px;background:#fff;color:#475569;font-size:12px;font-weight:var(--fw-label);text-decoration:none;box-shadow:var(--card-shadow)}
+header .actions .header-home i{font-size:17px}
+header .actions .header-home:hover{background:#e9eef6}
+header .actions .header-home:focus-visible,.settings-resource:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
 .settings-nav-bottom{margin-top:auto}
+.settings-card .settings-tabs{min-height:0;overflow-y:auto}
 .settings-nav-bottom .settings-nav-note{margin:0;padding:20px 10px 12px}
 .settings-feedback{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:#526581;text-align:left;border-radius:8px}
 .settings-feedback:hover{background:#e9eef6}
-@media(max-width:700px){.settings-nav-bottom{display:none}.settings-nav-bottom .settings-nav-note{display:none}.settings-feedback{padding:6px 10px;font-size:12px}header .actions .header-action{padding:0 10px;gap:5px;font-size:12px}}
+.settings-resource{min-height:44px;text-decoration:none;line-height:1.5}
+@media(max-width:700px){.settings-nav-bottom{display:flex;flex:none;align-items:center;margin-top:0}.settings-nav-bottom .settings-nav-note{display:none}.settings-feedback{padding:6px 10px;font-size:12px;white-space:nowrap}header .actions .header-action{padding:0 10px;gap:5px;font-size:12px}}
 
 /* 관리 화면도 앱 공통 글꼴·굵기 체계를 따른다. */
 .settings-card .popup-title,.backup-panel h4,.tt-week-heading h3{font-weight:var(--fw-title)}

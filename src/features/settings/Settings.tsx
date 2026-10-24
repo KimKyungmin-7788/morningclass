@@ -95,6 +95,9 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
             <div className="settings-nav-bottom">
               <p className="settings-nav-note"><i className="ph-bold ph-hand-tap" aria-hidden="true" />카드를 꾹 누르면<br />화면 배치를 바꿀 수 있어요.</p>
               <button className="settings-feedback" onClick={() => void commit().then(onSuggest)}><i className="ph-bold ph-chat-circle" aria-hidden="true" /> 의견 보내기</button>
+              <a className="settings-feedback settings-resource" href="https://special-edu-hub.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="연구회 누리집 바로가기 (새 탭으로 열림)">
+                <i className="ph-bold ph-arrow-up-right" aria-hidden="true" /><span>연구회 누리집 바로가기</span>
+              </a>
             </div>
           </nav>
           <div className="settings-content" id="settings-content">
