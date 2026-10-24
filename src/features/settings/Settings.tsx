@@ -17,14 +17,16 @@ import { AttendanceDashboard } from '@/features/attendance/Dashboard';
 import { usePrefs } from '@/core/prefs';
 import { useLayoutEdit } from '@/features/layout/store';
 import { BackupTab } from './BackupTab';
+import { EducationAppsPreview } from './EducationAppsPreview';
 
 // 학급·학생 정보는 저장 버튼으로 반영한다.
-type Tab = 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
+type Tab = 'educationApps' | 'studentNotes' | 'info' | 'students' | 'data' | 'backup';
 const TABS: [Tab, string, string, string][] = [
   ['info', '학급설정', '학교와 학급 정보', 'ph-buildings'],
   ['students', '학생설정', '학생 명단 관리', 'ph-users'],
   ['data', '출결대시보드', '출결 조회와 통계', 'ph-chart-bar'],
   ['studentNotes', '학생 기록', 'PIN과 빠른 기록 설정', 'ph-note-pencil'],
+  ['educationApps', '교육 앱 연결', '앱 등록과 결과 수신', 'ph-plugs-connected'],
   ['backup', '백업', '자료 보관과 복원', 'ph-hard-drives'],
 ];
 const nameOf = (c: ClassRoom) => c.className || c.schoolName || '새 학급';
@@ -107,10 +109,11 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
               {tab === 'students' && <StudentsTab draft={draft} patch={patch} used={used} switcher={switcher('학급 선택 (관리할 학급)', '선택한 학급의 학생을 아래에서 관리해요.')} />}
               {tab === 'data' && <><h3>📊 출결 대시보드</h3><AttendanceDashboard embedded /></>}
               {tab === 'studentNotes' && <NotesTab />}
+              {tab === 'educationApps' && <EducationAppsPreview />}
               {tab === 'backup' && <BackupTab onRestored={onClose} />}
             </div>
           </div>
-          {tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
+          {tab !== 'educationApps' && tab !== 'backup' && tab !== 'studentNotes' && <div className="settings-footer">
             <button className="btn-cancel" onClick={close}>취소</button>
             <button className="btn-save" onClick={() => void save()}>💾 저장</button>
           </div>}
