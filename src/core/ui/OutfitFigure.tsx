@@ -1,3 +1,4 @@
+import { FacePhoto } from './FacePhoto';
 import { useId } from 'react';
 import { outfitAsset, outfitRegistration } from './outfitAssets';
 import { affine, fittedPatches, GARMENT_RIGS, type Patch } from './outfitRig';
@@ -12,7 +13,7 @@ function Garment({ item, id, boots }: { item:string; id:string; boots:boolean })
     return <g key={i}><defs><clipPath id={key}><polygon points={points}/></clipPath><clipPath id={`${id}-under-outer`}><path d="M445 530 L579 530 L644 620 L644 910 L380 910 L380 620 Z"/></clipPath></defs><g clipPath={`url(#${key})`}><image href={outfitAsset(item)} width="1024" height="1536" transform={`matrix(${matrix.join(' ')})`}/></g></g>;
   })}</g>;
 }
-export function OutfitFigure({ avatar, clothes }: { avatar: OutfitAvatar; clothes: OutfitClothes }) {
+export function OutfitFigure({ avatar, clothes, facePhoto }: { avatar: OutfitAvatar; clothes: OutfitClothes; facePhoto?: string }) {
   const id=useId().replace(/:/g,'');
   const closed=clothes.outer==='winter-coat'||clothes.outer==='puffer';
   const customTop=clothes.top!=='base-shirt'||closed;
@@ -30,6 +31,7 @@ export function OutfitFigure({ avatar, clothes }: { avatar: OutfitAvatar; clothe
       </mask><clipPath id={`${id}-pants`}><rect width="1024" height={clothes.shoes==='boots'?1300:1536}/></clipPath><clipPath id={`${id}-under-outer`}><path d="M445 530 L579 530 L644 620 L644 910 L380 910 L380 620 Z"/></clipPath></defs>
       <image href={outfitAsset(avatar)} width="1024" height="1536" mask={`url(#${id}-body)`}/>
       {layers.map(item=><g key={item} clipPath={item===clothes.top&&clothes.outer?`url(#${id}-under-outer)`:['pants','chinos','cargo-pants'].includes(item)?`url(#${id}-pants)`:undefined}><Garment boots={clothes.shoes==='boots'} item={item} id={`${id}-${item}`}/></g>)}
+      <FacePhoto photo={facePhoto} x={512} y={380} radius={157}/>
     </svg>
     {(['hat','neck','hand'] as const).map(slot=>clothes[slot]&&<img key={slot} className={`layer-${clothes[slot]}`} src={outfitAsset(clothes[slot]!)} style={outfitRegistration(clothes[slot]!)} alt="" draggable={false}/>)}
   </div>;

@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
+import { useWindowDocument } from './WindowDocument';
 
 // 공용 창. 기능은 <Popup> 을 조건부로 그리고, 닫기는 onClose 로 받는다.
 // 바깥 누르기·Esc·✕ 로 닫히고, 닫힐 때 열기 전 초점으로 돌아간다.
 
 interface PopupProps {
   title: ReactNode;
+  className?: string;
+  style?: CSSProperties;
   onClose: () => void;
   /** 넓은 창 (전자칠판 전체 화면용 기능) */
   large?: boolean;
@@ -18,7 +21,10 @@ interface PopupProps {
 
 const CLOSE_MS = 180;
 
-export function Popup({ title, onClose, large, headerExtra, children, beforeClose }: PopupProps) {
+export function Popup({ title, onClose, large, headerExtra, children, beforeClose, className = '', style }: PopupProps) {
+  const doc = useWindowDocument();
+  const host = doc.defaultView ?? window;
+  const titleId = useId();
   const [closing, setClosing] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
@@ -38,44 +44,44 @@ export function Popup({ title, onClose, large, headerExtra, children, beforeClos
   }).current;
 
   useEffect(() => {
-    const prevFocus = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const prevFocus = doc.activeElement as HTMLElement | null;
+    const prevOverflow = doc.body.style.overflow;
+    doc.body.style.overflow = 'hidden';
     const t = setTimeout(() => {
       bodyRef.current?.querySelector<HTMLElement>('button, input, textarea, select')?.focus();
     }, 50);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !e.defaultPrevented) close();
     };
-    window.addEventListener('keydown', onKey);
+    host.addEventListener('keydown', onKey);
     return () => {
       clearTimeout(t);
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
+      host.removeEventListener('keydown', onKey);
+      doc.body.style.overflow = prevOverflow;
       prevFocus?.focus?.();
     };
-  }, [close]);
+  }, [close, doc, host]);
 
   return createPortal(
     <div
       className={`popup-overlay active${closing ? ' closing' : ''}`}
       role="dialog"
-      aria-modal="true"
-      aria-labelledby="popup-title"
+      aria-modal={className === 'student-folder' ? false : true}
+      aria-labelledby={titleId}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close();
       }}
     >
-      <div className={`popup-card${large ? ' large' : ''}`} id="popup-card">
+      <div className={`popup-card${large ? ' large' : ''} ${className}`} style={style} id="popup-card">
         <div className="popup-header">
-          <h2 className="popup-title" id="popup-title">{title}</h2>
+          <h2 className="popup-title" id={titleId}>{title}</h2>
           <div id="popup-extra">{headerExtra}</div>
           <button className="popup-close" aria-label="닫기" onClick={close}>✕</button>
         </div>
         <div id="popup-body" ref={bodyRef}>{children}</div>
       </div>
     </div>,
-    document.body,
+    doc.body,
   );
 }
 

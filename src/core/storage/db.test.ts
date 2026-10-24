@@ -27,11 +27,11 @@ describe('학생 기록 저장소 v2', () => {
     await finished; old.close();
     const all = await db.readAll();
     expect(all.classes).toEqual([emptyClass('c')]); expect(all.records).toEqual([emptyRecord('c','20261022')]);
-    expect(all.expr.c).toEqual(expr); expect(all.schemaVersion).toBe(8); expect(await db.kvGet('schemaVersion')).toBe(8);
+    expect(all.expr.c).toEqual(expr); expect(all.schemaVersion).toBe(9); expect(await db.kvGet('schemaVersion')).toBe(9);
     expect(all.studentNotes).toEqual([]); expect(all.ieps).toEqual([]);
     await db.putNotes([note('n')]); expect((await db.notesOf('c','s')).map((n) => n.id)).toEqual(['n']);
     const upgraded = await request(indexedDB.open('morningclass'));
-    expect(upgraded.version).toBe(8);
+    expect(upgraded.version).toBe(9);
     for (const name of ['notes','ieps']) expect(upgraded.transaction(name).objectStore(name).index('byStudent').keyPath).toEqual(['classId','studentId']);
     upgraded.close();
   });
@@ -95,7 +95,7 @@ it('학생·학급·날짜별 옷차림과 마지막 완료 학생이 백업 왕
 it('v2 저장소를 v3으로 올려도 기존 하루 기록을 바꾸지 않는다',async()=>{
  const req=indexedDB.open('morningclass',2);req.onupgradeneeded=()=>{req.result.createObjectStore('kv');req.result.createObjectStore('records',{keyPath:['classId','date']});};
  const old=await request(req);const t=old.transaction(['kv','records'],'readwrite');const finished=transaction(t);t.objectStore('kv').put(2,'schemaVersion');const record=emptyRecord('c','20261023');record.notes='이전 자료';t.objectStore('records').put(record);await finished;old.close();
- expect(await db.getRecord('c','20261023')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getRecord('c','20261023')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(9);
 });
 
 it('v3 학급을 v4로 올릴 때 아바타를 임의로 정하지 않는다', async()=>{
@@ -104,14 +104,15 @@ it('v3 학급을 v4로 올릴 때 아바타를 임의로 정하지 않는다', a
  const old=await request(req);const t=old.transaction(['kv','classes'],'readwrite');const finished=transaction(t);
  const cls={...emptyClass('c'),students:[{id:'s',name:'시험'}]};
  t.objectStore('kv').put(3,'schemaVersion');t.objectStore('classes').put(cls);await finished;old.close();
- expect(await db.getClasses()).toEqual([cls]);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getClasses()).toEqual([cls]);expect(await db.kvGet('schemaVersion')).toBe(9);
 });
 
 it('학생별 첫 아바타 선택을 저장하고 재선택 및 백업 복원에도 유지한다',async()=>{
  const cls={...emptyClass('c'),students:[{id:'a',name:'학생 가'},{id:'b',name:'학생 나'}]};
  await db.putClass(cls);
  await chooseOutfitAvatar('c','a','girl');await chooseOutfitAvatar('c','a','boy');await chooseOutfitAvatar('c','b','boy');
- const saved=(await db.getClasses())[0];expect(saved.students.map(s=>s.outfitAvatar)).toEqual(['girl','boy']);
+ const saved=(await db.getClasses())[0];expect(saved.students.map(s=>s.outfitAvatar)).toEqual(['boy','boy']);
+ expect(saved.students.map(s=>s.emotionAvatar)).toEqual(['boy','boy']);
  const backup=buildBackup(await db.readAll());await db.replaceAll(parseBackup(backup).data);
  expect((await db.getClasses())[0].students).toEqual(saved.students);
 });
@@ -122,7 +123,7 @@ it('preserves v4 outfits without inventing accessories on v5 upgrade',async()=>{
  const old=await request(req);const t=old.transaction(['kv','records'],'readwrite');const finished=transaction(t);
  const record=emptyRecord('c','20261024');record.outfits={s:{avatar:'boy',clothes:{top:'shirt',bottom:'pants'},season:'all',weather:'맑음',completedAt:'2026-10-24T00:00:00Z'}};
  t.objectStore('kv').put(4,'schemaVersion');t.objectStore('records').put(record);await finished;old.close();
- expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(9);
 });
 
 it('계절별 새 옷차림을 전체 백업 복원 후에도 보존한다',async()=>{
@@ -144,7 +145,7 @@ it('v5에서 v6으로 올려도 기존 옷과 소품을 바꾸지 않는다',asy
  const old=await request(req);const t=old.transaction(['kv','records'],'readwrite');const finished=transaction(t);
  const record=emptyRecord('c','20261024');record.outfits={s:{avatar:'girl',clothes:{top:'stripe-shirt',bottom:'chinos',hat:'spring-cap'},season:'all',weather:'맑음',completedAt:'2026-10-24T00:00:00Z'}};
  t.objectStore('kv').put(5,'schemaVersion');t.objectStore('records').put(record);await finished;old.close();
- expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(9);
 });
 
 it('우산과 신발을 저장하고 백업 복원해도 함께 남긴다',async()=>{
@@ -161,15 +162,15 @@ it('v6 기록은 우산을 임의 추가하지 않고 v7에서 읽는다',async(
  const old=await request(req);const t=old.transaction(['kv','records'],'readwrite');const finished=transaction(t);
  const record=emptyRecord('c','20261024');record.outfits={s:{avatar:'girl',clothes:{top:'stripe-shirt',bottom:'chinos',hat:'spring-cap'},season:'all',weather:'바람',completedAt:'2026-10-24T00:00:00Z'}};
  t.objectStore('kv').put(6,'schemaVersion');t.objectStore('records').put(record);await finished;old.close();
- expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getRecord('c','20261024')).toEqual(record);expect(await db.kvGet('schemaVersion')).toBe(9);
  const data=emptyData();data.schemaVersion=6;data.records=[record];expect(parseBackup(buildBackup(data)).data.records).toEqual([record]);
 });
 
-it('감정 캐릭터는 학생별로 유지되고 백업 복원되며 옷입히기 선택과 분리된다',async()=>{
+it('감정 캐릭터는 학생별로 유지되고 백업 복원되며 옷입히기 선택과 연동된다',async()=>{
  const data=emptyData();data.classes[0].students=[{id:'a',name:'가람',outfitAvatar:'boy'},{id:'b',name:'나래'}];
  await db.replaceAll(data);await db.saveEmotionAvatar(data.currentClassId,'a','girl');
  const backup=buildBackup(await db.readAll());await db.replaceAll(parseBackup(backup).data);
- expect((await db.getClasses())[0].students).toEqual([{id:'a',name:'가람',outfitAvatar:'boy',emotionAvatar:'girl'},{id:'b',name:'나래'}]);
+ expect((await db.getClasses())[0].students).toEqual([{id:'a',name:'가람',outfitAvatar:'girl',emotionAvatar:'girl'},{id:'b',name:'나래'}]);
  await db.saveEmotionAvatar(data.currentClassId,'a','boy');
  expect((await db.getClasses())[0].students[0].emotionAvatar).toBe('boy');
  await expect(db.saveEmotionAvatar(data.currentClassId,'missing','girl')).rejects.toThrow();
@@ -181,6 +182,30 @@ it('v7 학급은 기존 학생 설정을 유지하고 감정 캐릭터를 임의
  const old=await request(req);const t=old.transaction(['kv','classes'],'readwrite');const finished=transaction(t);
  const data=emptyData();const cls=data.classes[0];cls.students=[{id:'s',name:'가람',outfitAvatar:'girl'}];
  t.objectStore('kv').put(7,'schemaVersion');t.objectStore('classes').put(cls);await finished;old.close();
- expect(await db.getClasses()).toEqual([cls]);expect(await db.kvGet('schemaVersion')).toBe(8);
+ expect(await db.getClasses()).toEqual([cls]);expect(await db.kvGet('schemaVersion')).toBe(9);
  data.schemaVersion=7;expect(parseBackup(buildBackup(data)).data.classes).toEqual([cls]);
+});
+
+it('학생 얼굴은 다른 학생·아바타를 보존하고 백업 복원되며 초기화된다',async()=>{
+ const data=emptyData();const cls=data.classes[0];cls.students=[{id:'a',name:'가람',outfitAvatar:'girl',emotionAvatar:'boy'},{id:'b',name:'나래'}];
+ await db.replaceAll(data);
+ const photo='data:image/jpeg;base64,/9j/';
+ await db.saveStudentFace(cls.id,'a',photo);
+ const backup=parseBackup(buildBackup(await db.readAll())).data;
+ expect(backup.classes[0].students[0]).toEqual({...cls.students[0],facePhoto:photo});
+ await db.replaceAll(backup);
+ expect((await db.getClasses())[0].students[0].facePhoto).toBe(photo);
+ await db.saveStudentFace(cls.id,'a');
+ expect((await db.getClasses())[0].students).toEqual(cls.students);
+ await expect(db.saveStudentFace(cls.id,'missing',photo)).rejects.toThrow();
+ await expect(db.saveStudentFace(cls.id,'a','https://example.com/photo.jpg')).rejects.toThrow();
+});
+it('v8 학생·감정·옷차림은 v9 변환에서 얼굴 사진 없이 그대로 남는다',async()=>{
+ const req=indexedDB.open('morningclass',8);
+ req.onupgradeneeded=()=>{req.result.createObjectStore('kv');req.result.createObjectStore('classes',{keyPath:'id'});};
+ const old=await request(req);const t=old.transaction(['kv','classes'],'readwrite');const finished=transaction(t);
+ const data=emptyData();const cls=data.classes[0];cls.students=[{id:'s',name:'가람',outfitAvatar:'girl',emotionAvatar:'girl'}];
+ t.objectStore('kv').put(8,'schemaVersion');t.objectStore('classes').put(cls);await finished;old.close();
+ expect(await db.getClasses()).toEqual([cls]);expect(await db.kvGet('schemaVersion')).toBe(9);
+ data.schemaVersion=8;expect(parseBackup(buildBackup(data)).data.classes).toEqual([cls]);
 });

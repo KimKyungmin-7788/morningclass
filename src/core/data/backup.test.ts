@@ -53,7 +53,7 @@ it('schemaVersion 1 백업은 학생 기록의 빈 칸과 기본 설정을 채�
   const data = emptyData();
   const { studentNotes, ieps, expr, notesConfig, ...old } = data;
   const parsed = parseBackup(JSON.stringify({ format: 'morningclass-backup', schemaVersion: 1, data: { ...old, schemaVersion: 1 } })).data;
-  expect(parsed.schemaVersion).toBe(8); expect(parsed.studentNotes).toEqual([]); expect(parsed.ieps).toEqual([]); expect(parsed.expr).toEqual({}); expect(parsed.notesConfig.quick).toHaveLength(6);
+  expect(parsed.schemaVersion).toBe(9); expect(parsed.studentNotes).toEqual([]); expect(parsed.ieps).toEqual([]); expect(parsed.expr).toEqual({}); expect(parsed.notesConfig.quick).toHaveLength(6);
 });
 it('학생 기록·IEP·생활표현·설정·복구 열쇠가 왕복하고 PIN 해시는 빠진다', () => {
   const data = emptyData();
@@ -67,7 +67,7 @@ it('학생 기록·IEP·생활표현·설정·복구 열쇠가 왕복하고 PIN 
 
 it('v2 백업의 기존 날짜 기록을 옷차림 없는 상태로 그대로 읽는다',()=>{
  const data=emptyData();data.schemaVersion=2;data.records=[{...emptyRecord(data.currentClassId,'20261023'),notes:'남겨둘 내용'}];
- const result=parseBackup(buildBackup(data)).data;expect(result.schemaVersion).toBe(8);expect(result.records).toEqual(data.records);expect(result.records[0].outfits).toBeUndefined();
+ const result=parseBackup(buildBackup(data)).data;expect(result.schemaVersion).toBe(9);expect(result.records).toEqual(data.records);expect(result.records[0].outfits).toBeUndefined();
 });
 
 it('봄옷과 모자·스카프를 백업에 함께 보존한다',()=>{

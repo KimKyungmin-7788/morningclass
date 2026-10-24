@@ -1,3 +1,4 @@
+import { UtilityWindow, openUtilityWindow } from '@/core/ui/UtilityWindow';
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
@@ -14,7 +15,7 @@ import { NoiseMeter } from './NoiseMeter';
 
 type ToolId = 'clock' | 'timer' | 'stopwatch' | 'noise';
 type CardTool = ToolId;
-const TOOLS: { id: ToolId; label: string; icon: string }[] = [
+export const TOOLS: { id: ToolId; label: string; icon: string }[] = [
   { id: 'clock', label: '시계', icon: 'ph-clock' },
   { id: 'timer', label: '타이머', icon: 'ph-timer' },
   { id: 'stopwatch', label: '스톱워치', icon: 'ph-hourglass-medium' },
@@ -42,6 +43,7 @@ function ToolsCard() {
   const on = { clock: true, timer: true, stopwatch: true, noise: true, ...cls?.options.tools };
   const list = TOOLS.filter((t) => on[t.id]);
   const [open, setOpen] = useState<ToolId | null>(null);
+  const [external,setExternal]=useState<Window|null>(null);
   const [picking, setPicking] = useState(false);
   const now = useNow(200);                                         // 카드의 시간 표시와 타이머 끝 알림을 위해 주기적으로 다시 그린다
   const timer = useTools((s) => s.timer);
@@ -76,7 +78,7 @@ function ToolsCard() {
           <div className="tl-icons">
             {cardList.map((t) => (
               <button key={t.id} className={`tl-ico${live[t.id] ? ' run' : ''}`} title={t.label} aria-label={`${t.label} 열기`}
-                onClick={() => { ensureAudio(); playSound('select'); setOpen(t.id); }}>
+                onClick={() => { if(open){external?.focus();return;} ensureAudio(); playSound('select'); setExternal(openUtilityWindow('수업 도구')); setOpen(t.id); }}>
                 <i className={`ph-fill ${t.icon}`} />{live[t.id] && <span>{live[t.id]}</span>}
               </button>
             ))}
@@ -104,12 +106,12 @@ function ToolsCard() {
         </Popup>
       )}
 
-      {open && list.length > 0 && <ToolWindow list={list} start={open} onClose={() => setOpen(null)} />}
+      {open && list.length > 0 && <ToolWindow external={external} list={list} start={open} onClose={() => setOpen(null)} />}
     </>
   );
 }
 
-function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolId; onClose: () => void }) {
+export function ToolWindow({ list, start, onClose, external }: { external: Window|null; list: typeof TOOLS; start: ToolId; onClose: () => void }) {
   const [cur, setCur] = useState<ToolId>(list.some((t) => t.id === start) ? start : list[0].id);
   const { timer, sw, preset, adjust, toggleTimer, resetTimer, toggleSw, resetSw } = useTools();
   // 스톱워치가 가는 동안에는 0.1초 자리가 빠짐없이 바뀌도록 촘촘하게 다시 그린다
@@ -126,7 +128,7 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
   const tap = (fn: () => void, sound: 'select' | 'check' = 'select') => () => { fn(); playSound(sound); };
 
   return (
-    <Popup title="⏱️ 수업 도구" large onClose={onClose}>
+    <UtilityWindow title="수업 도구" external={external} onClose={onClose}>
       <div className="tp">
         {list.length > 1 && (
           <div className="mv-toggle tp-tabs" role="tablist">
@@ -186,7 +188,7 @@ function ToolWindow({ list, start, onClose }: { list: typeof TOOLS; start: ToolI
           )}
         </div>
       </div>
-    </Popup>
+    </UtilityWindow>
   );
 }
 

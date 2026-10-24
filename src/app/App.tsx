@@ -70,7 +70,7 @@ export function App() {
         ) : (
           <div id="lesson-view"><LessonView /></div>
         )}
-        <SideSwitch />
+        <div hidden><SideSwitch /></div>
       </div>
       {appMode === 'morning' && <Celebrate />}
       {FEATURES.map((f) => f.Overlay ? <f.Overlay key={f.id} /> : null)}

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { OutfitFigure } from '@/core/ui/OutfitFigure';
-import { Popup } from '@/core/ui/Popup';
+import { UtilityWindow } from '@/core/ui/UtilityWindow';
+import { useWindowDocument } from '@/core/ui/WindowDocument';
 import { toast } from '@/core/ui/toast';
 import { recordsOf } from '@/core/data/backupActions';
 import { useKv } from '@/core/data/kv';
@@ -11,11 +12,16 @@ import { useStudentWindows } from '@/core/data/studentWindows';
 import { PRAISE_SHAPES, praiseConfigOf } from '@/core/data/praise';
 import { PinGate } from './PinGate';
 import { QuickNote } from './QuickNote';
-import { CATEGORIES, EMOTIONS, SUPPORTS, filterNotes, studentSummary } from './model';
+import { studentIndexColor, CATEGORIES, EMOTIONS, SUPPORTS, filterNotes, studentSummary } from './model';
 
 const EMPTY_EXPR: ExprBook = { levels: {}, bag: { used: [], days: {} }, plan: {} };
 const ATT = { present: '출석', late: '지각', early: '조퇴', absent: '결석' };
-export function StudentCard({ cls, studentId, onClose }: { cls: ClassRoom; studentId: string; onClose: () => void }) {
+export function StudentCard(props: { cls: ClassRoom; studentId: string; onClose: () => void }) {
+  const name = props.cls.students.find(s => s.id === props.studentId)?.name ?? '학생';
+  return <UtilityWindow title={`👤 ${name}`} onClose={props.onClose}><StudentCardBody key={props.studentId} {...props}/></UtilityWindow>;
+}
+function StudentCardBody({ cls, studentId }: { cls: ClassRoom; studentId: string; onClose: () => void }) {
+  const host = useWindowDocument().defaultView ?? window;
   const show = useStudentWindows((s) => s.show);
   const students = cls.students.filter((s) => !s.archived);
   const index = students.findIndex((s) => s.id === studentId);
@@ -27,22 +33,22 @@ export function StudentCard({ cls, studentId, onClose }: { cls: ClassRoom; stude
   const today = useDay((s) => s.record);
   const [records, setRecords] = useState<DayRecord[]>([]);
   const [error, setError] = useState('');
-  const student = cls.students.find((s) => s.id === studentId)!;
   useEffect(() => { let active = true; void recordsOf(cls.id).then((r) => { if (active) setRecords(r); }).catch(() => { if (active) setError('기록을 불러오지 못했어요'); }); return () => { active = false; }; }, [cls.id, today]);
   useEffect(() => {
     if (!unlocked) return;
     let timer: ReturnType<typeof setTimeout>;
     const touch = () => { clearTimeout(timer); timer = setTimeout(() => { setUnlocked(false); setEdit(undefined); }, 180_000); };
-    touch(); for (const event of ['pointerdown', 'keydown', 'input']) window.addEventListener(event, touch);
-    return () => { clearTimeout(timer); for (const event of ['pointerdown', 'keydown', 'input']) window.removeEventListener(event, touch); };
-  }, [unlocked]);
+    touch(); for (const event of ['pointerdown', 'keydown', 'input']) host.addEventListener(event, touch);
+    return () => { clearTimeout(timer); for (const event of ['pointerdown', 'keydown', 'input']) host.removeEventListener(event, touch); };
+  }, [unlocked, host]);
   if (write || edit) return <QuickNote cls={cls} studentId={studentId} initial={edit} onClose={() => { setWrite(false); setEdit(undefined); setUnlocked(false); }} />;
-  return <Popup title={`👤 ${student.name}`} large onClose={onClose} headerExtra={<button className="sc-write" onClick={() => setWrite(true)}>✎ 기록 남기기</button>}>
+  return <div className="sc-floating-card" style={{'--index-color':studentIndexColor(Math.max(0,index))} as CSSProperties}>
+    <div className="sc-floating-actions"><button className="sc-write" onClick={() => setWrite(true)}>✎ 기록 남기기</button></div>
     <div className="sc-panel"><div className="sc-card-toolbar"><div className="sc-chips sc-tabs" role="group" aria-label="학생 카드 보기"><button aria-pressed={!back} onClick={() => setBack(false)}>나의 하루</button><button aria-pressed={back} onClick={() => setBack(true)}>🔒 선생님 기록</button></div><div className="sc-student-nav"><button aria-label="이전 학생" disabled={index <= 0} onClick={() => show(cls.id, students[index - 1].id)}>〈</button><span>{index < 0 ? '보관된 학생' : `${index + 1} / ${students.length}`}</span><button aria-label="다음 학생" disabled={index < 0 || index >= students.length - 1} onClick={() => show(cls.id, students[index + 1].id)}>〉</button></div></div>
       {error && <p role="alert">{error}</p>}
       {!back ? <Front cls={cls} studentId={studentId} records={records} date={date} /> : !unlocked ? <PinGate onUnlock={() => setUnlocked(true)} /> : <Back cls={cls} studentId={studentId} records={records} onEdit={setEdit} />}
     </div>
-  </Popup>;
+  </div>;
 }
 function Front({ cls, studentId, records, date }: { cls: ClassRoom; studentId: string; records: DayRecord[]; date: Date }) {
   const [expr] = useKv(`expr:${cls.id}`, EMPTY_EXPR);
@@ -73,7 +79,7 @@ function Front({ cls, studentId, records, date }: { cls: ClassRoom; studentId: s
     </section>
     <div className="sc-summary-side">
       <section><div className="sc-section-heading"><h3>이번 달 출결</h3><span>{date.getMonth() + 1}월</span></div><div className="sc-attendance">{Object.entries(month.attendance).map(([key, count]) => <div key={key}><span>{ATT[key as keyof typeof ATT]}</span><strong>{count}<span className="sc-unit">일</span></strong></div>)}</div></section>
-      <section className="sc-outfit"><h3>오늘은 어떤 옷?</h3>{current?.outfits?.[studentId] ? <div className="sc-outfit-figure"><OutfitFigure avatar={current.outfits[studentId].avatar} clothes={current.outfits[studentId].clothes}/></div> : <p className="sc-empty">아직 고른 옷차림이 없어요.</p>}</section>
+      <section className="sc-outfit"><h3>오늘은 어떤 옷?</h3>{current?.outfits?.[studentId] ? <div className="sc-outfit-figure"><OutfitFigure facePhoto={cls.students.find(s=>s.id===studentId)?.facePhoto} avatar={cls.students.find(s=>s.id===studentId)?.outfitAvatar ?? current.outfits[studentId].avatar} clothes={current.outfits[studentId].clothes}/></div> : <p className="sc-empty">아직 고른 옷차림이 없어요.</p>}</section>
       <section className="sc-expression"><h3>생활표현 연습</h3><span className="sc-level">{expr.levels[studentId] ? { sentence: '문장', word: '낱말', card: '그림 카드' }[expr.levels[studentId]] : '아직 정하지 않았어요'}</span></section>
     </div>
   </div>;

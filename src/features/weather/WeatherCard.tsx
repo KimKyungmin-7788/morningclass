@@ -13,6 +13,8 @@ import { WeatherScene } from './WeatherScene';
 import { DustChip } from './DustCard';
 import { WeatherSheet } from '@/features/worksheets/Worksheets';
 import { WeatherTour } from './WeatherTour';
+import { useOutfitWindow } from '@/core/data/outfitWindow';
+import './weatherLinks.css';
 
 // 오늘의 날씨: 직접 고르기 → (선택) GPS 로 정답 확인. 고르면 날씨 장면을 크게 보여 준다.
 
@@ -248,6 +250,7 @@ export function WeatherCard({ size }: { size: SlotSize }) {
                 </div>
               </div>
             </div>
+            {!sample && <div className="wx-outfit-link"><button onClick={() => { close(); useOutfitWindow.getState().show(); }}>👕 오늘은 어떤 옷? →</button></div>}
             <button className="auto-fetch-btn" style={{ margin: '12px 0 0' }} onClick={close}>확인</button>
           </Popup>
         );

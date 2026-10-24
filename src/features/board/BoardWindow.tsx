@@ -68,7 +68,7 @@ interface Active {
   grab?: { dx: number; dy: number };
 }
 
-export function BoardWindow({ onClose }: { onClose: () => void }) {
+export function BoardWindow({ onClose, embedded = false }: { onClose: () => void; embedded?: boolean }) {
   const b = useBoard();
   const { columns } = useColumns();
   const areaRef = useRef<HTMLDivElement>(null);
@@ -129,12 +129,14 @@ export function BoardWindow({ onClose }: { onClose: () => void }) {
   addImagesRef.current = addImages;
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const owner = areaRef.current?.ownerDocument ?? document;
+    const host = owner.defaultView ?? window;
+    const prev = owner.body.style.overflow;
+    if(!embedded) owner.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
       const st = useBoard.getState();
       const key = e.key.toLowerCase();
-      if (e.key === 'Escape') { e.preventDefault(); if (st.ui.confirmClear) st.setUi({ confirmClear: false }); else live.current.onClose(); }
+      if (e.key === 'Escape') { if(owner.fullscreenElement)return; e.preventDefault(); if (st.ui.confirmClear) st.setUi({ confirmClear: false }); else live.current.onClose(); }
       else if ((e.ctrlKey || e.metaKey) && key === 'z') { e.preventDefault(); if (e.shiftKey) st.redo(); else st.undo(); }
       else if ((e.ctrlKey || e.metaKey) && key === 'y') { e.preventDefault(); st.redo(); }
       else if ((e.key === 'Delete' || e.key === 'Backspace') && st.selected) { e.preventDefault(); st.removeImage(st.selected); }
@@ -147,9 +149,9 @@ export function BoardWindow({ onClose }: { onClose: () => void }) {
       if (files.length) { e.preventDefault(); void addImagesRef.current(files); }
       else if (useBoard.getState().clip) { e.preventDefault(); useBoard.getState().pasteImage(); }
     };
-    window.addEventListener('keydown', onKey, true);
-    window.addEventListener('paste', onPaste);
-    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey, true); window.removeEventListener('paste', onPaste); };
+    host.addEventListener('keydown', onKey, true);
+    host.addEventListener('paste', onPaste);
+    return () => { if(!embedded)owner.body.style.overflow = prev; host.removeEventListener('keydown', onKey, true); host.removeEventListener('paste', onPaste); };
   }, []);
 
   /** 화면 위치 → 칠판 좌표. 칸을 나눴으면 자기 칸 밖으로 나가지 않게 한다 */
@@ -277,8 +279,7 @@ export function BoardWindow({ onClose }: { onClose: () => void }) {
 
   const radius = eraserRadius(b.values.eraser.size);
   const selected = b.tool === 'select' ? b.images.find((m) => m.id === b.selected) : undefined;
-  return createPortal(
-    <div className="bd" role="dialog" aria-modal="true" aria-label="판서" style={{ background: b.bg }}>
+  const content = <div className="bd" role="dialog" aria-modal="true" aria-label="판서" style={{ background: b.bg }}>
       <div className="bd-area" ref={areaRef} style={{ cursor: tool.cursor }}
         onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onPointerLeave={leave}
         onContextMenu={(e) => e.preventDefault()}>
@@ -384,7 +385,6 @@ export function BoardWindow({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       )}
-    </div>,
-    document.body,
-  );
+    </div>;
+  return embedded ? content : createPortal(content,document.body);
 }

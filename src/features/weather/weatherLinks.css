@@ -1,0 +1,1 @@
+.wx-outfit-link{display:flex;justify-content:flex-end;margin-top:12px}.wx-outfit-link button{padding:8px 12px;min-height:40px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--text);font:var(--fw-label) var(--fs-small) var(--font-ui);cursor:pointer}.wx-outfit-link button:hover{background:var(--card)}

@@ -77,3 +77,15 @@
 /* 고정 썸네일 틀을 축소해 좁은 카드에서도 양 소매를 모두 보여준다. */
 .outfit-shell .item-picture{width:220px;max-width:none;transform:scale(.55);margin-bottom:-58px}
 @media(max-width:700px){.outfit-shell .item-picture{transform:scale(.4);margin-bottom:-78px}}
+
+/* 학생 선택과 활동 필터를 두 줄로 정돈하고 각 줄의 시작점을 맞춘다. */
+.outfit-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;margin:0;padding:0 0 10px;border-bottom:1px solid var(--line)}
+.outfit-toolbar .outfit-students{padding:2px;margin:0;gap:8px}
+.outfit-toolbar-filters{flex:none;padding:10px 0 12px}
+.outfit-filters{justify-content:space-between;gap:12px;flex-wrap:nowrap}
+.outfit-shell .outfit-filters .seasons,.outfit-shell .outfit-filters .weather{gap:6px;padding:4px;background:var(--soft);border-radius:12px}
+.outfit-shell .outfit-filters button{border-color:transparent;border-radius:12px;padding:6px 12px;min-height:40px;background:transparent}
+.outfit-shell .outfit-filters button[aria-pressed=true]{background:var(--card);border-color:var(--primary)}
+.outfit-shell .panel-top{min-height:44px;margin-bottom:10px}
+.outfit-undo{min-height:40px;padding:6px 12px;font-size:var(--fs-small);border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text-sub)}
+@media(max-width:700px){.outfit-toolbar{gap:8px}.outfit-date{font-size:13px}.outfit-filters{flex-wrap:wrap;gap:6px}.outfit-shell .outfit-filters button{padding:4px 7px;font-size:14px}.outfit-toolbar-filters{padding:6px 0}.outfit-shell .panel-top{min-height:40px;margin-bottom:6px}}

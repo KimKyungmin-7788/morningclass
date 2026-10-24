@@ -8,6 +8,8 @@ import { toast } from '@/core/ui/toast';
 import { ensureAudio, playSound } from '@/core/sound';
 import { speak } from '@/core/tts';
 import { activeStudents, useCurrentClass, useData } from '@/core/data/store';
+import { FaceControl } from '@/core/ui/FaceControl';
+import { EmotionFace } from '@/core/ui/EmotionFace';
 import { chooseEmotionAvatar } from '@/core/data/emotionAvatar';
 import { useDay } from '@/core/data/day';
 import { eligibleStudents } from '@/core/data/eligible';
@@ -144,7 +146,8 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
   const wrapRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef(items);
   itemsRef.current = items;
-  const avatar = cls?.students.find(s => s.id === student.id)?.emotionAvatar ?? 'boy';
+  const avatar = cls?.students.find(s => s.id === student.id)?.emotionAvatar ?? cls?.students.find(s => s.id === student.id)?.outfitAvatar ?? 'boy';
+  const facePhoto = cls?.students.find(s=>s.id===student.id)?.facePhoto;
   const [choosingAvatar, setChoosingAvatar] = useState(false);
   const selectAvatar = async (value: 'boy' | 'girl') => {
     if (!cls || choosingAvatar) return;
@@ -286,6 +289,7 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
           </div>
         </div>
         <div className="emo-center" ref={areaRef} onClick={tapArea}>
+          {cls && <FaceControl classId={cls.id} studentId={student.id} photo={facePhoto} render={photo=><div className="emo-face-preview"><img src={pose} alt="감정 아바타"/><EmotionFace photo={photo}/></div>}/>}
           <div className="mv-toggle emo-avatar" role="group" aria-label="감정 캐릭터" onClick={e => e.stopPropagation()}>
             {(['boy', 'girl'] as const).map(value => <button key={value} disabled={choosingAvatar} className={avatar === value ? 'on' : ''} aria-pressed={avatar === value} onClick={() => void selectAvatar(value)}>{value === 'boy' ? '남학생' : '여학생'}</button>)}
           </div>
@@ -294,6 +298,7 @@ function DiaryWindow({ student, onClose }: { student: Student; onClose: () => vo
             <div className={`emo-fig-wrap${hot ? ' hot' : ''}${mode === 'tap' && picked ? ' awaiting' : ''}`} ref={wrapRef}>
               {/* 주인공 감정이 바뀌면 사람 그림을 그 표정으로 바꾼다 (처음 그림에는 움직임을 넣지 않는다) */}
               <img key={pose} className={`emo-fig${poseChanged.current ? ' morph' : ''}`} src={pose} alt="" draggable={false} />
+              <EmotionFace photo={facePhoto}/>
               <div className="emo-placed">
                 {items.map((it, i) => {
                   const e = emotionOf(it.k);

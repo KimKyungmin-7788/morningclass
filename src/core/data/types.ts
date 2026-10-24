@@ -1,6 +1,6 @@
 // 아침교실 v2 저장 형식. 형식을 바꾸면 SCHEMA_VERSION 을 올리고 변환 함수를 추가한다.
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 export type ClassId = string;
 export type StudentId = string;
@@ -21,6 +21,8 @@ export interface Student {
   outfitAvatar?: OutfitAvatar;
   /** 마음 일기에서 고른 캐릭터. 날짜와 무관하게 유지한다. */
   emotionAvatar?: 'boy' | 'girl';
+  /** 감정·옷입히기에 함께 쓰는 320px 얼굴 사진. 원본은 보관하지 않는다. */
+  facePhoto?: string;
 }
 
 /** 1인 1역할의 역할 하나: 그림 · 이름 · 하는 일 · 맡은 학생들 */

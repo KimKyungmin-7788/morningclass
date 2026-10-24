@@ -1,3 +1,4 @@
+import { isFacePhoto } from '@/core/data/facePhoto';
 import { emptyRecord, SCHEMA_VERSION, defaultNotesConfig, type StudentNote, type Iep, type AppData, type ClassId, type ClassRoom, type DateKey, type DayRecord, type MealImage, type Timetable } from '@/core/data/types';
 
 // 저장 창구: 앱의 모든 자료는 여기(IndexedDB)를 거쳐 읽고 쓴다.
@@ -9,7 +10,8 @@ const DB_NAME = 'morningclass';
 // v6: 계절별 옷 ID 추가. 기존 옷차림은 변경 없이 그대로 읽는다.
 // v7: 손 소품(우산) 추가. 기존 기록의 누락된 hand는 미착용으로 읽는다.
 // v8: 학생별 감정 캐릭터. 기존 학생은 기본 남학생 그림으로 표시한다.
-const DB_VERSION = 8;
+// v9: 얼굴 사진이 없는 기존 학생은 원래 캐릭터를 그대로 사용한다.
+const DB_VERSION = 9;
 
 /** 낱개 값(형식 버전, 지금 학급, D-DAY, 수업 차시 등)은 kv 에 열쇠-값으로 둔다 */
 type Store = 'kv' | 'classes' | 'records' | 'timetables' | 'mealImages' | 'notes' | 'ieps';
@@ -219,7 +221,25 @@ export function saveEmotionAvatar(classId: string, studentId: string, avatar: 'b
     const store = t.objectStore('classes');
     const cls = await done(store.get(classId) as IDBRequest<ClassRoom | undefined>);
     if (!cls || !cls.students.some(s => s.id === studentId && !s.archived)) throw new Error('학생을 찾을 수 없어요');
-    const updated = {...cls, students: cls.students.map(s => s.id === studentId ? {...s, emotionAvatar: avatar} : s)};
+    const updated = {...cls, students: cls.students.map(s => s.id === studentId ? {...s, emotionAvatar: avatar, outfitAvatar: avatar} : s)};
+    store.put(updated);
+    return updated;
+  });
+}
+
+/** 다른 학생·캐릭터 선택을 유지하면서 얼굴만 저장하거나 지운다. */
+export function saveStudentFace(classId: string, studentId: string, photo?: string) {
+  if (photo !== undefined && !isFacePhoto(photo)) return Promise.reject(new Error('얼굴 사진을 다시 골라 주세요'));
+  return tx(['classes'], 'readwrite', async t => {
+    const store = t.objectStore('classes');
+    const cls = await done(store.get(classId) as IDBRequest<ClassRoom | undefined>);
+    if (!cls || !cls.students.some(s => s.id === studentId && !s.archived)) throw new Error('학생을 찾을 수 없어요');
+    const updated = {...cls, students: cls.students.map(s => {
+      if (s.id !== studentId) return s;
+      const next = {...s};
+      if (photo) next.facePhoto = photo; else delete next.facePhoto;
+      return next;
+    })};
     store.put(updated);
     return updated;
   });

@@ -28,3 +28,6 @@ export function studentSummary(records: DayRecord[], cls: ClassRoom, studentId: 
   }
   return { attendance, emotions, praise, roleDays };
 }
+
+/** 명단 순서대로 구분되는 파일철 색. 삭제·추가 전까지 같은 학생은 같은 색을 쓴다. */
+export const studentIndexColor = (index: number) => ['#F498B4','#7C6BEC','#4A9CCB','#52A58E','#D99A48','#BC78B8'][index] ?? `hsl(${(index * 137.508) % 360} 55% 60%)`;
