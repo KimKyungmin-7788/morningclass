@@ -87,7 +87,7 @@ export function Settings({ onClose, onSuggest }: { onClose: () => void; onSugges
         <div className="settings-modal">
           <nav className="settings-tabs" id="settings-tabs" aria-label="관리 메뉴">
             <div className="settings-nav-caption">우리 반 관리</div>
-            {TABS.map(([k, label, hint, icon]) => <button key={k} className={`settings-tab${tab === k ? ' active' : ''}`} aria-current={tab === k ? 'page' : undefined} onClick={() => setTab(k)}>
+            {TABS.map(([k, label, hint, icon]) => <button key={k} className={`settings-tab${tab === k ? ' active' : ''}`} title={hint} aria-current={tab === k ? 'page' : undefined} onClick={() => setTab(k)}>
               <i className={`ph-bold ${icon}`} aria-hidden="true" />
               <span><strong>{label}</strong><small>{hint}</small></span>
               <i className="ph-bold ph-caret-right settings-nav-arrow" aria-hidden="true" />

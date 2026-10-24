@@ -1,3 +1,4 @@
+import { OUTFIT_VARIANTS, outfitBase } from './outfitVariants';
 /** 1024×1536 원본 몸 좌표. 남녀는 머리만 다르고 같은 몸을 사용한다. */
 export type Point = readonly [number, number];
 export type Triangle = readonly [Point, Point, Point];
@@ -56,10 +57,17 @@ export const GARMENT_RIGS: Record<string,Patch[]> = {
   boots:[...footwear([175,950,305,540],[300,1280,160,225]),...footwear([555,950,305,540],[564,1280,160,225])],
 };
 
+// 새 낮은 신발은 기존 운동화와 같은 발목·바닥 기준을 사용한다.
+GARMENT_RIGS['pink-sneakers'] = [...footwear([85,1090,395,400],[285,1348,170,157]),...footwear([575,1090,390,400],[569,1348,170,157])];
+GARMENT_RIGS.sandals = [...footwear([40,1060,450,430],[285,1348,170,157]),...footwear([535,1060,450,430],[569,1348,170,157])];
+GARMENT_RIGS['winter-shoes'] = [...footwear([80,1070,405,420],[285,1348,170,157]),...footwear([555,1070,405,420],[569,1348,170,157])];
+
+for (const [id, parent] of Object.entries(OUTFIT_VARIANTS)) GARMENT_RIGS[id] = GARMENT_RIGS[parent];
+
 /** 긴 바지는 장화 입구 안으로 들어가도록 무릎 아래만 좁힌다. */
 export function fittedPatches(item:string, boots:boolean): Patch[] {
   const patches=GARMENT_RIGS[item];
-  if(!boots||!['pants','chinos','cargo-pants'].includes(item)) return patches;
+  if(!boots||!['pants','chinos','cargo-pants'].includes(outfitBase(item))) return patches;
   const fit=([x,y]:Point):Point=>{
     const amount=Math.max(0,Math.min(1,(y-1000)/280));
     const center=x<512?395:629;

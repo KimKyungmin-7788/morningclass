@@ -1,0 +1,3 @@
+.outfit-backdrop{position:absolute;inset:0;pointer-events:none;overflow:hidden;background:#f5f8f1}
+.outfit-backdrop .season-landscape{position:absolute;inset:0;background-size:200% 200%;opacity:.85}
+.outfit-backdrop .avatar-clearing{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,#fffaf066 0%,#fffaf026 30%,transparent 65%)}

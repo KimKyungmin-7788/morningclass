@@ -105,3 +105,6 @@ button,a{font:inherit}button{min-height:48px;border:1px solid var(--line);border
 .outfit-editor .item-picture img,.outfit-drag-ghost img{transform-origin:0 0;transform:translateX(-50%) var(--asset-fit)}
 
 .outfit-weather-caption{flex-shrink:0;text-align:center;font-size:12px;line-height:20px;color:var(--text-sub);padding:2px 0;background:none}
+
+.outfit-editor :is(.pink-sneakers,.sandals,.winter-shoes) .item-picture img{width:340px;height:510px;top:-373px}
+.outfit-drag-ghost:is(.pink-sneakers,.sandals,.winter-shoes) img{top:-270px}

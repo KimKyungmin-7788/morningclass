@@ -89,3 +89,12 @@
 .outfit-shell .panel-top{min-height:44px;margin-bottom:10px}
 .outfit-undo{min-height:40px;padding:6px 12px;font-size:var(--fs-small);border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text-sub)}
 @media(max-width:700px){.outfit-toolbar{gap:8px}.outfit-date{font-size:13px}.outfit-filters{flex-wrap:wrap;gap:6px}.outfit-shell .outfit-filters button{padding:4px 7px;font-size:14px}.outfit-toolbar-filters{padding:6px 0}.outfit-shell .panel-top{min-height:40px;margin-bottom:6px}}
+
+.outfit-weather-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.outfit-shell .outfit-filters .outfit-undo{border:1px solid var(--line);background:var(--card);color:var(--text-sub)}
+@media(max-width:700px){.outfit-weather-actions{gap:4px;flex-wrap:wrap}}
+
+/* 소품은 종류와 관계없이 같은 크기의 진열 상자에 가운데 정렬한다. */
+.outfit-shell .accessory-picture{display:block;width:100%;height:80px;flex-shrink:0;overflow:visible;pointer-events:none}
+.outfit-shell .item:has(.accessory-picture){justify-content:center;gap:8px}
+.outfit-shell .item:has(.accessory-picture) .item-name{min-height:2.4em;display:flex;align-items:center;justify-content:center;line-height:1.2}

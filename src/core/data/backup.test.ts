@@ -77,3 +77,11 @@ it('봄옷과 모자·스카프를 백업에 함께 보존한다',()=>{
  data.schemaVersion=4;delete record.outfits.s.clothes.hat;delete record.outfits.s.clothes.neck;
  expect(parseBackup(buildBackup(data)).data.records).toEqual([record]);
 });
+
+it('새 계절 옷·신발과 선택한 계절·날씨를 백업 왕복으로 보존한다',()=>{
+ const data=emptyData();
+ const record=emptyRecord(data.classes[0].id,'20261024');
+ record.outfits={s:{avatar:'girl',clothes:{top:'summer-ocean-shirt',bottom:'summer-coral-shorts',outer:'summer-sky-jacket',shoes:'sandals'},season:'여름',weather:'비',completedAt:'2026-10-24T00:00:00Z'}};
+ data.records=[record];
+ expect(parseBackup(buildBackup(data)).data.records[0].outfits).toEqual(record.outfits);
+});

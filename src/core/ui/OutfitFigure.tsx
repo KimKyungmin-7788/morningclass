@@ -1,3 +1,4 @@
+import { outfitBase } from './outfitVariants';
 import { FacePhoto } from './FacePhoto';
 import { useId } from 'react';
 import { outfitAsset, outfitRegistration } from './outfitAssets';
@@ -15,11 +16,11 @@ function Garment({ item, id, boots }: { item:string; id:string; boots:boolean })
 }
 export function OutfitFigure({ avatar, clothes, facePhoto }: { avatar: OutfitAvatar; clothes: OutfitClothes; facePhoto?: string }) {
   const id=useId().replace(/:/g,'');
-  const closed=clothes.outer==='winter-coat'||clothes.outer==='puffer';
+  const closed=['winter-coat','puffer'].includes(outfitBase(clothes.outer??''));
   const customTop=clothes.top!=='base-shirt'||closed;
-  const longSleeves=!!clothes.outer||['sweater','rust-sweatshirt'].includes(clothes.top);
+  const longSleeves=!!clothes.outer||['sweater','rust-sweatshirt'].includes(outfitBase(clothes.top));
   const customBottom=clothes.bottom!=='shorts';
-  const layers=[clothes.shoes==='sneakers'?clothes.shoes:undefined,clothes.bottom,closed?undefined:clothes.top,clothes.outer,clothes.shoes==='boots'?clothes.shoes:undefined].filter((item):item is OutfitItem=>!!item&&!!GARMENT_RIGS[item]);
+  const layers=[clothes.shoes&&clothes.shoes!=='boots'?clothes.shoes:undefined,clothes.bottom,closed?undefined:clothes.top,clothes.outer,clothes.shoes==='boots'?clothes.shoes:undefined].filter((item):item is OutfitItem=>!!item&&!!GARMENT_RIGS[item]);
   return <div className="outfit-figure" role="img" aria-label="고른 옷을 입은 아바타">
     <svg viewBox="0 0 1024 1536" className="outfit-rig" aria-hidden="true">
       <defs><mask id={`${id}-body`}><rect width="1024" height="1536" fill="white"/>
@@ -30,7 +31,7 @@ export function OutfitFigure({ avatar, clothes, facePhoto }: { avatar: OutfitAva
         {clothes.shoes&&<rect x="280" y={clothes.shoes==='boots'?1280:1360} width="470" height="1536" fill="black"/>}
       </mask><clipPath id={`${id}-pants`}><rect width="1024" height={clothes.shoes==='boots'?1300:1536}/></clipPath><clipPath id={`${id}-under-outer`}><path d="M445 530 L579 530 L644 620 L644 910 L380 910 L380 620 Z"/></clipPath></defs>
       <image href={outfitAsset(avatar)} width="1024" height="1536" mask={`url(#${id}-body)`}/>
-      {layers.map(item=><g key={item} clipPath={item===clothes.top&&clothes.outer?`url(#${id}-under-outer)`:['pants','chinos','cargo-pants'].includes(item)?`url(#${id}-pants)`:undefined}><Garment boots={clothes.shoes==='boots'} item={item} id={`${id}-${item}`}/></g>)}
+      {layers.map(item=><g key={item} clipPath={item===clothes.top&&clothes.outer?`url(#${id}-under-outer)`:['pants','chinos','cargo-pants'].includes(outfitBase(item))?`url(#${id}-pants)`:undefined}><Garment boots={clothes.shoes==='boots'} item={item} id={`${id}-${item}`}/></g>)}
       <FacePhoto photo={facePhoto} x={512} y={380} radius={157}/>
     </svg>
     {(['hat','neck','hand'] as const).map(slot=>clothes[slot]&&<img key={slot} className={`layer-${clothes[slot]}`} src={outfitAsset(clothes[slot]!)} style={outfitRegistration(clothes[slot]!)} alt="" draggable={false}/>)}

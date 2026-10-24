@@ -34,9 +34,9 @@ describe('옷입히기 레이어와 옷장', () => {
     expect(girl.outfits.girl.shoes).toBe('boots');
   });
   it('계절·부위로 옷을 고르고 비 오는 날에는 장화를 먼저 보여준다', () => {
-    expect(visibleItems('여름','bottom','맑음').map(i=>i.id)).toEqual(['shorts','summer-shorts']);
-    expect(visibleItems('겨울','outer','눈').map(i=>i.id)).toEqual(['puffer','winter-coat']);
-    expect(visibleItems('all','outer','맑음').map(i=>i.id)).toEqual(['jacket','puffer','pink-cardigan','denim-jacket','winter-coat']);
+    expect(visibleItems('여름','bottom','맑음').map(i=>i.id)).toEqual(['summer-coral-shorts','shorts','summer-shorts']);
+    expect(visibleItems('겨울','outer','눈').map(i=>i.id)).toEqual(['puffer','winter-coat','winter-camel-coat']);
+    expect(visibleItems('all','outer','맑음').filter(i=>i.slot==='outer')).toHaveLength(9);
     expect(visibleItems('가을','accessory','비').map(i=>i.id)).toEqual(expect.arrayContaining(['boots','umbrella']));
   });
   it('옷장 필터를 바꿔도 입은 옷과 기본 상·하의는 유지한다', () => {
@@ -63,7 +63,7 @@ it('봄 소품은 신발과 분리되고 모자와 스카프를 함께 입힌다
  expect(state.outfits.boy.hat).toBe('spring-cap');expect(state.outfits.boy.neck).toBe('spring-scarf');
  expect(layers(state.outfits.boy)).toEqual(['chinos','stripe-shirt','pink-cardigan','sneakers','spring-cap','spring-scarf']);
  expect(dress(state,'spring-cap',false).outfits.boy.neck).toBe('spring-scarf');
- expect(visibleItems('봄','accessory','바람').map(i=>i.id)).toEqual(['spring-scarf','umbrella','sneakers','spring-cap','boots']);
+ expect(visibleItems('봄','accessory','바람').map(i=>i.id)).toEqual(['sneakers','pink-sneakers','boots','spring-cap','spring-scarf','umbrella']);
  expect(visibleItems('봄','accessory','맑음').some(i=>i.slot==='shoes')).toBe(true);
 });
 
@@ -83,7 +83,7 @@ it('우산은 신발·모자와 함께 착용하고 독립적으로 벗는다',(
  let state=initialState();for(const item of ['boots','spring-cap','umbrella'] as const) state=dress(state,item,true);
  expect(layers(state.outfits.boy)).toEqual(['boots','spring-cap','umbrella']);
  expect(dress(state,'umbrella',false).outfits.boy).toEqual({top:'base-shirt',bottom:'shorts',shoes:'boots',hat:'spring-cap'});
- expect(visibleItems('all','accessory','비').slice(0,2).map(i=>i.id)).toEqual(['umbrella','boots']);
+ expect(visibleItems('all','accessory','비').map(i=>i.id)).toEqual(visibleItems('all','accessory','맑음').map(i=>i.id));
 });
 
 it('모든 기존 옷과 아바타가 새 화풍 파일·좌표에 연결된다',async()=>{
@@ -93,5 +93,31 @@ it('모든 기존 옷과 아바타가 새 화풍 파일·좌표에 연결된다'
  for(const name of ['boy','girl',...ITEMS.map(i=>i.image)]){
    expect(existsSync(`public${outfitAsset(name)}`)).toBe(true);
    expect(JSON.stringify(outfitRegistration(name))).not.toContain('NaN');
+ }
+});
+
+it('새 신발은 기존 바지와 상의를 보존하며 교체되고 계절에 맞게 표시된다',()=>{
+ let state=dress(dress(initialState(),'pants',true),'shirt',true);
+ for(const shoe of ['pink-sneakers','sandals','winter-shoes'] as const){state=dress(state,shoe,true);expect(state.outfits.boy).toEqual({top:'shirt',bottom:'pants',shoes:shoe});}
+ expect(visibleItems('여름','accessory','맑음').map(i=>i.id)).toContain('sandals');
+ expect(visibleItems('겨울','accessory','눈').map(i=>i.id)).not.toContain('sandals');
+ expect(visibleItems('겨울','accessory','눈').map(i=>i.id)).toContain('winter-shoes');
+});
+
+
+it('계절별 새 옷 4벌씩 모두 독립적으로 입고 벗을 수 있다',async()=>{
+ const {OUTFIT_VARIANTS}=await import('@/core/ui/outfitVariants');
+ const {ITEMS}=await import('./model');
+ const {GARMENT_RIGS}=await import('@/core/ui/outfitRig');
+ for(const season of ['봄','여름','가을','겨울'] as const){
+  const added=ITEMS.filter(i=>i.id in OUTFIT_VARIANTS&&i.seasons.includes(season));
+  expect(added).toHaveLength(4);
+  expect(added.map(i=>i.slot)).toEqual(['top','top','bottom','outer']);
+  for(const item of added){
+   expect(GARMENT_RIGS[item.id].length).toBeGreaterThan(0);
+   const state=dress(initialState(),item.id,true);
+   expect(state.outfits.boy[item.slot]).toBe(item.id);
+   expect(dress(state,item.id,false).outfits.boy[item.slot]).not.toBe(item.id);
+  }
  }
 });
